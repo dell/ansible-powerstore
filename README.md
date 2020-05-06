@@ -32,7 +32,7 @@ The modules are written in such a way that all requests are idempotent and hence
   
   git clone https://github.com/dell/ansible-powerstore
 
-  cd ansible-powerstore/dellemc-ansible
+  cd ansible-powerstore/dellemc_ansible
   
 ### For python 2.7 environment
   * Copy utils/dellemc_ansible_utils.py to  /usr/lib/python2.7/site-packages/ansible/module_utils/ 
