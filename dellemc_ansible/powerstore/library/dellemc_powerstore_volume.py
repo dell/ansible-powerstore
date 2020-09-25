@@ -2,11 +2,14 @@
 # Copyright: (c) 2019, DellEMC
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
 import logging
+from PyPowerStore.utils.exception import PowerStoreException
+
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -14,17 +17,17 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_volume
-version_added: '2.6'
+version_added: '2.7'
 short_description:  Manage volumes on PowerStore storage system
 description:
 - Managing volume on PowerStore storage system includes create volume, get
   details of volume, modify name, size, description, protection policy,
   performance policy, map or unmap volume to host/host group and delete volume
 author:
-- Ambuj Dubey (Ambuj.Dubey@emc.com)
-- Manisha Agrawal (Manisha.Agrawal@dell.com)
+- Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
+- Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 options:
   vol_name:
     description:
@@ -259,6 +262,106 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
+
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+volume_details:
+    description: Details of the volume
+    returned: When volume exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the volume
+            type: str
+        name:
+            description:
+                - Name of the volume 
+            type: str
+        size:
+            description:
+                - Size of the volume
+            type: int
+        description:
+            description:
+                - description about the volume
+            type: str
+        performance_policy_id:
+            description:
+                - The performance policy for the volume
+            type: str
+        protection_policy_id:
+            description:
+                - The protection policy of the volume
+            type: str
+        volume_groups:
+            description:
+                - The volume group details of the volume
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The system generated ID given to the volume group
+                    type: str
+                name:
+                    description:
+                        - Name of the volume group
+                    type: str
+        host:
+            description:
+                - Hosts details mapped to the volume
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The host ID mapped to the volume
+                    type: str
+                name:
+                    description:
+                        - Name of the Host mapped to the volume
+                    type: str
+        host_group:
+            description:
+                - Host groups details mapped to the volume 
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The host group ID mapped to the volume
+                    type: str
+                name:
+                    description:
+                        - Name of the Host group mapped to the volume
+                    type: str
+        hlu_details:
+            description:
+                - HLU details for mapped host/host group
+            type: complex
+            contains:
+                host_group_id:
+                    description:
+                        - The host group ID mapped to the volume
+                    type: str
+                host_id:
+                    description:
+                        - The host ID mapped to the volume
+                        type: str
+                id:
+                    description:
+                        - The HLU ID
+                    type: str
+                logical_unit_number:
+                    description:
+                        - Logical unit number for the host/host group volume
+                         access
+                    type: int
+        wwn:
+            description:
+                - The world wide name of the volume
+            type: str
 '''
 
 LOG = utils.get_logger('dellemc_powerstore_volume', log_devel=logging.INFO)
@@ -272,7 +375,8 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
+
 
 class PowerStoreVolume(object):
     """Class with volume operations"""
@@ -282,20 +386,27 @@ class PowerStoreVolume(object):
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(self.get_powerstore_volume_parameters())
 
+        mutually_exclusive = [['vol_name', 'vol_id']]
+        required_one_of = [['vol_name', 'vol_id']]
+
         # initialize the ansible module
         self.module = AnsibleModule(
-            argument_spec=self.module_params, supports_check_mode=True)
+            argument_spec=self.module_params,
+            supports_check_mode=False,
+            mutually_exclusive=mutually_exclusive,
+            required_one_of=required_one_of
+        )
 
         LOG.info(
             'HAS_PY4PS = {0} , IMPORT_ERROR = {1}'.format(
                 HAS_PY4PS, IMPORT_ERROR))
-        if HAS_PY4PS is False:
+        if not HAS_PY4PS:
             self.module.fail_json(msg=IMPORT_ERROR)
         LOG.info(
             'IS_SUPPORTED_PY4PS_VERSION = {0} , VERSION_ERROR = {1}'.format(
                 IS_SUPPORTED_PY4PS_VERSION,
                 VERSION_ERROR))
-        if IS_SUPPORTED_PY4PS_VERSION is False:
+        if not IS_SUPPORTED_PY4PS_VERSION:
             self.module.fail_json(msg=VERSION_ERROR)
 
         # result is a dictionary that contains changed status and
@@ -330,9 +441,15 @@ class PowerStoreVolume(object):
                     return volume_info[0]
                 return None
         except Exception as e:
-            LOG.error('Got error {0} while getting details of volume '.format(
-                str(e)))
-        return None
+            error_msg = "Got error {0} while getting details of volume".format(
+                str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(error_msg)
+                return None
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def create_volume(self, vol_name,
                       size,
@@ -545,12 +662,6 @@ class PowerStoreVolume(object):
             self.module.params['hostgroup'])
         hlu = self.module.params['hlu']
 
-        if vol_id is None and vol_name is None:
-            self.module.fail_json(
-                msg='Specify either Volume ID or Volume name')
-        elif vol_id is not None and vol_name is not None:
-            self.module.fail_json(msg='Specify Volume ID or Volume name,'
-                                      ' not both')
         changed = False
         volume = self.get_volume()
         if volume is not None:
@@ -560,14 +671,19 @@ class PowerStoreVolume(object):
                 'cap_unit']))
         # Call to create volume
         if state == 'present' and volume is None:
+            if vol_name is None or len(vol_name.strip()) == 0:
+                self.module.fail_json(msg="Please provide valid volume name.")
+
             if new_name:
                 msg = 'new_name specified for non-existing volume'
                 LOG.info(msg)
                 self.module.fail_json(msg=msg)
+
             if size is None:
                 msg = 'Size is a required parameter while creating volume'
                 LOG.info(msg)
                 self.module.fail_json(msg=msg)
+
             changed = self.create_volume(
                 vol_name=vol_name,
                 size=size,
@@ -585,10 +701,10 @@ class PowerStoreVolume(object):
                 self.module.fail_json(msg=msg)
             hlu_mod_flag = True
             if host and hlu:
-                hlu_mod_flag, error = self.check_for_hlu_modification(
+                hlu_mod_flag, error = check_for_hlu_modification(
                     volume, host=host, hlu=hlu)
             if hostgroup and hlu:
-                hlu_mod_flag, error = self.check_for_hlu_modification(
+                hlu_mod_flag, error = check_for_hlu_modification(
                     volume, hostgroup=hostgroup, hlu=hlu)
             if hlu_mod_flag is False:
                 msg = 'Modification of HLU is not supported. {0}'.format(error)
@@ -639,7 +755,7 @@ class PowerStoreVolume(object):
                 'size': size
             }
 
-            if(self.check_modify_volume_required(volume, new_volume_dict)):
+            if check_modify_volume_required(volume, new_volume_dict):
                 if mapping_state is not None or hlu is not None:
                     msg = 'Volume modification and host mapping cannot be done in the same call'
                     LOG.info(msg)
@@ -721,123 +837,143 @@ class PowerStoreVolume(object):
         )
 
     def get_volume_id_by_name(self, volume_name):
-        volume_info = self.provisioning.get_volume_by_name(volume_name)
-        if volume_info:
-            if len(volume_info) > 1:
-                error_msg = 'Multiple volumes by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return volume_info[0]['id']
-        return None
+        try:
+            volume_info = self.provisioning.get_volume_by_name(volume_name)
+            if volume_info:
+                if len(volume_info) > 1:
+                    error_msg = 'Multiple volumes by the same name found'
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+                return volume_info[0]['id']
+            return None
+        except Exception as e:
+            error_msg = "Get volume: {0} failed with " \
+                        "error: {1}".format(volume_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_volume_group_id_by_name(self, volume_group_name):
-        if volume_group_name is None:
-            return None
-        if len(volume_group_name) == 36:
-            try:
+        try:
+            if volume_group_name is None:
+                return None
+
+            if utils.name_or_id(volume_group_name) == "NAME":
+                # Get the volume group details using name
+                volume_group_info = self.provisioning. \
+                    get_volume_group_by_name(volume_group_name)
+                if volume_group_info:
+                    if len(volume_group_info) > 1:
+                        error_msg = 'Multiple volume groups by the same ' \
+                                    'name found'
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
+                    return volume_group_info[0]['id']
+            else:
+                # Get the volume group details using id
                 if self.provisioning.get_volume_group_details(
                         volume_group_name):
                     return volume_group_name
-            except Exception as e:
-                LOG.info(
-                    'Unable to get details of volume group ID: {0} -- error: {1}, trying name instead' .format(
-                        volume_group_name, str(e)))
-        volume_group_info = self.provisioning.get_volume_group_by_name(
-            volume_group_name)
-        if volume_group_info:
-            if len(volume_group_info) > 1:
-                error_msg = 'Multiple volume groups by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return volume_group_info[0]['id']
-        else:
+
             error_msg = ("volume group {0} not found".format(
                 volume_group_name))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
+        except Exception as e:
+            error_msg = "Get volume group: {0} failed with " \
+                        "error: {1}".format(volume_group_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_protection_policy_id_by_name(self, protection_policy_name):
-        if protection_policy_name is None:
-            return None
-        if (len(protection_policy_name) == 0):
-            return ''
-        if len(protection_policy_name) == 36:
-            try:
+        try:
+            if protection_policy_name is None:
+                return None
+            if len(protection_policy_name) == 0:
+                return ''
+
+            if utils.name_or_id(protection_policy_name) == "NAME":
+                # Get the protection policy details using name
+                protection_policy_info = self.conn.protection.\
+                    get_protection_policy_by_name(protection_policy_name)
+                if protection_policy_info:
+                    if len(protection_policy_info) > 1:
+                        error_msg = 'Multiple protection policies by the ' \
+                                    'same name found'
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
+                    return protection_policy_info[0]['id']
+            else:
+                # Get the protection policy details using id
                 if self.conn.protection.get_protection_policy_details(
                         protection_policy_name):
                     return protection_policy_name
-            except Exception as e:
-                LOG.info(
-                    'Unable to get details of protection policy ID: {0} -- error: {1}, , trying name instead' .format(
-                        protection_policy_name, str(e)))
-        protection_policy_info = self.conn.protection.get_protection_policy_by_name(
-            protection_policy_name)
-        if protection_policy_info:
-            if len(protection_policy_info) > 1:
-                error_msg = 'Multiple protection policies by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return protection_policy_info[0]['id']
-        else:
             error_msg = ("protection policy {0} not found".format(
                 protection_policy_name))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
+        except Exception as e:
+            error_msg = "Get protection policy: {0} failed with " \
+                        "error: {1}".format(protection_policy_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_host_id_by_name(self, host_name):
-        if host_name is None:
-            return None
-        if len(host_name) == 36:
-            try:
+        try:
+            if host_name is None:
+                return None
+
+            if utils.name_or_id(host_name) == "NAME":
+                # Get the host details using name
+                host_info = self.provisioning.get_host_by_name(host_name)
+                if host_info:
+                    if len(host_info) > 1:
+                        error_msg = 'Multiple hosts by the same name found'
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
+                    return host_info[0]['id']
+            else:
+                # Get the host details using id
                 if self.provisioning.get_host_details(host_name):
                     return host_name
-            except Exception as e:
-                LOG.info(
-                    'Unable to get details of host group ID: {0} -- error: {1}, trying name instead' .format(
-                        host_name, str(e)))
-
-        host_info = self.provisioning.get_host_by_name(host_name)
-        if host_info:
-            if len(host_info) > 1:
-                error_msg = 'Multiple hosts by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return host_info[0]['id']
-        else:
-            error_msg = ("Host {0} not found".format(
-                host_name))
+            error_msg = ("Host {0} not found".format(host_name))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
+        except Exception as e:
+            error_msg = "Get host: {0} failed with " \
+                        "error: {1}".format(host_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_host_group_id_by_name(self, host_group_name):
-        if host_group_name is None:
-            return None
-        if len(host_group_name) == 36:
-            try:
-                if self.provisioning.get_host_group_details(
-                        host_group_name):
+        try:
+            if host_group_name is None:
+                return None
+
+            if utils.name_or_id(host_group_name) == "NAME":
+                # Get the host group details using name
+                host_group_info = self.provisioning.\
+                    get_host_group_by_name(host_group_name)
+
+                if host_group_info:
+                    if len(host_group_info) > 1:
+                        error_msg = 'Multiple host groups by the same name ' \
+                                    'found'
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
+                    return host_group_info[0]['id']
+            else:
+                # Get the host group details using id
+                if self.provisioning.get_host_group_details(host_group_name):
                     return host_group_name
-            except Exception as e:
-                LOG.info(
-                    'Unable to get details of host group ID: {0} -- error: {1}, trying name instead'
-                    .format(host_group_name, str(e)))
-        host_group_info = self.provisioning.get_host_group_by_name(
-            host_group_name)
-        if host_group_info:
-            if len(host_group_info) > 1:
-                error_msg = 'Multiple host groups by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return host_group_info[0]['id']
-        else:
-            error_msg = ("Host group {0} not found".format(
-                host_group_name))
+
+            error_msg = ("host group {0} not found".format(host_group_name))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
+        except Exception as e:
+            error_msg = "Get host group: {0} failed with " \
+                        "error: {1}".format(host_group_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_performance_policy(self, performance_policy):
         if performance_policy is None:
@@ -845,50 +981,51 @@ class PowerStoreVolume(object):
         else:
             return self.performance_policy_dict.get(performance_policy)
 
-    def check_modify_volume_required(self, vol, vol_dict2):
-        vol_dict1 = {
+
+def check_modify_volume_required(vol, vol_dict2):
+    """Check if modification is required for volume"""
+    vol_dict1 = {
             'name': vol['name'],
             'description': vol['description'],
             'protection_policy_id': vol['protection_policy_id'],
             'performance_policy_id': vol['performance_policy_id'],
             'size': vol['size']
-        }
-        """to compare two volumes"""
-        for key in vol_dict1.keys():
-            if key in vol_dict2.keys():
-                if vol_dict2[key] is not None and vol_dict1[key] != vol_dict2[key]:
-                    if key == 'protection_policy_id' and vol_dict1[key] is None and vol_dict2[key] == '':
-                        pass
-                    else:
-                        LOG.debug(
+    }
+
+    """to compare two volumes"""
+    for key in vol_dict1.keys():
+        if key in vol_dict2.keys():
+            if vol_dict2[key] is not None and vol_dict1[key] != vol_dict2[key]:
+                if key == 'protection_policy_id' and vol_dict1[key] is None and vol_dict2[key] == '':
+                    pass
+                else:
+                    LOG.debug(
                             "Key {0} in vol_dict1={1},vol_dict2={2}".format(
                                 key, vol_dict1[key], vol_dict2[key]))
-                        return True
-        LOG.info('No change detected')
-        return False
-    
-    def check_for_hlu_modification(
-            self,
-            volume,
-            hlu,
-            host=None,
-            hostgroup=None):
-        hlu_details = volume['hlu_details']
-        if host:
-            for element in hlu_details:
-                if element.get('host_id') == host:
-                    if int(element['logical_unit_number']) != hlu:
-                        msg = 'Modification of HLU from {0} to {1} for host {2} was attempted'.format(
+                    return True
+    LOG.info('No change detected')
+    return False
+
+
+def check_for_hlu_modification(volume, hlu, host=None, hostgroup=None):
+    hlu_details = volume['hlu_details']
+    if host:
+        for element in hlu_details:
+            if element.get('host_id') == host:
+                if int(element['logical_unit_number']) != hlu:
+                    msg = 'Modification of HLU from {0} to {1} for host {2} was attempted'.format(
                             int(element['logical_unit_number']), hlu, host)
-                        return False, msg
-        if hostgroup:
-            for element in hlu_details:
-                if element.get('host_group_id') == hostgroup:
-                    if int(element['logical_unit_number']) != hlu:
-                        msg = 'Modification of HLU from {0} to {1} for hostgroup {2} was attempted'.format(
+                    return False, msg
+
+    if hostgroup:
+        for element in hlu_details:
+            if element.get('host_group_id') == hostgroup:
+                if int(element['logical_unit_number']) != hlu:
+                    msg = 'Modification of HLU from {0} to {1} for hostgroup {2} was attempted'.format(
                             int(element['logical_unit_number']), hlu, hostgroup)
-                        return False, msg
-        return True, ""
+                    return False, msg
+    return True, ""
+
 
 def main():
     """ Create PowerStore volume object and perform action on it

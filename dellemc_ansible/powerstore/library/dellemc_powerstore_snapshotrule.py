@@ -2,11 +2,13 @@
 # Copyright: (c) 2019, DellEMC
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
+from PyPowerStore.utils.exception import PowerStoreException
 import logging
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -14,10 +16,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_snapshotrule
-version_added: '2.6'
+version_added: '2.7'
 short_description: SnapshotRule operations on PowerStore storage system
 description:
-- Performs all snapshot rule opeations on PowerStore Storage System.
+- Performs all snapshot rule operations on PowerStore Storage System.
 - This modules supports get details of an existing snapshot rule
   create new Snapshot Rule with Interval, create new Snapshot Rule
   with specific time and days_of_week with all supported
@@ -25,9 +27,9 @@ description:
 - Modify Snapshot Rule with supported parameter
 - Delete a specific Snapshot Rule etc.
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 author:
-- Arindam Datta (arindam.datta@dell.com)
+- Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 options:
   name:
     description:
@@ -178,7 +180,59 @@ EXAMPLES = r'''
 
 '''
 
-RETURN = r'''  '''
+RETURN = r'''
+ 
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+snapshotrule_details:
+    description: Details of the snapshot rule
+    returned: When snapshot rule exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the snapshot rule
+            type: str
+        name:
+            description:
+                - Name of the snapshot rule
+            type: str
+        days_of_week:
+            description:
+                - List of string to specify days of the week on which the
+                 rule should be applied
+            type: list
+        time_of_day:
+            description:
+                - The time of the day to take a daily snapshot
+            type: str
+        interval:
+            description:
+                - The interval between snapshots
+            type: str
+        desired_retention:
+            description:
+                - Desired snapshot retention period
+            type: int
+        policies:
+            description:
+                - The protection policies details of the snapshot rule
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The protection policy ID in which the snapshot rule
+                         is selected
+                    type: str
+                name:
+                    description:
+                        - Name of the protection policy in which the snapshot
+                         rule is selected
+                    type: str
+ '''
 
 
 LOG = utils.get_logger(
@@ -194,7 +248,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
 
 class PowerstoreSnapshotrule(object):
     """Snapshot Rule operations"""
@@ -207,9 +261,12 @@ class PowerstoreSnapshotrule(object):
         self.module_params.update(get_powerstore_snapshotrule_parameters())
 
         # initialize the Ansible module
+        mut_ex_args = [['snap_rule_id', 'name'],
+                       ['interval', 'time_of_day']]
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True
+            supports_check_mode=False,
+            mutually_exclusive=mut_ex_args
         )
         LOG.info('HAS_PY4PS = {0} , IMPORT_ERROR = {1}'.format(
             HAS_PY4PS, IMPORT_ERROR))
@@ -240,7 +297,7 @@ class PowerstoreSnapshotrule(object):
                     LOG.info(
                         'Successfully got the details of snapshot '
                         'rule name {0} from array name {1} and '
-                        'glboal id {2}'.format(
+                        'global id {2}'.format(
                             name, self.cluster_name, self.cluster_global_id))
                     detail_resp = self.protection.get_snapshot_rule_details(
                         resp[0]['id'])
@@ -250,22 +307,27 @@ class PowerstoreSnapshotrule(object):
                 if detail_resp and len(detail_resp) > 0:
                     LOG.info('Successfully got the details of snapshot '
                              'rule id {0} from array name {1} and '
-                             'glboal id {2}'.format(
+                             'global id {2}'.format(
                                  id, self.cluster_name,
                                  self.cluster_global_id))
                     return False, detail_resp
 
             msg = 'No snapshot rule present with name {0} or ID {1}'.format(
                 name, id)
-            LOG.debug(msg)
+            LOG.info(msg)
             return False, None
 
         except Exception as e:
             msg = 'Get details of snapshot rule name: {0} or ID {1} from ' \
-                  'array name : {2} failed with error : {3} '.format(
-                      name, id, self.cluster_name, str(e))
+                  'array name : {2} failed with' \
+                  ' error : {3} '.format(name, id, self.cluster_name, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
             LOG.error(msg)
-            return False, None
+            self.module.fail_json(msg=msg)
 
     def create_snapshot_rule_by_interval(
             self,
@@ -394,6 +456,18 @@ class PowerstoreSnapshotrule(object):
                             return True
         return False
 
+    def get_clusters(self):
+        """Get the clusters"""
+        try:
+            clusters = self.provisioning.get_cluster_list()
+            return clusters
+
+        except Exception as e:
+            msg = 'Failed to get the clusters with ' \
+                  'error {0}'.format(str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+
     def perform_module_operation(self):
         """collect input"""
         snap_rule_id = self.module.params['snapshotrule_id']
@@ -411,21 +485,12 @@ class PowerstoreSnapshotrule(object):
             snapshotrule_details=''
         )
 
-        clusters = self.provisioning.get_cluster_list()
+        clusters = self.get_clusters()
         if len(clusters) > 0:
             self.cluster_name = clusters[0]['name']
             self.cluster_global_id = clusters[0]['id']
         else:
             msg = "Unable to find any active cluster on this array"
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
-
-        if interval and time_of_day:
-            msg = "Cannot have interval and time_of_day together"
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
-        if snap_rule_id and name:
-            msg = "Cannot have snaprule_id and name"
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
@@ -479,7 +544,7 @@ class PowerstoreSnapshotrule(object):
             changed, snap_rule = self.get_snapshot_rule_details(
                 id=snap_rule_id)
 
-            # temporary fix untill get clarification
+            # temporary fix until get clarification
             snap_rule['time_of_day'] = snap_rule['time_of_day'][0:5]\
                 if snap_rule['time_of_day'] is not None else None
 

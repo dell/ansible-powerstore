@@ -3,12 +3,13 @@
 
 from ansible.module_utils.basic import AnsibleModule
 from PyPowerStore.utils.exception import PowerStoreException
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
 import logging
 from uuid import UUID
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -17,19 +18,19 @@ DOCUMENTATION = r'''
 ---
 
 module: dellemc_powerstore_protectionpolicy
-version_added: '2.6'
+version_added: '2.7'
 short_description: Protection policy operations on PowerStore storage system
 description:
-- Performs all protection policy opeations on PowerStore Storage System.
+- Performs all protection policy operations on PowerStore Storage System.
 - This modules supports get details of an existing protection policy.
 - Create new protection policy with existing Snapshot Rule
 - Modify protection policy to change the name and description,
   add or remove existing Snapshot Rules
 - Delete an existing protection policy.
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 author:
-- Arindam Datta (arindam.datta@dell.com)
+- Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 options:
   name:
     description:
@@ -152,8 +153,61 @@ EXAMPLES = r'''
 
 '''
 
-RETURN = r'''  '''
+RETURN = r'''
 
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+protectionpolicy_details:
+    description: Details of the protection policy
+    returned: When protection policy exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the protection policy
+            type: str
+        name:
+            description:
+                - Name of the protection policy
+            type: str
+        description:
+            description:
+                - description about the protection policy
+            type: str
+        type:
+            description:
+                - The type for the protection policy
+            type: str
+        replication_rules:
+            description:
+                - The replication rules details of the protection policy
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The replication rule ID of the protection policy
+                    type: str
+                name:
+                    description:
+                        - The replication rule name of the protection policy
+                    type: str
+        snapshot_rules:
+            description:
+                - The snapshot rules details of the protection policy
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The snapshot rule ID of the protection policy
+                    type: str
+                name:
+                    description:
+                        - The snapshot rule name of the protection policy
+                    type: str
+'''
 
 LOG = utils.get_logger(
     'dellemc_powerstore_protectionpolicy',
@@ -168,7 +222,8 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
+
 
 class PowerstoreProtectionpolicy(object):
     """Protectionpolicy operations"""
@@ -178,12 +233,15 @@ class PowerstoreProtectionpolicy(object):
     def __init__(self):
         """Define all the parameters required by this module"""
         self.module_params = utils.get_powerstore_management_host_parameters()
-        self.module_params.update(get_powerstore_protectionpolicy_parameters())
+        self.module_params.update(
+            get_powerstore_protectionpolicy_parameters())
 
         # initialize the Ansible module
+        mut_ex_args = [['name', 'protectionpolicy_id']]
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True
+            supports_check_mode=False,
+            mutually_exclusive=mut_ex_args
         )
         LOG.info('HAS_PY4PS = {0} , IMPORT_ERROR = {1}'.format(
             HAS_PY4PS, IMPORT_ERROR))
@@ -194,8 +252,8 @@ class PowerstoreProtectionpolicy(object):
         if IS_SUPPORTED_PY4PS_VERSION is False:
             self.module.fail_json(msg=VERSION_ERROR)
 
-        self.conn = utils.get_powerstore_connection(self.module.params,
-                                                    application_type=APPLICATION_TYPE)
+        self.conn = utils.get_powerstore_connection(
+            self.module.params, application_type=APPLICATION_TYPE)
         self.provisioning = self.conn.provisioning
         LOG.info('Got Py4ps instance for provisioning on PowerStore {0}'.
                  format(self.provisioning))
@@ -214,7 +272,7 @@ class PowerstoreProtectionpolicy(object):
                     LOG.info(
                         'Successfully got the details of snapshot '
                         'rule name {0} from array name {1} and '
-                        'glboal id {2}'.format(
+                        'global id {2}'.format(
                             name, self.cluster_name, self.cluster_global_id))
 
                     return True, resp[0].get('id')
@@ -223,22 +281,26 @@ class PowerstoreProtectionpolicy(object):
                 if detail_resp and len(detail_resp) > 0:
                     LOG.info('Successfully got the details of snapshot '
                              'rule id {0} from array name {1} and '
-                             'glboal id {2}'.format(
-                                 id, self.cluster_name,
-                                 self.cluster_global_id))
+                             'global id {2}'.format(id, self.cluster_name,
+                                                    self.cluster_global_id))
                     return True, detail_resp['id']
 
             msg = 'No snapshot rule present with name {0} or ID {1}'.format(
                 name, id)
-            LOG.debug(msg)
+            LOG.info(msg)
             return False, None
 
         except Exception as e:
             msg = 'Get details of snapshot rule name: {0} or ID {1} from ' \
-                  'array name : {2} failed with error : {3} '.format(
-                    name, id, self.cluster_name, str(e))
+                  'array name : {2} failed with ' \
+                  'error : {3} '.format(name, id, self.cluster_name, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
             LOG.error(msg)
-            return False, None
+            self.module.fail_json(msg=msg)
 
     def get_protection_policy_details(self, name=None, id=None):
         """Get protection policy"""
@@ -248,13 +310,13 @@ class PowerstoreProtectionpolicy(object):
             if name:
                 resp = self.protection.get_protection_policy_by_name(name)
                 if resp and len(resp) > 0:
-                    detail_resp = self.\
-                        protection.get_protection_policy_details(
+                    detail_resp = \
+                        self.protection.get_protection_policy_details(
                             policy_id=resp[0]['id'])
                     LOG.info(
                         'Successfully got the details of protection policy '
                         'name {0} from array name {1} and '
-                        'glboal id {2}'.format(
+                        'global id {2}'.format(
                             name, self.cluster_name, self.cluster_global_id))
                     return detail_resp
 
@@ -265,24 +327,29 @@ class PowerstoreProtectionpolicy(object):
                     LOG.info(
                         'Successfully got the details of protection policy '
                         'id {0} from array name {1} and '
-                        'glboal id {2}'.format(
+                        'global id {2}'.format(
                             id, self.cluster_name, self.cluster_global_id))
                     return detail_resp
 
-            msg = 'No protection policy present with name {0} or id {1}'.\
+            msg = 'No protection policy present with name {0} or id {1}'. \
                 format(name, id)
-            LOG.debug(msg)
+            LOG.info(msg)
             return None
 
         except Exception as e:
-            msg = 'Get details of protection policy name: {0},ID: {1}: from ' \
-                  'array name: {2} failed with error : {3} '.format(
-                    name, id, self.cluster_name, str(e))
+            msg = 'Get details of protection policy name: {0},ID: {1}:' \
+                  ' from  array name: {2} failed with ' \
+                  'error : {3} '.format(name, id, self.cluster_name, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
             LOG.error(msg)
-            return None
+            self.module.fail_json(msg=msg)
 
     def create_protection_policy(self, name, description=None,
-                                 snapshot_rule_ids=None,):
+                                 snapshot_rule_ids=None, ):
         """create protection policy with snapshot rule"""
 
         try:
@@ -291,49 +358,49 @@ class PowerstoreProtectionpolicy(object):
                 name=name,
                 description=description,
                 snapshot_rule_ids=snapshot_rule_ids)
-
-            LOG.info(
-                'Successfully created protection policy , id: '
-                '{0} on powerstore array name : {1} , global id : {2}'
-                .format(resp.get("id"), self.cluster_name,
-                        self.cluster_global_id))
+            msg = 'Successfully created protection policy , id: {0} on' \
+                  ' powerstore array name : {1} , global id : {2}' \
+                  ''.format(resp.get("id"), self.cluster_name,
+                            self.cluster_global_id)
+            LOG.info(msg)
             return True, resp
 
         except Exception as e:
             msg = 'create protectionpolicy on powerstore array name' \
-                  ': {0} , global id : {1} failed with error {2}'.format(
-                      self.cluster_name, self.cluster_global_id, str(e))
+                  ': {0} , global id : {1} failed with' \
+                  ' error {2}'.format(self.cluster_name,
+                                      self.cluster_global_id, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-    def modify_protection_policy(self, policy_id, name=None, description=None,
-                                 snapshot_rule_ids=None,
+    def modify_protection_policy(self, policy_id, name=None,
+                                 description=None, snapshot_rule_ids=None,
                                  add_snapshot_rule_ids=None,
                                  remove_snapshot_rule_ids=None):
-        """modify an existing protection policy of a given PowerStore storage
-        system"""
+        """ Modify an existing protection policy of a given PowerStore
+         storage system"""
 
         try:
             LOG.info('Modifying an existing protection policy')
             resp = self.protection.modify_protection_policy(
                 policy_id,
-                name=None,
-                description=None,
-                snapshot_rule_ids=None,
-                add_snapshot_rule_ids=None,
-                remove_snapshot_rule_ids=None)
-
-            LOG.info(
-                'Successfully modified protection policy id {0} of powerstore'
-                'array name : {1},global id : {2}'.format(
-                    policy_id, self.cluster_name, self.cluster_global_id))
+                name=name,
+                description=description,
+                snapshot_rule_ids=snapshot_rule_ids,
+                add_snapshot_rule_ids=add_snapshot_rule_ids,
+                remove_snapshot_rule_ids=remove_snapshot_rule_ids)
+            msg = 'Successfully modified protection policy id {0} of' \
+                  ' powerstore array name : {1},' \
+                  'global id : {2}'.format(policy_id, self.cluster_name,
+                                           self.cluster_global_id)
+            LOG.info(msg)
             return resp
 
         except Exception as e:
             msg = 'Modify protection policy id: {0} on powerstore array ' \
-                  'name: {1}, global id:{2} failed with error {3}'.format(
-                      policy_id, self.cluster_name,
-                      self.cluster_global_id, str(e))
+                  'name: {1}, global id:{2} failed with' \
+                  ' error {3}'.format(policy_id, self.cluster_name,
+                                      self.cluster_global_id, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
@@ -353,21 +420,23 @@ class PowerstoreProtectionpolicy(object):
 
         except Exception as e:
             msg = 'delete protection policy id {0} for powerstore array' \
-                  ' name :{1}, global id: {2} failed with error {3}'.format(
-                      policy_id, self.cluster_name,
-                      self.cluster_global_id, str(e))
+                  ' name :{1}, global id: {2} failed with ' \
+                  'error {3}'.format(policy_id, self.cluster_name,
+                                     self.cluster_global_id, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-    def name_or_id(self, val):
-        """Determines if the string is a name or id"""
+    def get_clusters(self):
+        """Get the clusters"""
         try:
-            UUID(str(val))
-            LOG.info('{0} is a ID'.format(val))
-            return "ID"
-        except ValueError:
-            LOG.info('{0} is a NAME'.format(val))
-            return "NAME"
+            clusters = self.provisioning.get_cluster_list()
+            return clusters
+
+        except Exception as e:
+            msg = 'Failed to get the clusters with ' \
+                  'error {0}'.format(str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
 
     def perform_module_operation(self):
         """collect input"""
@@ -384,7 +453,7 @@ class PowerstoreProtectionpolicy(object):
             protectionpolicy_details=''
         )
 
-        clusters = self.provisioning.get_cluster_list()
+        clusters = self.get_clusters()
         if len(clusters) > 0:
             self.cluster_name = clusters[0]['name']
             self.cluster_global_id = clusters[0]['id']
@@ -393,17 +462,13 @@ class PowerstoreProtectionpolicy(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        if not name and not prot_pol_id:
-            msg = 'Specify protectionpolicy name or protectionpolicy id'
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
-        elif name and prot_pol_id:
-            msg = 'Specify protectionpolicy name or protectionpolicy id, ' \
-                  'not both'
+        if not prot_pol_id and not name:
+            msg = "Either prot_pol_id or name is required"
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        protection_pol = self.get_protection_policy_details(name, prot_pol_id)
+        protection_pol = self.get_protection_policy_details(name,
+                                                            prot_pol_id)
 
         '''populating id and name at the begining'''
         if prot_pol_id is None and protection_pol:
@@ -415,15 +480,15 @@ class PowerstoreProtectionpolicy(object):
         """get snapshotrule id from name"""
         if snapshotrules:
             for each_snap in snapshotrules:
-                entity_type = self.name_or_id(each_snap)
+                entity_type = utils.name_or_id(each_snap)
                 if entity_type == 'NAME':
                     is_present, sn = self.get_snapshot_rule_details(
                         name=each_snap)
                     if is_present:
                         snapshotrule_ids.append(sn)
                     else:
-                        msg = "snapshot rule name: {0} is not found on the " \
-                              "array".format(each_snap)
+                        msg = "snapshot rule name: {0} is not found on" \
+                              " the array".format(each_snap)
                         LOG.error(msg)
                         self.module.fail_json(msg=msg)
                 if entity_type == 'ID':
@@ -451,9 +516,9 @@ class PowerstoreProtectionpolicy(object):
 
             result['changed'], resp = \
                 self.create_protection_policy(
-                name=name,
-                description=description,
-                snapshot_rule_ids=snapshotrule_ids)
+                    name=name,
+                    description=description,
+                    snapshot_rule_ids=snapshotrule_ids)
 
             result['protectionpolicy_details'] = resp
 
@@ -491,12 +556,11 @@ class PowerstoreProtectionpolicy(object):
                         to_be_added.append(eachrule)
 
                 if to_be_added and len(to_be_added) > 0:
-                    result['protectionpolicy_details'] = self.\
-                        protection.modify_protection_policy(
+                    result['protectionpolicy_details'] = self\
+                        .modify_protection_policy(
                         policy_id=prot_pol_id, name=new_name,
                         description=description,
-                        add_snapshot_rule_ids=to_be_added,
-                        remove_snapshot_rule_ids=None)
+                        add_snapshot_rule_ids=to_be_added)
                     result['changed'] = True
                     self.module.exit_json(**result)
 
@@ -509,13 +573,12 @@ class PowerstoreProtectionpolicy(object):
                         to_be_removed.append(eachrule)
 
                 if to_be_removed and len(to_be_removed) > 0:
-                    result['protectionpolicy_details'] =\
-                        self.protection.modify_protection_policy(
-                        policy_id=prot_pol_id,
-                        name=new_name,
-                        description=description,
-                        add_snapshot_rule_ids=None,
-                        remove_snapshot_rule_ids=to_be_removed)
+                    result['protectionpolicy_details'] = \
+                        self.modify_protection_policy(
+                            policy_id=prot_pol_id,
+                            name=new_name,
+                            description=description,
+                            remove_snapshot_rule_ids=to_be_removed)
                     result['changed'] = True
                     self.module.exit_json(**result)
 
@@ -529,9 +592,9 @@ class PowerstoreProtectionpolicy(object):
                 self.module.fail_json(msg=msg)
 
             result['protectionpolicy_details'] = self.\
-                protection.modify_protection_policy(
-                policy_id=prot_pol_id, name=new_name, description=description,
-                add_snapshot_rule_ids=None, remove_snapshot_rule_ids=None)
+                modify_protection_policy(
+                policy_id=prot_pol_id, name=new_name,
+                description=description)
             result['changed'] = True
             self.module.exit_json(**result)
 
@@ -544,9 +607,8 @@ class PowerstoreProtectionpolicy(object):
             present_description = protection_pol.get('description')
             if present_description != description:
                 result['protectionpolicy_details'] = self.\
-                    protection.modify_protection_policy(
-                    policy_id=prot_pol_id, name=None, description=description,
-                    add_snapshot_rule_ids=None, remove_snapshot_rule_ids=None)
+                    modify_protection_policy(
+                    policy_id=prot_pol_id, description=description)
                 result['changed'] = True
                 self.module.exit_json(**result)
 

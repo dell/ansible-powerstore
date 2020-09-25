@@ -1,0 +1,47 @@
+# This sample provides list of the filesystem ids which are unused.
+- name: List filesystems which are unused
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: 'ip_address_of_the_array'
+    verifycert: False
+    user: 'your_username'
+    password: 'your_password'
+
+  tasks:
+
+    - name: Get filesystem
+      dellemc_powerstore_gatherfacts:
+        array_ip: "{{array_ip}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        gather_subset:
+            - file_system
+        all_pages: True
+      register: all_filesystem
+
+    - set_fact:
+        all_filesystem_ids: "{{ all_filesystem['FileSystems'] | map(attribute='id') | list }}"
+
+    - name: Get filesystem detail by id
+      dellemc_powerstore_filesystem:
+        array_ip: "{{array_ip}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_id: "{{item}}"
+        state: "present"
+      register: all_fs_details
+      loop: "{{ all_filesystem_ids }}"
+
+    - set_fact:
+        all_fs_id: "{{ all_fs_details['results'] | map(attribute='filesystem_details.id') | list }}"
+        all_size_used: "{{ all_fs_details['results'] | map(attribute='filesystem_details.size_used') | list }}"
+
+    - name: Loop
+      debug:
+        msg: "{{item.0}}"
+      loop: "{{ all_fs_id | zip(all_size_used) | list }}"
+      when:
+        - item.1|int == 0

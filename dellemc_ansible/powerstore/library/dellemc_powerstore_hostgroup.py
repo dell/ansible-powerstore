@@ -2,11 +2,13 @@
 # Copyright: (c) 2019, DellEMC
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
 import logging
+from PyPowerStore.utils.exception import PowerStoreException
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -14,7 +16,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_hostgroup
-version_added: '2.6'
+version_added: '2.7'
 short_description:  Manage host group on PowerStore Storage System
 description:
 - Managing host group on PowerStore storage system includes create
@@ -23,9 +25,9 @@ description:
 - Deletion of a host group results in deletion of the containing hosts as well.
   Remove hosts from the host group first to retain them.
 author:
-- Manisha Agrawal (manisha.agrawal@dell.com)
+- Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 options:
   hostgroup_name:
     description:
@@ -161,38 +163,42 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-        "hostgroup_details": {
-        "description": null,
-        "hosts": [
-            {
-                "id": "01dedad0-375b-4b6d-901d-94a054d60afe",
-                "name": "host1"
-            },
-            {
-                "id": "0f626dc9-d2c6-416e-85e7-4a650b8c9dd7",
-                "name": "host3"
-            }
-        ],
-        "id": "50eea718-4beb-4a0b-84f2-9140f99b4437",
-        "name": "Ansible_Test_Hostgroup"
-        },
-        "invocation": {
-            "module_args": {
-                "array_ip": "10.230.45.71",
-                "host_state": "present-in-group",
-                "hostgroup_id": null,
-                "hostgroup_name": "Ansible_Test_Hostgroup",
-                "hosts": [
-                    "host3",
-                    "01dedad0-375b-4b6d-901d-94a054d60afe"
-                ],
-                "new_name": null,
-                "password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
-                "state": "present",
-                "user": "admin"
-            }
-    }
 
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+hostgroup_details:
+    description: Details of the host group
+    returned: When host group exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the host group
+            type: str
+        name:
+            description:
+                - Name of the host group
+            type: str
+        description:
+            description:
+                - Description about the host group
+            type: str
+        hosts:
+            description:
+                - The hosts details which are part of this host group
+            type: complex
+            contains: 
+                id:
+                    description:
+                        - The ID of the host
+                    type: str
+                name:
+                    description:
+                        - The name of the host
+                    type: str
 '''
 LOG = utils.get_logger('dellemc_powerstore_hostgroup', log_devel=logging.INFO)
 
@@ -205,19 +211,27 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
 
 class PowerStoreHostgroup(object):
     '''Class with host group operations'''
+
+    VALID_ID = "ID"
 
     def __init__(self):
         # Define all parameters required by this module
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(self.get_powerstore_hostgroup_parameters())
+
+        mutually_exclusive = [['hostgroup_name', 'hostgroup_id']]
+        required_one_of = [['hostgroup_name', 'hostgroup_id']]
+
         # Initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True
+            supports_check_mode=False,
+            mutually_exclusive=mutually_exclusive,
+            required_one_of=required_one_of
         )
 
         LOG.info(
@@ -278,19 +292,32 @@ class PowerStoreHostgroup(object):
             LOG.info('Getting host group {0} details'.format(hostgroup_id))
             return self.conn.provisioning.get_host_group_details(hostgroup_id)
         except Exception as e:
-            LOG.error('Unable to get details of host group ID: {0} -- error: {1}'
-                      .format(hostgroup_id, str(e)))
+            msg = 'Unable to get details of host group ID: {0} -- error: {1}' \
+                .format(hostgroup_id, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR \
+                    and e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
 
     def get_hostgroup_id_by_name(self, hostgroup_name):
-        host_group_info = self.conn.provisioning.get_host_group_by_name(
-            hostgroup_name)
-        if host_group_info:
-            if len(host_group_info) > 1:
-                error_msg = 'Multiple host groups by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return host_group_info[0]['id']
-        return None
+        try:
+            host_group_info = self.conn.provisioning.get_host_group_by_name(
+                hostgroup_name)
+            if host_group_info:
+                if len(host_group_info) > 1:
+                    error_msg = 'Multiple host groups by the same name found'
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+                return host_group_info[0]['id']
+            return None
+        except Exception as e:
+            error_msg = "Get hostgroup: {0} failed with " \
+                        "error: {1}".format(hostgroup_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_host(self, host_id):
         '''
@@ -309,11 +336,12 @@ class PowerStoreHostgroup(object):
         either name or ID of each host), and converts it to a list of IDs.
         '''
         host_list = []
-        for host in hosts:
-            try:
-                # Since the ID format of PowerStore is 36 characters long
+        try:
+            for host in hosts:
+                # Since the ID format of PowerStore is UUID
                 # check if host is host_id
-                if len(host) == 36 and self.get_host(host):
+                id_or_name = utils.name_or_id(val=host)
+                if id_or_name == self.VALID_ID and self.get_host(host):
                     host_list.append(host)
                 else:
                     # check if host is host_name
@@ -324,42 +352,51 @@ class PowerStoreHostgroup(object):
                         error_msg = ("Host {0} not found".format(host))
                         LOG.error(error_msg)
                         self.module.fail_json(msg=error_msg)
-            except Exception as e:
-                error_msg = ("Host {0} not found, error={1}".format(
-                    host, str(e)))
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-        return host_list
+            return host_list
+
+        except Exception as e:
+            error_msg = ("Host {0} not found, error={1}".format(
+                host, str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def get_host_id_by_name(self, host_name):
-        host_info = self.conn.provisioning.get_host_by_name(host_name)
-        if host_info:
-            if len(host_info) > 1:
-                error_msg = 'Multiple hosts by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return host_info[0]['id']
-        return None
+        try:
+            host_info = self.conn.provisioning.get_host_by_name(host_name)
+            if host_info:
+                if len(host_info) > 1:
+                    error_msg = 'Multiple hosts by the same name found'
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+                return host_info[0]['id']
+            return None
+        except Exception as e:
+            error_msg = ("Host {0} not found, with error= {1}".format(
+                host_name, str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
+
 
     def create_hostgroup(self, hostgroup_name, hosts):
         '''
         Create host group with given hosts
         '''
-        if hosts is None or not len(hosts):
-            error_msg = ("Create host group {0} failed as no hosts or invalid"
-                         " hosts specified".format(hostgroup_name))
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
-        
-        host_state = self.module.params['host_state']
-        if host_state != 'present-in-group':
-                error_msg = (
-                "Please provide correct host_state while trying to create a"
-                " host group. Empty host group creation not allowed")
+        try:
+
+            if hosts is None or not len(hosts):
+                error_msg = ("Create host group {0} failed as no hosts or invalid"
+                             " hosts specified".format(hostgroup_name))
                 LOG.error(error_msg)
                 self.module.fail_json(msg=error_msg)
 
-        try:
+            host_state = self.module.params['host_state']
+            if host_state != 'present-in-group':
+                    error_msg = (
+                    "Please provide correct host_state while trying to create"
+                    " a host group. Empty host group creation not allowed")
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+
             msg = "Creating host group {0} with hosts {1}"
             LOG.info(msg.format(hostgroup_name, hosts))
             resp = self.conn.provisioning.create_host_group(hostgroup_name,
@@ -372,7 +409,6 @@ class PowerStoreHostgroup(object):
                 hostgroup_name, e)
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
 
     def _get_add_hosts(self, existing, requested):
         all_hosts = existing + requested
@@ -385,74 +421,75 @@ class PowerStoreHostgroup(object):
 
     def add_hostgroup_hosts(self, hostgroup, hosts):
 
-        existing_hosts = []
-        if 'hosts' in hostgroup:
-            current_hosts = hostgroup['hosts']
-            for host in current_hosts:
-                existing_hosts.append(host['id'])
+        add_list = None
+        try:
+            existing_hosts = []
+            if 'hosts' in hostgroup:
+                current_hosts = hostgroup['hosts']
+                for host in current_hosts:
+                    existing_hosts.append(host['id'])
 
-        LOG.info('existing hosts {0}'.format(existing_hosts))
-        if hosts and (set(hosts).issubset(set(existing_hosts))) :
-            LOG.info('Hosts are already present in host group {0}'
-                     .format(hostgroup['name']))
-            return False
-
-        add_list = self._get_add_hosts(existing_hosts, hosts)
-
-        if len(add_list) > 0:
-            try:
+            LOG.info('existing hosts {0}'.format(existing_hosts))
+            if hosts and (set(hosts).issubset(set(existing_hosts))) :
+                LOG.info('Hosts are already present in host group {0}'
+                         .format(hostgroup['name']))
+                return False
+            add_list = self._get_add_hosts(existing_hosts, hosts)
+            if len(add_list) > 0:
                 LOG.info('Adding hosts {0} to host group {1}'.format(
                     add_list, hostgroup['name']))
                 self.conn.provisioning.add_hosts_to_host_group(
                     hostgroup['id'], add_list)
                 return True
-            except Exception as e:
-                error_msg = (
-                    ("Adding hosts {0} to host group {1} failed with"
-                     "error {2}").format(
-                        add_list, hostgroup['name'], str(e)))
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-        else:
-            LOG.info('No hosts to add to host group {0}'.format(
-                hostgroup['name']))
-            return False
+            else:
+                LOG.info('No hosts to add to host group {0}'.format(
+                    hostgroup['name']))
+                return False
+
+        except Exception as e:
+            error_msg = (
+                ("Adding hosts {0} to host group {1} failed with"
+                 "error {2}").format(
+                    add_list, hostgroup['name'], str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def remove_hostgroup_hosts(self, hostgroup, hosts):
+        remove_list = None
+        try:
+            existing_hosts = []
+            if 'hosts' in hostgroup:
+                current_hosts = hostgroup['hosts']
+                for host in current_hosts:
+                    existing_hosts.append(host['id'])
 
-        existing_hosts = []
-        if 'hosts' in hostgroup:
-            current_hosts = hostgroup['hosts']
-            for host in current_hosts:
-                existing_hosts.append(host['id'])
+            if existing_hosts is None or not len(existing_hosts):
+                LOG.info(
+                    'No hosts are present in host group {0}'.format(
+                        hostgroup['name']))
+                return False
 
-        if existing_hosts is None or not len(existing_hosts):
-            LOG.info(
-                'No hosts are present in host group {0}'.format(
-                    hostgroup['name']))
-            return False
+            remove_list = self._get_remove_hosts(existing_hosts, hosts)
 
-        remove_list = self._get_remove_hosts(existing_hosts, hosts)
-
-        if len(remove_list) > 0:
-            try:
+            if len(remove_list) > 0:
                 LOG.info('Removing hosts {0} from host group {1}'.format(
                     remove_list, hostgroup['name']))
                 self.conn.provisioning.remove_hosts_from_host_group(
                     hostgroup['id'], remove_list)
                 return True
-            except Exception as e:
-                error_msg = (("Removing hosts {0} from host group {1} failed"
-                              "with error {2}").format(
-                    remove_list,
-                    hostgroup['name'],
-                    str(e)))
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-        else:
-            LOG.info('No hosts to remove from host group {0}'.format(
-                hostgroup['name']))
-            return False
+            else:
+                LOG.info('No hosts to remove from host group {0}'.format(
+                    hostgroup['name']))
+                return False
+
+        except Exception as e:
+            error_msg = (("Removing hosts {0} from host group {1} failed"
+                          "with error {2}").format(
+                remove_list,
+                hostgroup['name'],
+                str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def rename_hostgroup(self, hostgroup, new_name):
         try:
@@ -464,7 +501,6 @@ class PowerStoreHostgroup(object):
                 hostgroup['name'], str(e))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-            return None
 
     def delete_hostgroup(self, hostgroup):
         '''

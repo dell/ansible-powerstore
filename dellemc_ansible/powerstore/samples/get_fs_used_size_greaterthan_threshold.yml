@@ -1,0 +1,51 @@
+# This sample provides list of the filesystem ids whose used_size is greater than given threshold percentage.
+- name: List filesystems whose used size is greater than given threshold
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: 'ip_address_of_the_array'
+    verifycert: False
+    user: 'your_username'
+    password: 'your_password'
+# threshold_percentage can be set to any valid int
+    threshold_percentage: 90
+
+  tasks:
+
+    - name: Get filesystem
+      dellemc_powerstore_gatherfacts:
+        array_ip: "{{array_ip}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        gather_subset:
+            - file_system
+        all_pages: True
+      register: all_filesystem
+
+    - set_fact:
+        all_filesystem_ids: "{{ all_filesystem['FileSystems'] | map(attribute='id') | list }}"
+
+    - name: Get filesystem detail by id
+      dellemc_powerstore_filesystem:
+        array_ip: "{{array_ip}}"
+        verifycert: "{{verifycert}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_id: "{{item}}"
+        state: "present"
+      register: all_fs_details
+      loop: "{{ all_filesystem_ids }}"
+
+    - set_fact:
+        all_fs_id: "{{ all_fs_details['results'] | map(attribute='filesystem_details.id') | list }}"
+        all_size_total: "{{ all_fs_details['results'] | map(attribute='filesystem_details.size_total') | list }}"
+        all_size_used: "{{ all_fs_details['results'] | map(attribute='filesystem_details.size_used') | list }}"
+
+    - name: List filesystem ids whose capacity reached greater than given threshold
+      debug:
+        msg: "{{item.0}}"
+      loop: "{{ all_fs_id | zip(all_size_used,all_size_total) | list }}"
+      when:
+        - item.2|int != 0
+        - item.1|int *100 / item.2|int > threshold_percentage

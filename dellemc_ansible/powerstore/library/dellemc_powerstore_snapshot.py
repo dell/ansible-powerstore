@@ -2,13 +2,14 @@
 # Copyright: (c) 2019, DellEMC
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
+from PyPowerStore.utils.exception import PowerStoreException
 import logging
 from datetime import datetime, timedelta
-from uuid import UUID
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -16,7 +17,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_snapshot
-version_added: '2.6'
+version_added: '2.7'
 short_description: Manage Snapshots on Dell EMC PowerStore.
 description:
 - Managing Snapshots on PowerStore.
@@ -29,10 +30,10 @@ description:
 - Modify Volume Snapshot,
 - Delete an existing Volume Snapshot.
 author:
-- Rajshree Khare (Rajshree.Khare@dell.com)
-- Prashant Rakheja (prashant.rakheja@dell.com)
+- Rajshree Khare (@khareRajshree) <ansible.team@dell.com>
+- Prashant Rakheja (@prashant-dell) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 options:
   snapshot_name:
     description:
@@ -182,6 +183,107 @@ EXAMPLES = r'''
 
 RETURN = r'''
 
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+create_vg_snap:
+    description: A boolean flag to indicate whether volume group snapshot got
+     created
+    returned: When value exists
+    type: bool
+
+create_vol_snap:
+    description: A boolean flag to indicate whether volume snapshot got
+     created
+    returned: When value exists
+    type: bool
+
+delete_vg_snap:
+    description: A boolean flag to indicate whether volume group snapshot got
+     deleted
+    returned: When value exists
+    type: bool
+
+delete_vol_snap:
+    description: A boolean flag to indicate whether volume snapshot got
+     deleted
+    returned: When value exists
+    type: bool
+
+modify_vg_snap:
+    description: A boolean flag to indicate whether volume group snapshot got
+     modified
+    returned: When value exists
+    type: bool
+
+modify_vol_snap:
+    description: A boolean flag to indicate whether volume snapshot got
+     modified
+    returned: When value exists
+    type: bool
+
+snap_details:
+    description: Details of the snapshot
+    returned: When snapshot exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the snapshot
+            type: str
+        name:
+            description:
+                - Name of the snapshot
+            type: str
+        size:
+            description:
+                - Size of the snapshot
+            type: int
+        description:
+            description:
+                - Description about the snapshot
+            type: str
+        creation_timestamp:
+            description:
+                - The creation timestamp of the snapshot
+            type: str
+        performance_policy_id:
+            description:
+                - The performance policy for the snapshot
+            type: str
+        protection_policy_id:
+            description:
+                - The protection policy of the snapshot
+            type: str
+        state:
+            description:
+                - The state of the snapshot
+            type: str
+        type:
+            description:
+                - The type of the snapshot
+            type: str
+        protection_data:
+            description:
+                - The protection data of the snapshot
+            type: complex
+            contains:
+                expiration_timestamp:
+                    description:
+                        - The expiration timestamp of the snapshot
+                    type: str
+        volumes:
+            description:
+                - The volumes details of the volume group snapshot
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The system generated ID given to the volume
+                         associated with the volume group
+                    type: str
 '''
 
 LOG = utils.get_logger('dellemc_powerstore_snapshot',
@@ -196,7 +298,8 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
+
 
 class PowerStoreSnapshot(object):
     """Class with Snapshot operations"""
@@ -221,7 +324,7 @@ class PowerStoreSnapshot(object):
         # Initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True,
+            supports_check_mode=False,
             mutually_exclusive=mutually_exclusive,
             required_one_of=required_one_of
         )
@@ -229,13 +332,13 @@ class PowerStoreSnapshot(object):
         LOG.info(
             'HAS_PY4PS = {0} , IMPORT_ERROR = {1}'.format(
                 HAS_PY4PS, IMPORT_ERROR))
-        if HAS_PY4PS is False:
+        if not HAS_PY4PS:
             self.module.fail_json(msg=IMPORT_ERROR)
         LOG.info(
             'IS_SUPPORTED_PY4PS_VERSION = {0} , VERSION_ERROR = {1}'.format(
                 IS_SUPPORTED_PY4PS_VERSION,
                 VERSION_ERROR))
-        if IS_SUPPORTED_PY4PS_VERSION is False:
+        if not IS_SUPPORTED_PY4PS_VERSION:
             self.module.fail_json(msg=VERSION_ERROR)
 
         self.py4ps_conn = utils.get_powerstore_connection(self.module.params,
@@ -289,9 +392,18 @@ class PowerStoreSnapshot(object):
                         break
             return snapshot
         except Exception as e:
-            LOG.info("Not able to get snapshot details for "
-                     "volume: {0} with error {1}".format(volume_id,
-                                                         str(e)))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR \
+                    and e.status_code == "404":
+                msg = 'No Volume Snapshot present with name {0}, id {1}' \
+                      ' error: {2}'.format(snapshot_name, snapshot_id, str(e))
+                LOG.info(msg)
+                return None
+            msg = "Not able to get snapshot details for "
+            "volume: {0} with error {1}".format(volume_id,
+                                                str(e))
+            LOG.info(msg)
+            self.module.fail_json(msg=msg)
 
     def get_vol_group_snapshot(self, vg_id, snapshot_name, snapshot_id):
         """Get Volume Group Snapshot"""
@@ -313,15 +425,21 @@ class PowerStoreSnapshot(object):
                         break
             return snapshot
         except Exception as e:
-            LOG.info("Not able to get snapshot details for "
-                     "volume group: {0} with error {1}".format(
-                                                        vg_id, str(e)))
+            msg = "Not able to get snapshot details for volume group: {0} " \
+                  "with error {1}".format(vg_id, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR \
+                    and e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.info(msg)
+            self.module.fail_json(msg=msg)
 
     def get_vol_id_from_volume(self, volume):
         """Maps the volume to volume ID"""
 
-        is_valid_uuid = self.is_valid_uuid(volume)
-        if is_valid_uuid:
+        is_valid_uuid = utils.name_or_id(volume)
+        if is_valid_uuid == "ID":
             try:
                 vol = self.provisioning.get_volume_details(volume)
                 return vol['id']
@@ -347,9 +465,9 @@ class PowerStoreSnapshot(object):
     def get_vol_group_id_from_vg(self, volume_group):
         """Maps the volume group to Volume Group ID"""
 
-        is_valid_uuid = self.is_valid_uuid(volume_group)
+        is_valid_uuid = utils.name_or_id(volume_group)
 
-        if is_valid_uuid:
+        if is_valid_uuid == "ID":
             try:
                 vg = self.provisioning.get_volume_group_details(
                     volume_group_id=volume_group)
@@ -498,10 +616,11 @@ class PowerStoreSnapshot(object):
             self.protection.delete_volume_snapshot(snapshot['id'])
             return True
         except Exception as e:
+            e_msg = str(e)
             error_message = 'Failed to delete snapshot: {0} with error: {1}'
-            LOG.error(error_message.format(snapshot['name'], str(e)))
+            LOG.error(error_message.format(snapshot['name'], e_msg))
             self.module.fail_json(msg=error_message.format(snapshot['name'],
-                                                           str(e)))
+                                                           e_msg))
 
     def delete_vol_group_snapshot(self, snapshot):
         """Deletes a Vol group snapshot on PowerStore"""
@@ -509,10 +628,10 @@ class PowerStoreSnapshot(object):
             self.protection.delete_volume_group_snapshot(snapshot['id'])
             return True
         except Exception as e:
-            error_message = 'Failed to delete snapshot: {0} with error: {1}'
-            LOG.error(error_message.format(snapshot['name'], str(e)))
-            self.module.fail_json(msg=error_message.format(snapshot['name'],
-                                                           str(e)))
+            error_message = "Failed to delete snapshot: {0} with error: " \
+                            "{1}".format(snapshot['name'], str(e))
+            LOG.error(error_message)
+            self.module.fail_json(msg=error_message)
 
     def rename_vol_snapshot(self, snapshot, new_name):
         """Renames a vol snapshot"""
@@ -524,10 +643,17 @@ class PowerStoreSnapshot(object):
         if snapshot['name'] == new_name:
             return False
         try:
+            changed = False
             self.protection.modify_volume_snapshot(
                 snapshot_id=snapshot['id'],
                 name=new_name)
-            return True
+            changed = True
+
+            if changed:
+                resp = self.get_vol_snap_details(snapshot)
+                return changed, resp
+            else:
+                return changed, None
         except Exception as e:
             error_message = 'Failed to rename snapshot: {0} with error: {1}'
             LOG.error(error_message.format(snapshot['name'], str(e)))
@@ -543,10 +669,17 @@ class PowerStoreSnapshot(object):
         if snapshot['name'] == new_name:
             return False
         try:
+            changed = False
             self.protection.modify_volume_group_snapshot(
                 snapshot_id=snapshot['id'],
                 name=new_name)
-            return True
+            changed = True
+
+            if changed:
+                resp = self.get_vol_group_snap_details(snapshot)
+                return changed, resp
+            else:
+                return changed, None
         except Exception as e:
             error_message = 'Failed to delete snapshot: {0} with error: {1}'
             LOG.error(error_message.format(snapshot['name'], str(e)))
@@ -577,7 +710,6 @@ class PowerStoreSnapshot(object):
         elif volume_group is not None:
             snap_details = self.get_vol_group_snap_details(snapshot)
 
-        LOG.debug("The snap details are: {0}".format(snap_details))
         snap_creation_timestamp = None
         if 'creation_timestamp' in snap_details:
             # Only taking into account YYYY-MM-DDTHH-MM, ignoring
@@ -739,14 +871,6 @@ class PowerStoreSnapshot(object):
             self.module.fail_json(msg=error_message.format(snapshot['name'],
                                                            str(e)))
 
-    def is_valid_uuid(self, val):
-        """Determines if the string is a valid UUID"""
-        try:
-            UUID(str(val))
-            return True
-        except ValueError:
-            return False
-
     def validate_expiration_timestamp(self, expiration_timestamp):
         """Validates whether the expiration timestamp is valid"""
         try:
@@ -821,11 +945,8 @@ class PowerStoreSnapshot(object):
         snapshot_modification_details = dict()
         if snapshot is not None:
             is_snap_modified, snapshot_modification_details = \
-                self.check_snapshot_modified(snapshot,
-                                             volume,
-                                             volume_group,
-                                             description,
-                                             desired_retention,
+                self.check_snapshot_modified(snapshot, volume, volume_group,
+                                             description, desired_retention,
                                              retention_unit,
                                              expiration_timestamp)
 
@@ -869,14 +990,14 @@ class PowerStoreSnapshot(object):
         if state == 'present' and volume and new_snapshot_name:
             LOG.info("Renaming snapshot {0} to new name {1}".format(
                 snapshot['name'], new_snapshot_name))
-            result['modify_vol_snap'] = self.rename_vol_snapshot(
-                snapshot, new_snapshot_name)
+            result['modify_vol_snap'], result['snap_details'] = \
+                self.rename_vol_snapshot(snapshot, new_snapshot_name)
         elif state == 'present' and volume_group \
                 and new_snapshot_name:
             LOG.info("Renaming snapshot {0} to new name {1}".format(
                 snapshot['name'], new_snapshot_name))
-            result['modify_vg_snap'] = self.rename_vol_group_snapshot(
-                snapshot, new_snapshot_name)
+            result['modify_vg_snap'], result['snap_details'] = \
+                self.rename_vol_group_snapshot(snapshot, new_snapshot_name)
 
         if state == 'present' and snapshot and volume and is_snap_modified:
             LOG.info("Modifying snapshot {0}".format(snapshot['name']))
@@ -893,20 +1014,18 @@ class PowerStoreSnapshot(object):
                     snapshot_modification_details) or \
                 result['modify_vg_snap']
 
-        if state == 'present' and (snapshot_name or snapshot_id) and volume \
-                and not desired_retention \
-                and not expiration_timestamp:
-            result['snap_details'] = self.get_vol_snap_details(snapshot)
-        elif state == 'present' and (snapshot_name or snapshot_id) \
-                and volume_group and not desired_retention \
-                and not expiration_timestamp:
-            result['snap_details'] = self.get_vol_group_snap_details(
-                snapshot)
-
         if result['create_vol_snap'] or result['delete_vol_snap'] or result[
             'modify_vol_snap'] or result['create_vg_snap'] \
                 or result['delete_vg_snap'] or result['modify_vg_snap']:
             result['changed'] = True
+
+        if state == 'present' and (snapshot_name or snapshot_id) and volume\
+                and not result['changed']:
+            result['snap_details'] = self.get_vol_snap_details(snapshot)
+        elif state == 'present' and (snapshot_name or snapshot_id) and \
+                volume_group and not result['changed']:
+            result['snap_details'] = self.get_vol_group_snap_details(
+                snapshot)
 
         # Finally update the module result!
         self.module.exit_json(**result)

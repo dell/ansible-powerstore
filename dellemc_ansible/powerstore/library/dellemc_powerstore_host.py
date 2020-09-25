@@ -2,11 +2,13 @@
 # Copyright: (c) 2019, DellEMC
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
+from PyPowerStore.utils.exception import PowerStoreException
 import logging
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -14,16 +16,16 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_host
-version_added: '2.6'
+version_added: '2.7'
 short_description:  Manage host on PowerStore storage system
 description:
 - Managing host on PowerStore storage system includes create host with a
   set of initiators, add/remove initiators from host, rename host and
   delete host.
 author:
-- Manisha Agrawal (manisha.agrawal@dell.com)
+- Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 options:
   host_name:
     description:
@@ -45,7 +47,7 @@ options:
       - Operating system of the host.
       - Required when creating a host
       - os type cannot be modified for a given host.
-      choices: [Windows, Linux, ESXi, AIX, HP-UX, Solaris]
+      choices: ['Windows', 'Linux', 'ESXi', 'AIX', 'HP-UX', 'Solaris']
   initiators:
       description:
       - List of Initiator WWN or IQN to be added or removed from the host.
@@ -57,7 +59,7 @@ options:
     - present - indicates that the host should exist in system.
     - absent - indicates that the host should not exist in system.
     required: true
-    choices: [absent, present]
+    choices: ['absent', 'present']
   initiator_state:
     description:
     - Define whether the initiators should be present or absent in host.
@@ -65,7 +67,7 @@ options:
     - absent-in-host - indicates that the initiators should not exist on host.
     - Required when creating a host with initiators or adding/removing
       initiators to/from existing host.
-    choices: [present-in-host, absent-in-host]
+    choices: ['present-in-host', 'absent-in-host']
   new_name:
     description:
     - The new name of host for renaming function. This value must contain 128
@@ -151,33 +153,50 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-        host_details:
-            description: ''
-            host_group_id: null
-            id: c17fc987-bf82-480c-af31-9307b89923d3
-            initiators:
-            - active_sessions:
-              - appliance_id: A1
-                bond_id: null
-                eth_port_id: null
-                fc_port_id: 87e54fbdda07453e97e7351657515780
-                node_id: aa20d9fd0e684e28a690d5748edf1678
-                port_name: 58:cc:f0:90:48:a0:03:44
-                veth_id: null
-              - appliance_id: A1
-                bond_id: null
-                eth_port_id: null
-                fc_port_id: 6d35937d10f440f2ad6547c64571833a
-                node_id: aa20d9fd0e684e28a690d5748edf1678
-                port_name: 58:cc:f0:91:48:a0:03:44
-                veth_id: null
-              chap_mutual_username: ''
-              chap_single_username: ''
-              port_name: 21:00:00:24:ff:48:9f:8b
-              port_type: FC
-            name: host2
-            os_type: Linux
-            os_type_l10n: Linux
+
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+host_details:
+    description: Details of the host
+    returned: When host exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the host
+            type: str
+        name:
+            description:
+                - Name of the host
+            type: str
+        description:
+            description:
+                - Description about the host
+            type: str
+        host_group_id:
+            description:
+                - The host group ID of host
+            type: str
+        os_type:
+            description:
+                - The os type of the host
+            type: str
+        host_initiators:
+            description:
+                - The initiator details of this host
+            type: complex
+            contains: 
+                port_name:
+                    description:
+                        - Name of the port
+                    type: str
+                port_type:
+                    description:
+                        - The type of the port
+                    type: str
 '''
 LOG = utils.get_logger('dellemc_powerstore_host', log_devel=logging.INFO)
 
@@ -190,7 +209,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
 
 class PowerStoreHost(object):
     '''Class with host(initiator group) operations'''
@@ -199,10 +218,14 @@ class PowerStoreHost(object):
         # Define all parameters required by this module
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(self.get_powerstore_host_parameters())
+        mutually_exclusive = [['host_name', 'host_id']]
+        required_one_of = [['host_name', 'host_id']]
         # Initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True
+            supports_check_mode=False,
+            mutually_exclusive=mutually_exclusive,
+            required_one_of=required_one_of
         )
         
         LOG.info(
@@ -251,61 +274,71 @@ class PowerStoreHost(object):
             host_from_get = self.conn.provisioning.get_host_details(host_id)
             if host_from_get:
                 return host_from_get
+            return None
         except Exception as e:
             error_msg = 'Unable to get details of host with ID: {0} -- error: {1}'.format(host_id, str(e))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-        return None
 
     def get_host_id_by_name(self, host_name):
-        host_info = self.conn.provisioning.get_host_by_name(host_name)
-        if host_info:
-            if len(host_info) > 1:
-                error_msg = 'Multiple hosts by the same name found'
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            return host_info[0]['id']
-        return None
+        try:
+            host_info = self.conn.provisioning.get_host_by_name(host_name)
+            if host_info:
+                if len(host_info) > 1:
+                    error_msg = 'Multiple hosts by the same name found'
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+                return host_info[0]['id']
+        except Exception as e:
+            msg = 'Get Host {0} Details for powerstore array failed with ' \
+                  'error: {1}'.format(host_name, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR \
+                    and e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
 
     def create_host(self, host_name):
         '''
         Create host with given initiators
         '''
-        initiators = self.module.params['initiators']
-        if initiators is None or not len(initiators):
-            error_msg = ("Create host {0} failed as no initiators are"
-                         " specified".format(host_name))
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
-
-        os_type = self.module.params['os_type']
-        if os_type is None:
-            error_msg = ("Create host {0} failed as os_type is not"
-                         "specified".format(host_name))
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
-
-        list_of_initiators = []
-        initiator_type = []
-
-        for initiator in initiators:
-            current_initiator = {}
-            current_initiator['port_name'] = initiator
-            if initiator.startswith('iqn'):
-                current_initiator['port_type'] = 'iSCSI'
-                initiator_type.append('iSCSI')
-            else:
-                current_initiator['port_type'] = 'FC'
-                initiator_type.append('FC')
-            list_of_initiators.append(current_initiator)
-
-        if 'iSCSI' in initiator_type and 'FC' in initiator_type:
-            error_msg = ('Invalid IQNs. Cannot add both IQN & WWN as part of'
-                         ' host. Connect either fiber channel or iSCSI')
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
-
         try:
+            initiators = self.module.params['initiators']
+            if initiators is None or not len(initiators):
+                error_msg = ("Create host {0} failed as no initiators are"
+                             " specified".format(host_name))
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+
+            os_type = self.module.params['os_type']
+            if os_type is None:
+                error_msg = ("Create host {0} failed as os_type is not"
+                             "specified".format(host_name))
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+
+            list_of_initiators = []
+            initiator_type = []
+
+            for initiator in initiators:
+                current_initiator = {}
+                current_initiator['port_name'] = initiator
+                if initiator.startswith('iqn'):
+                    current_initiator['port_type'] = 'iSCSI'
+                    initiator_type.append('iSCSI')
+                else:
+                    current_initiator['port_type'] = 'FC'
+                    initiator_type.append('FC')
+                list_of_initiators.append(current_initiator)
+
+            if 'iSCSI' in initiator_type and 'FC' in initiator_type:
+                error_msg = ('Invalid IQNs. Cannot add both IQN & WWN as part of'
+                             ' host. Connect either fiber channel or iSCSI')
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+
             msg = "Creating host {0} with initiators {1}"
             LOG.info(msg.format(host_name, list_of_initiators))
             resp = self.conn.provisioning.create_host(
@@ -330,33 +363,35 @@ class PowerStoreHost(object):
         return rem_inits
 
     def add_host_initiators(self, host, initiators):
+        add_list = None
 
-        existing_inits = []
-        if 'host_initiators' in host:
-            current_initiators = host['host_initiators']
-            if current_initiators:
-                for initiator in current_initiators:
-                    existing_inits.append(initiator['port_name'])
+        try:
+            existing_inits = []
+            if 'host_initiators' in host:
+                current_initiators = host['host_initiators']
+                if current_initiators:
+                    for initiator in current_initiators:
+                        existing_inits.append(initiator['port_name'])
 
-        if initiators \
-           and (set(initiators).issubset(set(existing_inits))) :
-                LOG.info('Initiators are already present in host {0}'
-                         .format(host['name']))
-                return False
+            if initiators \
+               and (set(initiators).issubset(set(existing_inits))) :
+                    LOG.info('Initiators are already present in host {0}'
+                             .format(host['name']))
+                    return False
 
-        add_list = self._get_add_initiators(existing_inits, initiators)
-        add_list_with_type = []
-        for init in add_list:
-            current_initiator = {}
-            current_initiator['port_name'] = init
-            if init.startswith('iqn'):
-                current_initiator['port_type'] = 'iSCSI'
-            else:
-                current_initiator['port_type'] = 'FC'
-            add_list_with_type.append(current_initiator)
+            add_list = self._get_add_initiators(existing_inits, initiators)
+            add_list_with_type = []
+            for init in add_list:
+                current_initiator = {}
+                current_initiator['port_name'] = init
+                if init.startswith('iqn'):
+                    current_initiator['port_type'] = 'iSCSI'
+                else:
+                    current_initiator['port_type'] = 'FC'
+                add_list_with_type.append(current_initiator)
 
-        if len(add_list_with_type) > 0:
-            try:
+            if len(add_list_with_type) > 0:
+
                 LOG.info('Adding initiators {0} to host {1}'.format(
                     add_list_with_type, host['name']))
                 resp = self.conn.provisioning.modify_host(
@@ -364,36 +399,39 @@ class PowerStoreHost(object):
                 LOG.info(
                     'Response from add initiator function {0}'.format(resp))
                 return True
-            except Exception as e:
-                error_msg = (
-                    ("Adding initiators {0} to host {1} failed with"
-                     "error {2}").format(
-                        add_list, host['name'], str(e)))
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-        else:
-            LOG.info('No initiators to add to host {0}'.format(
-                host['name']))
-            return False
+            else:
+                LOG.info('No initiators to add to host {0}'.format(
+                    host['name']))
+                return False
+        except Exception as e:
+            error_msg = (
+                ("Adding initiators {0} to host {1} failed with"
+                 "error {2}").format(
+                    add_list, host['name'], str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def remove_host_initiators(self, host, initiators):
-        existing_inits = []
-        current_initiators = host['host_initiators']
+        remove_list = None
+        try:
 
-        if current_initiators:
-            for initiator in current_initiators:
-                existing_inits.append(initiator['port_name'])
+            existing_inits = []
+            current_initiators = host['host_initiators']
 
-        if existing_inits is None or not len(existing_inits):
-            LOG.info(
-                'No initiators are present in host {0}'.format(
-                    host['name']))
-            return False
+            if current_initiators:
+                for initiator in current_initiators:
+                    existing_inits.append(initiator['port_name'])
 
-        remove_list = self._get_remove_initiators(existing_inits, initiators)
+            if existing_inits is None or not len(existing_inits):
+                LOG.info(
+                    'No initiators are present in host {0}'.format(
+                        host['name']))
+                return False
 
-        if len(remove_list) > 0:
-            try:
+            remove_list = self._get_remove_initiators(existing_inits, initiators)
+
+            if len(remove_list) > 0:
+
                 LOG.info('Removing initiators {0} from host {1}'.format(
                     remove_list, host['name']))
                 resp = self.conn.provisioning.modify_host(
@@ -401,16 +439,16 @@ class PowerStoreHost(object):
                 LOG.info(
                     'Response from remove initiator function {0}'.format(resp))
                 return True
-            except Exception as e:
-                error_msg = (("Removing initiators {0} from host {1} failed"
-                              "with error {2}").format(
-                    remove_list, host['name'], str(e)))
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-        else:
-            LOG.info('No initiators to remove from host {0}'.format(
-                host['name']))
-            return False
+            else:
+                LOG.info('No initiators to remove from host {0}'.format(
+                    host['name']))
+                return False
+        except Exception as e:
+            error_msg = (("Removing initiators {0} from host {1} failed"
+                          "with error {2}").format(
+                remove_list, host['name'], str(e)))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
 
     def rename_host(self, host, new_name):
         try:
@@ -421,7 +459,6 @@ class PowerStoreHost(object):
                 host['name'], str(e))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
-            return None
 
     def delete_host(self, host):
         '''
@@ -461,15 +498,6 @@ class PowerStoreHost(object):
         initiators = self.module.params['initiators']
         new_name = self.module.params['new_name']
         os_type = self.module.params['os_type']
-        LOG.debug('Module {0} has been called with args {1} '
-                  .format(__file__, self.module.params))
-
-        if host_name and host_id:
-            error_msg = ("Operation on host failed as both host_id and "
-                         "host_name are specified. Please specify either of "
-                         "them")
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
 
         if host_name:
             host_id = self.get_host_id_by_name(host_name)

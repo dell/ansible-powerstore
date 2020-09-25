@@ -3,12 +3,12 @@
 
 from ansible.module_utils.basic import AnsibleModule
 from PyPowerStore.utils.exception import PowerStoreException
-from ansible.module_utils import dellemc_ansible_utils as utils
+from ansible.module_utils.storage.dell import \
+    dellemc_ansible_powerstore_utils as utils
 import logging
-from uuid import UUID
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'
                     }
@@ -16,7 +16,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_volumegroup
-version_added: '2.6'
+version_added: '2.7'
 short_description: Manage volume groups on PowerStore Storage System
 description:
 - Managing volume group on PowerStore Storage System includes
@@ -24,10 +24,10 @@ description:
   group, removing volumes from volume group, renaming volume group,
   modifying volume group and deleting volume group.
 author:
-- Akash Shendge (akash.shendge@dell.com)
-- Arindam Datta (arindam.datta@dell.com)
+- Akash Shendge (@shenda1) <ansible.team@dell.com>
+- Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.dellemc_powerstore
+  - dellemc_powerstore.dellemc_powerstore
 options:
   vg_name:
     description:
@@ -161,6 +161,79 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
+
+changed:
+    description: Whether or not the resource has changed
+    returned: always
+    type: bool
+
+add_vols_to_vg:
+    description: A boolean flag to indicate whether volume/s got added to
+     volume group
+    returned: When value exists
+    type: bool
+
+create_vg:
+    description: A boolean flag to indicate whether volume group got created
+    returned: When value exists
+    type: bool
+
+delete_vg:
+    description: A boolean flag to indicate whether volume group got deleted
+    returned: When value exists
+    type: bool
+
+modify_vg:
+    description:
+        - A boolean flag to indicate whether volume group got modified
+    type: bool
+
+remove_vols_from_vg:
+    description: A boolean flag to indicate whether volume/s got removed from
+     volume group
+    returned: When value exists
+    type: bool
+
+volume_group_details:
+    description: Details of the volume group
+    returned: When volume group exists
+    type: complex
+    contains:
+        id:
+            description:
+                - The system generated ID given to the volume group
+            type: str
+        name:
+            description:
+                - Name of the volume group 
+            type: str
+        description:
+            description:
+                - description about the volume group
+            type: str
+        protection_policy_id:
+            description:
+                - The protection policy of the volume group
+            type: str
+        is_write_order_consistent:
+            description:
+                - A boolean flag to indicate whether snapshot sets of the
+                 volume group will be write-order consistent
+            type: bool
+        type:
+            description:
+                - The type of the volume group
+            type: str
+        volumes:
+            description:
+                - The volumes details of the volume group
+            type: complex
+            contains:
+                id:
+                    description:
+                        - The system generated ID given to the volume
+                         associated with the volume group
+                    type: str
 '''
 
 LOG = utils.get_logger('dellemc_powerstore_volumegroup',
@@ -175,7 +248,8 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.0'
+APPLICATION_TYPE = 'Ansible/1.1'
+
 
 class PowerStoreVolumeGroup(object):
     """Class with Volume Group operations"""
@@ -185,20 +259,27 @@ class PowerStoreVolumeGroup(object):
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(get_powerstore_volume_group_parameters())
 
+        mutually_exclusive = [['vg_name', 'vg_id']]
+        required_one_of = [['vg_name', 'vg_id']]
+        required_together = [['volumes', 'vol_state']]
+
         # initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=True
+            supports_check_mode=False,
+            mutually_exclusive=mutually_exclusive,
+            required_one_of=required_one_of,
+            required_together=required_together
         )
 
         LOG.info('HAS_PY4PS = {0} , IMPORT_ERROR = {1}'.format(
                  HAS_PY4PS, IMPORT_ERROR))
-        if HAS_PY4PS is False:
+        if not HAS_PY4PS:
             self.module.fail_json(msg=IMPORT_ERROR)
         LOG.info('IS_SUPPORTED_PY4PS_VERSION = {0} , '
                  'VERSION_ERROR = {1}'.format(
                   IS_SUPPORTED_PY4PS_VERSION, VERSION_ERROR))
-        if IS_SUPPORTED_PY4PS_VERSION is False:
+        if not IS_SUPPORTED_PY4PS_VERSION:
             self.module.fail_json(msg=VERSION_ERROR)
 
         self.conn = utils.get_powerstore_connection(self.module.params,
@@ -231,15 +312,18 @@ class PowerStoreVolumeGroup(object):
                         get_volume_group_details(id)
                     LOG.info("Successfully Got VG with name {0}".format(name))
                     return vg_details
-
             return None
-
         except Exception as e:
-
             id_or_name = vg_id if vg_id else name
             errormsg = "Failed to get volume group {0} with error {1}". \
                 format(id_or_name, str(e))
+            if isinstance(e, PowerStoreException) and \
+                    e.err_code == PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(errormsg)
+                return None
             LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
 
     def delete_volume_group(self, volume_group_id):
         """Delete volume group"""
@@ -312,7 +396,7 @@ class PowerStoreVolumeGroup(object):
 
         for each_vol in vol_list:
             if each_vol:
-                identifier_type = self.name_or_id(each_vol)
+                identifier_type = utils.name_or_id(each_vol)
                 if identifier_type == "ID" and not (each_vol in vol_id_list):
                     vol_id_list.append(each_vol)
                 elif identifier_type == "NAME" and not (each_vol in vol_name_list):
@@ -383,7 +467,7 @@ class PowerStoreVolumeGroup(object):
 
         for each_vol in vol_list:
             if each_vol:
-                identifier_type = self.name_or_id(each_vol)
+                identifier_type = utils.name_or_id(each_vol)
                 if identifier_type == "ID" and not (each_vol in vol_id_list):
                     vol_id_list.append(each_vol)
                 elif identifier_type == "NAME" and not (each_vol in vol_name_list):
@@ -570,16 +654,6 @@ class PowerStoreVolumeGroup(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-    def name_or_id(self, val):
-        """Determines if the string is a name or id"""
-        try:
-            UUID(str(val))
-            LOG.info('{0} is a ID'.format(val))
-            return "ID"
-        except ValueError:
-            LOG.info('{0} is a NAME'.format(val))
-            return "NAME"
-
     def perform_module_operation(self):
         """
         Perform different actions on volume group based on user parameter
@@ -599,18 +673,11 @@ class PowerStoreVolumeGroup(object):
 
         volume_group = None
 
-        if not vg_name and not vg_id:
-            self.module.fail_json(msg='Specify volume group name or '
-                                      'volume group id')
-        elif vg_name and vg_id:
-            self.module.fail_json(msg='Specify volume group name or '
-                                      'volume group id, not both')
-
         volume_group = self.get_volume_group_details(vg_id=vg_id, name=vg_name)
         LOG.debug('volume_group details: {0}'.format(volume_group))
 
         if protection_policy:
-            prot_pol_identifier_type = self.name_or_id(protection_policy)
+            prot_pol_identifier_type = utils.name_or_id(protection_policy)
             if prot_pol_identifier_type == "ID":
                 protection_policy = self.get_protection_policy_details_by_id(
                     protection_policy)
@@ -630,10 +697,6 @@ class PowerStoreVolumeGroup(object):
             if new_vg_name:
                 self.module.fail_json(msg="Invalid argument, "
                                           "new_vg_name is not required")
-        if volumes and not vol_state:
-            msg="vol_state must also be specified along with Volumes"
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
 
         if vg_id is None and volume_group:
             vg_id = volume_group['id']
@@ -697,7 +760,7 @@ def get_powerstore_volume_group_parameters():
         vg_name=dict(required=False, type='str'),
         vg_id=dict(required=False, type='str'),
         new_vg_name=dict(required=False, type='str'),
-        volumes=dict(required=False, type='list'),
+        volumes=dict(required=False, type='list', elements='str'),
         vol_state=dict(required=False, choices=['absent-in-group',
                                                 'present-in-group'],
                        type='str'),
