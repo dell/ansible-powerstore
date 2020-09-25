@@ -38,7 +38,7 @@ The modules are written in such a way that all requests are idempotent and hence
   * NFS module
 
 ## Installation of SDK
-  1. Clone the repo using command: git clone https://github.com/dell/python-powerstore.
+  1. Clone the repo using command: git clone https://github.com/dell/python-powerstore
   2. Go to the root directory of setup
   3. Execute the following command:<br/>
      pip install .
@@ -48,6 +48,7 @@ The modules are written in such a way that all requests are idempotent and hence
   * Clone the latest development repository and install the ansible modules. 
   
   git clone https://github.com/dell/ansible-powerstore
+
   cd ansible-powerstore/dellemc_ansible
   
 ### For python 2.7 environment
