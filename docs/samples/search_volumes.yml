@@ -1,0 +1,32 @@
+# This playbook fetches all the volumes whose name matches the regex pattern.
+---
+- name: Volumes whose names match the regex pattern
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: 'ip_address_of_the_array'
+    user: 'your_username'
+    password: 'your_password'
+    verifycert: False
+    pattern: 'your_regex'
+  collections:
+  - dellemc.powerstore
+  tasks:
+    - name: Get the details of all the Volumes
+      dellemc_powerstore_gatherfacts:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        verifycert: "{{verifycert}}"
+        gather_subset:
+          - vol
+      register: subset_result
+
+    # The set_fact generates a list of the volume names using the details of volumes(the output of the previous task).
+    - set_fact:
+        all_volumes_names: "{{ subset_result['Volumes'] | map(attribute='name') | list }}"
+
+    # This task gets the list of the volumes which match a regular expression. The syntax of the regular expression is same as in python.
+    - name: List of the all the volume names which match the pattern
+      debug:
+           msg: "{{ all_volumes_names  | select('match',pattern ) | list  }}"
