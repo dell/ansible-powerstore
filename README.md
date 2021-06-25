@@ -51,7 +51,7 @@ The modules are written in such a way that all requests are idempotent and hence
 ## Installing Collections
   1. Download the tar build and use the following command to install the collection anywhere in your system:
 		
-		ansible-galaxy collection install dellemc-powerstore-1.2.0.tar.gz -p <install_path>
+		ansible-galaxy collection install dellemc-powerstore-1.2.1.tar.gz -p <install_path>
 
   2. Set the environemnt variable:
 		
@@ -67,7 +67,7 @@ The modules are written in such a way that all requests are idempotent and hence
 		ansible-doc dellemc.powerstore.dellemc_powerstore_gatherfacts
 
 ## Running Ansible Modules
-The Ansible server must be configured with Python library for PowerStore to run the Ansible playbooks. The [Documents]( https://github.com/dell/ansible-powerstore/tree/1.2.0/dellemc_ansible/docs ) provide information on different Ansible modules along with their functions and syntax. The parameters table in the Product Guide provides information on various parameters which needs to be configured before running the modules.
+The Ansible server must be configured with Python library for PowerStore to run the Ansible playbooks. The [Documents]( https://github.com/dell/ansible-powerstore/tree/1.2.1/docs ) provide information on different Ansible modules along with their functions and syntax. The parameters table in the Product Guide provides information on various parameters which needs to be configured before running the modules.
 
 ## SSL Certificate Validation
  1. Copy the CA certificate to this "/etc/pki/ca-trust/source/anchors" path of the host by any external means.
