@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2020-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """Ansible module for managing filesystem snapshots on PowerStore"""
 
@@ -165,11 +166,12 @@ filesystem_snap_details:
             description: Description of the filesystem snapshot.
             type: str
         expiration_timestamp:
-            description: The date and time the snapshot is due to be automatically
-                  deleted by the system.
+            description: The date and time the snapshot is due to be
+                         automatically deleted by the system.
             type: str
         id:
-            description: Unique identifier of the filesystem snapshot instance.
+            description: Unique identifier of the filesystem snapshot
+                         instance.
             type: str
         name:
             description: The name of the snapshot.
@@ -192,7 +194,6 @@ filesystem_snap_details:
             type: str
 """
 
-from uuid import UUID
 from datetime import datetime, timedelta
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
@@ -210,7 +211,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreFilesystemSnapshot(object):
@@ -371,7 +372,7 @@ class PowerStoreFilesystemSnapshot(object):
             fs = self.provisioning.get_filesystem_details(
                 filesystem_id=filesystem_id)
             return fs['name']
-        except Exception as e:
+        except Exception:
             error_msg = "Filesystem {0} not found on the array.".format(
                 filesystem_id)
             LOG.error(error_msg)
@@ -415,14 +416,14 @@ class PowerStoreFilesystemSnapshot(object):
 
                     # Check if given filesystem_id matches with the parent_id
                     # of the snapshot
-                    if snapshot and filesystem_id:
-                        if snapshot[0]['parent_id'] != filesystem_id:
-                            error_msg = "Given filesystem {0} does not " \
-                                        "match with the filesystem of the " \
-                                        "snapshot. Please provide valid " \
-                                        "filesystem.".format(filesystem_id)
-                            LOG.error(error_msg)
-                            self.module.fail_json(msg=error_msg)
+                    if snapshot and filesystem_id and \
+                            snapshot[0]['parent_id'] != filesystem_id:
+                        error_msg = "Given filesystem {0} does not match" \
+                                    " with the filesystem of the snapshot. " \
+                                    "Please provide valid filesystem.".\
+                            format(filesystem_id)
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
                 else:
                     snapshot = self.protection.\
                         get_filesystem_snapshot_details_by_name(
@@ -463,8 +464,7 @@ class PowerStoreFilesystemSnapshot(object):
             self.module.fail_json(msg=msg)
 
     def create_filesystem_snapshot(self, filesystem_id, snapshot_name,
-                                   description, desired_retention,
-                                   retention_unit, expiration_timestamp,
+                                   description, expiration_timestamp,
                                    access_type, nas_server):
         """Create a snapshot for a filesystem on PowerStore"""
 
@@ -476,28 +476,6 @@ class PowerStoreFilesystemSnapshot(object):
                 "{1}. Please provide filesystem details to create a " \
                 "new snapshot.".format(snapshot_name, nas_server)
             self.module.fail_json(msg=error_msg)
-
-        if expiration_timestamp is not None:
-            self.validate_expiration_timestamp(expiration_timestamp)
-            current_timestamp = datetime.utcnow().isoformat()[0:19] + 'Z'
-            if expiration_timestamp < current_timestamp:
-                self.module.fail_json(msg="The given timestamp {0} is already"
-                                          " expired. Current timestamp is"
-                                          " {1}. Please provide valid "
-                                          "expiration timestamp".format(
-                                              expiration_timestamp,
-                                              current_timestamp))
-
-        if desired_retention is None and expiration_timestamp is None:
-            expiration_timestamp = None
-
-        if desired_retention:
-            if retention_unit == 'days':
-                expiration_timestamp = (datetime.utcnow() + timedelta(
-                    days=desired_retention)).isoformat() + 'Z'
-            else:
-                expiration_timestamp = (datetime.utcnow() + timedelta(
-                    hours=desired_retention)).isoformat() + 'Z'
 
         if access_type:
             access_type = access_type.title()
@@ -524,6 +502,7 @@ class PowerStoreFilesystemSnapshot(object):
                                    nas_server):
         """Determines whether the snapshot has been modified"""
         LOG.info("Determining if the filesystem snapshot has been modified..")
+        datetime_format = "%Y-%m-%dT%H:%MZ"
 
         if access_type and access_type.title() != snapshot['access_type']:
             error_message = "Modification of access type is not allowed."
@@ -543,12 +522,12 @@ class PowerStoreFilesystemSnapshot(object):
             if retention_unit == "days":
                 expiration_timestamp = \
                     (datetime.strptime(creation_timestamp,
-                                       '%Y-%m-%dT%H:%MZ') + timedelta(
+                                       datetime_format) + timedelta(
                         days=int(desired_retention))).isoformat() + 'Z'
             else:
                 expiration_timestamp = \
                     (datetime.strptime(creation_timestamp,
-                                       '%Y-%m-%dT%H:%MZ') + timedelta(
+                                       datetime_format) + timedelta(
                         hours=int(desired_retention))).isoformat() + 'Z'
 
         LOG.info("The new expiration timestamp is %s", expiration_timestamp)
@@ -564,9 +543,9 @@ class PowerStoreFilesystemSnapshot(object):
                 new_timestamp = expiration_timestamp[0:16] + 'Z'
 
                 existing_time_obj = datetime.strptime(existing_timestamp,
-                                                      '%Y-%m-%dT%H:%MZ')
+                                                      datetime_format)
                 new_time_obj = datetime.strptime(new_timestamp,
-                                                 '%Y-%m-%dT%H:%MZ')
+                                                 datetime_format)
 
                 if existing_time_obj > new_time_obj:
                     td = existing_time_obj - new_time_obj
@@ -587,11 +566,11 @@ class PowerStoreFilesystemSnapshot(object):
             snap_modify_dict[
                 'expiration_timestamp'] = "1970-01-01T00:00:00.000Z"
 
-        if description is not None and snapshot['description'] != description:
-            if (snapshot['description'] is None and description != "") or \
-                    (snapshot['description'] is not None):
-                snap_modify_dict['description'] = \
-                    description
+        if (description is not None and
+            snapshot['description'] != description) and \
+                ((snapshot['description'] is None and description != "") or
+                 (snapshot['description'] is not None)):
+            snap_modify_dict['description'] = description
 
         LOG.info("Snapshot modification details: %s", snap_modify_dict)
 
@@ -629,10 +608,10 @@ class PowerStoreFilesystemSnapshot(object):
             return True
         except Exception as e:
             e_msg = str(e)
-            if isinstance(e, utils.PowerStoreException):
-                if e.status_code == "422" and "not found in the " \
-                                              "system" in e_msg:
-                    return False
+            if isinstance(e, utils.PowerStoreException) and \
+                    e.status_code == "422" and \
+                    "not found in the system" in e_msg:
+                return False
             errormsg = "Delete operation of filesystem snapshot with " \
                        "name: {0}, id: {1} failed with error {2}".\
                 format(snapshot['name'], snapshot['id'], e_msg)
@@ -691,8 +670,17 @@ class PowerStoreFilesystemSnapshot(object):
             result['create_fs_snap'] =\
                 self.create_filesystem_snapshot(
                     filesystem_id, snapshot_name, description,
-                    desired_retention, retention_unit, expiration_timestamp,
-                    access_type, nas_server)
+                    expiration_timestamp, access_type, nas_server)
+
+            snapshot = self.get_fs_snapshot(
+                snapshot_name, snapshot_id, filesystem_id, nas_server)
+
+            fs_snap_modify_dict = \
+                self.check_fs_snapshot_modified(
+                    snapshot, filesystem_id, description, desired_retention,
+                    retention_unit, expiration_timestamp, access_type,
+                    nas_server)
+
         elif state == 'absent' and snapshot:
             result['delete_fs_snap'] = self.delete_filesystem_snapshot(
                 snapshot)

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -17,9 +18,9 @@ short_description:  Manage host group on PowerStore Storage System.
 description:
 - Managing host group on PowerStore storage system includes create
   host group with a set of hosts, add/remove hosts from host group, rename
-  host group, and delete host group.
-- Deletion of a host group results in deletion of the containing hosts as
-  well. Remove hosts from the host group first to retain them.
+  host group, and delete host group. Deletion of a host group results in
+  deletion of the containing hosts as well. Remove hosts from the host group
+  first to retain them.
 author:
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
@@ -169,33 +170,33 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 hostgroup_details:
-    description: Details of the host group
+    description: Details of the host group.
     returned: When host group exists
     type: complex
     contains:
         id:
-            description: The system generated ID given to the host group
+            description: The system generated ID given to the host group.
             type: str
         name:
-            description: Name of the host group
+            description: Name of the host group.
             type: str
         description:
-            description: Description about the host group
+            description: Description about the host group.
             type: str
         hosts:
-            description: The hosts details which are part of this host group
+            description: The hosts details which are part of this host group.
             type: complex
             contains:
                 id:
-                    description: The ID of the host
+                    description: The ID of the host.
                     type: str
                 name:
-                    description: The name of the host
+                    description: The name of the host.
                     type: str
 '''
 
@@ -215,7 +216,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreHostgroup(object):
@@ -331,9 +332,9 @@ class PowerStoreHostgroup(object):
                     host_list.append(host)
                 else:
                     # check if host is host_name
-                    id = self.get_host_id_by_name(host)
-                    if id:
-                        host_list.append(id)
+                    host_id = self.get_host_id_by_name(host)
+                    if host_id:
+                        host_list.append(host_id)
                     else:
                         error_msg = ("Host {0} not found".format(host))
                         LOG.error(error_msg)
@@ -369,8 +370,8 @@ class PowerStoreHostgroup(object):
         try:
 
             if hosts is None or not len(hosts):
-                error_msg = ("Create host group {0} failed as no hosts or invalid"
-                             " hosts specified".format(hostgroup_name))
+                error_msg = ("Create host group {0} failed as no hosts or "
+                             "invalid hosts specified".format(hostgroup_name))
                 LOG.error(error_msg)
                 self.module.fail_json(msg=error_msg)
 
@@ -448,7 +449,7 @@ class PowerStoreHostgroup(object):
                 for host in current_hosts:
                     existing_hosts.append(host['id'])
 
-            if existing_hosts is None or not len(existing_hosts):
+            if len(existing_hosts) == 0:
                 LOG.info('No hosts are present in host group %s',
                          hostgroup['name'])
                 return False
@@ -500,19 +501,13 @@ class PowerStoreHostgroup(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
 
-    def _create_result_dict(self, changed):
+    def _create_result_dict(self, changed, hostgroup_id):
         self.result['changed'] = changed
         if self.module.params['state'] == 'absent':
             self.result['hostgroup_details'] = {}
         else:
-            if self.module.params['hostgroup_name']:
-                hostgroup_id = self.get_hostgroup_id_by_name(
-                    self.module.params['hostgroup_name'])
-                self.result['hostgroup_details'] = self.get_hostgroup(
-                    hostgroup_id)
-            elif self.module.params['hostgroup_id']:
-                self.result['hostgroup_details'] = self.get_hostgroup(
-                    self.module.params['hostgroup_id'])
+            self.result['hostgroup_details'] = self.get_hostgroup(
+                hostgroup_id)
 
     def perform_module_operation(self):
         '''
@@ -525,14 +520,6 @@ class PowerStoreHostgroup(object):
         hostgroup_id = self.module.params['hostgroup_id']
         hosts = self.module.params['hosts']
         new_name = self.module.params['new_name']
-
-        if hostgroup_name and hostgroup_id:
-            error_msg = (
-                "Operation on host group failed as both hostgroup_id and "
-                "hostgroup_name are specified. Please specify either of "
-                "them")
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
 
         if hostgroup_name:
             hostgroup_id = self.get_hostgroup_id_by_name(hostgroup_name)
@@ -552,7 +539,8 @@ class PowerStoreHostgroup(object):
                 hostgroup_id = self.get_hostgroup_id_by_name(hostgroup_name)
 
         if (state == 'present' and hostgroup and host_state ==
-                'present-in-group' and host_ids_list and len(host_ids_list) > 0):
+                'present-in-group' and host_ids_list and
+                len(host_ids_list) > 0):
             LOG.info('Adding hosts to host group %s', hostgroup['name'])
             changed = (
                 self.add_hostgroup_hosts(
@@ -560,26 +548,25 @@ class PowerStoreHostgroup(object):
                     hosts=host_ids_list) or changed)
 
         if (state == 'present' and hostgroup and host_state ==
-                'absent-in-group' and host_ids_list and len(host_ids_list) > 0):
+                'absent-in-group' and host_ids_list and
+                len(host_ids_list) > 0):
             LOG.info('Removing hosts from host group %s', hostgroup['name'])
             changed = (
                 self.remove_hostgroup_hosts(
                     hostgroup,
                     hosts=host_ids_list) or changed)
 
-        if state == 'present' and hostgroup and new_name:
-            if hostgroup['name'] != new_name:
-                LOG.info('Renaming host group %s to %s', hostgroup['name'],
-                         new_name)
-                changed = self.rename_hostgroup(hostgroup, new_name)
-                if changed:
-                    self.module.params['hostgroup_name'] = new_name
+        if state == 'present' and hostgroup and new_name and \
+                hostgroup['name'] != new_name:
+            LOG.info('Renaming host group %s to %s', hostgroup['name'],
+                     new_name)
+            changed = self.rename_hostgroup(hostgroup, new_name)
 
         if state == 'absent' and hostgroup:
             LOG.info('Deleting host group %s ', hostgroup['name'])
             changed = self.delete_hostgroup(hostgroup) or changed
 
-        self._create_result_dict(changed)
+        self._create_result_dict(changed, hostgroup_id)
         # Update the module's final state
         LOG.info('changed %s', changed)
         self.module.exit_json(**self.result)

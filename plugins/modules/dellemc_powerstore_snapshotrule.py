@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -16,12 +17,10 @@ version_added: '1.0.0'
 short_description: SnapshotRule operations on a PowerStore storage system.
 description:
 - Performs all snapshot rule operations on PowerStore Storage System.
-- This modules supports get details of an existing snapshot rule,
-  create new Snapshot Rule with Interval, create new Snapshot Rule
-  with specific time and days_of_week with all supported.
-  parameters.
-- Modify Snapshot Rule with supported parameters.
-- Delete a specific Snapshot Rule.
+  This modules supports get details of an existing snapshot rule, create new
+  Snapshot Rule with Interval, create new Snapshot Rule with specific time and
+  days_of_week with all supported parameters. Modify Snapshot Rule with
+  supported parameters. Delete a specific Snapshot Rule.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -48,10 +47,10 @@ options:
     description:
     - List of strings to specify days of the week on which the Snapshot rule.
       should be applied.
-      Must be applied for Snapshot rules where the 'time_of_day' parameter is set.
-      Optional for the Snapshot rule created with an interval.
-      When 'days_of_week' is not specified for a new Snapshot rule, the rule
-       is applied on every day of the week.
+      Must be applied for Snapshot rules where the 'time_of_day' parameter is
+      set. Optional for the Snapshot rule created with an interval. When
+      'days_of_week' is not specified for a new Snapshot rule, the rule is
+      applied on every day of the week.
     required: False
     choices: [ Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,
      Sunday ]
@@ -190,45 +189,45 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 snapshotrule_details:
-    description: Details of the snapshot rule
+    description: Details of the snapshot rule.
     returned: When snapshot rule exists
     type: complex
     contains:
         id:
-            description: The system generated ID given to the snapshot rule
+            description: The system generated ID given to the snapshot rule.
             type: str
         name:
-            description: Name of the snapshot rule
+            description: Name of the snapshot rule.
             type: str
         days_of_week:
-            description: List of string to specify days of the week on which the
-                rule should be applied
+            description: List of string to specify days of the week on which
+                         the rule should be applied.
             type: list
         time_of_day:
-            description: The time of the day to take a daily snapshot
+            description: The time of the day to take a daily snapshot.
             type: str
         interval:
-            description: The interval between snapshots
+            description: The interval between snapshots.
             type: str
         desired_retention:
-            description: Desired snapshot retention period
+            description: Desired snapshot retention period.
             type: int
         policies:
-            description: The protection policies details of the snapshot rule
+            description: The protection policies details of the snapshot rule.
             type: complex
             contains:
                 id:
-                    description: The protection policy ID in which the snapshot rule
-                        is selected
+                    description: The protection policy ID in which the
+                                 snapshot rule is selected.
                     type: str
                 name:
-                    description: Name of the protection policy in which the snapshot
-                        rule is selected
+                    description: Name of the protection policy in which the
+                                 snapshot rule is selected.
                     type: str
  '''
 
@@ -250,7 +249,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerstoreSnapshotrule(object):
@@ -431,25 +430,6 @@ class PowerstoreSnapshotrule(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-    def modify_snapshotrule_required(self, snapruledict1, snapruledict2):
-        """to compare two snapshot rule"""
-        for key in snapruledict1.keys():
-            if key in snapruledict2.keys():
-                if snapruledict2[key] is not None:
-                    if isinstance(snapruledict1[key], list):
-                        if set(snapruledict1[key]) != set(snapruledict2[key]):
-                            LOG.debug("Key %s in snapruledict1=%s,"
-                                      "snapruledict2=%s", key,
-                                      snapruledict1[key], snapruledict2[key])
-                            return True
-                    else:
-                        if snapruledict1[key] != snapruledict2[key]:
-                            LOG.debug("Key %s in snapruledict1=%s,"
-                                      "snapruledict2=%s", key,
-                                      snapruledict1[key], snapruledict2[key])
-                            return True
-        return False
-
     def get_clusters(self):
         """Get the clusters"""
         try:
@@ -551,12 +531,11 @@ class PowerstoreSnapshotrule(object):
                                  'desired_retention': desired_retention
                                  }
 
-            to_modify = self.modify_snapshotrule_required(
+            to_modify = modify_snapshotrule_required(
                 snap_rule, new_snaprule_dict)
             LOG.debug("ToModify : %s", to_modify)
 
             if to_modify:
-
                 result['changed'], result['snapshotrule_details'] = \
                     self.modify_snapshot_rule(
                     snap_rule_id, new_name, desired_retention,
@@ -597,6 +576,19 @@ def get_powerstore_snapshotrule_parameters():
         delete_snaps=dict(required=False, type='bool'),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
+
+
+def modify_snapshotrule_required(snapruledict1, snapruledict2):
+    """to compare two snapshot rule"""
+    for key in snapruledict1.keys():
+        if key in snapruledict2.keys() and snapruledict2[key] is not None and\
+                ((isinstance(snapruledict1[key], list) and
+                 set(snapruledict1[key]) != set(snapruledict2[key])) or
+                 (snapruledict1[key] != snapruledict2[key])):
+            LOG.debug("Key %s in snapruledict1=%s, snapruledict2=%s", key,
+                      snapruledict1[key], snapruledict2[key])
+            return True
+    return False
 
 
 def main():

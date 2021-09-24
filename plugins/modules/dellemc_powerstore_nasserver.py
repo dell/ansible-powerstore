@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # Copyright: (c) 2020-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+
 """ Ansible module for managing NAS server on PowerStore"""
 from __future__ import (absolute_import, division, print_function)
 
@@ -142,59 +144,61 @@ nasserver_details:
             type: str
         current_node:
             description: Unique identifier and name of the node on which the
-                NAS server is running.
+                         NAS server is running.
             type: dict
         preferred_node:
             description: Unique identifier and name of the preferred node for
-                the NAS server.
+                         the NAS server.
             type: dict
         default_unix_user:
             description: Default Unix user name used for granting access in
-                case of Windows to Unix user mapping failure.
+                         case of Windows to Unix user mapping failure.
             type: str
         current_unix_directory_service:
             description: Define the Unix directory service used for looking up
-                identity information for Unix such as UIDs, GIDs,
-                net groups, and so on.
+                         identity information for Unix such as UIDs, GIDs, net
+                         groups, and so on.
             type: str
         is_username_translation_enabled:
-            description: Enable the possibility to match a windows account to a
-                Unix account with different names.
+            description: Enable the possibility to match a windows account to
+                         a Unix account with different names.
             type: bool
         production_IPv4_interface_id:
             description: Unique identifier of the preferred IPv4 production
-                interface.
+                         interface.
             type: str
         production_IPv6_interface_id:
             description: Unique identifier of the preferred IPv6 production
-                interface.
+                         interface.
             type: str
         backup_IPv4_interface_id:
-            description: Unique identifier of the preferred IPv4 backup interface.
+            description: Unique identifier of the preferred IPv4 backup
+                         interface.
             type: str
         backup_IPv6_interface_id:
-            description: Unique identifier of the preferred IPv6 backup interface.
+            description: Unique identifier of the preferred IPv6 backup
+                         interface.
             type: str
         file_interfaces:
-            description: This is the inverse of the resource type file_interface
-                association.Will return the id,name & ip_address of the
-                associated file interface
+            description: This is the inverse of the resource type
+                         file_interface association. Will return the id,name &
+                         ip_address of the associated file interface.
             type: dict
         nfs_servers:
             description: This is the inverse of the resource type nfs_server
-                association.
+                         association.
             type: str
         smb_servers:
             description: This is the inverse of the resource type smb_server
-                association.
+                         association.
             type: str
         file_ldaps:
             description: This is the inverse of the resource type file_ldap
-                association.
+                         association.
             type: str
         file_systems:
             description: This is the inverse of the resource type file_system
-                association.
+                         association.
             type: dict
 
   '''
@@ -216,7 +220,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreNasServer(object):

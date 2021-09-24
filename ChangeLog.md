@@ -1,4 +1,13 @@
 # ansible-powerstore Change Log
+## Version 1.3.0 - released on 28/09/2021
+- Added dual licensing.
+- Added CRUD operations for local user.
+- Network module is added to get the details and modify attributes of network.
+- Cluster module is added to get the details and modify attributes of cluster.
+- Job module is added to get the details of given job ID.
+- Role module is added to get the details of given role name or role ID.
+- Gather facts module is enhanced to list users, roles, networks and appliances.
+
 ## Version 1.2.0 - released on 25/06/2021
 - Added CRUD operations for replication rule.
 - Replication session module is added to get the details and modify state of replication session.

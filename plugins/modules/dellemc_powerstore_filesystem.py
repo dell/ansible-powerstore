@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # Copyright: (c) 2020-2021, Dell EMC
-""" Ansible module for managing NAS server on PowerStore"""
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+""" Ansible module for managing filesystems on PowerStore"""
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
@@ -258,10 +260,12 @@ filesystem_details:
             description: The description about the filesystem.
             type: str
         protection_policy:
-            description: Id and name of the protection policy associated with the filesystem.
+            description: Id and name of the protection policy associated with
+                         the filesystem.
             type: dict
         nas_server:
-            description: Id and name of the nas server to which the filesystem belongs.
+            description: Id and name of the nas server to which the filesystem
+                         belongs.
             type: dict
         size_total:
             description: Total size of the filesystem in bytes.
@@ -282,7 +286,8 @@ filesystem_details:
             description: Locking policy about the filesystem.
             type: str
         is_smb_no_notify_enabled:
-            description: Whether smb notify policy is enabled for a filesystem.
+            description: Whether smb notify policy is enabled for a
+                         filesystem.
             type: bool
         is_smb_notify_on_access_enabled:
             description: Whether smb on access notify policy is enabled.
@@ -291,13 +296,16 @@ filesystem_details:
             description: Whether smb op lock is enabled.
             type: bool
         grace_period:
-            description: Default grace period for a filesystem quota in second.
+            description: Default grace period for a filesystem quota in
+                         second.
             type: int
         default_hard_limit:
-            description: Default hard limit period for a filesystem quota in byte.
+            description: Default hard limit period for a filesystem quota in
+                         byte.
             type: int
         default_soft_limit:
-            description: Default soft limit period for a filesystem quota in byte.
+            description: Default soft limit period for a filesystem quota in
+                         byte.
             type: int
         snapshots:
             description: Id and name of the snapshots of a filesystem.
@@ -321,7 +329,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreFileSystem(object):

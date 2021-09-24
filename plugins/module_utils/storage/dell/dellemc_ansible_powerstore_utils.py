@@ -1,4 +1,7 @@
-'''import PyPowerStore library for PowerStore Storage'''
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+"""
+import PyPowerStore library for PowerStore Storage
+"""
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -10,7 +13,9 @@ try:
 except ImportError:
     HAS_Py4PS = False
 
-'''import pkg_resources'''
+'''
+check if pkg_resources can be imported or not
+'''
 try:
     from pkg_resources import parse_version
     import pkg_resources
