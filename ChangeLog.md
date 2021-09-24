@@ -7,6 +7,7 @@
 - Job module is added to get the details of given job ID.
 - Role module is added to get the details of given role name or role ID.
 - Gather facts module is enhanced to list users, roles, networks and appliances.
+- Added dual licensing.
 
 ## Version 1.2.0 - released on 25/06/2021
 - Added CRUD operations for replication rule.
