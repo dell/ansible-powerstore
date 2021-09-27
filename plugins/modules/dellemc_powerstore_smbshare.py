@@ -236,8 +236,8 @@ smb_share_details:
             type: str
             sample: "sample_smb_share"
         file_system:
-            description: Includes ID and Name of filesystem and nas server for which
-                smb share exists.
+            description: Includes ID and Name of filesystem and nas server for
+                         which smb share exists.
             type: complex
             contains:
                 filesystem_type:
@@ -268,11 +268,12 @@ smb_share_details:
             type: bool
             sample: false
         is_continuous_availability_enabled:
-            description: Whether the share will be available continuously or not
+            description: Whether the share will be available continuously or
+                         not.
             type: bool
             sample: false
         is_encryption_enabled:
-            description: Whether encryption is enabled or not
+            description: Whether encryption is enabled or not.
             type: bool
             sample: false
 '''
@@ -292,7 +293,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreSMBShare(object):
@@ -674,12 +675,9 @@ def match_smb_share(share_details, smb_parent, nas_server, path):
 
     for share in share_details:
         match_flag = True
-        if nas_server and not is_match_nas(nas_server, share):
-            match_flag = False
-        elif smb_parent and not is_match_smb_parent(
-                smb_parent, share):
-            match_flag = False
-        elif path and not is_match_path(path, share):
+        if (nas_server and not is_match_nas(nas_server, share)) or\
+                (smb_parent and not is_match_smb_parent(smb_parent, share)) or\
+                (path and not is_match_path(path, share)):
             match_flag = False
         if match_flag:
             return share

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -14,14 +15,15 @@ DOCUMENTATION = r'''
 
 module: dellemc_powerstore_protectionpolicy
 version_added: '1.0.0'
-short_description: Perform Protection policy operations on PowerStore storage system
+short_description: Perform Protection policy operations on PowerStore storage
+                   system.
 description:
-- Performs all protection policy operations on PowerStore Storage System.
-- This modules supports get details of an existing protection policy.
-- Create new protection policy with existing Snapshot Rule or replication rule.
-- Modify protection policy to change the name and description, and
-  add or remove existing snapshot rules/ replication rule.
-- Delete an existing protection policy.
+- Performs all protection policy operations on PowerStore Storage System. This
+  modules supports get details of an existing protection policy. Create new
+  protection policy with existing Snapshot Rule or replication rule. Modify
+  protection policy to change the name and description, and add or remove
+  existing snapshot rules/ replication rule. Delete an existing protection
+  policy.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -52,8 +54,8 @@ options:
     elements: str
   replicationrule:
     description:
-    - The name or ids of the replcation rule which is to be added to the protection
-      policy.
+    - The name or ids of the replcation rule which is to be added to the
+      protection policy.
     - To remove the replication rule, an empty string has to be passed.
     required: False
     type: str
@@ -82,8 +84,8 @@ options:
     choices: [ present-in-policy, absent-in-policy]
     type: str
 notes:
-- Before deleting a protection policy, the replication rule has to be removed from
-  the protection policy.
+- Before deleting a protection policy, the replication rule has to be removed
+  from the protection policy.
 '''
 
 EXAMPLES = r'''
@@ -171,7 +173,7 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
@@ -181,36 +183,42 @@ protectionpolicy_details:
     type: complex
     contains:
         id:
-            description: The system generated ID given to the protection policy
+            description: The system generated ID given to the protection
+                         policy.
             type: str
         name:
-            description: Name of the protection policy
+            description: Name of the protection policy.
             type: str
         description:
-            description: description about the protection policy
+            description: description about the protection policy.
             type: str
         type:
             description: The type for the protection policy
             type: str
         replication_rules:
-            description: The replication rule details of the protection policy
+            description: The replication rule details of the protection
+                         policy.
             type: complex
             contains:
                 id:
-                    description: The replication rule ID of the protection policy
+                    description: The replication rule ID of the protection
+                                 policy.
                     type: str
                 name:
-                    description: The replication rule name of the protection policy
+                    description: The replication rule name of the protection
+                                 policy.
                     type: str
         snapshot_rules:
-            description: The snapshot rules details of the protection policy
+            description: The snapshot rules details of the protection policy.
             type: complex
             contains:
                 id:
-                    description: The snapshot rule ID of the protection policy
+                    description: The snapshot rule ID of the protection
+                                 policy.
                     type: str
                 name:
-                    description: The snapshot rule name of the protection policy
+                    description: The snapshot rule name of the protection
+                                 policy.
                     type: str
 '''
 
@@ -232,7 +240,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerstoreProtectionpolicy(object):

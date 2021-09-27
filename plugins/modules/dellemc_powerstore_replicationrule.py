@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -16,10 +17,9 @@ version_added: '1.2.0'
 short_description: Replication rule operations on a PowerStore storage system.
 description:
 - Performs all replication rule operations on a PowerStore Storage System.
-- This module supports get details of an existing replication rule.
-- Create new replication rule for all supported parameters.
-- Modify replication rule with supported parameters.
-- Delete a specific replication rule.
+  This module supports get details of an existing replication rule. Create new
+  replication rule for all supported parameters. Modify replication rule with
+  supported parameters. Delete a specific replication rule.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -133,37 +133,37 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 replication_rule_details:
-    description: Details of the replication rule
+    description: Details of the replication rule.
     returned: When replication rule exists
     type: complex
     contains:
         id:
-            description: The system generated ID of the replication rule
+            description: The system generated ID of the replication rule.
             type: str
         name:
-            description: Name of the replication rule
+            description: Name of the replication rule.
             type: str
         alert_threshold:
-            description: Acceptable delay in minutes between the expected and actual
-                replication sync intervals.
+            description: Acceptable delay in minutes between the expected and
+                         actual replication sync intervals.
             type: int
         rpo:
-            description: Recovery point objective (RPO), which is the acceptable
-                amount of data, measured in units of time, that may be lost
-                in case of a failure.
+            description: Recovery point objective (RPO), which is the
+                         acceptable amount of data, measured in units of time,
+                         that may be lost in case of a failure.
             type: str
         remote_system_id:
-            description: Unique identifier of the remote system to which this rule
-                will replicate the associated resources.
+            description: Unique identifier of the remote system to which this
+                         rule will replicate the associated resources.
             type: str
         remote_system_name:
-            description: Name of the remote system to which this rule will replicate
-                the associated resources.
+            description: Name of the remote system to which this rule will
+                         replicate the associated resources.
             type: str
 
  '''
@@ -184,7 +184,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerstoreReplicationRule(object):
@@ -508,13 +508,13 @@ class PowerstoreReplicationRule(object):
 def modify_replication_rule_required(rep_rule_details, passed_args):
     """ To check if modification is required or not"""
     for key in rep_rule_details.keys():
-        if key in passed_args.keys():
-            if passed_args[key] is not None:
-                if rep_rule_details[key] != passed_args[key]:
-                    LOG.debug("Key %s in rep_rule_details=%s,"
-                              "passed_args=%s", key,
-                              rep_rule_details[key], passed_args[key])
-                    return True
+        if key in passed_args.keys() and\
+                passed_args[key] is not None and\
+                rep_rule_details[key] != passed_args[key]:
+            LOG.debug("Key %s in rep_rule_details=%s,"
+                      "passed_args=%s", key,
+                      rep_rule_details[key], passed_args[key])
+            return True
     return False
 
 

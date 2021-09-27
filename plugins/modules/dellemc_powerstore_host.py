@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -78,9 +79,11 @@ options:
       or fewer printable Unicode characters.
     - Cannot be specified when creating a host.
     type: str
-  '''
 
+notes:
+- Only completely and correctly configured iSCSI initiators can be associated with a host.
 
+'''
 EXAMPLES = r'''
   - name: Create host
     dellemc_powerstore_host:
@@ -160,39 +163,39 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 host_details:
-    description: Details of the host
+    description: Details of the host.
     returned: When host exists
     type: complex
     contains:
         id:
-            description: The system generated ID given to the host
+            description: The system generated ID given to the host.
             type: str
         name:
-            description: Name of the host
+            description: Name of the host.
             type: str
         description:
-            description: Description about the host
+            description: Description about the host.
             type: str
         host_group_id:
-            description: The host group ID of host
+            description: The host group ID of host.
             type: str
         os_type:
-            description: The os type of the host
+            description: The os type of the host.
             type: str
         host_initiators:
-            description: The initiator details of this host
+            description: The initiator details of this host.
             type: complex
             contains:
                 port_name:
-                    description: Name of the port
+                    description: Name of the port.
                     type: str
                 port_type:
-                    description: The type of the port
+                    description: The type of the port.
                     type: str
 '''
 
@@ -212,7 +215,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreHost(object):
@@ -427,7 +430,7 @@ class PowerStoreHost(object):
                 for initiator in current_initiators:
                     existing_inits.append(initiator['port_name'])
 
-            if existing_inits is None or not len(existing_inits):
+            if len(existing_inits) == 0:
                 LOG.info(
                     'No initiators are present in host %s', host['name'])
                 return False
@@ -477,18 +480,12 @@ class PowerStoreHost(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg)
 
-    def _create_result_dict(self, changed):
+    def _create_result_dict(self, changed, host_id):
         self.result['changed'] = changed
         if self.module.params['state'] == 'absent':
             self.result['host_details'] = {}
         else:
-            if self.module.params['host_name']:
-                host_id = self.get_host_id_by_name(
-                    self.module.params['host_name'])
-                self.result['host_details'] = self.get_host(host_id)
-            if self.module.params['host_id']:
-                self.result['host_details'] = self.get_host(
-                    self.module.params['host_id'])
+            self.result['host_details'] = self.get_host(host_id)
 
     def perform_module_operation(self):
         '''
@@ -548,18 +545,15 @@ class PowerStoreHost(object):
                        remove_host_initiators(host, initiators=initiators)
                        or changed)
 
-        if state == 'present' and host and new_name:
-            if host_name != new_name:
-                LOG.info('Renaming host %s to %s', host_name, new_name)
-                changed = self.rename_host(host, new_name)
-                if changed:
-                    self.module.params['host_name'] = new_name
+        if state == 'present' and host and new_name and host_name != new_name:
+            LOG.info('Renaming host %s to %s', host_name, new_name)
+            changed = self.rename_host(host, new_name)
 
         if state == 'absent' and host:
             LOG.info('Delete host %s ', host['name'])
             changed = self.delete_host(host) or changed
 
-        self._create_result_dict(changed)
+        self._create_result_dict(changed, host_id)
         # Update the module's final state
         LOG.info('changed %s', changed)
         self.module.exit_json(**self.result)

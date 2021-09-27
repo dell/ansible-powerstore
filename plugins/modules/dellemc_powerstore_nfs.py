@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2020-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """Ansible module for managing NFS exports on PowerStore"""
 
@@ -262,14 +263,15 @@ nfs_export_details:
             description: The user ID of the anonymous account.
             type: int
         default_access:
-            description: Default access level for all hosts that can access the export.
+            description: Default access level for all hosts that can access
+                         the export.
             type: str
         description:
             description: The description for the NFS export.
             type: str
         file_system:
             description: Details of filesystem and NAS server on which NFS
-                export is present.
+                         export is present.
             type: complex
             contains:
                 id:
@@ -295,11 +297,12 @@ nfs_export_details:
             description: The ID of the NFS export.
             type: str
         is_no_SUID:
-            description: If set, do not allow access to set SUID. Otherwise, allow
-                access.
+            description: If set, do not allow access to set SUID. Otherwise,
+                         allow access.
             type: bool
         min_security:
-            description: NFS enforced security type for users accessing an NFS export.
+            description: NFS enforced security type for users accessing an NFS
+                         export.
             type: str
         name:
             description: The name of the NFS export.
@@ -314,14 +317,15 @@ nfs_export_details:
             description: Hosts with read-only access to the NFS export.
             type: list
         read_only_root_hosts:
-            description: Hosts with read-only for root user access to the NFS export.
+            description: Hosts with read-only for root user access to the NFS
+                         export.
             type: list
         read_write_hosts:
             description: Hosts with read and write access to the NFS export.
             type: list
         read_write_root_hosts:
-            description: Hosts with read and write for root user access to the NFS
-                export.
+            description: Hosts with read and write for root user access to the
+                         NFS export.
             type: list
 """
 
@@ -348,7 +352,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreNfsExport(object):
@@ -686,22 +690,22 @@ class PowerStoreNfsExport(object):
                             ipv4_host = self.get_ipv4_host(host)
                             # Check if given host is member of already added
                             # network
-                            if ipv4_host not in ipv4_hosts:
-                                if str(ipv4_host) not in hosts_to_add:
-                                    hosts_to_add.append(str(ipv4_host))
+                            if ipv4_host not in ipv4_hosts and \
+                                    str(ipv4_host) not in hosts_to_add:
+                                hosts_to_add.append(str(ipv4_host))
                         else:
                             # IPv6 host is provided
                             ipv6_host = self.get_ipv6_host(host)
                             # Check if given host is member of already added
                             # network
-                            if ipv6_host not in ipv6_hosts:
-                                if str(ipv6_host) not in hosts_to_add:
-                                    hosts_to_add.append(str(ipv6_host))
+                            if ipv6_host not in ipv6_hosts and \
+                                    str(ipv6_host) not in hosts_to_add:
+                                hosts_to_add.append(str(ipv6_host))
                     else:
                         # FQDN/Netgroup is provided
-                        if host not in fqdn_hosts:
-                            if host not in hosts_to_add:
-                                hosts_to_add.append(host)
+                        if host not in fqdn_hosts and \
+                                host not in hosts_to_add:
+                            hosts_to_add.append(host)
                 if hosts_to_add:
                     if host_type == "read_only_root_hosts":
                         export_details[host_type].extend(hosts_to_add)
@@ -737,26 +741,24 @@ class PowerStoreNfsExport(object):
                             ipv4_host = self.get_ipv4_host(host)
                             # Check if given host is member of already added
                             # network
-                            if ipv4_host in ipv4_hosts:
-                                if str(ipv4_host.with_netmask) not in \
-                                        hosts_to_remove:
-                                    hosts_to_remove.append(
-                                        str(ipv4_host.with_netmask))
+                            if ipv4_host in ipv4_hosts and \
+                                    str(ipv4_host.with_netmask) not in \
+                                    hosts_to_remove:
+                                hosts_to_remove.append(str(ipv4_host.with_netmask))
                         else:
                             # IPv6 host is provided
                             ipv6_host = self.get_ipv6_host(host)
                             # Check if given host is member of already added
                             # network
-                            if ipv6_host in ipv6_hosts:
-                                if str(ipv6_host.with_prefixlen) not in \
-                                        hosts_to_remove:
-                                    hosts_to_remove.append(
-                                        str(ipv6_host.with_prefixlen))
+                            if ipv6_host in ipv6_hosts and \
+                                    str(ipv6_host.with_prefixlen) not in \
+                                    hosts_to_remove:
+                                hosts_to_remove.append(
+                                    str(ipv6_host.with_prefixlen))
                     else:
                         # FQDN/Netgroup is provided
-                        if host in fqdn_hosts:
-                            if host not in hosts_to_remove:
-                                hosts_to_remove.append(host)
+                        if host in fqdn_hosts and host not in hosts_to_remove:
+                            hosts_to_remove.append(host)
 
                 if hosts_to_remove:
                     remove_host_dict['remove_' + host_type] = hosts_to_remove
@@ -777,11 +779,12 @@ class PowerStoreNfsExport(object):
         elif self.module.params['host_state'] == 'absent-in-export':
             modify_param = self.check_remove_hosts(export_details)
 
-        if description is not None and export_details['description'] != \
-                description:
-            if (export_details['description'] is None and description != "") \
-                    or (export_details['description'] is not None):
-                modify_param['description'] = description
+        if (description is not None and export_details['description']
+            != description) and \
+                ((export_details['description'] is None
+                  and description != "") or (export_details['description']
+                                             is not None)):
+            modify_param['description'] = description
 
         if default_access:
             access = self.get_enum_keys(default_access)
@@ -793,17 +796,17 @@ class PowerStoreNfsExport(object):
             if export_details['min_security'] != security:
                 modify_param['min_security'] = security
 
-        if anonymous_uid is not None:
-            if anonymous_uid != export_details['anonymous_UID']:
-                modify_param['anonymous_UID'] = anonymous_uid
+        if anonymous_uid is not None and \
+                anonymous_uid != export_details['anonymous_UID']:
+            modify_param['anonymous_UID'] = anonymous_uid
 
-        if anonymous_gid is not None:
-            if anonymous_gid != export_details['anonymous_GID']:
-                modify_param['anonymous_GID'] = anonymous_gid
+        if anonymous_gid is not None and \
+                anonymous_gid != export_details['anonymous_GID']:
+            modify_param['anonymous_GID'] = anonymous_gid
 
-        if is_no_suid is not None:
-            if is_no_suid != export_details['is_no_SUID']:
-                modify_param['is_no_SUID'] = is_no_suid
+        if is_no_suid is not None and \
+                is_no_suid != export_details['is_no_SUID']:
+            modify_param['is_no_SUID'] = is_no_suid
 
         LOG.info("NFS modification details: %s", modify_param)
         return modify_param
@@ -904,16 +907,10 @@ class PowerStoreNfsExport(object):
         path = self.module.params['path']
         description = self.module.params['description']
         default_access = self.module.params['default_access']
-        no_access_hosts = self.module.params['no_access_hosts']
-        read_only_hosts = self.module.params['read_only_hosts']
-        read_only_root_hosts = self.module.params['read_only_root_hosts']
-        read_write_hosts = self.module.params['read_write_hosts']
-        read_write_root_hosts = self.module.params['read_write_root_hosts']
         min_security = self.module.params['min_security']
         anonymous_uid = self.module.params['anonymous_uid']
         anonymous_gid = self.module.params['anonymous_gid']
         is_no_suid = self.module.params['is_no_suid']
-        host_state = self.module.params['host_state']
         state = self.module.params['state']
 
         result = dict(
@@ -984,12 +981,10 @@ def match_nfs_export(exports_list, export_parent, nas_server, path):
 
     for export in exports_list:
         flag = True
-        if nas_server and not is_nas_server_matched(nas_server, export):
-            flag = False
-        elif export_parent and not is_export_parent_matched(export_parent,
-                                                            export):
-            flag = False
-        elif path and not is_path_matched(path, export):
+        if (nas_server and not is_nas_server_matched(nas_server, export)) or \
+                (export_parent and not is_export_parent_matched(
+                    export_parent, export)) or \
+                (path and not is_path_matched(path, export)):
             flag = False
         if flag:
             return export

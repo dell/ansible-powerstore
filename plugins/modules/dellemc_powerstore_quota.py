@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # Copyright: (c) 2020-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+
 """ Ansible module for managing Tree Quotas and User Quotas on PowerStore"""
 from __future__ import (absolute_import, division, print_function)
 
@@ -123,17 +125,17 @@ options:
     choices: ['absent', 'present']
 
 notes:
-- Tree quota can not be created at the root of the filesystem.
+- Tree quota can't be created at the root of the filesystem.
 - When the ID of the filesystem is passed then nas_server is not required.
   If passed, then filesystem should exist for the nas_server, else the task
   will fail.
-- If a primary directory of the current directory or a subordinate directory of the
-  path is having a Tree Quota configured, then the quota for that path can't be
-  created. Hierarchical tree quotas are not allowed.
-- When the first quota is created for a directory/user in a filesystem then the
-  quotas will be enabled for that filesystem automatically.
-- If a user quota is to be created on a tree quota, then the user quotas will be
-  enabled automatically in a tree quota.
+- If a primary directory of the current directory or a subordinate directory
+  of the path is having a Tree Quota configured, then the quota for that path
+  can't be created. Hierarchical tree quotas are not allowed.
+- When the first quota is created for a directory/user in a filesystem then
+  the quotas will be enabled for that filesystem automatically.
+- If a user quota is to be created on a tree quota, then the user quotas will
+  be enabled automatically in a tree quota.
 - Delete User Quota operation is not supported.
 
 '''
@@ -235,8 +237,8 @@ quota_details:
             type: str
             sample: "2nQKAAEAAAAAAAAAAAAAQIMCAAAAAAAA"
         file_system:
-            description: Includes ID and Name of filesystem and nas server for which
-                smb share exists.
+            description: Includes ID and Name of filesystem and nas server for
+                         which smb share exists.
             type: complex
             contains:
                 filesystem_type:
@@ -263,46 +265,38 @@ quota_details:
             type: int
             sample: "2.0"
         remaining_grace_period:
-            description: The time period remaining after which the grace period will
-                expire.
+            description: The time period remaining after which the grace
+                         period will expire.
             type: int
             sample: 86400
         description:
-            description:
-                - Additional information about the tree quota.
-                - Only applicable for Tree Quotas.
+            description: Additional information about the tree quota.
+                         Only applicable for Tree Quotas.
             type: str
             sample: "Sample Tree quota's description"
         uid:
-            description:
-                - The ID of the unix host for which user quota exists.
-                - Only applicable for user quotas.
+            description: The ID of the unix host for which user quota exists.
+                         Only applicable for user quotas.
             type: int
         unix_name:
-            description:
-                - The Name of the unix host for which user quota exists.
-                - Only applicable for user quotas.
+            description: The Name of the unix host for which user quota
+                         exists. Only applicable for user quotas.
             type: str
         windows_name:
-            description:
-                - The Name of the Windows host for which user quota exists.
-                - Only applicable for user quotas.
+            description: The Name of the Windows host for which user quota
+                         exists. Only applicable for user quotas.
             type: str
         windows_sid:
-            description:
-                - The SID of the windows host for which user quota exists.
-                - Only applicable for user quotas.
+            description: The SID of the windows host for which user quota
+                         exists. Only applicable for user quotas.
             type: str
         tree_quota_id:
-            description:
-                - ID of the Tree Quota on which the specific User Quota exists.
-                - Only applicable for user quotas.
+            description: ID of the Tree Quota on which the specific User Quota
+                         exists. Only applicable for user quotas.
             type: str
         tree_quota_for_user_quota:
-            description:
-                - Additional Information of Tree Quota limits on which user
-                  quota exists.
-                - Only applicable for User Quotas
+            description: Additional Information of Tree Quota limits on which
+                         user quota exists. Only applicable for User Quotas.
             type: complex
             contains:
                 description:
@@ -318,17 +312,16 @@ quota_details:
                     type: str
                     sample: "/sample_path"
         size_used:
-            description: Size currently consumed by Tree/User on the filesystem.
+            description: Size currently consumed by Tree/User on the
+                         filesystem.
             type: int
         state:
-            description:
-                - State of the user quota or tree quota record period.
-                - OK means No quota limits are exceeded.
-                - Soft_Exceeded means Soft limit is exceeded, and grace period
-                  is not expired.
-                - Soft_Exceeded_And_Expired means Soft limit is exceeded, and
-                  grace period is expired.
-                - Hard_Reached means Hard limit is reached.
+            description: State of the user quota or tree quota record period.
+                         OK means No quota limits are exceeded. Soft_Exceeded
+                         means Soft limit is exceeded, and grace period is not
+                         expired. Soft_Exceeded_And_Expired means Soft limit
+                         is exceeded, and grace period is expired.
+                         Hard_Reached means Hard limit is reached.
             type: str
             sample: "Ok"
         state_l10n:
@@ -353,7 +346,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreQuota(object):
@@ -867,7 +860,7 @@ class PowerStoreQuota(object):
         """
         quota_details = {}
         if state == "present":
-            quota_details, type = self.get_quota_details(
+            quota_details, user_or_tree = self.get_quota_details(
                 quota_id, quota_type, path, filesystem_id, uid, unix_name,
                 windows_name, windows_sid)
         if state == "present" and quota_type == "user" and \
@@ -954,12 +947,12 @@ class PowerStoreQuota(object):
                 msg="Description parameter is not valid for User Quota.")
 
         # Check if valid combination of parameters are entered or not.
-        if quota_type == "tree":
-            if uid or unix_name or windows_sid or windows_name:
-                self.module.fail_json(
-                    msg="uid/unix_name/windows_sid/windows_name are not "
-                        "valid parameters for Tree Quota type. "
-                        "Please enter correct quota_type")
+        if quota_type == "tree" and\
+                (uid or unix_name or windows_sid or windows_name):
+            self.module.fail_json(
+                msg="uid/unix_name/windows_sid/windows_name are not "
+                    "valid parameters for Tree Quota type. "
+                    "Please enter correct quota_type")
 
         # Update TREE/USER Quota details
         if state == "present" and quota_details:

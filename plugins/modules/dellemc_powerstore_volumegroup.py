@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -170,81 +171,72 @@ EXAMPLES = r'''
 
 RETURN = r"""
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 add_vols_to_vg:
     description: A boolean flag to indicate whether volume/s got added to
-     volume group
+                 volume group.
     returned: When value exists
     type: bool
 
 create_vg:
-    description: A boolean flag to indicate whether volume group got created
+    description: A boolean flag to indicate whether volume group got created.
     returned: When value exists
     type: bool
 
 delete_vg:
-    description: A boolean flag to indicate whether volume group got deleted
+    description: A boolean flag to indicate whether volume group got deleted.
     returned: When value exists
     type: bool
 
 modify_vg:
-    description: A boolean flag to indicate whether volume group got modified
+    description: A boolean flag to indicate whether volume group got modified.
     returned: When value exists
     type: bool
 
 remove_vols_from_vg:
     description: A boolean flag to indicate whether volume/s got removed from
-     volume group
+                 volume group.
     returned: When value exists
     type: bool
 
 volume_group_details:
-    description: Details of the volume group
+    description: Details of the volume group.
     returned: When volume group exists
     type: complex
     contains:
         id:
-            description:
-                - The system generated ID given to the volume group
+            description: The system generated ID given to the volume group.
             type: str
         name:
-            description:
-                - Name of the volume group
+            description: Name of the volume group.
             type: str
         description:
-            description:
-                - description about the volume group
+            description: description about the volume group.
             type: str
         protection_policy_id:
-            description:
-                - The protection policy of the volume group
+            description: The protection policy of the volume group.
             type: str
         is_write_order_consistent:
-            description:
-                - A boolean flag to indicate whether snapshot sets of the
-                 volume group will be write-order consistent
+            description: A boolean flag to indicate whether snapshot sets of
+                         the volume group will be write-order consistent.
             type: bool
         type:
-            description:
-                - The type of the volume group
+            description: The type of the volume group.
             type: str
         volumes:
-            description:
-                - The volumes details of the volume group
+            description: The volumes details of the volume group.
             type: complex
             contains:
                 id:
-                    description:
-                        - The system generated ID given to the volume
-                         associated with the volume group
+                    description: The system generated ID given to the volume
+                                 associated with the volume group.
                     type: str
                 name:
-                    description:
-                        - The name of the volume associated with the volume
-                          group.
+                    description: The name of the volume associated with the
+                                 volume group.
                     type: str
 """
 
@@ -265,7 +257,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreVolumeGroup(object):
@@ -323,9 +315,9 @@ class PowerStoreVolumeGroup(object):
             if name:
                 resp = self.provisioning.get_volume_group_by_name(name)
                 if resp and len(resp) > 0:
-                    id = resp[0]['id']
+                    vol_grp_id = resp[0]['id']
                     vg_details = self.provisioning.\
-                        get_volume_group_details(id)
+                        get_volume_group_details(vol_grp_id)
                     LOG.info("Successfully Got VG with name %s", name)
                     return vg_details
             return None
@@ -426,9 +418,8 @@ class PowerStoreVolumeGroup(object):
                 msg = "Volume with name {0} not found. Please enter a " \
                       "correct volume name.".format(vol)
                 self.module.fail_json(msg=msg)
-            if vol_id in existing_vol_ids:
-                if vol_id not in ids_to_remove:
-                    ids_to_remove.append(vol_id)
+            if (vol_id in existing_vol_ids) and (vol_id not in ids_to_remove):
+                ids_to_remove.append(vol_id)
 
         """remove by id"""
         for vol in vol_id_list:
@@ -439,9 +430,8 @@ class PowerStoreVolumeGroup(object):
                 msg = "Volume with id {0} not found. Please enter a correct " \
                       "volume id".format(vol)
                 self.module.fail_json(msg=msg)
-            if vol in existing_vol_ids:
-                if vol not in ids_to_remove:
-                    ids_to_remove.append(vol)
+            if (vol in existing_vol_ids) and (vol not in ids_to_remove):
+                ids_to_remove.append(vol)
 
         LOG.debug("Volume IDs to Remove %s", ids_to_remove)
 
@@ -499,9 +489,8 @@ class PowerStoreVolumeGroup(object):
                 msg = "Volume with name {0} not found. Please enter a " \
                       "correct volume name.".format(vol)
                 self.module.fail_json(msg=msg)
-            if vol_id not in existing_vol_ids:
-                if vol_id not in ids_to_add:
-                    ids_to_add.append(vol_id)
+            if (vol_id not in existing_vol_ids) and (vol_id not in ids_to_add):
+                ids_to_add.append(vol_id)
 
         """add volume by id"""
         for vol in vol_id_list:
@@ -511,9 +500,9 @@ class PowerStoreVolumeGroup(object):
                 msg = "Volume with id {0} not found. Please enter a correct " \
                       "volume id".format(vol)
                 self.module.fail_json(msg=msg)
-            if vol_by_id not in existing_vol_ids:
-                if vol_by_id not in ids_to_add:
-                    ids_to_add.append(vol_by_id)
+            if (vol_by_id not in existing_vol_ids) and\
+                    (vol_by_id not in ids_to_add):
+                ids_to_add.append(vol_by_id)
 
         LOG.info("Volume IDs to add %s", ids_to_add)
 
@@ -567,11 +556,15 @@ class PowerStoreVolumeGroup(object):
         """Check if the desired volume group state is different from existing
         volume group"""
         modified = False
+        name_modified = False
+        description_modified = False
+        prot_pol_modified = False
+        write_order_modified = False
 
         if(('name' in volume_group and self.module.params['new_vg_name']
             is not None) and (volume_group['name'].lower() !=
                               self.module.params['new_vg_name'].lower())):
-            modified = True
+            name_modified = True
         elif (volume_group['description'] is not None and
               self.module.params['description'] is not None and
               volume_group['description'].lower() !=
@@ -579,7 +572,7 @@ class PowerStoreVolumeGroup(object):
                 (volume_group['description'] is None and
                  self.module.params['description'] is not None and
                  self.module.params['description'].lower() != 'none'):
-            modified = True
+            description_modified = True
         elif((volume_group['protection_policy_id'] is not None and
               protection_policy is not None and
               volume_group['protection_policy_id'] !=
@@ -587,11 +580,15 @@ class PowerStoreVolumeGroup(object):
                 (volume_group['protection_policy_id'] is None and
                  protection_policy is not None and
                  protection_policy != '')):
-            modified = True
+            prot_pol_modified = True
         elif('is_write_order_consistent' in volume_group and
                 self.module.params['is_write_order_consistent'] is not None
                 and volume_group['is_write_order_consistent'] !=
                 self.module.params['is_write_order_consistent']):
+            write_order_modified = True
+
+        if name_modified or description_modified or prot_pol_modified or\
+                write_order_modified:
             modified = True
 
         return modified

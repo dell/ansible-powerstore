@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -18,7 +19,7 @@ description:
 - Gathers the list of specified PowerStore Storage System entities, such as the
   list of cluster nodes, volumes, volume groups, hosts, host groups, snapshot
   rules, protection policies, NAS servers, NFS exports, SMB shares,
-  tree quotas, user quotas, and file systems.
+  tree quotas, user quotas, file systems etc.
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Vivek Soni (@v-soni11) <ansible.team@dell.com>
@@ -45,12 +46,16 @@ options:
     - replication_rule - replication rules
     - replication_session - replication sessions
     - remote_system - remote systems
+    - network - various networks
+    - role - roles
+    - user - local users
+    - appliance - appliances
     required: True
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
               file_system, replication_rule, replication_session,
-              remote_system]
+              remote_system, network, role, user, appliance]
     type: list
   filters:
     description:
@@ -85,6 +90,9 @@ options:
       will be returned.
     type: bool
     default: False
+notes:
+- Pagination is not supported for role and local user. If all_pages is passed,
+  it will be ignored.
 '''
 
 EXAMPLES = r'''
@@ -199,11 +207,35 @@ EXAMPLES = r'''
         filter_operator: "like"
         filter_value: "*share*"
 
+- name: Get list of user, role, network and appliances
+  dellemc_powerstore_gatherfacts:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - user
+      - role
+      - network
+      - appliance
+
+- name: Get list of networks whose name contains 'Management'
+  dellemc_powerstore_gatherfacts:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - network
+    filters:
+      - filter_key: "name"
+        filter_operator: "like"
+        filter_value: "*Management*"
 '''
 
 RETURN = r'''
 changed:
-    description: Shows whether or not the resource has changed
+    description: Shows whether or not the resource has changed.
     returned: always
     type: bool
 subset_result:
@@ -211,6 +243,19 @@ subset_result:
     returned: always
     type: complex
     contains:
+      Appliance:
+        description: Provides details of all appliances.
+        type: list
+        contains:
+          id:
+            description: appliance id
+            type: str
+          name:
+            description: appliance name
+            type: str
+          model:
+            description: Model type of the PowerStore
+            type: str
       Cluster:
         description: Provides details of all clusters.
         type: list
@@ -227,7 +272,7 @@ subset_result:
       FileSystems:
         description: Provides details of all filesystems.
         type: list
-        returned: When file_system is in a given gather_subset.
+        returned: When file_system is in a given gather_subset
         contains:
           id:
             description: filesystem id
@@ -257,6 +302,17 @@ subset_result:
           name:
             description: host name
             type: str
+      LocalUsers:
+        description: Provides details of all local users.
+        type: list
+        returned: When user is in a given gather_subset
+        contains:
+          id:
+            description: user id
+            type: str
+          name:
+            description: user name
+            type: str
       NASServers:
         description: Provides details of all nas servers.
         type: list
@@ -268,10 +324,21 @@ subset_result:
           name:
             description: nas server name
             type: str
+      Networks:
+        description: Provides details of all networks.
+        type: list
+        returned: When network is in a given gather_subset
+        contains:
+          id:
+            description: network id
+            type: str
+          name:
+            description: network name
+            type: str
       NFSExports:
         description: Provides details of all nfs exports.
         type: list
-        returned: When nfs_export isin a given gather_subset
+        returned: When nfs_export is in a given gather_subset
         contains:
           id:
             description: nfs export id
@@ -313,7 +380,7 @@ subset_result:
             description: replication rule name
             type: str
       ReplicationSession:
-        description: details of all replication sessions
+        description: details of all replication sessions.
         type: list
         returned: when replication_session given in gather_subset
         contains:
@@ -330,6 +397,17 @@ subset_result:
             type: str
           name:
             description: remote system name
+            type: str
+      Roles:
+        description: Provides details of all roles.
+        type: list
+        returned: When role is in a given gather_subset
+        contains:
+          id:
+            description: role id
+            type: str
+          name:
+            description: role name
             type: str
       SMBShares:
         description: Provides details of all smb shares.
@@ -387,7 +465,7 @@ subset_result:
             description: tree quota path
             type: str
       UserQuotas:
-        description: Provides details of all user quotas
+        description: Provides details of all user quotas.
         type: list
         returned: When user_quota is in a given gather_subset
         contains:
@@ -401,8 +479,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_gatherfacts',
-                       log_devel=logging.INFO)
+LOG = utils.get_logger('dellemc_powerstore_gatherfacts')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -413,7 +490,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerstoreGatherFacts(object):
@@ -453,6 +530,7 @@ class PowerstoreGatherFacts(object):
             application_type=APPLICATION_TYPE)
         self.provisioning = self.conn.provisioning
         self.protection = self.conn.protection
+        self.configuration = self.conn.config_mgmt
 
         self.subset_mapping = {
             'vol': {
@@ -518,10 +596,26 @@ class PowerstoreGatherFacts(object):
             'file_system': {
                 'func': self.provisioning.get_file_systems,
                 'display_as': 'FileSystems'
+            },
+            'network': {
+                'func': self.configuration.get_networks,
+                'display_as': 'Networks'
+            },
+            'role': {
+                'func': self.configuration.get_roles,
+                'display_as': 'Roles'
+            },
+            'user': {
+                'func': self.configuration.get_local_users,
+                'display_as': 'LocalUsers'
+            },
+            'appliance': {
+                'func': self.configuration.get_appliances,
+                'display_as': 'Appliance'
             }
         }
 
-        LOG.info('Got Py4ps instance for provisioning on PowerStore %s',
+        LOG.info('Got Py4ps connection object %s',
                  self.conn)
 
     def update_result_with_item_list(self, item, filter_dict=None,
@@ -531,8 +625,12 @@ class PowerstoreGatherFacts(object):
 
         try:
             LOG.info('Getting %s list', item)
-            item_list = self.subset_mapping[item]['func'](
-                filter_dict=filter_dict, all_pages=all_pages)
+            if item not in ['role', 'user']:
+                item_list = self.subset_mapping[item]['func'](
+                    filter_dict=filter_dict, all_pages=all_pages)
+            else:
+                item_list = self.subset_mapping[item]['func'](
+                    filter_dict=filter_dict)
             LOG.info('Successfully listed %s %s from powerstore array name: '
                      '%s , global id : %s', len(item_list), self.
                      subset_mapping[item]['display_as'], self.cluster_name,
@@ -607,6 +705,20 @@ class PowerstoreGatherFacts(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
+    def get_array_software_version(self):
+        """Get array software version"""
+        try:
+            soft_ver = self.provisioning.get_array_version()
+            msg = 'Got array software version as {0}'.format(soft_ver)
+            LOG.info(msg)
+            return soft_ver
+
+        except Exception as e:
+            msg = 'Failed to get the array software version with ' \
+                  'error {0}'.format(str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+
     def perform_module_operation(self):
         clusters = self.get_clusters()
         if len(clusters) > 0:
@@ -616,7 +728,10 @@ class PowerstoreGatherFacts(object):
             self.module.fail_json(msg="Unable to find any active cluster on"
                                       " this array ")
 
-        self.result.update(Cluster=clusters)
+        array_soft_ver = self.get_array_software_version()
+
+        self.result.update(Cluster=clusters,
+                           Array_Software_Version=array_soft_ver)
         subset = self.module.params['gather_subset']
         filters = self.module.params['filters']
         all_pages = self.module.params['all_pages']
@@ -628,9 +743,8 @@ class PowerstoreGatherFacts(object):
         if subset is not None:
             for item in subset:
                 if item in self.subset_mapping:
-                    self.update_result_with_item_list(item,
-                                                      filter_dict=filter_dict,
-                                                      all_pages=all_pages)
+                    self.update_result_with_item_list(
+                        item, filter_dict=filter_dict, all_pages=all_pages)
                 else:
                     self.module.fail_json(
                         msg="subset_mapping do not have details for '{0}'"
@@ -652,7 +766,8 @@ def get_powerstore_gatherfacts_parameters():
                                     'nas_server', 'nfs_export', 'smb_share',
                                     'tree_quota', 'user_quota', 'file_system',
                                     'replication_rule', 'replication_session',
-                                    'remote_system'
+                                    'remote_system', 'network', 'role',
+                                    'user', 'appliance'
                                     ]),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
@@ -670,7 +785,7 @@ def get_powerstore_gatherfacts_parameters():
 
 
 def main():
-    """ Create PowerStoreGatherFacts object and perform action on it
+    """ Create PowerStore gather facts object and perform action on it
         based on user input from playbook """
     obj = PowerstoreGatherFacts()
     obj.perform_module_operation()
