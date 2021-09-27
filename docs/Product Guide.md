@@ -1,5 +1,5 @@
 # Ansible Modules for Dell EMC PowerStore
-## Product Guide 1.2
+## Product Guide 1.3
 © 2021 Dell Inc. or its subsidiaries. All rights reserved. Dell, EMC, and other trademarks are trademarks of Dell Inc. or its subsidiaries. Other trademarks may be trademarks of their respective owners.
 
 --------------
@@ -11,102 +11,137 @@
     *   [Examples](#examples)
     *   [Return Values](#return-values)
     *   [Authors](#authors)
-*   [Volume Module](#volume-module)
+*   [Local User Module](#local-user-module)
     *   [Synopsis](#synopsis-1)
     *   [Parameters](#parameters-1)
-    *   [Notes](#notes-1)
     *   [Examples](#examples-1)
     *   [Return Values](#return-values-1)
     *   [Authors](#authors-1)
-*   [Quota Module](#quota-module)
+*   [Volume Module](#volume-module)
     *   [Synopsis](#synopsis-2)
     *   [Parameters](#parameters-2)
-    *   [Notes](#notes-2)
+    *   [Notes](#notes-1)
     *   [Examples](#examples-2)
     *   [Return Values](#return-values-2)
     *   [Authors](#authors-2)
-*   [Host Module](#host-module)
+*   [Quota Module](#quota-module)
     *   [Synopsis](#synopsis-3)
     *   [Parameters](#parameters-3)
+    *   [Notes](#notes-2)
     *   [Examples](#examples-3)
     *   [Return Values](#return-values-3)
     *   [Authors](#authors-3)
-*   [Snapshot Rule Module](#snapshot-rule-module)
+*   [Cluster Module](#cluster-module)
     *   [Synopsis](#synopsis-4)
     *   [Parameters](#parameters-4)
+    *   [Notes](#notes-3)
     *   [Examples](#examples-4)
     *   [Return Values](#return-values-4)
     *   [Authors](#authors-4)
-*   [Gatherfacts Module](#gatherfacts-module)
+*   [Snapshot Rule Module](#snapshot-rule-module)
     *   [Synopsis](#synopsis-5)
     *   [Parameters](#parameters-5)
     *   [Examples](#examples-5)
     *   [Return Values](#return-values-5)
     *   [Authors](#authors-5)
-*   [Replication Session Module](#replication-session-module)
+*   [Gatherfacts Module](#gatherfacts-module)
     *   [Synopsis](#synopsis-6)
     *   [Parameters](#parameters-6)
-    *   [Notes](#notes-3)
+    *   [Notes](#notes-4)
     *   [Examples](#examples-6)
     *   [Return Values](#return-values-6)
     *   [Authors](#authors-6)
-*   [Host Group Module](#host-group-module)
+*   [Job Module](#job-module)
     *   [Synopsis](#synopsis-7)
     *   [Parameters](#parameters-7)
     *   [Examples](#examples-7)
     *   [Return Values](#return-values-7)
     *   [Authors](#authors-7)
-*   [NFS Module](#nfs-module)
+*   [Replication Session Module](#replication-session-module)
     *   [Synopsis](#synopsis-8)
     *   [Parameters](#parameters-8)
+    *   [Notes](#notes-5)
     *   [Examples](#examples-8)
     *   [Return Values](#return-values-8)
     *   [Authors](#authors-8)
-*   [Volume Group Module](#volume-group-module)
+*   [Host Group Module](#host-group-module)
     *   [Synopsis](#synopsis-9)
     *   [Parameters](#parameters-9)
-    *   [Notes](#notes-4)
     *   [Examples](#examples-9)
     *   [Return Values](#return-values-9)
     *   [Authors](#authors-9)
-*   [NAS Server Module](#nas-server-module)
+*   [NFS Module](#nfs-module)
     *   [Synopsis](#synopsis-10)
     *   [Parameters](#parameters-10)
     *   [Examples](#examples-10)
     *   [Return Values](#return-values-10)
     *   [Authors](#authors-10)
-*   [SMB Share Module](#smb-share-module)
+*   [Role Module](#role-module)
     *   [Synopsis](#synopsis-11)
     *   [Parameters](#parameters-11)
-    *   [Notes](#notes-5)
+    *   [Notes](#notes-6)
     *   [Examples](#examples-11)
     *   [Return Values](#return-values-11)
     *   [Authors](#authors-11)
-*   [Snapshot Module](#snapshot-module)
+*   [Volume Group Module](#volume-group-module)
     *   [Synopsis](#synopsis-12)
     *   [Parameters](#parameters-12)
+    *   [Notes](#notes-7)
     *   [Examples](#examples-12)
     *   [Return Values](#return-values-12)
     *   [Authors](#authors-12)
-*   [Replication Rule Module](#replication-rule-module)
+*   [NAS Server Module](#nas-server-module)
     *   [Synopsis](#synopsis-13)
     *   [Parameters](#parameters-13)
     *   [Examples](#examples-13)
     *   [Return Values](#return-values-13)
     *   [Authors](#authors-13)
-*   [Protection Policy Module](#protection-policy-module)
+*   [SMB Share Module](#smb-share-module)
     *   [Synopsis](#synopsis-14)
     *   [Parameters](#parameters-14)
-    *   [Notes](#notes-6)
+    *   [Notes](#notes-8)
     *   [Examples](#examples-14)
     *   [Return Values](#return-values-14)
     *   [Authors](#authors-14)
-*   [Filesystem Snapshot Module](#filesystem-snapshot-module)
+*   [Snapshot Module](#snapshot-module)
     *   [Synopsis](#synopsis-15)
     *   [Parameters](#parameters-15)
     *   [Examples](#examples-15)
     *   [Return Values](#return-values-15)
     *   [Authors](#authors-15)
+*   [Replication Rule Module](#replication-rule-module)
+    *   [Synopsis](#synopsis-16)
+    *   [Parameters](#parameters-16)
+    *   [Examples](#examples-16)
+    *   [Return Values](#return-values-16)
+    *   [Authors](#authors-16)
+*   [Network Module](#network-module)
+    *   [Synopsis](#synopsis-17)
+    *   [Parameters](#parameters-17)
+    *   [Notes](#notes-9)
+    *   [Examples](#examples-17)
+    *   [Return Values](#return-values-17)
+    *   [Authors](#authors-17)
+*   [Protection Policy Module](#protection-policy-module)
+    *   [Synopsis](#synopsis-18)
+    *   [Parameters](#parameters-18)
+    *   [Notes](#notes-10)
+    *   [Examples](#examples-18)
+    *   [Return Values](#return-values-18)
+    *   [Authors](#authors-18)
+*   [Filesystem Snapshot Module](#filesystem-snapshot-module)
+    *   [Synopsis](#synopsis-19)
+    *   [Parameters](#parameters-19)
+    *   [Examples](#examples-19)
+    *   [Return Values](#return-values-19)
+    *   [Authors](#authors-19)
+*   [Host Module](#host-module)
+    *   [Synopsis](#synopsis-20)
+    *   [Parameters](#parameters-20)
+    *   [Notes](#notes-11)
+    *   [Examples](#examples-20)
+    *   [Return Values](#return-values-20)
+    *   [Authors](#authors-20)
 
 --------------
 
@@ -585,6 +620,254 @@ Filesystem operations on PowerStore Storage system
 * Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 
 --------------------------------
+# Local User Module
+
+Local user operations on PowerStore Storage System
+
+### Synopsis
+ Supports the provisioning operations on a Local user such as create, modify, delete and get the details of a local user.
+
+### Parameters
+                                                                                                                                                                                                                                                                                            
+<table>
+    <tr>
+        <th colspan=1>Parameter</th>
+        <th width="20%">Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Choices</th>
+        <th width="80%">Description</th>
+    </tr>
+                                                            <tr>
+            <td colspan=1 > user_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Name of the local user account. Mutually exclusive with user_id.  <br> Mandatory only for create operation. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Unique identifier of the local user account.  <br> Mutually exclusive with user_name. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user_password</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Password for the new local user account to be created.  <br> Mandatory only for create operation. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > new_password</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> New password for the existing local user account. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > role_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The name of the role to which the local user account will be mapped.  <br> It is mutually exclusive with role_id. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > role_id</td>
+            <td> int  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The unique identifier of the role to which the local user account will be mapped.  <br> It is mutually exclusive with role_name. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > is_locked</td>
+            <td> bool  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Whether the user account is locked or not.  <br> Defaults to false at creation time. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > state</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
+            <td> <br> Define whether the local user should exist or not. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > array_ip</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> IP or FQDN of the PowerStore management system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > verifycert</td>
+            <td> bool  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>True</li>  <li>False</li> </ul></td>
+            <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The username of the PowerStore host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > password</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The password of the PowerStore host. </td>
+        </tr>
+                                            </table>
+
+
+### Examples
+```
+- name: create local user
+  dellemc_powerstore_local_user:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    user_name: "ansible_user_1"
+    user_password: "Password123#"
+    role_name: "role_1"
+    is_locked: False
+    state: "present"
+
+- name: get the details local user with user id
+  dellemc_powerstore_local_user:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    user_id: "{{user_id}}"
+    state: "present"
+
+- name: get the details local user with user name
+  dellemc_powerstore_local_user:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    user_name: "ansible_user_1"
+    state: "present"
+
+- name: Modify attributes of local user
+  dellemc_powerstore_local_user:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    user_name: "ansible_user_1"
+    user_password: "Password123#"
+    new_password: "Ansible123#"
+    role_id: 4
+    is_locked: True
+    state: "present"
+
+- name: delete local user
+  dellemc_powerstore_local_user:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    user_name: "ansible_user_1"
+    state: "absent"
+```
+
+### Return Values
+                                                                                                                                                                                                                                                                                
+<table>
+    <tr>
+        <th colspan=2>Key</th>
+        <th>Type</th>
+        <th>Returned</th>
+        <th width="100%">Description</th>
+    </tr>
+                                                                                    <tr>
+            <td colspan=2 > changed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the resource has changed </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > local_user_details </td>
+            <td>  complex </td>
+            <td> When local user exists </td>
+            <td> Details of the local user </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The system generated ID given to the local user. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > is_built_in </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Whether the user account is built-in or not. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > is_default_password </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Whether the user account has a default password or not. Only applies to default user accounts </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > is_locked </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Whether the user account is locked or not. Defaults to false at creation time. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the local user. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > role_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Unique identifier of the role local user account is mapped to. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > role_name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the role to which local user account is mapped. </td>
+            </tr>
+                                        </table>
+
+### Authors
+* Arindam Datta (@dattaarindam) <ansible.team@dell.com>
+
+--------------------------------
 # Volume Module
 
 Manage volumes on a PowerStore storage system.
@@ -884,122 +1167,184 @@ Manage volumes on a PowerStore storage system.
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 <table>
     <tr>
-        <th colspan=3>Key</th>
+        <th colspan=6>Key</th>
         <th>Type</th>
         <th>Returned</th>
         <th width="100%">Description</th>
     </tr>
                                                                                             <tr>
-            <td colspan=3 > add_vols_to_vg </td>
-            <td>  bool </td>
-            <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume/s got added to volume group </td>
-        </tr>
-                    <tr>
-            <td colspan=3 > changed </td>
+            <td colspan=6 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
-            <td colspan=3 > create_vg </td>
-            <td>  bool </td>
-            <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got created </td>
-        </tr>
-                    <tr>
-            <td colspan=3 > delete_vg </td>
-            <td>  bool </td>
-            <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got deleted </td>
-        </tr>
-                    <tr>
-            <td colspan=3 > modify_vg </td>
-            <td>  bool </td>
-            <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got modified </td>
-        </tr>
-                    <tr>
-            <td colspan=3 > remove_vols_from_vg </td>
-            <td>  bool </td>
-            <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume/s got removed from volume group </td>
-        </tr>
-                    <tr>
-            <td colspan=3 > volume_group_details </td>
+            <td colspan=6 > volume_details </td>
             <td>  complex </td>
-            <td> When volume group exists </td>
-            <td> Details of the volume group </td>
+            <td> When volume exists </td>
+            <td> Details of the volume. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > description </td>
+                <td colspan=5 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['description about the volume group'] </td>
+                <td> description about the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > id </td>
-                <td> str </td>
-                <td>success</td>
-                <td> ['The system generated ID given to the volume group'] </td>
-            </tr>
-                                <tr>
-                <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > is_write_order_consistent </td>
-                <td> bool </td>
-                <td>success</td>
-                <td> ['A boolean flag to indicate whether snapshot sets of the volume group will be write-order consistent'] </td>
-            </tr>
-                                <tr>
-                <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > name </td>
-                <td> str </td>
-                <td>success</td>
-                <td> ['Name of the volume group'] </td>
-            </tr>
-                                <tr>
-                <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > protection_policy_id </td>
-                <td> str </td>
-                <td>success</td>
-                <td> ['The protection policy of the volume group'] </td>
-            </tr>
-                                <tr>
-                <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > type </td>
-                <td> str </td>
-                <td>success</td>
-                <td> ['The type of the volume group'] </td>
-            </tr>
-                                <tr>
-                <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > volumes </td>
+                <td colspan=5 > hlu_details </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> ['The volumes details of the volume group'] </td>
+                <td> HLU details for mapped host/host group. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=1 > id </td>
+                    <td colspan=4 > host_group_id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> ['The system generated ID given to the volume associated with the volume group'] </td>
+                    <td> The host group ID mapped to the volume. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=1 > name </td>
+                    <td colspan=4 > host_id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> ['The name of the volume associated with the volume group.'] </td>
+                    <td> The host ID mapped to the volume. </td>
                 </tr>
-                                                                    </table>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The HLU ID. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > logical_unit_number </td>
+                    <td> int </td>
+                    <td>success</td>
+                    <td> Logical unit number for the host/host group volume access. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > host </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Hosts details mapped to the volume. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The host ID mapped to the volume. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the Host mapped to the volume. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > host_group </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Host groups details mapped to the volume. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The host group ID mapped to the volume. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the Host group mapped to the volume. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The system generated ID given to the volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > performance_policy_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The performance policy for the volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > protection_policy_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The protection policy of the volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > size </td>
+                <td> int </td>
+                <td>success</td>
+                <td> Size of the volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > volume_groups </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> The volume group details of the volume. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The system generated ID given to the volume group. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=4 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the volume group. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > wwn </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The world wide name of the volume. </td>
+            </tr>
+                                        </table>
 
 ### Authors
 * Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
@@ -1182,7 +1527,7 @@ Manage Tree Quotas and User Quotas on PowerStore.
                                                     </table>
 
 ### Notes
-* Tree quota can not be created at the root of the filesystem.
+* Tree quota can't be created at the root of the filesystem.
 * When the ID of the filesystem is passed then nas_server is not required. If passed, then filesystem should exist for the nas_server, else the task will fail.
 * If a primary directory of the current directory or a subordinate directory of the path is having a Tree Quota configured, then the quota for that path can't be created. Hierarchical tree quotas are not allowed.
 * When the first quota is created for a directory/user in a filesystem then the quotas will be enabled for that filesystem automatically.
@@ -1296,7 +1641,7 @@ Manage Tree Quotas and User Quotas on PowerStore.
                 <td colspan=3 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['Additional information about the tree quota.', 'Only applicable for Tree Quotas.'] </td>
+                <td> Additional information about the tree quota. Only applicable for Tree Quotas. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -1377,7 +1722,7 @@ Manage Tree Quotas and User Quotas on PowerStore.
                 <td colspan=3 > state </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['State of the user quota or tree quota record period.', 'OK means No quota limits are exceeded.', 'Soft_Exceeded means Soft limit is exceeded, and grace period is not expired.', 'Soft_Exceeded_And_Expired means Soft limit is exceeded, and grace period is expired.', 'Hard_Reached means Hard limit is reached.'] </td>
+                <td> State of the user quota or tree quota record period. OK means No quota limits are exceeded. Soft_Exceeded means Soft limit is exceeded, and grace period is not expired. Soft_Exceeded_And_Expired means Soft limit is exceeded, and grace period is expired. Hard_Reached means Hard limit is reached. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -1391,7 +1736,7 @@ Manage Tree Quotas and User Quotas on PowerStore.
                 <td colspan=3 > tree_quota_for_user_quota </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> ['Additional Information of Tree Quota limits on which user quota exists.', 'Only applicable for User Quotas'] </td>
+                <td> Additional Information of Tree Quota limits on which user quota exists. Only applicable for User Quotas. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -1422,35 +1767,35 @@ Manage Tree Quotas and User Quotas on PowerStore.
                 <td colspan=3 > tree_quota_id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['ID of the Tree Quota on which the specific User Quota exists.', 'Only applicable for user quotas.'] </td>
+                <td> ID of the Tree Quota on which the specific User Quota exists. Only applicable for user quotas. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > uid </td>
                 <td> int </td>
                 <td>success</td>
-                <td> ['The ID of the unix host for which user quota exists.', 'Only applicable for user quotas.'] </td>
+                <td> The ID of the unix host for which user quota exists. Only applicable for user quotas. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > unix_name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The Name of the unix host for which user quota exists.', 'Only applicable for user quotas.'] </td>
+                <td> The Name of the unix host for which user quota exists. Only applicable for user quotas. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > windows_name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The Name of the Windows host for which user quota exists.', 'Only applicable for user quotas.'] </td>
+                <td> The Name of the Windows host for which user quota exists. Only applicable for user quotas. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > windows_sid </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The SID of the windows host for which user quota exists.', 'Only applicable for user quotas.'] </td>
+                <td> The SID of the windows host for which user quota exists. Only applicable for user quotas. </td>
             </tr>
                                         </table>
 
@@ -1458,15 +1803,15 @@ Manage Tree Quotas and User Quotas on PowerStore.
 * P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
 
 --------------------------------
-# Host Module
+# Cluster Module
 
-Manage host on PowerStore storage system.
+Manage cluster related opeartions on PowerStore.
 
 ### Synopsis
- Managing host on PowerStore storage system includes create host with a set of initiators, add/remove initiators from host, rename host and delete host.
+ Managing cluster on PowerStore storage system includes getting details and modifying cluster configuration parameters.
 
 ### Parameters
-                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                        
 <table>
     <tr>
         <th colspan=1>Parameter</th>
@@ -1477,52 +1822,28 @@ Manage host on PowerStore storage system.
         <th width="80%">Description</th>
     </tr>
                                                             <tr>
-            <td colspan=1 > host_name</td>
+            <td colspan=1 > cluster_name</td>
             <td> str  </td>
             <td></td>
             <td></td>
             <td></td>
-            <td> <br> The host name. This value must contain 128 or fewer printable Unicode characters.  <br> Creation of an empty host is not allowed.  <br> Required when creating a host.  <br> Use either host_id or host_name for modify and delete tasks. </td>
+            <td> <br> The Name of cluster. </td>
         </tr>
                     <tr>
-            <td colspan=1 > host_id</td>
+            <td colspan=1 > chap_mode</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>Disabled</li>  <li>Single</li>  <li>Mutual</li> </ul></td>
+            <td> <br> The mode that describes or sets the iSCSI CHAP mode for the cluster. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > cluster_id</td>
             <td> str  </td>
             <td></td>
             <td></td>
             <td></td>
-            <td> <br> The 36 character long host id automatically generated when a host is created.  <br> Use either host_id or host_name for modify and delete tasks.  <br> host_id cannot be used while creating host, as it is generated by the array after creation of host. </td>
-        </tr>
-                    <tr>
-            <td colspan=1 > os_type</td>
-            <td> str  </td>
-            <td></td>
-            <td></td>
-            <td> <ul> <li>Windows</li>  <li>Linux</li>  <li>ESXi</li>  <li>AIX</li>  <li>HP-UX</li>  <li>Solaris</li> </ul></td>
-            <td> <br> Operating system of the host.  <br> Required when creating a host  <br> OS type cannot be modified for a given host. </td>
-        </tr>
-                    <tr>
-            <td colspan=1 > initiators</td>
-            <td> list   <br> elements: str </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td> <br> List of Initiator WWN or IQN to be added or removed from the host.  <br> Subordinate initiators in a host can only be of one type, either FC or iSCSI.  <br> Required when creating a host. </td>
-        </tr>
-                    <tr>
-            <td colspan=1 > state</td>
-            <td> str  </td>
-            <td> True </td>
-            <td></td>
-            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
-            <td> <br> Define whether the host should exist or not.  <br> present - indicates that the host should exist in system.  <br> absent - indicates that the host should not exist in system. </td>
-        </tr>
-                    <tr>
-            <td colspan=1 > initiator_state</td>
-            <td> str  </td>
-            <td></td>
-            <td></td>
-            <td> <ul> <li>present-in-host</li>  <li>absent-in-host</li> </ul></td>
-            <td> <br> Define whether the initiators should be present or absent in host.  <br> present-in-host - indicates that the initiators should exist on host.  <br> absent-in-host - indicates that the initiators should not exist on host.  <br> Required when creating a host with initiators or adding/removing initiators to/from existing host. </td>
+            <td> <br> Id of the cluster. </td>
         </tr>
                     <tr>
             <td colspan=1 > new_name</td>
@@ -1530,7 +1851,55 @@ Manage host on PowerStore storage system.
             <td></td>
             <td></td>
             <td></td>
-            <td> <br> The new name of host for renaming function. This value must contain 128 or fewer printable Unicode characters.  <br> Cannot be specified when creating a host. </td>
+            <td> <br> The new name for the cluster. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > service_password</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The password for the service user. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > appliance_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> ID of the appliance.  <br> appliance_id and appliance_name are mutually exclusive.  <br> is_ssh_enabled has to be passed along with appliance_id. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > appliance_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Name of the appliance.  <br> appliance_id and appliance_name are mutually exclusive.  <br> is_ssh_enabled has to be passed along with appliance_name. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > is_ssh_enabled</td>
+            <td> bool  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Whether SSH access is enabled for the cluster.  <br> Either appliance_id or appliance_name is to be passed along with is_ssh_enabled. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > physical_mtu</td>
+            <td> int  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> MTU for ethernet ports in the cluster.  <br> The MTU can be set between 1500 to 9000. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > state</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
+            <td> <br> Define whether the cluster should exist or not.  <br> present  indicates that the cluster should exist on the system.  <br> absent  indicates that the cluster should not exist on the system. </td>
         </tr>
                     <tr>
             <td colspan=1 > array_ip</td>
@@ -1564,155 +1933,253 @@ Manage host on PowerStore storage system.
             <td></td>
             <td> <br> The password of the PowerStore host. </td>
         </tr>
-                                            </table>
+                                                    </table>
 
+### Notes
+* Creation and deletion of cluster is not supported by ansible modules.
 
 ### Examples
 ```
-  - name: Create host
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{host_name}}"
-      os_type: 'Windows'
-      initiators:
-        -21:00:00:24:ff:31:e9:fc
-      state: 'present'
-      initiator_state: 'present-in-host'
+- name: get the details of cluster using id
+  dellemc_powerstore_cluster:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    cluster_id: "0"
+    state: "present"
 
-  - name: Get host details by name
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{host_name}}"
-      state: 'present'
-
-  - name: Get host details by id
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "{{host_id}}"
-      state: 'present'
-
-  - name: Add initiators to host
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{host_name}}"
-      initiators:
-        -21:00:00:24:ff:31:e9:ee
-      initiator_state: 'present-in-host'
-      state: 'present'
-
-  - name: Remove initiators from host
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{host_name}}"
-      initiators:
-        -21:00:00:24:ff:31:e9:ee
-      initiator_state: 'absent-in-host'
-      state: 'present'
-
-  - name: Rename host
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{host_name}}"
-      new_name: "{{new_host_name}}"
-      state: 'present'
-
-  - name: Delete host
-    dellemc_powerstore_host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "{{new_host_name}}"
-      state: 'absent'
+- name: Modify details of cluster using the name
+  dellemc_powerstore_cluster:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    cluster_name: "RT-D1320"
+    appliance_id: "A1"
+    is_ssh_enabled: True
+    service_password: "S@mple_password"
+    chap_mode: "Disabled"
+    new_name: "new_RT-D1320"
+    state: "present"
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 <table>
     <tr>
-        <th colspan=3>Key</th>
+        <th colspan=5>Key</th>
         <th>Type</th>
         <th>Returned</th>
         <th width="100%">Description</th>
     </tr>
-                                                                                    <tr>
-            <td colspan=3 > changed </td>
+                                                                                            <tr>
+            <td colspan=5 > changed </td>
             <td>  bool </td>
             <td> always </td>
             <td> Whether or not the resource has changed </td>
         </tr>
                     <tr>
-            <td colspan=3 > hostgroup_details </td>
+            <td colspan=5 > cluster_details </td>
             <td>  complex </td>
-            <td> When host group exists </td>
-            <td> Details of the host group </td>
+            <td> When Cluster exists. </td>
+            <td> The cluster details. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > description </td>
-                <td> str </td>
+                <td colspan=4 > appliance_count </td>
+                <td> int </td>
                 <td>success</td>
-                <td> Description about the host group </td>
+                <td> Number of appliances configured in this cluster. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > hosts </td>
+                <td colspan=4 > appliance_details </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The hosts details which are part of this host group </td>
+                <td> Name and Id of the appliance for which is_ssh_enabled parameter is used. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=1 > id </td>
+                    <td colspan=3 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The ID of the host </td>
+                    <td> Id of the appliance. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=1 > name </td>
+                    <td colspan=3 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The name of the host </td>
+                    <td> Name of the appliance. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > id </td>
-                <td> str </td>
+                <td colspan=4 > compatibility_level </td>
+                <td> int </td>
                 <td>success</td>
-                <td> The system generated ID given to the host group </td>
+                <td> The behavioral version of the software version API, It is used to ensure the compatibility across potentially different software versions. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=2 > name </td>
+                <td colspan=4 > global_id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the host group </td>
+                <td> The global unique identifier of the cluster. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The ID of the cluster. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > is_encryption_enabled </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Whether or not Data at Rest Encryption is enabled on the cluster. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > is_ssh_enabled </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Whether or not the ssh is enabled. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > management_address </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The floating management IP address for the cluster in IPv4 or IPv6 format. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > master_appliance_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The unique identifier of the appliance acting as primary. This parameter is deprecated in version 2.0.0.0. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the cluster. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > physical_mtu </td>
+                <td> int </td>
+                <td>success</td>
+                <td> MTU for the cluster. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > primary_appliance_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The unique identifier of the appliance acting as primary. This parameter was added in version 2.0.0.0. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > service_config_details </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Details of the service config for the entered appliance. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > appliance_id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Id of the appliance for which the service configuration exists. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Id of the service configuration. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > is_ssh_enabled </td>
+                    <td> bool </td>
+                    <td>success</td>
+                    <td> Whether the ssh is enabled for the appliance or not. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > service_user_details </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Details of the service user for which the password can be updated. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Id of the service user. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > is_built_in </td>
+                    <td> bool </td>
+                    <td>success</td>
+                    <td> Whether the service user is built in or not. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > is_default_password </td>
+                    <td> bool </td>
+                    <td>success</td>
+                    <td> Whether the service user has default password or not. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the service user. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > state </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Possible cluster states. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > storage_discovery_address </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The floating storage discovery IP address for the cluster in IPv4 or IPv6 format. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > system_time </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Current clock time for the system. System time and all the system reported times are in UTC (GMT+0:00) format. </td>
             </tr>
                                         </table>
 
 ### Authors
-* Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
+* P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
 
 --------------------------------
 # Snapshot Rule Module
@@ -1720,10 +2187,7 @@ Manage host on PowerStore storage system.
 SnapshotRule operations on a PowerStore storage system.
 
 ### Synopsis
- Performs all snapshot rule operations on PowerStore Storage System.
- This modules supports get details of an existing snapshot rule, create new Snapshot Rule with Interval, create new Snapshot Rule with specific time and days_of_week with all supported. parameters.
- Modify Snapshot Rule with supported parameters.
- Delete a specific Snapshot Rule.
+ Performs all snapshot rule operations on PowerStore Storage System. This modules supports get details of an existing snapshot rule, create new Snapshot Rule with Interval, create new Snapshot Rule with specific time and days_of_week with all supported parameters. Modify Snapshot Rule with supported parameters. Delete a specific Snapshot Rule.
 
 ### Parameters
                                                                                                                                                                                                                                                                                                                 
@@ -1940,55 +2404,55 @@ SnapshotRule operations on a PowerStore storage system.
             <td colspan=3 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
             <td colspan=3 > snapshotrule_details </td>
             <td>  complex </td>
             <td> When snapshot rule exists </td>
-            <td> Details of the snapshot rule </td>
+            <td> Details of the snapshot rule. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > days_of_week </td>
                 <td> list </td>
                 <td>success</td>
-                <td> List of string to specify days of the week on which the rule should be applied </td>
+                <td> List of string to specify days of the week on which the rule should be applied. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > desired_retention </td>
                 <td> int </td>
                 <td>success</td>
-                <td> Desired snapshot retention period </td>
+                <td> Desired snapshot retention period. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The system generated ID given to the snapshot rule </td>
+                <td> The system generated ID given to the snapshot rule. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > interval </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The interval between snapshots </td>
+                <td> The interval between snapshots. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the snapshot rule </td>
+                <td> Name of the snapshot rule. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > policies </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The protection policies details of the snapshot rule </td>
+                <td> The protection policies details of the snapshot rule. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -1996,7 +2460,7 @@ SnapshotRule operations on a PowerStore storage system.
                     <td colspan=1 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The protection policy ID in which the snapshot rule is selected </td>
+                    <td> The protection policy ID in which the snapshot rule is selected. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -2004,14 +2468,14 @@ SnapshotRule operations on a PowerStore storage system.
                     <td colspan=1 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> Name of the protection policy in which the snapshot rule is selected </td>
+                    <td> Name of the protection policy in which the snapshot rule is selected. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > time_of_day </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The time of the day to take a daily snapshot </td>
+                <td> The time of the day to take a daily snapshot. </td>
             </tr>
                                         </table>
 
@@ -2024,10 +2488,10 @@ SnapshotRule operations on a PowerStore storage system.
 Gathers information about PowerStore Storage entities
 
 ### Synopsis
- Gathers the list of specified PowerStore Storage System entities, such as the list of cluster nodes, volumes, volume groups, hosts, host groups, snapshot rules, protection policies, NAS servers, NFS exports, SMB shares, tree quotas, user quotas, and file systems.
+ Gathers the list of specified PowerStore Storage System entities, such as the list of cluster nodes, volumes, volume groups, hosts, host groups, snapshot rules, protection policies, NAS servers, NFS exports, SMB shares, tree quotas, user quotas, file systems etc.
 
 ### Parameters
-                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                    
 <table>
     <tr>
         <th colspan=2>Parameter</th>
@@ -2042,8 +2506,8 @@ Gathers information about PowerStore Storage entities
             <td> list   <br> elements: str </td>
             <td> True </td>
             <td></td>
-            <td> <ul> <li>vol</li>  <li>vg</li>  <li>host</li>  <li>hg</li>  <li>node</li>  <li>protection_policy</li>  <li>snapshot_rule</li>  <li>nas_server</li>  <li>nfs_export</li>  <li>smb_share</li>  <li>tree_quota</li>  <li>user_quota</li>  <li>file_system</li>  <li>replication_rule</li>  <li>replication_session</li>  <li>remote_system</li> </ul></td>
-            <td> <br> A list of string variables which specify the PowerStore system entities requiring information.information.  <br> vol - volumes  <br> node - all the nodes  <br> vg - volume groups  <br> protection_policy - protection policy  <br> host - hosts  <br> hg -  host groups  <br> snapshot_rule - snapshot rule  <br> nas_server - NAS servers  <br> nfs_export - NFS exports  <br> smb_share - SMB shares  <br> tree_quota - tree quotas  <br> user_quota - user quotas  <br> file_system - file systems  <br> replication_rule - replication rules  <br> replication_session - replication sessions  <br> remote_system - remote systems </td>
+            <td> <ul> <li>vol</li>  <li>vg</li>  <li>host</li>  <li>hg</li>  <li>node</li>  <li>protection_policy</li>  <li>snapshot_rule</li>  <li>nas_server</li>  <li>nfs_export</li>  <li>smb_share</li>  <li>tree_quota</li>  <li>user_quota</li>  <li>file_system</li>  <li>replication_rule</li>  <li>replication_session</li>  <li>remote_system</li>  <li>network</li>  <li>role</li>  <li>user</li>  <li>appliance</li> </ul></td>
+            <td> <br> A list of string variables which specify the PowerStore system entities requiring information.information.  <br> vol - volumes  <br> node - all the nodes  <br> vg - volume groups  <br> protection_policy - protection policy  <br> host - hosts  <br> hg -  host groups  <br> snapshot_rule - snapshot rule  <br> nas_server - NAS servers  <br> nfs_export - NFS exports  <br> smb_share - SMB shares  <br> tree_quota - tree quotas  <br> user_quota - user quotas  <br> file_system - file systems  <br> replication_rule - replication rules  <br> replication_session - replication sessions  <br> remote_system - remote systems  <br> network - various networks  <br> role - roles  <br> user - local users  <br> appliance - appliances </td>
         </tr>
                     <tr>
             <td colspan=2 > filters</td>
@@ -2120,8 +2584,10 @@ Gathers information about PowerStore Storage entities
             <td></td>
             <td> <br> The password of the PowerStore host. </td>
         </tr>
-                                            </table>
+                                                    </table>
 
+### Notes
+* Pagination is not supported for role and local user. If all_pages is passed, it will be ignored.
 
 ### Examples
 ```
@@ -2234,32 +2700,88 @@ Gathers information about PowerStore Storage entities
       - filter_key: "name"
         filter_operator: "like"
         filter_value: "*share*"
+
+- name: Get list of user, role, network and appliances
+  dellemc_powerstore_gatherfacts:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - user
+      - role
+      - network
+      - appliance
+
+- name: Get list of networks whose name contains 'Management'
+  dellemc_powerstore_gatherfacts:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - network
+    filters:
+      - filter_key: "name"
+        filter_operator: "like"
+        filter_value: "*Management*"
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 <table>
     <tr>
-        <th colspan=19>Key</th>
+        <th colspan=23>Key</th>
         <th>Type</th>
         <th>Returned</th>
         <th width="100%">Description</th>
     </tr>
-                                                                                    <tr>
-            <td colspan=19 > changed </td>
+                                                                                            <tr>
+            <td colspan=23 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Shows whether or not the resource has changed </td>
+            <td> Shows whether or not the resource has changed. </td>
         </tr>
                     <tr>
-            <td colspan=19 > subset_result </td>
+            <td colspan=23 > subset_result </td>
             <td>  complex </td>
             <td> always </td>
             <td> Provides details of all given subsets. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > Cluster </td>
+                <td colspan=22 > Appliance </td>
+                <td> list </td>
+                <td>success</td>
+                <td> Provides details of all appliances. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> appliance id </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > model </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Model type of the PowerStore </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> appliance name </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=22 > Cluster </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all clusters. </td>
@@ -2267,7 +2789,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> cluster id </td>
@@ -2275,14 +2797,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> cluster name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > FileSystems </td>
+                <td colspan=22 > FileSystems </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all filesystems. </td>
@@ -2290,7 +2812,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> filesystem id </td>
@@ -2298,14 +2820,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> filesystem name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > HostGroups </td>
+                <td colspan=22 > HostGroups </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all hostgroups. </td>
@@ -2313,7 +2835,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> hostgroup id </td>
@@ -2321,14 +2843,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> hostgroup name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > Hosts </td>
+                <td colspan=22 > Hosts </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all hosts. </td>
@@ -2336,7 +2858,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> host id </td>
@@ -2344,14 +2866,37 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> host name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > NASServers </td>
+                <td colspan=22 > LocalUsers </td>
+                <td> list </td>
+                <td>success</td>
+                <td> Provides details of all local users. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> user id </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> user name </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=22 > NASServers </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all nas servers. </td>
@@ -2359,7 +2904,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> nas server id </td>
@@ -2367,14 +2912,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> nas server name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > NFSExports </td>
+                <td colspan=22 > NFSExports </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all nfs exports. </td>
@@ -2382,7 +2927,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> nfs export id </td>
@@ -2390,14 +2935,37 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> nfs export name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > Nodes </td>
+                <td colspan=22 > Networks </td>
+                <td> list </td>
+                <td>success</td>
+                <td> Provides details of all networks. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> network id </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> network name </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=22 > Nodes </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all nodes. </td>
@@ -2405,7 +2973,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> node id </td>
@@ -2413,14 +2981,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> node name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > ProtectionPolicies </td>
+                <td colspan=22 > ProtectionPolicies </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all protectionpolicies. </td>
@@ -2428,7 +2996,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> protectionpolicy id </td>
@@ -2436,14 +3004,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> protectionpolicy name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > RemoteSystems </td>
+                <td colspan=22 > RemoteSystems </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all remote systems. </td>
@@ -2451,7 +3019,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> remote system id </td>
@@ -2459,14 +3027,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> remote system name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > ReplicationRules </td>
+                <td colspan=22 > ReplicationRules </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all replication rules. </td>
@@ -2474,7 +3042,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> replication rule id </td>
@@ -2482,29 +3050,52 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> replication rule name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > ReplicationSession </td>
+                <td colspan=22 > ReplicationSession </td>
                 <td> list </td>
                 <td>success</td>
-                <td> details of all replication sessions </td>
+                <td> details of all replication sessions. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> replication session id </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > SMBShares </td>
+                <td colspan=22 > Roles </td>
+                <td> list </td>
+                <td>success</td>
+                <td> Provides details of all roles. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> role id </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=21 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> role name </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=22 > SMBShares </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all smb shares. </td>
@@ -2512,7 +3103,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> smb share id </td>
@@ -2520,14 +3111,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> smb share name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > SnapshotRules </td>
+                <td colspan=22 > SnapshotRules </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all snapshot rules. </td>
@@ -2535,7 +3126,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> snapshot rule id </td>
@@ -2543,14 +3134,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> snapshot rule name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > TreeQuotas </td>
+                <td colspan=22 > TreeQuotas </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all tree quotas. </td>
@@ -2558,7 +3149,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> tree quota id </td>
@@ -2566,29 +3157,29 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > path </td>
+                    <td colspan=21 > path </td>
                     <td> str </td>
                     <td>success</td>
                     <td> tree quota path </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > UserQuotas </td>
+                <td colspan=22 > UserQuotas </td>
                 <td> list </td>
                 <td>success</td>
-                <td> Provides details of all user quotas </td>
+                <td> Provides details of all user quotas. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> user quota id </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > VolumeGroups </td>
+                <td colspan=22 > VolumeGroups </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all volumegroups. </td>
@@ -2596,7 +3187,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> volumegroup id </td>
@@ -2604,14 +3195,14 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> volumegroup name </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=18 > Volumes </td>
+                <td colspan=22 > Volumes </td>
                 <td> list </td>
                 <td>success</td>
                 <td> Provides details of all volumes. </td>
@@ -2619,7 +3210,7 @@ Gathers information about PowerStore Storage entities
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > id </td>
+                    <td colspan=21 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> volume id </td>
@@ -2627,7 +3218,7 @@ Gathers information about PowerStore Storage entities
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=17 > name </td>
+                    <td colspan=21 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> volume name </td>
@@ -2639,14 +3230,289 @@ Gathers information about PowerStore Storage entities
 * Vivek Soni (@v-soni11) <ansible.team@dell.com>
 
 --------------------------------
+# Job Module
+
+Manage jobs on Dell EMC PowerStore.
+
+### Synopsis
+ Managing jobs on PowerStore Storage System includes getting details of job.
+
+### Parameters
+                                                                                                                                                
+<table>
+    <tr>
+        <th colspan=1>Parameter</th>
+        <th width="20%">Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Choices</th>
+        <th width="80%">Description</th>
+    </tr>
+                                                            <tr>
+            <td colspan=1 > job_id</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The ID of the job. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > array_ip</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> IP or FQDN of the PowerStore management system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > verifycert</td>
+            <td> bool  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>True</li>  <li>False</li> </ul></td>
+            <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The username of the PowerStore host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > password</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The password of the PowerStore host. </td>
+        </tr>
+                                            </table>
+
+
+### Examples
+```
+- name: Get Job Details
+  dellemc_powerstore_job:
+    array_ip: "{{mgmt_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    job_id: "a544981c-e94a-40ab-9eae-e578e182d2bb"
+```
+
+### Return Values
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+<table>
+    <tr>
+        <th colspan=4>Key</th>
+        <th>Type</th>
+        <th>Returned</th>
+        <th width="100%">Description</th>
+    </tr>
+                                                                                    <tr>
+            <td colspan=4 > changed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the resource has changed. </td>
+        </tr>
+                    <tr>
+            <td colspan=4 > job_details </td>
+            <td>  complex </td>
+            <td> When job exists. </td>
+            <td> The job details. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > description_l10n </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Description of the job. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > end_time </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Date and time when the job execution completed. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > estimated_completion_time </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Estimated completion date and time. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Unique identifier of the job. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > parent_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Unique identifier of the parent job, if applicable. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > phase </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Current status of the job. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > progress_percentage </td>
+                <td> int </td>
+                <td>success</td>
+                <td> Percent complete of the job. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > resource_action </td>
+                <td> str </td>
+                <td>success</td>
+                <td> User-specified action to be performed on the given resource. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > resource_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Unique identifier of the resource on which the job is operating. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > resource_name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the resource on which the job is operating. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > resource_type </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Resource Type for the given resource. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > response_body </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Base response object. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=2 > messages </td>
+                    <td> complex </td>
+                    <td>success</td>
+                    <td> The details of the error response. </td>
+                </tr>
+                                                    <tr>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td colspan=1 > arguments </td>
+                        <td> list </td>
+                        <td>success</td>
+                        <td> Values involved in the error. </td>
+                    </tr>
+                                    <tr>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td colspan=1 > code </td>
+                        <td> str </td>
+                        <td>success</td>
+                        <td> Hexadecimal code of the error. </td>
+                    </tr>
+                                    <tr>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td colspan=1 > message_l10n </td>
+                        <td> str </td>
+                        <td>success</td>
+                        <td> The description of the error. </td>
+                    </tr>
+                                    <tr>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td class="elbow-placeholder">&nbsp;</td>
+                        <td colspan=1 > severity </td>
+                        <td> str </td>
+                        <td>success</td>
+                        <td> Type of the severity. </td>
+                    </tr>
+                                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=2 > response_type </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Job error response. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > response_status </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Possible HTTP status values of completed or failed jobs. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > root_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Unique identifier of the root job, if applicable. The root job is the job at the top of the parent hierarchy. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > start_time </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Date and time when the job execution started. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > state </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Current status of the job. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > step_order </td>
+                <td> int </td>
+                <td>success</td>
+                <td> Order of a given job step with respect to its siblings within the job hierarchy. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=3 > user </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the user associated with the job. </td>
+            </tr>
+                                        </table>
+
+### Authors
+* Akash Shendge (@shenda1) <ansible.team@dell.com>
+
+--------------------------------
 # Replication Session Module
 
 Replication session operations on a PowerStore storage system.
 
 ### Synopsis
- Performs all replication session state change operations on a PowerStore Storage System.
- This module supports get details of an existing replication session.
- Updating the state of the replication session.
+ Performs all replication session state change operations on a PowerStore Storage System. This module supports get details of an existing replication session. Updating the state of the replication session.
 
 ### Parameters
                                                                                                                                                                                                                 
@@ -2800,7 +3666,7 @@ Replication session operations on a PowerStore storage system.
                 <td colspan=1 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The system generated ID of the replication session.', 'Unique across source and destination roles.'] </td>
+                <td> The system generated ID of the replication session. Unique across source and destination roles. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -2856,14 +3722,14 @@ Replication session operations on a PowerStore storage system.
                 <td colspan=1 > resource_type </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['Storage resource type eligible for replication protection.', 'volume - Replication session created on a volume.', 'volume_group - Replication session created on a volume group.'] </td>
+                <td> Storage resource type eligible for replication protection. volume - Replication session created on a volume. volume_group - Replication session created on a volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=1 > role </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['Role of the replication session.', 'Source - The local resource is the source of the remote replication session.', 'Destination - The local resource is the destination of the remote replication session.'] </td>
+                <td> Role of the replication session. Source - The local resource is the source of the remote replication session. Destination - The local resource is the destination of the remote replication session. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -2883,8 +3749,7 @@ Replication session operations on a PowerStore storage system.
 Manage host group on PowerStore Storage System.
 
 ### Synopsis
- Managing host group on PowerStore storage system includes create host group with a set of hosts, add/remove hosts from host group, rename host group, and delete host group.
- Deletion of a host group results in deletion of the containing hosts as well. Remove hosts from the host group first to retain them.
+ Managing host group on PowerStore storage system includes create host group with a set of hosts, add/remove hosts from host group, rename host group, and delete host group. Deletion of a host group results in deletion of the containing hosts as well. Remove hosts from the host group first to retain them.
 
 ### Parameters
                                                                                                                                                                                                                                                     
@@ -3082,27 +3947,27 @@ Manage host group on PowerStore Storage System.
             <td colspan=3 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
             <td colspan=3 > hostgroup_details </td>
             <td>  complex </td>
             <td> When host group exists </td>
-            <td> Details of the host group </td>
+            <td> Details of the host group. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Description about the host group </td>
+                <td> Description about the host group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > hosts </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The hosts details which are part of this host group </td>
+                <td> The hosts details which are part of this host group. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -3110,7 +3975,7 @@ Manage host group on PowerStore Storage System.
                     <td colspan=1 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The ID of the host </td>
+                    <td> The ID of the host. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -3118,21 +3983,21 @@ Manage host group on PowerStore Storage System.
                     <td colspan=1 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The name of the host </td>
+                    <td> The name of the host. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The system generated ID given to the host group </td>
+                <td> The system generated ID given to the host group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the host group </td>
+                <td> Name of the host group. </td>
             </tr>
                                         </table>
 
@@ -3629,6 +4494,162 @@ Manage NFS exports on Dell EMC PowerStore.
 * Akash Shendge (@shenda1) <ansible.team@dell.com>
 
 --------------------------------
+# Role Module
+
+Get details of the roles present on the PowerStore storage system.
+
+### Synopsis
+ Manage role in PowerStore storage system includes getting the details of a role.
+
+### Parameters
+                                                                                                                                                                                            
+<table>
+    <tr>
+        <th colspan=1>Parameter</th>
+        <th width="20%">Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Choices</th>
+        <th width="80%">Description</th>
+    </tr>
+                                                            <tr>
+            <td colspan=1 > role_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Name of the role. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > role_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Id of the role. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > state</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
+            <td> <br> Define whether the role should exist or not.  <br> present, indicates that the role should exist on the system.  <br> absent, indicates that the role should not exist on the system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > array_ip</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> IP or FQDN of the PowerStore management system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > verifycert</td>
+            <td> bool  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>True</li>  <li>False</li> </ul></td>
+            <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The username of the PowerStore host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > password</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The password of the PowerStore host. </td>
+        </tr>
+                                                    </table>
+
+### Notes
+* Only getting the details of the role is supported by the ansible module.
+* Creation, modification and deletion of roles is not supported by the ansible modules.
+
+### Examples
+```
+- name: Get the details of role by name
+  dellemc_powerstore_role:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verify_cert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    role_name: "Administrator"
+    state: "present"
+
+- name: Get the details of role by id
+  dellemc_powerstore_role:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verify_cert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    role_id: "1"
+    state: "present"
+```
+
+### Return Values
+                                                                                                                                                                                                                        
+<table>
+    <tr>
+        <th colspan=2>Key</th>
+        <th>Type</th>
+        <th>Returned</th>
+        <th width="100%">Description</th>
+    </tr>
+                                                                                            <tr>
+            <td colspan=2 > changed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the resource has changed. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > role_details </td>
+            <td>  complex </td>
+            <td> When role exists. </td>
+            <td> The role details. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > description </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Description of the role. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The ID of the role. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > is_built_in </td>
+                <td> bool </td>
+                <td>success</td>
+                <td> Indicates whether the role is built-in. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The name of the role. </td>
+            </tr>
+                                        </table>
+
+### Authors
+* P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
+
+--------------------------------
 # Volume Group Module
 
 Manage volume groups on a PowerStore Storage System
@@ -3850,92 +4871,92 @@ Manage volume groups on a PowerStore Storage System
             <td colspan=3 > add_vols_to_vg </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume/s got added to volume group </td>
+            <td> A boolean flag to indicate whether volume/s got added to volume group. </td>
         </tr>
                     <tr>
             <td colspan=3 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
             <td colspan=3 > create_vg </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got created </td>
+            <td> A boolean flag to indicate whether volume group got created. </td>
         </tr>
                     <tr>
             <td colspan=3 > delete_vg </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got deleted </td>
+            <td> A boolean flag to indicate whether volume group got deleted. </td>
         </tr>
                     <tr>
             <td colspan=3 > modify_vg </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group got modified </td>
+            <td> A boolean flag to indicate whether volume group got modified. </td>
         </tr>
                     <tr>
             <td colspan=3 > remove_vols_from_vg </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume/s got removed from volume group </td>
+            <td> A boolean flag to indicate whether volume/s got removed from volume group. </td>
         </tr>
                     <tr>
             <td colspan=3 > volume_group_details </td>
             <td>  complex </td>
             <td> When volume group exists </td>
-            <td> Details of the volume group </td>
+            <td> Details of the volume group. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['description about the volume group'] </td>
+                <td> description about the volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The system generated ID given to the volume group'] </td>
+                <td> The system generated ID given to the volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > is_write_order_consistent </td>
                 <td> bool </td>
                 <td>success</td>
-                <td> ['A boolean flag to indicate whether snapshot sets of the volume group will be write-order consistent'] </td>
+                <td> A boolean flag to indicate whether snapshot sets of the volume group will be write-order consistent. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['Name of the volume group'] </td>
+                <td> Name of the volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > protection_policy_id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The protection policy of the volume group'] </td>
+                <td> The protection policy of the volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > type </td>
                 <td> str </td>
                 <td>success</td>
-                <td> ['The type of the volume group'] </td>
+                <td> The type of the volume group. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > volumes </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> ['The volumes details of the volume group'] </td>
+                <td> The volumes details of the volume group. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -3943,7 +4964,7 @@ Manage volume groups on a PowerStore Storage System
                     <td colspan=1 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> ['The system generated ID given to the volume associated with the volume group'] </td>
+                    <td> The system generated ID given to the volume associated with the volume group. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -3951,7 +4972,7 @@ Manage volume groups on a PowerStore Storage System
                     <td colspan=1 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> ['The name of the volume associated with the volume group.'] </td>
+                    <td> The name of the volume associated with the volume group. </td>
                 </tr>
                                                                     </table>
 
@@ -4204,7 +5225,7 @@ NAS Server operations on PowerStore Storage system.
                 <td colspan=1 > file_interfaces </td>
                 <td> dict </td>
                 <td>success</td>
-                <td> This is the inverse of the resource type file_interface association.Will return the id,name & ip_address of the associated file interface </td>
+                <td> This is the inverse of the resource type file_interface association. Will return the id,name & ip_address of the associated file interface. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -4638,14 +5659,14 @@ Manage SMB shares on a PowerStore storage system.
                 <td colspan=2 > is_continuous_availability_enabled </td>
                 <td> bool </td>
                 <td>success</td>
-                <td> Whether the share will be available continuously or not </td>
+                <td> Whether the share will be available continuously or not. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=2 > is_encryption_enabled </td>
                 <td> bool </td>
                 <td>success</td>
-                <td> Whether encryption is enabled or not </td>
+                <td> Whether encryption is enabled or not. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -4665,15 +5686,7 @@ Manage SMB shares on a PowerStore storage system.
 Manage Snapshots on Dell EMC PowerStore.
 
 ### Synopsis
- Managing Snapshots on PowerStore.
- Create a new Volume Group Snapshot.
- Get details of Volume Group Snapshot.
- Modify Volume Group Snapshot
- Delete an existing Volume Group Snapshot.
- Create a new Volume Snapshot.
- Get details of Volume Snapshot.
- Modify Volume Snapshot.
- Delete an existing Volume Snapshot.
+ Managing Snapshots on PowerStore storage system, Create a new Volume Group Snapshot, Get details of Volume Group Snapshot, Modify Volume Group Snapshot, Delete an existing Volume Group Snapshot, Create a new Volume Snapshot, Get details of Volume Snapshot, Modify Volume Snapshot, Delete an existing Volume Snapshot.
 
 ### Parameters
                                                                                                                                                                                                                                                                                                                                     
@@ -4922,37 +5935,37 @@ Manage Snapshots on Dell EMC PowerStore.
             <td colspan=4 > create_vg_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group snapshot got created </td>
+            <td> A boolean flag to indicate whether volume group snapshot got created. </td>
         </tr>
                     <tr>
             <td colspan=4 > create_vol_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume snapshot got created </td>
+            <td> A boolean flag to indicate whether volume snapshot got created. </td>
         </tr>
                     <tr>
             <td colspan=4 > delete_vg_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group snapshot got deleted </td>
+            <td> A boolean flag to indicate whether volume group snapshot got deleted. </td>
         </tr>
                     <tr>
             <td colspan=4 > delete_vol_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume snapshot got deleted </td>
+            <td> A boolean flag to indicate whether volume snapshot got deleted. </td>
         </tr>
                     <tr>
             <td colspan=4 > modify_vg_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume group snapshot got modified </td>
+            <td> A boolean flag to indicate whether volume group snapshot got modified. </td>
         </tr>
                     <tr>
             <td colspan=4 > modify_vol_snap </td>
             <td>  bool </td>
             <td> When value exists </td>
-            <td> A boolean flag to indicate whether volume snapshot got modified </td>
+            <td> A boolean flag to indicate whether volume snapshot got modified. </td>
         </tr>
                     <tr>
             <td colspan=4 > snap_details </td>
@@ -4965,42 +5978,42 @@ Manage Snapshots on Dell EMC PowerStore.
                 <td colspan=3 > creation_timestamp </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The creation timestamp of the snapshot </td>
+                <td> The creation timestamp of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Description about the snapshot </td>
+                <td> Description about the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The system generated ID given to the snapshot </td>
+                <td> The system generated ID given to the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the snapshot </td>
+                <td> Name of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > performance_policy_id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The performance policy for the snapshot </td>
+                <td> The performance policy for the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > protection_data </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The protection data of the snapshot </td>
+                <td> The protection data of the snapshot. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5008,42 +6021,42 @@ Manage Snapshots on Dell EMC PowerStore.
                     <td colspan=2 > expiration_timestamp </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The expiration timestamp of the snapshot </td>
+                    <td> The expiration timestamp of the snapshot. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > protection_policy_id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The protection policy of the snapshot </td>
+                <td> The protection policy of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > size </td>
                 <td> int </td>
                 <td>success</td>
-                <td> Size of the snapshot </td>
+                <td> Size of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > state </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The state of the snapshot </td>
+                <td> The state of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > type </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The type of the snapshot </td>
+                <td> The type of the snapshot. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > volumes </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The volumes details of the volume group snapshot </td>
+                <td> The volumes details of the volume group snapshot. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5051,7 +6064,7 @@ Manage Snapshots on Dell EMC PowerStore.
                     <td colspan=2 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The system generated ID given to the volume associated with the volume group </td>
+                    <td> The system generated ID given to the volume associated with the volume group. </td>
                 </tr>
                                                                     </table>
 
@@ -5065,11 +6078,7 @@ Manage Snapshots on Dell EMC PowerStore.
 Replication rule operations on a PowerStore storage system.
 
 ### Synopsis
- Performs all replication rule operations on a PowerStore Storage System.
- This module supports get details of an existing replication rule.
- Create new replication rule for all supported parameters.
- Modify replication rule with supported parameters.
- Delete a specific replication rule.
+ Performs all replication rule operations on a PowerStore Storage System. This module supports get details of an existing replication rule. Create new replication rule for all supported parameters. Modify replication rule with supported parameters. Delete a specific replication rule.
 
 ### Parameters
                                                                                                                                                                                                                                                                         
@@ -5232,13 +6241,13 @@ Replication rule operations on a PowerStore storage system.
             <td colspan=2 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
             <td colspan=2 > replication_rule_details </td>
             <td>  complex </td>
             <td> When replication rule exists </td>
-            <td> Details of the replication rule </td>
+            <td> Details of the replication rule. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -5252,14 +6261,14 @@ Replication rule operations on a PowerStore storage system.
                 <td colspan=1 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The system generated ID of the replication rule </td>
+                <td> The system generated ID of the replication rule. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=1 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the replication rule </td>
+                <td> Name of the replication rule. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -5288,16 +6297,629 @@ Replication rule operations on a PowerStore storage system.
 * P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
 
 --------------------------------
-# Protection Policy Module
+# Network Module
 
-Perform Protection policy operations on PowerStore storage system
+Manage networks on Dell EMC PowerStore.
 
 ### Synopsis
- Performs all protection policy operations on PowerStore Storage System.
- This modules supports get details of an existing protection policy.
- Create new protection policy with existing Snapshot Rule or replication rule.
- Modify protection policy to change the name and description, and add or remove existing snapshot rules/ replication rule.
- Delete an existing protection policy.
+ Managing networks on PowerStore Storage System includes getting details of network, modifying attributes of network and adding/removing IP ports to/from storage network.
+
+### Parameters
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+<table>
+    <tr>
+        <th colspan=2>Parameter</th>
+        <th width="20%">Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Choices</th>
+        <th width="80%">Description</th>
+    </tr>
+                                                            <tr>
+            <td colspan=2 > network_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The name of the network.  <br> This parameter is added in 2.0.0.0.  <br> Specify either network_name or network_id for any operation. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > network_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The ID of the network. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > vlan_id</td>
+            <td> int  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The ID of the VLAN. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > gateway</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Network gateway in IPv4 or IPv6 format, corresponding to the network's IP version.  <br> Specify empty string to remove the gateway. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > prefix_length</td>
+            <td> int  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Network prefix length. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > new_cluster_mgmt_address</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> New cluster management IP address in IPv4 or IPv6 format, corresponding to the network's IP version. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > storage_discovery_address</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> New storage discovery IP address in IPv4 or IPv6 format, corresponding to the network's IP version.  <br> Specify empty string to remove the storage discovery IP address. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > mtu</td>
+            <td> int  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Maximum Transmission Unit (MTU) packet size set on network interfaces, in bytes. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > new_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> New name of the network. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > addresses</td>
+            <td> list   <br> elements: dict </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> IP addresses to add/remove in IPv4 or IPv6 format. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > current_address </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Existing IPv4/IPv6 address.  </td>
+            </tr>
+                    <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > new_address </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> New IPv4/IPv6 address.  </td>
+            </tr>
+                            <tr>
+            <td colspan=2 > ports</td>
+            <td> list   <br> elements: str </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Ports to be mapped/unmapped to/from the storage network. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > port_state</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>present-in-network</li>  <li>absent-in-network</li> </ul></td>
+            <td> <br> Specifies whether port should mapped/unmapped from the storage network. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > vasa_provider_credentials</td>
+            <td> dict  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Credentials required for re-registering the VASA vendor provider during the reconfiguration of the cluster management IP address. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > username </td>
+                <td> str  </td>
+                <td> True </td>
+                <td></td>
+                <td></td>
+                <td>  <br> VASA vendor provider user name.  </td>
+            </tr>
+                    <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > password </td>
+                <td> str  </td>
+                <td> True </td>
+                <td></td>
+                <td></td>
+                <td>  <br> VASA vendor provider password.  </td>
+            </tr>
+                            <tr>
+            <td colspan=2 > esxi_credentials</td>
+            <td> list   <br> elements: dict </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Credentials required for re-registering the ESXi hosts in the vCenter.  <br> It should be passed only when ESXi host addresses or management network VLAN / prefix / gateway are changed during the reconfiguration of the PowerStore X model appliances.  <br> This parameter is applicable only for PowerStore X model.  <br> This parameter will be ignored if passed for PowerStore T model. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > node_id </td>
+                <td> str  </td>
+                <td> True </td>
+                <td></td>
+                <td></td>
+                <td>  <br> Node identifier corresponding to the ESXi host.  </td>
+            </tr>
+                    <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > password </td>
+                <td> str  </td>
+                <td> True </td>
+                <td></td>
+                <td></td>
+                <td>  <br> ESXi host root password.  </td>
+            </tr>
+                            <tr>
+            <td colspan=2 > wait_for_completion</td>
+            <td> bool  </td>
+            <td></td>
+            <td> False </td>
+            <td></td>
+            <td> <br> Flag to indicate if the operation should be run synchronously or asynchronously. True signifies synchronous execution. By default, modify operation will run asynchronously. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > state</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
+            <td> <br> Define whether the network exist or not. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > array_ip</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> IP or FQDN of the PowerStore management system. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > verifycert</td>
+            <td> bool  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>True</li>  <li>False</li> </ul></td>
+            <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > user</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The username of the PowerStore host. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > password</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The password of the PowerStore host. </td>
+        </tr>
+                                                    </table>
+
+### Notes
+* It is recommended to perform task asynchronously while changing cluster management address.
+* Idempotency is not supported for vasa_provider_credentials and esxi_credentials.
+* For PowerStore X model, vasa_provider_credentials has to be specified along with new_cluster_mgmt_address.
+
+### Examples
+```
+- name: Get network details using ID
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_id: "NW1"
+    state: "present"
+
+- name: Get network details using name
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_name: "Default Management Network"
+    state: "present"
+
+- name: Rename the storage network
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_name: "Default Storage Network"
+    new_name: "iSCSI Network"
+    wait_for_completion: True
+    state: "present"
+
+- name: Replace the IP's in the management network and re-register VASA vendor provider
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_id: "NW1"
+    addresses:
+    - current_address: "100.230.x.x"
+      new_address: "100.230.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.230.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.230.x.x"
+    new_cluster_mgmt_address: "100.230.x.x"
+    vasa_provider_credentials:
+      username: "vmadmin"
+      password: "{{vm_password}}"
+    state: "present"
+
+- name: Map port to the storage network
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_id: "NW6"
+    ports:
+    - "IP1"
+    port_state: "present-in-network"
+    state: "present"
+
+- name: Unmap port from the storage network
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_id: "NW6"
+    ports:
+    - "IP1"
+    port_state: "absent-in-network"
+    state: "present"
+
+- name: Replace the IP's in the management network and re-register VASA vendor
+        provider for X model
+  dellemc_powerstore_network:
+    array_ip: "{{array_ip1}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    network_id: "NW1"
+    vlan_id: 0
+    gateway: "100.231.x.x"
+    mtu: 1500
+    prefix_length: 24
+    addresses:
+    - current_address: "100.230.x.x"
+      new_address: "100.231.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.231.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.231.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.231.x.x"
+    - current_address: "100.230.x.x"
+      new_address: "100.231.x.x"
+    new_cluster_mgmt_address: "100.231.x.x"
+    vasa_provider_credentials:
+      username: "vmadmin"
+      password: "{{vm_password}}"
+    esxi_credentials:
+    - "node_id": "N1"
+      "password": "{{node_password}}"
+    - "node_id": "N2"
+      "password": "{{node_password}}"
+    state: "present"
+```
+
+### Return Values
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+<table>
+    <tr>
+        <th colspan=5>Key</th>
+        <th>Type</th>
+        <th>Returned</th>
+        <th width="100%">Description</th>
+    </tr>
+                                                                                            <tr>
+            <td colspan=5 > changed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the resource has changed. </td>
+        </tr>
+                    <tr>
+            <td colspan=5 > job_details </td>
+            <td>  complex </td>
+            <td> When asynchronous task is performed. </td>
+            <td> The job details. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The ID of the job. </td>
+            </tr>
+                                        <tr>
+            <td colspan=5 > network_details </td>
+            <td>  complex </td>
+            <td> When network exists. </td>
+            <td> The network details. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > cluster_details </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> The details of the cluster. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > appliance_count </td>
+                    <td> int </td>
+                    <td>success</td>
+                    <td> Number of appliances configured in this cluster. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The unique identifier of the cluster. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > management_address </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The floating management IP address for the cluster in IPv4 or IPv6 format. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The name of the cluster. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > storage_discovery_address </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The floating storage discovery IP address for the cluster in IPv4 or IPv6 format. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > gateway </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The gateway of the network. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The ID of the network. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > ip_version </td>
+                <td> str </td>
+                <td>success</td>
+                <td> IP protocol version </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > member_ips </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Properties of the IP pool address. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > address </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> IP address value, in IPv4 or IPv6 format. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > appliance_id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the appliance to which the IP address belongs. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the IP address. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > ip_port_id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the port that uses this IP address to provide access to storage network services, such as iSCSI. This attribute can be set only for an IP address used by networks of type Storage. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the IP address. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > network_id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the network to which the IP address belongs. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > node_id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the cluster node to which the IP address belongs. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > purposes </td>
+                    <td> list </td>
+                    <td>success</td>
+                    <td> IP address purposes. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > mtu </td>
+                <td> int </td>
+                <td>success</td>
+                <td> Maximum Transmission Unit (MTU) packet size set on network interfaces, in bytes. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The name of the network. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > prefix_length </td>
+                <td> int </td>
+                <td>success</td>
+                <td> Network prefix length. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > purposes </td>
+                <td> list </td>
+                <td>success</td>
+                <td> Purposes of the network. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > type </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Network type </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > vcenter_details </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> Details of the vcenter. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > address </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> IP address of vCenter host, in IPv4, IPv6, or hostname format. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Unique identifier of the vCenter instance. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > instance_uuid </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> UUID instance of the vCenter. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > username </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> User name to login to vCenter. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=3 > vendor_provider_status </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> General status of the VASA vendor provider in vCenter. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=4 > vlan_id </td>
+                <td> int </td>
+                <td>success</td>
+                <td> VLAN identifier. </td>
+            </tr>
+                                        </table>
+
+### Authors
+* Akash Shendge (@shenda1) <ansible.team@dell.com>
+
+--------------------------------
+# Protection Policy Module
+
+Perform Protection policy operations on PowerStore storage system.
+
+### Synopsis
+ Performs all protection policy operations on PowerStore Storage System. This modules supports get details of an existing protection policy. Create new protection policy with existing Snapshot Rule or replication rule. Modify protection policy to change the name and description, and add or remove existing snapshot rules/ replication rule. Delete an existing protection policy.
 
 ### Parameters
                                                                                                                                                                                                                                                                                                 
@@ -5505,7 +7127,7 @@ Perform Protection policy operations on PowerStore storage system
             <td colspan=4 > changed </td>
             <td>  bool </td>
             <td> always </td>
-            <td> Whether or not the resource has changed </td>
+            <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
             <td colspan=4 > protectionpolicy_details </td>
@@ -5518,28 +7140,28 @@ Perform Protection policy operations on PowerStore storage system
                 <td colspan=3 > description </td>
                 <td> str </td>
                 <td>success</td>
-                <td> description about the protection policy </td>
+                <td> description about the protection policy. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > id </td>
                 <td> str </td>
                 <td>success</td>
-                <td> The system generated ID given to the protection policy </td>
+                <td> The system generated ID given to the protection policy. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > name </td>
                 <td> str </td>
                 <td>success</td>
-                <td> Name of the protection policy </td>
+                <td> Name of the protection policy. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > replication_rules </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The replication rule details of the protection policy </td>
+                <td> The replication rule details of the protection policy. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5547,7 +7169,7 @@ Perform Protection policy operations on PowerStore storage system
                     <td colspan=2 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The replication rule ID of the protection policy </td>
+                    <td> The replication rule ID of the protection policy. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5555,14 +7177,14 @@ Perform Protection policy operations on PowerStore storage system
                     <td colspan=2 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The replication rule name of the protection policy </td>
+                    <td> The replication rule name of the protection policy. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=3 > snapshot_rules </td>
                 <td> complex </td>
                 <td>success</td>
-                <td> The snapshot rules details of the protection policy </td>
+                <td> The snapshot rules details of the protection policy. </td>
             </tr>
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5570,7 +7192,7 @@ Perform Protection policy operations on PowerStore storage system
                     <td colspan=2 > id </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The snapshot rule ID of the protection policy </td>
+                    <td> The snapshot rule ID of the protection policy. </td>
                 </tr>
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
@@ -5578,7 +7200,7 @@ Perform Protection policy operations on PowerStore storage system
                     <td colspan=2 > name </td>
                     <td> str </td>
                     <td>success</td>
-                    <td> The snapshot rule name of the protection policy </td>
+                    <td> The snapshot rule name of the protection policy. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -5895,5 +7517,278 @@ Manage Filesystem Snapshots on Dell EMC PowerStore
 
 ### Authors
 * Akash Shendge (@shenda1) <ansible.team@dell.com>
+
+--------------------------------
+# Host Module
+
+Manage host on PowerStore storage system.
+
+### Synopsis
+ Managing host on PowerStore storage system includes create host with a set of initiators, add/remove initiators from host, rename host and delete host.
+
+### Parameters
+                                                                                                                                                                                                                                                                            
+<table>
+    <tr>
+        <th colspan=1>Parameter</th>
+        <th width="20%">Type</th>
+        <th>Required</th>
+        <th>Default</th>
+        <th>Choices</th>
+        <th width="80%">Description</th>
+    </tr>
+                                                            <tr>
+            <td colspan=1 > host_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The host name. This value must contain 128 or fewer printable Unicode characters.  <br> Creation of an empty host is not allowed.  <br> Required when creating a host.  <br> Use either host_id or host_name for modify and delete tasks. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > host_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The 36 character long host id automatically generated when a host is created.  <br> Use either host_id or host_name for modify and delete tasks.  <br> host_id cannot be used while creating host, as it is generated by the array after creation of host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > os_type</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>Windows</li>  <li>Linux</li>  <li>ESXi</li>  <li>AIX</li>  <li>HP-UX</li>  <li>Solaris</li> </ul></td>
+            <td> <br> Operating system of the host.  <br> Required when creating a host  <br> OS type cannot be modified for a given host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > initiators</td>
+            <td> list   <br> elements: str </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> List of Initiator WWN or IQN to be added or removed from the host.  <br> Subordinate initiators in a host can only be of one type, either FC or iSCSI.  <br> Required when creating a host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > state</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>absent</li>  <li>present</li> </ul></td>
+            <td> <br> Define whether the host should exist or not.  <br> present - indicates that the host should exist in system.  <br> absent - indicates that the host should not exist in system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > initiator_state</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>present-in-host</li>  <li>absent-in-host</li> </ul></td>
+            <td> <br> Define whether the initiators should be present or absent in host.  <br> present-in-host - indicates that the initiators should exist on host.  <br> absent-in-host - indicates that the initiators should not exist on host.  <br> Required when creating a host with initiators or adding/removing initiators to/from existing host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > new_name</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The new name of host for renaming function. This value must contain 128 or fewer printable Unicode characters.  <br> Cannot be specified when creating a host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > array_ip</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> IP or FQDN of the PowerStore management system. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > verifycert</td>
+            <td> bool  </td>
+            <td> True </td>
+            <td></td>
+            <td> <ul> <li>True</li>  <li>False</li> </ul></td>
+            <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > user</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The username of the PowerStore host. </td>
+        </tr>
+                    <tr>
+            <td colspan=1 > password</td>
+            <td> str  </td>
+            <td> True </td>
+            <td></td>
+            <td></td>
+            <td> <br> The password of the PowerStore host. </td>
+        </tr>
+                                                    </table>
+
+### Notes
+* Only completely and correctly configured iSCSI initiators can be associated with a host.
+
+### Examples
+```
+  - name: Create host
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{host_name}}"
+      os_type: 'Windows'
+      initiators:
+        -21:00:00:24:ff:31:e9:fc
+      state: 'present'
+      initiator_state: 'present-in-host'
+
+  - name: Get host details by name
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{host_name}}"
+      state: 'present'
+
+  - name: Get host details by id
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_id: "{{host_id}}"
+      state: 'present'
+
+  - name: Add initiators to host
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{host_name}}"
+      initiators:
+        -21:00:00:24:ff:31:e9:ee
+      initiator_state: 'present-in-host'
+      state: 'present'
+
+  - name: Remove initiators from host
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{host_name}}"
+      initiators:
+        -21:00:00:24:ff:31:e9:ee
+      initiator_state: 'absent-in-host'
+      state: 'present'
+
+  - name: Rename host
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{host_name}}"
+      new_name: "{{new_host_name}}"
+      state: 'present'
+
+  - name: Delete host
+    dellemc_powerstore_host:
+      array_ip: "{{array_ip}}"
+      verifycert: "{{verifycert}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      host_name: "{{new_host_name}}"
+      state: 'absent'
+```
+
+### Return Values
+                                                                                                                                                                                                                                                                                                                                                                                                        
+<table>
+    <tr>
+        <th colspan=3>Key</th>
+        <th>Type</th>
+        <th>Returned</th>
+        <th width="100%">Description</th>
+    </tr>
+                                                                                            <tr>
+            <td colspan=3 > changed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the resource has changed. </td>
+        </tr>
+                    <tr>
+            <td colspan=3 > host_details </td>
+            <td>  complex </td>
+            <td> When host exists </td>
+            <td> Details of the host. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > description </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Description about the host. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > host_group_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The host group ID of host. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > host_initiators </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> The initiator details of this host. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=1 > port_name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the port. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=1 > port_type </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The type of the port. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The system generated ID given to the host. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > name </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Name of the host. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > os_type </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The os type of the host. </td>
+            </tr>
+                                        </table>
+
+### Authors
+* Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 
 --------------------------------

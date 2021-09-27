@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2019-2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -17,7 +18,8 @@ short_description:  Manage volumes on a PowerStore storage system.
 description:
 - Managing volume on PowerStore storage system includes create volume, get
   details of volume, modify name, size, description, protection policy,
-  performance policy, map or unmap volume to host/host group, and delete volume.
+  performance policy, map or unmap volume to host/host group, and delete
+  volume.
 author:
 - Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
@@ -95,8 +97,8 @@ options:
   host:
     description:
     - Host to be mapped/unmapped to a volume. If not specified, an unmapped
-      volume is created. Only one of the host or host group can be supplied in one
-      call.
+      volume is created. Only one of the host or host group can be supplied in
+      one call.
     - To represent host, both name or ID can be used interchangeably.
       The module will detect both.
     type: str
@@ -105,8 +107,8 @@ options:
     - Hostgroup to be mapped/unmapped to a volume. If not specified, an
       unmapped volume is created.
     - Only one of the host or host group can be mapped in one call.
-    - To represent a hostgroup, both name or ID can be used interchangeably. The
-      module will detect both.
+    - To represent a hostgroup, both name or ID can be used interchangeably.
+      The module will detect both.
     type: str
   mapping_state:
     description:
@@ -136,13 +138,14 @@ options:
 
 notes:
 - To create a new volume, vol_name and size is required. cap_unit,
-  description, vg_name, performance_policy, and protection_policy are optional.
+  description, vg_name, performance_policy, and protection_policy are
+  optional.
 - new_name  should not be provided when creating a new volume.
 - size is a required parameter for expand volume.
 - Clones or Snapshots of a deleted production volume or a clone are not
   deleted.
-- A volume that is attached to a host/host group, or that is part of a volume group
-  cannot be deleted.
+- A volume that is attached to a host/host group, or that is part of a volume
+  group cannot be deleted.
   '''
 
 EXAMPLES = r'''
@@ -274,82 +277,83 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
 
 volume_details:
-    description: Details of the volume
+    description: Details of the volume.
     returned: When volume exists
     type: complex
     contains:
         id:
-            description: The system generated ID given to the volume
+            description: The system generated ID given to the volume.
             type: str
         name:
-            description: Name of the volume
+            description: Name of the volume.
             type: str
         size:
-            description: Size of the volume
+            description: Size of the volume.
             type: int
         description:
-            description: description about the volume
+            description: description about the volume.
             type: str
         performance_policy_id:
-            description: The performance policy for the volume
+            description: The performance policy for the volume.
             type: str
         protection_policy_id:
-            description: The protection policy of the volume
+            description: The protection policy of the volume.
             type: str
         volume_groups:
-            description: The volume group details of the volume
+            description: The volume group details of the volume.
             type: complex
             contains:
                 id:
-                    description: The system generated ID given to the volume group
+                    description: The system generated ID given to the volume
+                                 group.
                     type: str
                 name:
-                    description: Name of the volume group
+                    description: Name of the volume group.
                     type: str
         host:
-            description: Hosts details mapped to the volume
+            description: Hosts details mapped to the volume.
             type: complex
             contains:
                 id:
-                    description: The host ID mapped to the volume
+                    description: The host ID mapped to the volume.
                     type: str
                 name:
-                    description: Name of the Host mapped to the volume
+                    description: Name of the Host mapped to the volume.
                     type: str
         host_group:
-            description: Host groups details mapped to the volume
+            description: Host groups details mapped to the volume.
             type: complex
             contains:
                 id:
-                    description: The host group ID mapped to the volume
+                    description: The host group ID mapped to the volume.
                     type: str
                 name:
-                    description: Name of the Host group mapped to the volume
+                    description: Name of the Host group mapped to the volume.
                     type: str
         hlu_details:
-            description: HLU details for mapped host/host group
+            description: HLU details for mapped host/host group.
             type: complex
             contains:
                 host_group_id:
-                    description: The host group ID mapped to the volume
+                    description: The host group ID mapped to the volume.
                     type: str
                 host_id:
-                    description: The host ID mapped to the volume
+                    description: The host ID mapped to the volume.
                     type: str
                 id:
-                    description: The HLU ID
+                    description: The HLU ID.
                     type: str
                 logical_unit_number:
-                    description: Logical unit number for the host/host group volume
-                        access
+                    description: Logical unit number for the host/host group
+                                 volume access.
                     type: int
         wwn:
-            description: The world wide name of the volume
+            description: The world wide name of the volume.
             type: str
 '''
 
@@ -369,7 +373,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 
 
 class PowerStoreVolume(object):
@@ -414,16 +418,13 @@ class PowerStoreVolume(object):
         LOG.info('Got Py4Ps instance for provisioning on PowerStore %s',
                  self.conn)
 
-    def get_volume(self):
+    def get_volume(self, vol_id=None, vol_name=None):
         """Get volume details"""
         try:
-            vol_id = self.module.params['vol_id']
             if vol_id is not None:
                 return self.provisioning.get_volume_details(vol_id)
             else:
-                volume_name = self.module.params['vol_name']
-                volume_info = self.provisioning.get_volume_by_name(
-                    volume_name)
+                volume_info = self.provisioning.get_volume_by_name(vol_name)
                 if volume_info:
                     if len(volume_info) > 1:
                         error_msg = 'Multiple volumes by the same name found'
@@ -648,7 +649,7 @@ class PowerStoreVolume(object):
         hlu = self.module.params['hlu']
 
         changed = False
-        volume = self.get_volume()
+        volume = self.get_volume(vol_id, vol_name)
         # fetching the volume id from volume details
         if volume is not None:
             vol_id = volume['id']
@@ -686,7 +687,8 @@ class PowerStoreVolume(object):
                 performance_policy=performance_policy,
                 description=description)
             if changed:
-                volume = self.get_volume()
+                vol_id = self.get_volume_id_by_name(vol_name)
+                volume = self.get_volume(vol_id=vol_id)
 
         if state == 'present' and volume:
             if host and hostgroup:
@@ -708,11 +710,11 @@ class PowerStoreVolume(object):
                 self.module.fail_json(msg=msg)
             vg_mod_flag = True
             if volume['volume_groups']:
-                if len(volume['volume_groups']) > 0:
-                    # check for modification of VG
-                    if volume_group_id is not None and volume_group_id !=\
-                            volume['volume_groups'][0]['id']:
-                        vg_mod_flag = False
+                # check for modification of VG
+                if len(volume['volume_groups']) > 0 and \
+                        volume_group_id is not None and \
+                        volume_group_id != volume['volume_groups'][0]['id']:
+                    vg_mod_flag = False
                 # check for assignment of a VG to an already existing volume
             elif volume_group_id is not None:
                 vg_mod_flag = False
@@ -768,22 +770,18 @@ class PowerStoreVolume(object):
                     protection_policy_id=update_dict['protection_policy_id'],
                     performance_policy=update_dict['performance_policy_id'],
                     description=update_dict['description']) or changed
-                if changed and name is not vol_name:
-                    self.module.params['vol_name'] = new_name
 
         if state == 'present' and volume and mapping_state in [
-                None, 'unmapped']:
-            if hlu:
-                error_msg = 'Invalid paramter HLU provided'
-                LOG.info(error_msg)
-                self.module.fail_json(msg=error_msg)
+                None, 'unmapped'] and hlu:
+            error_msg = 'Invalid paramter HLU provided'
+            LOG.info(error_msg)
+            self.module.fail_json(msg=error_msg)
 
-        if host or hostgroup:
-            if state == 'present' and volume and mapping_state is None:
-                error_msg = 'Mapping state not provided, mandatory for' \
-                            ' mapping'
-                LOG.info(error_msg)
-                self.module.fail_json(msg=error_msg)
+        if (host or hostgroup) and state == 'present' and volume and \
+                mapping_state is None:
+            error_msg = 'Mapping state not provided, mandatory for mapping'
+            LOG.info(error_msg)
+            self.module.fail_json(msg=error_msg)
 
         if state == 'present' and volume and mapping_state:
             if not host and not hostgroup:
@@ -809,7 +807,7 @@ class PowerStoreVolume(object):
 
         self.result["changed"] = changed
         if state == 'present':
-            self.result["volume_details"] = self.get_volume()
+            self.result["volume_details"] = self.get_volume(vol_id=vol_id)
         self.module.exit_json(**self.result)
 
     def get_volume_id_by_name(self, volume_name):
@@ -976,12 +974,11 @@ def check_modify_volume_required(vol, vol_dict2):
                     vol_dict2[key]:
                 if key == 'protection_policy_id' and vol_dict1[key] is None\
                         and vol_dict2[key] == '':
-                    pass
-                else:
-                    LOG.debug("Key %s in vol_dict1=%s,vol_dict2=%s",
-                              key, vol_dict1[key], vol_dict2[key])
-                    update_dict[key] = vol_dict2[key]
-                    modify_flag = True
+                    continue
+                LOG.debug("Key %s in vol_dict1=%s,vol_dict2=%s", key,
+                          vol_dict1[key], vol_dict2[key])
+                update_dict[key] = vol_dict2[key]
+                modify_flag = True
     return modify_flag, update_dict
 
 
@@ -989,23 +986,22 @@ def check_for_hlu_modification(volume, hlu, host=None, hostgroup=None):
     hlu_details = volume['hlu_details']
     if host:
         for element in hlu_details:
-            if element.get('host_id') == host:
-                if int(element['logical_unit_number']) != hlu:
-                    msg = 'Modification of HLU from {0} to {1} for host {2}' \
-                          ' was attempted'\
-                        .format(int(element['logical_unit_number']), hlu,
-                                host)
-                    return False, msg
+            if element.get('host_id') == host and \
+                    int(element['logical_unit_number']) != hlu:
+                msg = 'Modification of HLU from {0} to {1} for host {2} was' \
+                      ' attempted'.format(int(element['logical_unit_number']),
+                                          hlu, host)
+                return False, msg
 
     if hostgroup:
         for element in hlu_details:
-            if element.get('host_group_id') == hostgroup:
-                if int(element['logical_unit_number']) != hlu:
-                    msg = 'Modification of HLU from {0} to {1} for hostgroup'\
-                          ' {2} was attempted'\
-                        .format(int(element['logical_unit_number']), hlu,
-                                hostgroup)
-                    return False, msg
+            if element.get('host_group_id') == hostgroup and \
+                    int(element['logical_unit_number']) != hlu:
+                msg = 'Modification of HLU from {0} to {1} for hostgroup ' \
+                      '{2} was attempted'.\
+                    format(int(element['logical_unit_number']), hlu,
+                           hostgroup)
+                return False, msg
     return True, ""
 
 

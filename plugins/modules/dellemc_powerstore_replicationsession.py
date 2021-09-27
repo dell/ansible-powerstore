@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2021, DellEMC
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -13,12 +14,12 @@ DOCUMENTATION = r'''
 ---
 module: dellemc_powerstore_replicationsession
 version_added: '1.2.0'
-short_description: Replication session operations on a PowerStore storage system.
+short_description: Replication session operations on a PowerStore storage
+                   system.
 description:
-- Performs all replication session state change operations on a
-  PowerStore Storage System.
-- This module supports get details of an existing replication session.
-- Updating the state of the replication session.
+- Performs all replication session state change operations on a PowerStore
+  Storage System. This module supports get details of an existing replication
+  session. Updating the state of the replication session.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -50,12 +51,12 @@ options:
     choices: [ 'failed_over', 'paused', 'synchronizing']
     type: str
 notes:
-- Manual synchronization for a replication session is not supported through the
-  Ansible module.
-- When the current state of the replication session is 'OK' and in the playbook
-  task 'synchronizing', then it will return "changed" as False. This is because there is a
-  scheduled synchronization in place with the associated replication rule's RPO
-  in the protection policy.
+- Manual synchronization for a replication session is not supported through
+  the Ansible module.
+- When the current state of the replication session is 'OK' and in the
+  playbook task 'synchronizing', then it will return "changed" as False. This
+  is because there is a scheduled synchronization in place with the associated
+  replication rule's RPO in the protection policy.
 '''
 
 EXAMPLES = r'''
@@ -110,34 +111,31 @@ replication_session_details:
     type: complex
     contains:
         id:
-            description:
-                - The system generated ID of the replication session.
-                - Unique across source and destination roles.
+            description: The system generated ID of the replication session.
+                         Unique across source and destination roles.
             type: str
         name:
             description: Name of the replication rule.
             type: str
         role:
-            description:
-                - Role of the replication session.
-                - Source - The local resource is the source of the remote
-                  replication session.
-                - Destination - The local resource is the destination of the
-                  remote replication session.
+            description: Role of the replication session. Source - The local
+                         resource is the source of the remote replication
+                         session. Destination - The local resource is the
+                         destination of the remote replication session.
             type: str
         resource_type:
-            description:
-                - Storage resource type eligible for replication protection.
-                - volume - Replication session created on a volume.
-                - volume_group - Replication session created on a volume group.
+            description: Storage resource type eligible for replication
+                         protection. volume - Replication session created on a
+                         volume. volume_group - Replication session created on
+                         a volume group.
             type: str
         local_resource_id:
-            description: Unique identifier of the local storage resource for the
-                replication session.
+            description: Unique identifier of the local storage resource for
+                         the replication session.
             type: str
         remote_resource_id:
-            description: Unique identifier of the remote storage resource for the
-                replication session.
+            description: Unique identifier of the remote storage resource for
+                         the replication session.
             type: str
         remote_system_id:
             description: Unique identifier of the remote system instance.
@@ -146,8 +144,8 @@ replication_session_details:
             description: Progress of the current replication operation.
             type: int
         replication_rule_id:
-            description: Associated replication rule instance if created by policy
-                engine.
+            description: Associated replication rule instance if created by
+                         policy engine.
             type: str
         state:
             description: State of the replication session.
@@ -157,7 +155,7 @@ replication_session_details:
             type: str
         estimated_completion_timestamp:
             description: Estimated completion time of the current replication
-                operation.
+                         operation.
             type: str
  '''
 
@@ -176,7 +174,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.2.0'
+APPLICATION_TYPE = 'Ansible/1.3.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of
@@ -383,15 +381,12 @@ class PowerstoreReplicationSession(object):
             self.module.fail_json(msg=msg)
 
     def change_state_from_ok(self, session_state, current_state,
-                             rep_session_details):
+                             rep_session_details, err_msg):
         """
         The operation will be performed when the current state of the
         replication session is OK.
         """
         try:
-            msg = "Current state of the replication session: {0} and entered" \
-                  " session state: {1}".format(current_state, session_state)
-            LOG.info(msg)
             session_id = rep_session_details['id']
             role = rep_session_details['role'].lower()
             if session_state == 'synchronizing':
@@ -413,29 +408,23 @@ class PowerstoreReplicationSession(object):
                     return True
 
         except Exception as e:
-            msg = '{0} call on replication session with id: {1} having' \
-                  ' current state: {2}, failed with error: {3}' \
-                  ''.format(session_state, rep_session_details['id'],
-                            current_state, str(e))
-
+            err_msg = err_msg.format(session_state, rep_session_details['id'],
+                                     current_state, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
-                LOG.info(msg)
+                LOG.info(err_msg)
                 return None
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg)
 
     def change_state_from_sync(self, session_state, current_state,
-                               rep_session_details):
+                               rep_session_details, err_msg):
         """
         The operation will be performed when the current state of the
         replication session is synchronizing.
         """
         try:
-            msg = "Current state of the replication session: {0} and entered" \
-                  " session state: {1}".format(current_state, session_state)
-            LOG.info(msg)
             session_id = rep_session_details['id']
             role = rep_session_details['role'].lower()
 
@@ -464,29 +453,23 @@ class PowerstoreReplicationSession(object):
                     return True
 
         except Exception as e:
-            msg = '{0} call on replication session with id: {1} having' \
-                  ' current state: {2}, failed with error: {3}' \
-                  ''.format(session_state, rep_session_details['id'],
-                            current_state, str(e))
-
+            err_msg = err_msg.format(session_state, rep_session_details['id'],
+                                     current_state, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
-                LOG.info(msg)
+                LOG.info(err_msg)
                 return None
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg)
 
     def change_state_from_paused(self, session_state, current_state,
-                                 rep_session_details):
+                                 rep_session_details, err_msg):
         """
             The operation will be performed when the current state of the
             replication session is paused.
         """
         try:
-            msg = "Current state of the replication session: {0} and entered" \
-                  " session state: {1}".format(current_state, session_state)
-            LOG.info(msg)
             session_id = rep_session_details['id']
             role = rep_session_details['role'].lower()
 
@@ -524,29 +507,23 @@ class PowerstoreReplicationSession(object):
                     return True
 
         except Exception as e:
-            msg = '{0} call on replication session with id: {1} having' \
-                  ' current state: {2}, failed with error: {3}' \
-                  ''.format(session_state, rep_session_details['id'],
-                            current_state, str(e))
-
+            err_msg = err_msg.format(session_state, rep_session_details['id'],
+                                     current_state, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
-                LOG.info(msg)
+                LOG.info(err_msg)
                 return None
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg)
 
     def change_state_from_failing_over(self, session_state, current_state,
-                                       rep_session_details):
+                                       rep_session_details, err_msg):
         """
             The operation will be performed when the current state of the
             replication session is failing_over.
         """
         try:
-            msg = "Current state of the replication session: {0} and entered" \
-                  " session state: {1}".format(current_state, session_state)
-            LOG.info(msg)
             session_id = rep_session_details['id']
 
             if session_state == 'synchronizing':
@@ -565,31 +542,24 @@ class PowerstoreReplicationSession(object):
                 return False
 
         except Exception as e:
-            msg = '{0} call on replication session with id: {1} having' \
-                  ' current state: {2}, failed with error: {3}' \
-                  ''.format(session_state, rep_session_details['id'],
-                            current_state, str(e))
-
+            err_msg = err_msg.format(session_state, rep_session_details['id'],
+                                     current_state, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
-                LOG.info(msg)
+                LOG.info(err_msg)
                 return None
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg)
 
     def change_state_from_failed_over(self, session_state, current_state,
-                                      rep_session_details):
+                                      rep_session_details, err_msg):
 
         """
         The operation will be performed when the current state of the
         replication session is failed_over.
         """
         try:
-            current_state = rep_session_details['state'].lower()
-            msg = "Current state of the replication session: {0} and entered" \
-                  " session state: {1}".format(current_state, session_state)
-            LOG.info(msg)
             session_id = rep_session_details['id']
             role = rep_session_details['role'].lower()
 
@@ -625,18 +595,15 @@ class PowerstoreReplicationSession(object):
                     return False
 
         except Exception as e:
-            msg = '{0} call on replication session with id: {1} having' \
-                  ' current state: {2}, failed with error: {3}' \
-                  ''.format(session_state, rep_session_details['id'],
-                            current_state, str(e))
-
+            err_msg = err_msg.format(session_state, rep_session_details['id'],
+                                     current_state, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
-                LOG.info(msg)
+                LOG.info(err_msg)
                 return None
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg)
 
     def change_state_from_transitioning_states(self, session_state,
                                                current_state):
@@ -691,37 +658,43 @@ class PowerstoreReplicationSession(object):
             session_id = rep_session_details['id']
 
         current_state = rep_session_details['state'].lower()
-
+        err_msg = None
+        if current_state and session_state:
+            msg = "Current state of the replication session: {0} and entered" \
+                  " session state: {1}".format(current_state, session_state)
+            LOG.info(msg)
+            err_msg = '{0} call on replication session with id: {1} having'\
+                      ' current state: {2}, failed with error: {3}'
         # perform operation for the given session state parameter in playbook
         # task, if current replication state is OK
         if session_state and current_state == "ok":
             changed = self.change_state_from_ok(
-                session_state, current_state, rep_session_details)
+                session_state, current_state, rep_session_details, err_msg)
 
         # perform operation for the given session state parameter in playbook
         # task, if current replication state is synchronizing
         if session_state and current_state == "synchronizing":
             changed = self.change_state_from_sync(session_state, current_state,
-                                                  rep_session_details)
+                                                  rep_session_details, err_msg)
 
         # perform operation for the given session state parameter in playbook
         # task, if current replication state is paused
         if session_state and current_state == "paused":
             changed = self.change_state_from_paused(
-                session_state, current_state, rep_session_details)
+                session_state, current_state, rep_session_details, err_msg)
 
         # perform operation for the given session state parameter in playbook
         # task, if current replication state is failed_over
         if session_state and current_state == "failed_over":
             changed = self.change_state_from_failed_over(
-                session_state, current_state, rep_session_details)
+                session_state, current_state, rep_session_details, err_msg)
 
         # perform operation for the given session state parameter in playbook
         # task, if current replication state is failing_over
         if session_state and current_state == "failing_over" or \
                 current_state == "failing_over_for_dr":
             changed = self.change_state_from_failing_over(
-                session_state, current_state, rep_session_details)
+                session_state, current_state, rep_session_details, err_msg)
 
         transitioning_states = ['resuming', 'reprotecting', 'initializing']
         if session_state and current_state in transitioning_states:
