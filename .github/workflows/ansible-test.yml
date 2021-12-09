@@ -73,4 +73,5 @@ jobs:
       # and all python versions ansible supports.
       - name: Run sanity tests
         run: ansible-test sanity --docker -v --color
-        working-directory: /home/runner/.ansible/collections/ansible_collections/dellemc/unity
+        working-directory: /home/runner/.ansible/collections/ansible_collections/dellemc/powerstore
+        
