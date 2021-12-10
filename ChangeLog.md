@@ -1,6 +1,5 @@
 # ansible-powerstore Change Log
 ## Version 1.4.0 - released on 16/12/2021
-- Added dual licensing.
 - Added CRUD operations for remote system.
 - Certificate module is added to get the details, add/import a certificate, exchange certificate, reset certificates and modify attributes of network.
 - Security config module is added to get the details and modify attributes of a security configuration.
