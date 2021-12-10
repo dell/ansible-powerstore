@@ -5,13 +5,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_cluster
+module: cluster
 
 version_added: '1.3.0'
 
@@ -87,7 +84,7 @@ notes:
 '''
 EXAMPLES = r'''
 - name: get the details of cluster using id
-  dellemc_powerstore_cluster:
+  cluster:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -96,7 +93,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify details of cluster using the name
-  dellemc_powerstore_cluster:
+  cluster:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -229,7 +226,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 from ansible.module_utils.basic import AnsibleModule
 
-LOG = utils.get_logger('dellemc_powerstore_cluster')
+LOG = utils.get_logger('cluster')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -240,7 +237,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreCluster(object):
@@ -316,7 +313,7 @@ class PowerStoreCluster(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def show_cluster_details(self, cluster_id, appliance_id):
         """
@@ -369,7 +366,7 @@ class PowerStoreCluster(object):
             msg = 'Modify operation failed' \
                   ' with error: {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_chap_config_details(self):
         """
@@ -384,7 +381,7 @@ class PowerStoreCluster(object):
             msg = 'Get details of chap config with id = 0 failed' \
                   ' with error: {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_service_user_details(self):
         """
@@ -399,7 +396,7 @@ class PowerStoreCluster(object):
             msg = 'Get details of service user with id: 1 and name: service' \
                   ' failed with error: {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_service_config_details(self, appliance_id):
         """
@@ -412,7 +409,7 @@ class PowerStoreCluster(object):
             msg = 'Get details of service config for appliance with id: {0}' \
                   ' failed with error: {1}'.format(appliance_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_appliance_details(self, appliance_id, appliance_name):
         """
@@ -431,7 +428,7 @@ class PowerStoreCluster(object):
         except Exception as e:
             msg = 'Get appliance details failed with error: {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """

@@ -13,7 +13,7 @@
   - dellemc.powerstore
   tasks:
     - name: Get the details of the array
-      dellemc_powerstore_gatherfacts:
+      info:
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
@@ -26,7 +26,7 @@
         all_volumes_names: "{{ subset_result['Volumes'] | map(attribute='name') | list }}"
     
     - name: Get the details of all the volumes in the array
-      dellemc_powerstore_volume:
+      volume:
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"

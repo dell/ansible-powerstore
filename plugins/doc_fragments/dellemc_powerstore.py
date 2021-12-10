@@ -47,11 +47,22 @@ options:
             - The password of the PowerStore host.
         type: str
         required: True
+    timeout:
+        description:
+            - Time after which the connection will get terminated.
+            - It is to be mentioned in seconds.
+        type: int
+        default: 120
+    port:
+        description:
+            - Port number for the PowerStore array.
+            - If not passed, it will take 443 as default.
+        type: int
 
 requirements:
   - A Dell EMC PowerStore Storage System.
-  - Ansible 2.9 or 2.10
+  - Ansible 2.10, 2.11 or 2.12
 notes:
-  - The modules prefixed with dellemc_powerstore are built to support the
-    Dell EMC PowerStore storage platform.
+  - The modules present in this collection named as 'dellemc.powerstore'
+    are built to support the Dell EMC PowerStore storage platform.
 '''

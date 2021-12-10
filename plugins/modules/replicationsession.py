@@ -5,14 +5,10 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_replicationsession
+module: replicationsession
 version_added: '1.2.0'
 short_description: Replication session operations on a PowerStore storage
                    system.
@@ -62,7 +58,7 @@ notes:
 EXAMPLES = r'''
 
 - name: Pause a replication session
-  dellemc_powerstore_replicationsession:
+  replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -71,7 +67,7 @@ EXAMPLES = r'''
     session_state: "paused"
 
 - name: Synchronize a replication session
-  dellemc_powerstore_replicationsession:
+  replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -80,7 +76,7 @@ EXAMPLES = r'''
     session_state: "synchronizing"
 
 - name: Get details of a replication session
-  dellemc_powerstore_replicationsession:
+  replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -88,7 +84,7 @@ EXAMPLES = r'''
     volume: "sample_volume_1"
 
 - name: Fail over a replication session
-  dellemc_powerstore_replicationsession:
+  replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -163,7 +159,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_replicationsession')
+LOG = utils.get_logger('replicationsession')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -174,7 +170,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of
@@ -306,7 +302,7 @@ class PowerstoreReplicationSession(object):
                   'vol: {1} or vol_grp {2} on failed with error : ' \
                   '{3} '.format(session_id, vol, vol_grp, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_vol_or_vol_grp_id(self, vol=None, vol_grp=None):
         """
@@ -366,7 +362,7 @@ class PowerstoreReplicationSession(object):
                 return None
 
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -378,7 +374,7 @@ class PowerstoreReplicationSession(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def change_state_from_ok(self, session_state, current_state,
                              rep_session_details, err_msg):
@@ -416,7 +412,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def change_state_from_sync(self, session_state, current_state,
                                rep_session_details, err_msg):
@@ -461,7 +457,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def change_state_from_paused(self, session_state, current_state,
                                  rep_session_details, err_msg):
@@ -515,7 +511,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def change_state_from_failing_over(self, session_state, current_state,
                                        rep_session_details, err_msg):
@@ -550,7 +546,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def change_state_from_failed_over(self, session_state, current_state,
                                       rep_session_details, err_msg):
@@ -603,7 +599,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def change_state_from_transitioning_states(self, session_state,
                                                current_state):
@@ -744,7 +740,7 @@ class PowerstoreReplicationSession(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
 
 def get_powerstore_rep_session_parameters():

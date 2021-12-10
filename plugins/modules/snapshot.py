@@ -5,14 +5,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_snapshot
+module: snapshot
 version_added: '1.0.0'
 short_description: Manage Snapshots on Dell EMC PowerStore.
 description:
@@ -84,7 +80,7 @@ options:
 
 EXAMPLES = r'''
     - name: Create a volume snapshot on PowerStore
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -97,7 +93,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Get details of a volume snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -107,7 +103,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Rename volume snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -118,7 +114,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Delete volume snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -128,7 +124,7 @@ EXAMPLES = r'''
         state: "{{state_absent}}"
 
     - name: Create a volume group snapshot on PowerStore
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -140,7 +136,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Get details of a volume group snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -150,7 +146,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Modify volume group snapshot expiration timestamp
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -162,7 +158,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Rename volume group snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -173,7 +169,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Delete volume group snapshot
-      dellemc_powerstore_snapshot:
+      snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -281,7 +277,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 from datetime import datetime, timedelta
 
-LOG = utils.get_logger('dellemc_powerstore_snapshot',
+LOG = utils.get_logger('snapshot',
                        log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -293,7 +289,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreSnapshot(object):
@@ -348,7 +344,7 @@ class PowerStoreSnapshot(object):
         except Exception as e:
             self.module.fail_json(msg="Failed to get details of Volume snap: "
                                       "%s with error %s"
-                                      % (snapshot['name'], str(e)))
+                                      % (snapshot['name'], str(e)), **utils.failure_codes(e))
 
     def get_vol_group_snap_details(self, snapshot):
         """Returns details of a Volume Group Snapshot"""
@@ -360,7 +356,7 @@ class PowerStoreSnapshot(object):
         except Exception as e:
             self.module.fail_json(msg="Failed to get details of VG snap: %s"
                                       " with error %s"
-                                      % (snapshot['name'], str(e)))
+                                      % (snapshot['name'], str(e)), **utils.failure_codes(e))
 
     def get_vol_snapshot(self, volume_id, snapshot_name, snapshot_id):
         """Get the volume snapshot"""
@@ -389,7 +385,7 @@ class PowerStoreSnapshot(object):
             msg = ("Not able to get snapshot details for volume: %s with "
                    "error %s", volume_id, str(e))
             LOG.info(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_vol_group_snapshot(self, vg_id, snapshot_name, snapshot_id):
         """Get Volume Group Snapshot"""
@@ -416,7 +412,7 @@ class PowerStoreSnapshot(object):
                 LOG.info(msg)
                 return None
             LOG.info(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_vol_id_from_volume(self, volume):
         """Maps the volume to volume ID"""
@@ -440,7 +436,7 @@ class PowerStoreSnapshot(object):
                     msg=("Volume %s was not found on the array." % volume))
         except Exception as e:
             self.module.fail_json(msg="Failed to get vol %s by name with "
-                                      "error %s" % (volume, str(e)))
+                                      "error %s" % (volume, str(e)), **utils.failure_codes(e))
 
     def get_vol_group_id_from_vg(self, volume_group):
         """Maps the volume group to Volume Group ID"""
@@ -468,7 +464,7 @@ class PowerStoreSnapshot(object):
         except Exception as e:
             self.module.fail_json(msg="Failed to get volume group: %s by "
                                       "name with error: %s"
-                                      % (volume_group, str(e)))
+                                      % (volume_group, str(e)), **utils.failure_codes(e))
 
     def create_vol_snapshot(self, snapshot_name,
                             description,
@@ -510,7 +506,7 @@ class PowerStoreSnapshot(object):
                              % (snapshot_name, self.module.params['volume'],
                                 str(e)))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def create_vg_snapshot(self, snapshot_name,
                            description,
@@ -548,7 +544,7 @@ class PowerStoreSnapshot(object):
                                 self.module.params['volume_group'],
                                 str(e)))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def delete_vol_snapshot(self, snapshot):
         """Deletes a Vol snapshot on PowerStore"""
@@ -560,7 +556,7 @@ class PowerStoreSnapshot(object):
             error_message = ('Failed to delete snapshot: %s with error: %s'
                              % (snapshot['name'], e_msg))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def delete_vol_group_snapshot(self, snapshot):
         """Deletes a Vol group snapshot on PowerStore"""
@@ -571,7 +567,7 @@ class PowerStoreSnapshot(object):
             error_message = ("Failed to delete snapshot: %s with error: %s"
                              % snapshot['name'], str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def rename_vol_snapshot(self, snapshot, new_name):
         """Renames a vol snapshot"""
@@ -598,7 +594,7 @@ class PowerStoreSnapshot(object):
             error_message = ('Failed to rename snapshot: %s with error: %s'
                              % (snapshot['name'], str(e)))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def rename_vol_group_snapshot(self, snapshot, new_name):
         """Renames a vol group snapshot"""
@@ -624,7 +620,7 @@ class PowerStoreSnapshot(object):
             error_message = ('Failed to delete snapshot: %s with error: %s'
                              % (snapshot['name'], str(e)))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def check_snapshot_modified(self, snapshot, volume, volume_group,
                                 description, desired_retention,
@@ -763,7 +759,7 @@ class PowerStoreSnapshot(object):
             error_message = ('Failed to modify snapshot %s with error %s'
                              % (snapshot['name'], str(e)))
             LOG.info(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def modify_vol_group_snapshot(self, snapshot,
                                   snapshot_modification_details):
@@ -795,7 +791,7 @@ class PowerStoreSnapshot(object):
             error_message = ('Failed to modify snapshot %s with error %s'
                              % (snapshot['name'], str(e)))
             LOG.info(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def validate_expiration_timestamp(self, expiration_timestamp):
         """Validates whether the expiration timestamp is valid"""

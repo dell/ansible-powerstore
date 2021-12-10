@@ -5,15 +5,11 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
 
-module: dellemc_powerstore_protectionpolicy
+module: protectionpolicy
 version_added: '1.0.0'
 short_description: Perform Protection policy operations on PowerStore storage
                    system.
@@ -91,7 +87,7 @@ notes:
 EXAMPLES = r'''
 
 - name: Create a protection policy with snapshot rule and replication rule
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -106,7 +102,7 @@ EXAMPLES = r'''
 
 
 - name : Modify protection policy, change name
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -117,7 +113,7 @@ EXAMPLES = r'''
 
 
 - name : Modify protection policy, add snapshot rule
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -129,7 +125,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Modify protection policy, remove snapshot rule, replication rule
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -142,7 +138,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Get details of protection policy by name
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -151,7 +147,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Get details of protection policy by ID
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -160,7 +156,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Delete protection policy
-  dellemc_powerstore_protectionpolicy:
+  protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -228,7 +224,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
 import logging
 
 LOG = utils.get_logger(
-    'dellemc_powerstore_protectionpolicy',
+    'protectionpolicy',
     log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -240,7 +236,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerstoreProtectionpolicy(object):
@@ -322,7 +318,7 @@ class PowerstoreProtectionpolicy(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_replication_rule_details(self, rep_rule_name=None,
                                      rep_rule_id=None):
@@ -364,7 +360,7 @@ class PowerstoreProtectionpolicy(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_protection_policy_details(self, name=None, policy_id=None):
         """Get protection policy"""
@@ -409,7 +405,7 @@ class PowerstoreProtectionpolicy(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_protection_policy(self, name, description=None,
                                  snapshot_rule_ids=None,
@@ -437,7 +433,7 @@ class PowerstoreProtectionpolicy(object):
                   ' error {2}'.format(self.cluster_name,
                                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_protection_policy(self, policy_id, name=None,
                                  description=None, snapshot_rule_ids=None,
@@ -472,7 +468,7 @@ class PowerstoreProtectionpolicy(object):
                   ' error {3}'.format(policy_id, self.cluster_name,
                                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_protection_policy(self, policy_id):
         """delete a protection policy by id of a given PowerStore storage
@@ -492,7 +488,7 @@ class PowerstoreProtectionpolicy(object):
                   'error {3}'.format(policy_id, self.cluster_name,
                                      self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -504,7 +500,7 @@ class PowerstoreProtectionpolicy(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """collect input"""

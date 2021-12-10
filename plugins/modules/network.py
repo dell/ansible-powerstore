@@ -5,13 +5,9 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
-module: dellemc_powerstore_network
+module: network
 version_added: '1.3.0'
 short_description: Manage networks on Dell EMC PowerStore.
 description:
@@ -42,7 +38,7 @@ options:
     type: int
   gateway:
     description:
-    - Network gateway in IPv4 or IPv6 format, corresponding to the network's
+    - Network gateway in IPv4 format.
       IP version.
     - Specify empty string to remove the gateway.
     type: str
@@ -52,13 +48,11 @@ options:
     type: int
   new_cluster_mgmt_address:
     description:
-    - New cluster management IP address in IPv4 or IPv6 format, corresponding
-      to the network's IP version.
+    - New cluster management IP address in IPv4 format.
     type: str
   storage_discovery_address:
     description:
-    - New storage discovery IP address in IPv4 or IPv6 format, corresponding
-      to the network's IP version.
+    - New storage discovery IP address in IPv4 format.
     - Specify empty string to remove the storage discovery IP address.
     type: str
   mtu:
@@ -72,17 +66,17 @@ options:
     type: str
   addresses:
     description:
-    - IP addresses to add/remove in IPv4 or IPv6 format.
+    - IP addresses to add/remove in IPv4 format.
     type: list
     elements: dict
     suboptions:
       current_address:
         description:
-        - Existing IPv4/IPv6 address.
+        - Existing IPv4 address.
         type: str
       new_address:
         description:
-        - New IPv4/IPv6 address.
+        - New IPv4 address.
         type: str
   ports:
     description:
@@ -155,7 +149,7 @@ notes:
 
 EXAMPLES = r'''
 - name: Get network details using ID
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -164,7 +158,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get network details using name
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -173,7 +167,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Rename the storage network
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -184,7 +178,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Replace the IP's in the management network and re-register VASA vendor provider
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -204,7 +198,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Map port to the storage network
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -216,7 +210,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Unmap port from the storage network
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -229,7 +223,7 @@ EXAMPLES = r'''
 
 - name: Replace the IP's in the management network and re-register VASA vendor
         provider for X model
-  dellemc_powerstore_network:
+  network:
     array_ip: "{{array_ip1}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -394,7 +388,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_network')
+LOG = utils.get_logger('network')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -405,7 +399,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreNetwork(object):
@@ -455,7 +449,7 @@ class PowerStoreNetwork(object):
             msg = 'Failed to get the member IPs of {0} with ' \
                   'error {1}'.format(network_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_cluster_details(self):
         """ Get cluster details """
@@ -469,7 +463,7 @@ class PowerStoreNetwork(object):
             msg = 'Failed to get the cluster details with error {0}'.format(
                 str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_vcenter_details(self):
         """ Get vcenter details """
@@ -483,7 +477,7 @@ class PowerStoreNetwork(object):
             msg = 'Failed to get the vcenter details with error {0}'.format(
                 str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_network_details(self, network_name=None, network_id=None):
         """ Get network details by name or id"""
@@ -515,7 +509,7 @@ class PowerStoreNetwork(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def add_ports_to_network(self, network_details, ports):
         """ Add IP ports to the storage network """
@@ -541,7 +535,7 @@ class PowerStoreNetwork(object):
             errormsg = "Add existing IP ports to storage network {0} failed" \
                        " with error {1}".format(network_details['id'], str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def remove_ports_from_network(self, network_details, ports):
         """ Remove IP ports from the storage network """
@@ -568,7 +562,7 @@ class PowerStoreNetwork(object):
                        "failed with error {1}".format(network_details['id'],
                                                       str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def modify_network(self, network_id, wait_for_completion,
                        network_modify_dict):
@@ -588,7 +582,7 @@ class PowerStoreNetwork(object):
             errormsg = "Modify operation of network with id: {0}, failed " \
                        "with error {1}".format(network_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def register_vasa_provider(self, vcenter_id, vasa_provider_credentials):
         """Register VASA provider"""
@@ -605,7 +599,7 @@ class PowerStoreNetwork(object):
             errormsg = "VASA provider registration of vcenter with id: {0}," \
                        " failed with error {1}".format(vcenter_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def check_array_version(self, network_name):
         """Verify PowerStore array version"""
@@ -626,7 +620,7 @@ class PowerStoreNetwork(object):
             error_msg = "Failed to get the array version with error " \
                         "{0}".format(str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def validate_parameters(self):
         """Validate the input parameters"""

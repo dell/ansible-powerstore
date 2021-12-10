@@ -5,13 +5,9 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
-module: dellemc_powerstore_job
+module: job
 version_added: '1.3.0'
 short_description: Manage jobs on Dell EMC PowerStore.
 description:
@@ -33,7 +29,7 @@ options:
 
 EXAMPLES = r'''
 - name: Get Job Details
-  dellemc_powerstore_job:
+  job:
     array_ip: "{{mgmt_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -138,7 +134,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_job')
+LOG = utils.get_logger('job')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -149,7 +145,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreJob(object):
@@ -192,7 +188,7 @@ class PowerStoreJob(object):
             msg = "Get details of job {0} failed with error {1}".format(
                 job_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """ Accept the parameters and get the job details """

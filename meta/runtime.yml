@@ -1,1 +1,108 @@
-requires_ansible: ">=2.9"
+requires_ansible: ">=2.10"
+plugin_routing:
+    modules:
+        dellemc_powerstore_gatherfacts:
+            redirect: dellemc.powerstore.info
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use info module instead.
+        dellemc_powerstore_cluster:
+            redirect: dellemc.powerstore.cluster
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use cluster instead.
+        dellemc_powerstore_filesystem:
+            redirect: dellemc.powerstore.filesystem
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use filesystem instead.
+        dellemc_powerstore_filesystem_snapshot:
+            redirect: dellemc.powerstore.filesystem_snapshot
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use filesystem_snapshot instead.
+        dellemc_powerstore_host:
+            redirect: dellemc.powerstore.host
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use host instead.
+        dellemc_powerstore_hostgroup:
+            redirect: dellemc.powerstore.hostgroup
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use hostgroup instead.
+        dellemc_powerstore_job:
+            redirect: dellemc.powerstore.job
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use job instead.
+        dellemc_powerstore_local_user:
+            redirect: dellemc.powerstore.local_user
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use local_user instead.
+        dellemc_powerstore_nasserver:
+            redirect: dellemc.powerstore.nasserver
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use nasserver instead.
+        dellemc_powerstore_network:
+            redirect: dellemc.powerstore.network
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use network instead.
+        dellemc_powerstore_nfs:
+            redirect: dellemc.powerstore.nfs
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use nfs instead.
+        dellemc_powerstore_protectionpolicy:
+            redirect: dellemc.powerstore.protectionpolicy
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use protectionpolicy instead.
+        dellemc_powerstore_quota:
+            redirect: dellemc.powerstore.quota
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use quota instead.
+        dellemc_powerstore_replicationrule:
+            redirect: dellemc.powerstore.replicationrule
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use replicationrule instead.
+        dellemc_powerstore_replicationsession:
+            redirect: dellemc.powerstore.replicationsession
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use replicationsession instead.
+        dellemc_powerstore_role:
+            redirect: dellemc.powerstore.role
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use role instead.
+        dellemc_powerstore_smbshare:
+            redirect: dellemc.powerstore.smbshare
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use smbshare instead.
+        dellemc_powerstore_snapshot:
+            redirect: dellemc.powerstore.snapshot
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use snapshot instead.
+        dellemc_powerstore_snapshotrule:
+            redirect: dellemc.powerstore.snapshotrule
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use snapshotrule instead.
+        dellemc_powerstore_volume:
+            redirect: dellemc.powerstore.volume
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use volume instead.
+        dellemc_powerstore_volumegroup:
+            redirect: dellemc.powerstore.volumegroup
+            deprecation:
+                removal_date: 2022-03-31
+                warning_text: Use volumegroup instead.

@@ -6,14 +6,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_local_user
+module: local_user
 version_added: '1.3.0'
 short_description: Local user operations on PowerStore Storage System
 description:
@@ -72,7 +68,7 @@ options:
 
 EXAMPLES = r'''
 - name: create local user
-  dellemc_powerstore_local_user:
+  local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -84,7 +80,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: get the details local user with user id
-  dellemc_powerstore_local_user:
+  local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -93,7 +89,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: get the details local user with user name
-  dellemc_powerstore_local_user:
+  local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -102,7 +98,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify attributes of local user
-  dellemc_powerstore_local_user:
+  local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -115,7 +111,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: delete local user
-  dellemc_powerstore_local_user:
+  local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -165,7 +161,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_local_user')
+LOG = utils.get_logger('local_user')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -176,7 +172,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreLocalUser(object):
@@ -248,7 +244,7 @@ class PowerStoreLocalUser(object):
         except Exception as e:
             msg = "Failed to get the role with error {0} ".format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_local_user_details(self, user_id=None, user_name=None):
         """Get the details of a local user on a PowerStore storage system"""
@@ -283,7 +279,7 @@ class PowerStoreLocalUser(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_local_user(self, user_name):
         """Create a local user."""
@@ -317,7 +313,7 @@ class PowerStoreLocalUser(object):
                   'error {3} '.format(user_name, self.cluster_name,
                                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_local_user(self, user_id):
         """Deletes a local_user"""
@@ -331,7 +327,7 @@ class PowerStoreLocalUser(object):
             msg = 'Failed to delete local user id {0} with ' \
                   'error {1}'.format(user_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -343,7 +339,7 @@ class PowerStoreLocalUser(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def is_modify_required(self, user_details):
         """To get the details of the field to be modified."""
@@ -381,7 +377,7 @@ class PowerStoreLocalUser(object):
             msg = 'Failed to determine if local user instance need ' \
                   'to modified with error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_local_user(self, user_id, modify_params):
         """Perform modify operations on a local user"""
@@ -394,7 +390,7 @@ class PowerStoreLocalUser(object):
             msg = 'Failed to modify local user instance ' \
                   'with error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """ Perform various module operations"""

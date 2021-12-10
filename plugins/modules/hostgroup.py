@@ -5,14 +5,10 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_hostgroup
+module: hostgroup
 version_added: '1.0.0'
 short_description:  Manage host group on PowerStore Storage System.
 description:
@@ -81,7 +77,7 @@ options:
 
 EXAMPLES = r'''
   - name: Create host group with hosts using host name
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -94,7 +90,7 @@ EXAMPLES = r'''
       host_state: 'present-in-group'
 
   - name: Create host group with hosts using host ID
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -106,7 +102,7 @@ EXAMPLES = r'''
       host_state: 'present-in-group'
 
   - name: Get host group details
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -115,7 +111,7 @@ EXAMPLES = r'''
       state: 'present'
 
   - name: Get host group details using ID
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -124,7 +120,7 @@ EXAMPLES = r'''
       state: 'present'
 
   - name: Add hosts to host group
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -136,7 +132,7 @@ EXAMPLES = r'''
       state: 'present'
 
   - name: Remove hosts from host group
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -148,7 +144,7 @@ EXAMPLES = r'''
       state: 'present'
 
   - name: Rename host group
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -158,7 +154,7 @@ EXAMPLES = r'''
       state: 'present'
 
   - name: Delete host group
-    dellemc_powerstore_hostgroup:
+    hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -205,7 +201,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_hostgroup', log_devel=logging.INFO)
+LOG = utils.get_logger('hostgroup', log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -216,7 +212,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreHostgroup(object):
@@ -287,7 +283,7 @@ class PowerStoreHostgroup(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_hostgroup_id_by_name(self, hostgroup_name):
         try:
@@ -304,7 +300,7 @@ class PowerStoreHostgroup(object):
             error_msg = "Get hostgroup: {0} failed with " \
                         "error: {1}".format(hostgroup_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_host(self, host_id):
         '''
@@ -345,7 +341,7 @@ class PowerStoreHostgroup(object):
             error_msg = ("Host {0} not found, error={1}".format(
                 host, str(e)))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_host_id_by_name(self, host_name):
         try:
@@ -361,7 +357,7 @@ class PowerStoreHostgroup(object):
             error_msg = ("Host {0} not found, with error= {1}".format(
                 host_name, str(e)))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def create_hostgroup(self, hostgroup_name, hosts):
         '''
@@ -394,7 +390,7 @@ class PowerStoreHostgroup(object):
             error_msg = 'Create host group {0} failed with error {1}'.format(
                 hostgroup_name, e)
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def _get_add_hosts(self, existing, requested):
         all_hosts = existing + requested
@@ -438,7 +434,7 @@ class PowerStoreHostgroup(object):
                  "error {2}").format(
                     add_list, hostgroup['name'], str(e)))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def remove_hostgroup_hosts(self, hostgroup, hosts):
         remove_list = None
@@ -474,7 +470,7 @@ class PowerStoreHostgroup(object):
                 hostgroup['name'],
                 str(e)))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def rename_hostgroup(self, hostgroup, new_name):
         try:
@@ -485,7 +481,7 @@ class PowerStoreHostgroup(object):
             error_msg = 'Renaming of host group {0} failed with error {1}'.format(
                 hostgroup['name'], str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def delete_hostgroup(self, hostgroup):
         '''
@@ -499,7 +495,7 @@ class PowerStoreHostgroup(object):
                 'Deleting host group {0} failed with error {1}'.format(
                     hostgroup['name'], str(e)))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def _create_result_dict(self, changed, hostgroup_id):
         self.result['changed'] = changed

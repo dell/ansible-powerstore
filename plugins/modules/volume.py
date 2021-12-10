@@ -5,14 +5,10 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_volume
+module: volume
 version_added: '1.0.0'
 short_description:  Manage volumes on a PowerStore storage system.
 description:
@@ -150,7 +146,7 @@ notes:
 
 EXAMPLES = r'''
 - name: Create stand-alone volume
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -161,7 +157,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Create stand-alone volume with performance and protection policy
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -175,7 +171,7 @@ EXAMPLES = r'''
     protection_policy: 'protection_policy_name'
 
 - name: Create volume and assign to a volume group
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -187,7 +183,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Create volume and map it to a host
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -200,7 +196,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Get volume details using ID
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -209,7 +205,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get volume details using name
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -218,7 +214,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify volume size, name, description and performance policy
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -231,7 +227,7 @@ EXAMPLES = r'''
     description: 'new description'
 
 - name: Remove protection policy from Volume
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -242,7 +238,7 @@ EXAMPLES = r'''
     protection_policy: ""
 
 - name: Map volume to a host with HLU
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -254,7 +250,7 @@ EXAMPLES = r'''
     hlu: 12
 
 - name: Map volume to a host without HLU
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -265,7 +261,7 @@ EXAMPLES = r'''
     host: 'host2'
 
 - name: Delete volume
-  dellemc_powerstore_volume:
+  volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -355,6 +351,31 @@ volume_details:
         wwn:
             description: The world wide name of the volume.
             type: str
+        nsid:
+            description: NVMe Namespace unique identifier in the NVME
+                         subsystem. Used for volumes attached to NVMEoF hosts.
+            type: int
+        nguid:
+            description: NVMe Namespace globally unique identifier. Used for
+                         volumes attached to NVMEoF hosts.
+            type: int
+        node_affinity:
+            description: This attribute shows which node will be advertised as
+                         the optimized IO path to the volume.
+            type: str
+        mapped_volumes:
+            description: This is the inverse of the resource type
+                         host_volume_mapping association.
+            type: complex
+            contains:
+                id:
+                    description: Unique identifier of a mapping between
+                                 a host and a volume.
+                    type: str
+                logical_unit_number:
+                    description: Logical unit number for the host volume
+                                 access.
+                    type: int
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -362,7 +383,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_volume', log_devel=logging.INFO)
+LOG = utils.get_logger('volume', log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -373,7 +394,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreVolume(object):
@@ -441,7 +462,7 @@ class PowerStoreVolume(object):
                 LOG.info(error_msg)
                 return None
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def create_volume(self, vol_name,
                       size,
@@ -471,7 +492,7 @@ class PowerStoreVolume(object):
             msg = 'Create volume {0} failed with error {1}'.format(
                 vol_name, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_volume(self, vol_id,
                       old_volume_name,
@@ -506,7 +527,7 @@ class PowerStoreVolume(object):
             msg = 'Modify volume {0} failed with error {1}'.format(
                 old_volume_name, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def map_unmap_volume_to_host(self, vol, host, mapping_state):
         current_hosts = vol['host']
@@ -535,7 +556,7 @@ class PowerStoreVolume(object):
                              ' error {2}'.format(vol['name'], host_identifier,
                                                  str(e)))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
         if mapping_state == 'unmapped' and host not in current_host_ids:
             LOG.info('Volume %s is not mapped to host %s', vol['name'],
@@ -554,7 +575,7 @@ class PowerStoreVolume(object):
                              ' error {2}'.format(vol['name'], host_identifier,
                                                  str(e)))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         return False
 
     def map_unmap_volume_to_hostgroup(self, vol, hostgroup, mapping_state):
@@ -586,7 +607,7 @@ class PowerStoreVolume(object):
                     ' {2}' .format(vol['name'], host_group_identifier,
                                    str(e)))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
         if mapping_state == 'unmapped' and hostgroup not in\
                 current_hostgroup_ids:
@@ -607,7 +628,7 @@ class PowerStoreVolume(object):
                     ' {2}' .format(vol['name'], host_group_identifier,
                                    str(e)))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         return False
 
     def delete_volume(self, volume):
@@ -622,7 +643,7 @@ class PowerStoreVolume(object):
             error_msg = 'Delete volume {0} failed with error {1}'.format(
                 volume['name'], str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """
@@ -824,7 +845,7 @@ class PowerStoreVolume(object):
             error_msg = "Get volume: {0} failed with " \
                         "error: {1}".format(volume_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_volume_group_id_by_name(self, volume_group_name):
         try:
@@ -856,7 +877,7 @@ class PowerStoreVolume(object):
             error_msg = "Get volume group: {0} failed with " \
                         "error: {1}".format(volume_group_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_protection_policy_id_by_name(self, protection_policy_name):
         try:
@@ -889,7 +910,7 @@ class PowerStoreVolume(object):
             error_msg = "Get protection policy: {0} failed with " \
                         "error: {1}".format(protection_policy_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_host_id_by_name(self, host_name):
         try:
@@ -916,7 +937,7 @@ class PowerStoreVolume(object):
             error_msg = "Get host: {0} failed with " \
                         "error: {1}".format(host_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_host_group_id_by_name(self, host_group_name):
         try:
@@ -947,7 +968,7 @@ class PowerStoreVolume(object):
             error_msg = "Get host group: {0} failed with " \
                         "error: {1}".format(host_group_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_performance_policy(self, performance_policy):
         if performance_policy is None:
