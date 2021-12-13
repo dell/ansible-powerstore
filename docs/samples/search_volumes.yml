@@ -13,7 +13,7 @@
   - dellemc.powerstore
   tasks:
     - name: Get the details of all the Volumes
-      dellemc_powerstore_gatherfacts:
+      info:
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"

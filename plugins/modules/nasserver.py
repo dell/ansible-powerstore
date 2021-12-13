@@ -6,14 +6,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_nasserver
+module: nasserver
 version_added: '1.1.0'
 short_description: NAS Server operations on PowerStore Storage system.
 description:
@@ -77,7 +73,7 @@ options:
 EXAMPLES = r'''
 
  - name: Get details of NAS Server by name
-   dellemc_powerstore_nasserver:
+   nasserver:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -86,7 +82,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Get Details of NAS Server by ID
-   dellemc_powerstore_nasserver:
+   nasserver:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -95,7 +91,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Rename NAS Server by Name
-   dellemc_powerstore_nasserver:
+   nasserver:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -105,7 +101,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Modify NAS Server attributes by ID
-   dellemc_powerstore_nasserver:
+   nasserver:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -208,7 +204,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_nasserver',
+LOG = utils.get_logger('nasserver',
                        log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -220,7 +216,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreNasServer(object):
@@ -285,6 +281,8 @@ class PowerStoreNasServer(object):
                   '{1} , global id : {2} failed with' \
                   ' error {3} '.format(node, self.cluster_name,
                                        self.cluster_global_id, str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
         LOG.error(msg)
         self.module.fail_json(msg=msg)
 
@@ -328,7 +326,7 @@ class PowerStoreNasServer(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -340,7 +338,7 @@ class PowerStoreNasServer(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def to_modify_nasserver(self, nasserver_details):
         """Determines if any modification required on a specific
@@ -417,7 +415,7 @@ class PowerStoreNasServer(object):
             msg = 'Failed to determine if modify nas server required with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_nasserver(self, nasserver_id, modify_parameters):
         """Modify NAS Server attributes."""
@@ -432,7 +430,7 @@ class PowerStoreNasServer(object):
             msg = 'Failed to modify nasserver id {0} with ' \
                   'error {1}'.format(nasserver_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_enum_keys(self, user_input):
         """Get the ENUM Keys for user input string"""
@@ -450,7 +448,7 @@ class PowerStoreNasServer(object):
             msg = 'Failed to get the enum value for user_ip : {0} with ' \
                   'error {1}'.format(user_input, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         clusters = self.get_clusters()

@@ -7,13 +7,9 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r"""
-module: dellemc_powerstore_filesystem_snapshot
+module: filesystem_snapshot
 version_added: '1.1.0'
 short_description: Manage Filesystem Snapshots on Dell EMC PowerStore
 description:
@@ -91,7 +87,7 @@ options:
 
 EXAMPLES = r"""
 - name: Create filesystem snapshot
-  dellemc_powerstore_filesystem_snapshot:
+  filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -104,7 +100,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Get the details of filesystem snapshot
-  dellemc_powerstore_filesystem_snapshot:
+  filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -113,7 +109,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Modify the filesystem snapshot
-  dellemc_powerstore_filesystem_snapshot:
+  filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -125,7 +121,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Delete filesystem snapshot
-  dellemc_powerstore_filesystem_snapshot:
+  filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -199,7 +195,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_filesystem_snapshot',
+LOG = utils.get_logger('filesystem_snapshot',
                        log_devel=utils.logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -211,7 +207,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreFilesystemSnapshot(object):
@@ -315,7 +311,7 @@ class PowerStoreFilesystemSnapshot(object):
             error_msg = "Failed to get details of NAS server {0} with error" \
                         " {1}".format(nas_server_id_or_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_fs_id_from_filesystem(self, filesystem, nas_server):
         """Get the id of the filesystem.
@@ -360,7 +356,7 @@ class PowerStoreFilesystemSnapshot(object):
             error_msg = "Failed to get the filesystem {0} by name with " \
                         "error {1}".format(filesystem, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_fs_name(self, filesystem_id):
         """Get filesystem name.
@@ -372,11 +368,11 @@ class PowerStoreFilesystemSnapshot(object):
             fs = self.provisioning.get_filesystem_details(
                 filesystem_id=filesystem_id)
             return fs['name']
-        except Exception:
+        except Exception as e:
             error_msg = "Filesystem {0} not found on the array.".format(
                 filesystem_id)
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_fs_snapshot(self, snapshot_name, snapshot_id, filesystem_id,
                         nas_server):
@@ -446,7 +442,7 @@ class PowerStoreFilesystemSnapshot(object):
                     LOG.info(msg)
                     return None
                 LOG.error(msg)
-                self.module.fail_json(msg=msg)
+                self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
         try:
             snapshot = self.protection.get_filesystem_snapshot_details(
@@ -461,7 +457,7 @@ class PowerStoreFilesystemSnapshot(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_filesystem_snapshot(self, filesystem_id, snapshot_name,
                                    description, expiration_timestamp,
@@ -494,7 +490,7 @@ class PowerStoreFilesystemSnapshot(object):
                                                              'filesystem'],
                                                          str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def check_fs_snapshot_modified(self, snapshot, filesystem_id, description,
                                    desired_retention, retention_unit,
@@ -594,7 +590,7 @@ class PowerStoreFilesystemSnapshot(object):
                        "name: {0}, id: {1} failed with error {2}".\
                 format(snapshot['name'], snapshot['id'], str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def delete_filesystem_snapshot(self, snapshot):
         """Delete filesystem snapshot.
@@ -616,7 +612,7 @@ class PowerStoreFilesystemSnapshot(object):
                        "name: {0}, id: {1} failed with error {2}".\
                 format(snapshot['name'], snapshot['id'], e_msg)
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """

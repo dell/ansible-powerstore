@@ -5,16 +5,12 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_snapshotrule
+module: snapshotrule
 version_added: '1.0.0'
-short_description: SnapshotRule operations on a PowerStore storage system.
+short_description: Snapshot Rule operations on a PowerStore storage system.
 description:
 - Performs all snapshot rule operations on PowerStore Storage System.
   This modules supports get details of an existing snapshot rule, create new
@@ -104,7 +100,7 @@ options:
 EXAMPLES = r'''
 
 - name: Get details of an existing snapshot rule by name
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -113,7 +109,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of an existing snapshot rule by id
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -122,7 +118,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Create new snapshot rule by interval
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -136,7 +132,7 @@ EXAMPLES = r'''
 
 
 - name: Create new snapshot rule by time_of_day and days_of_week
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -151,7 +147,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify existing snapshot rule to time_of_day and days_of_week
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -166,7 +162,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify existing snapshot rule to interval
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -176,7 +172,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete an existing snapshot rule by name
-  dellemc_powerstore_snapshotrule:
+  snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -237,7 +233,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
 import logging
 
 LOG = utils.get_logger(
-    'dellemc_powerstore_snapshotrule',
+    'snapshotrule',
     log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -249,7 +245,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerstoreSnapshotrule(object):
@@ -326,7 +322,7 @@ class PowerstoreSnapshotrule(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_snapshot_rule_by_interval(
             self,
@@ -356,7 +352,7 @@ class PowerstoreSnapshotrule(object):
                   ': {0} , global id : {1} failed with error {2}'.format(
                       self.cluster_name, self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_snapshot_rule_by_time_of_day(self, name, desired_retention,
                                             time_of_day, days_of_week=None):
@@ -378,7 +374,7 @@ class PowerstoreSnapshotrule(object):
                   ': {0} , global id : {1} failed with error {2}'.format(
                       self.cluster_name, self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_snapshot_rule(self, snapshot_rule_id, new_name=None,
                              desired_retention=None, interval=None,
@@ -405,7 +401,7 @@ class PowerstoreSnapshotrule(object):
                       snapshot_rule_id, self.cluster_name,
                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_snapshot_rule(self, snapshot_rule_id, delete_snaps=False):
         """delete a snapshot rule by id of a given PowerStore storage
@@ -428,7 +424,7 @@ class PowerstoreSnapshotrule(object):
                       snapshot_rule_id, self.cluster_name,
                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -440,7 +436,7 @@ class PowerstoreSnapshotrule(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """collect input"""

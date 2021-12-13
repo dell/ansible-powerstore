@@ -12,14 +12,16 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_gatherfacts
+module: info
 version_added: '1.0.0'
 short_description: Gathers information about PowerStore Storage entities
 description:
-- Gathers the list of specified PowerStore Storage System entities, such as the
-  list of cluster nodes, volumes, volume groups, hosts, host groups, snapshot
-  rules, protection policies, NAS servers, NFS exports, SMB shares,
-  tree quotas, user quotas, file systems etc.
+- Gathers the list of specified PowerStore Storage System entities, such as
+  the list of cluster nodes, volumes, volume groups, hosts, host groups,
+  snapshot rules, protection policies, NAS servers, NFS exports, SMB shares,
+  tree quotas, user quotas, file systems, replication rules, replication
+  sessions, remote system, network, roles, local users, appliances, security
+  configs, certificates, AD and LDAP servers etc.
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Vivek Soni (@v-soni11) <ansible.team@dell.com>
@@ -29,33 +31,38 @@ options:
   gather_subset:
     description:
     - A list of string variables which specify the PowerStore system entities
-      requiring information.information.
-    - vol - volumes
-    - node - all the nodes
-    - vg - volume groups
-    - protection_policy - protection policy
-    - host - hosts
-    - hg -  host groups
-    - snapshot_rule - snapshot rule
-    - nas_server - NAS servers
-    - nfs_export - NFS exports
-    - smb_share - SMB shares
-    - tree_quota - tree quotas
-    - user_quota - user quotas
-    - file_system - file systems
-    - replication_rule - replication rules
-    - replication_session - replication sessions
-    - remote_system - remote systems
-    - network - various networks
-    - role - roles
-    - user - local users
-    - appliance - appliances
+      requiring information.
+    - vol - volumes.
+    - node - all the nodes.
+    - vg - volume groups.
+    - protection_policy - protection policies.
+    - host - hosts.
+    - hg -  host groups.
+    - snapshot_rule - snapshot rules.
+    - nas_server - NAS servers.
+    - nfs_export - NFS exports.
+    - smb_share - SMB shares.
+    - tree_quota - tree quotas.
+    - user_quota - user quotas.
+    - file_system - file systems.
+    - replication_rule - replication rules.
+    - replication_session - replication sessions.
+    - remote_system - remote systems.
+    - network - various networks.
+    - role - roles.
+    - user - local users.
+    - appliance - appliances.
+    - security_config - security configurations.
+    - certificate - certificates.
+    - ad - active directories.
+    - ldap - LDAPs.
     required: True
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
               file_system, replication_rule, replication_session,
-              remote_system, network, role, user, appliance]
+              remote_system, network, role, user, appliance, ad, ldap,
+              security_config, certificate]
     type: list
   filters:
     description:
@@ -84,21 +91,22 @@ options:
         required: True
   all_pages:
     description:
-    - Indicates whether to return all available entities on the storage system.
-    - If set to True, the Gather Facts module will implement pagination and
-      return all entities. Otherwise, a maximum of the first 100 entities of any type
-      will be returned.
+    - Indicates whether to return all available entities on the storage
+      system.
+    - If set to True, the Info module will implement pagination and
+      return all entities. Otherwise, a maximum of the first 100 entities of
+      any type will be returned.
     type: bool
     default: False
 notes:
-- Pagination is not supported for role and local user. If all_pages is passed,
-  it will be ignored.
+- Pagination is not supported for role, local user and security configs. If
+  all_pages is passed, it will be ignored.
 '''
 
 EXAMPLES = r'''
 
 - name: Get list of volumes, volume groups, hosts, host groups and node
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -110,7 +118,7 @@ EXAMPLES = r'''
       - hg
       - node
 - name: Get list of replication related entities
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -121,7 +129,7 @@ EXAMPLES = r'''
       - remote_system
 
 - name: Get list of volumes whose state notequal to ready
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -134,7 +142,7 @@ EXAMPLES = r'''
         filter_value: "ready"
 
 - name: Get list of protection policies and snapshot rules
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -144,7 +152,7 @@ EXAMPLES = r'''
       - snapshot_rule
 
 - name: Get list of snapshot rules whose desired_retention between 101-499
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -160,7 +168,7 @@ EXAMPLES = r'''
         filter_value: "500"
 
 - name: Get list of nas server, nfs_export and smb share
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -171,7 +179,7 @@ EXAMPLES = r'''
       - smb_share
 
 - name: Get list of tree quota, user quota and file system
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -182,7 +190,7 @@ EXAMPLES = r'''
       - file_system
 
 - name: Get list of nas server whose name equal to 'nas_server'
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -195,7 +203,7 @@ EXAMPLES = r'''
         filter_value: "nas_server"
 
 - name: Get list of smb share whose name contains 'share'
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -208,7 +216,7 @@ EXAMPLES = r'''
         filter_value: "*share*"
 
 - name: Get list of user, role, network and appliances
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -219,8 +227,20 @@ EXAMPLES = r'''
       - network
       - appliance
 
+- name: Get list of ad, certificate, security config and ldaps
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - ad
+      - ldap
+      - certificate
+      - security_config
+
 - name: Get list of networks whose name contains 'Management'
-  dellemc_powerstore_gatherfacts:
+  dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -243,18 +263,33 @@ subset_result:
     returned: always
     type: complex
     contains:
+      ActiveDirectory:
+        description: Provides details of all active directories.
+        type: list
+        contains:
+          id:
+            description: ID of the active directory.
+            type: str
       Appliance:
         description: Provides details of all appliances.
         type: list
         contains:
           id:
-            description: appliance id
+            description: ID of the appliance.
             type: str
           name:
-            description: appliance name
+            description: Name of the appliance.
             type: str
           model:
-            description: Model type of the PowerStore
+            description: Model type of the PowerStore.
+            type: str
+      Certificate:
+        description: Provides details of all certificates.
+        type: list
+        returned: When certificates is in a given gather_subset
+        contains:
+          id:
+            description: ID of the certificate.
             type: str
       Cluster:
         description: Provides details of all clusters.
@@ -262,11 +297,11 @@ subset_result:
         returned: always
         contains:
           id:
-            description: cluster id
+            description: ID of the cluster.
             type: str
             returned: always
           name:
-            description: cluster name
+            description: Name of the cluster.
             type: str
             returned: always
       FileSystems:
@@ -275,21 +310,21 @@ subset_result:
         returned: When file_system is in a given gather_subset
         contains:
           id:
-            description: filesystem id
+            description: ID of the filesystem.
             type: str
           name:
-            description: filesystem name
+            description: Name of the filesystem.
             type: str
       HostGroups:
-        description: Provides details of all hostgroups.
+        description: Provides details of all host groups.
         type: list
         returned: When hg is in a given gather_subset
         contains:
           id:
-            description: hostgroup id
+            description: ID of the host group.
             type: str
           name:
-            description: hostgroup name
+            description: Name of the host group.
             type: str
       Hosts:
         description: Provides details of all hosts.
@@ -297,10 +332,18 @@ subset_result:
         returned: When host is in a given gather_subset
         contains:
           id:
-            description: host id
+            description: ID of the host.
             type: str
           name:
-            description: host name
+            description: Name of the host.
+            type: str
+      LDAP:
+        description: Provides details of all LDAPs.
+        type: list
+        returned: When ldap is in a given gather_subset
+        contains:
+          id:
+            description: ID of the LDAP.
             type: str
       LocalUsers:
         description: Provides details of all local users.
@@ -308,10 +351,10 @@ subset_result:
         returned: When user is in a given gather_subset
         contains:
           id:
-            description: user id
+            description: ID of the user.
             type: str
           name:
-            description: user name
+            description: Name of the user.
             type: str
       NASServers:
         description: Provides details of all nas servers.
@@ -319,10 +362,10 @@ subset_result:
         returned: When nas_server is in a given gather_subset
         contains:
           id:
-            description: nas server id
+            description: ID of the nas server.
             type: str
           name:
-            description: nas server name
+            description: Name of the nas server.
             type: str
       Networks:
         description: Provides details of all networks.
@@ -330,10 +373,10 @@ subset_result:
         returned: When network is in a given gather_subset
         contains:
           id:
-            description: network id
+            description: ID of the network.
             type: str
           name:
-            description: network name
+            description: Name of the network.
             type: str
       NFSExports:
         description: Provides details of all nfs exports.
@@ -341,10 +384,10 @@ subset_result:
         returned: When nfs_export is in a given gather_subset
         contains:
           id:
-            description: nfs export id
+            description: ID of the nfs export.
             type: str
           name:
-            description: nfs export name
+            description: Name of the nfs export.
             type: str
       Nodes:
         description: Provides details of all nodes.
@@ -352,21 +395,21 @@ subset_result:
         returned: When a node is in a given gather_subset
         contains:
           id:
-            description: node id
+            description: ID of the node.
             type: str
           name:
-            description: node name
+            description: Name of the node.
             type: str
       ProtectionPolicies:
-        description: Provides details of all protectionpolicies.
+        description: Provides details of all protection policies.
         type: list
         returned: When protection_policy is in a given gather_subset
         contains:
           id:
-            description: protectionpolicy id
+            description: ID of the protection policy.
             type: str
           name:
-            description: protectionpolicy name
+            description: Name of the protection policy.
             type: str
       ReplicationRules:
         description: Provides details of all replication rules.
@@ -374,10 +417,10 @@ subset_result:
         returned: When replication_rule is in a given gather_subset
         contains:
           id:
-            description: replication rule id
+            description: ID of the replication rule.
             type: str
           name:
-            description: replication rule name
+            description: Name of the replication rule.
             type: str
       ReplicationSession:
         description: details of all replication sessions.
@@ -385,7 +428,7 @@ subset_result:
         returned: when replication_session given in gather_subset
         contains:
           id:
-            description: replication session id
+            description: ID of the replication session.
             type: str
       RemoteSystems:
         description: Provides details of all remote systems.
@@ -393,10 +436,10 @@ subset_result:
         returned: When remote_system is in a given gather_subset
         contains:
           id:
-            description: remote system id
+            description: ID of the remote system.
             type: str
           name:
-            description: remote system name
+            description: Name of the remote system.
             type: str
       Roles:
         description: Provides details of all roles.
@@ -404,21 +447,29 @@ subset_result:
         returned: When role is in a given gather_subset
         contains:
           id:
-            description: role id
+            description: ID of the role.
             type: str
           name:
-            description: role name
+            description: Name of the role.
+            type: str
+      SecurityConfig:
+        description: Provides details of all security configs.
+        type: list
+        returned: When security_config is in a given gather_subset
+        contains:
+          id:
+            description: ID of the security config.
             type: str
       SMBShares:
         description: Provides details of all smb shares.
         type: list
-        returned: When smb_share are in a given gather_subset
+        returned: When smb_share is in a given gather_subset
         contains:
           id:
-            description: smb share id
+            description: ID of the smb share.
             type: str
           name:
-            description: smb share name
+            description: name of the smb share.
             type: str
       SnapshotRules:
         description: Provides details of all snapshot rules.
@@ -426,21 +477,21 @@ subset_result:
         returned: When snapshot_rule is in a given gather_subset
         contains:
           id:
-            description: snapshot rule id
+            description: ID of the snapshot rule.
             type: str
           name:
-            description: snapshot rule name
+            description: Name of the snapshot rule.
             type: str
       VolumeGroups:
-        description: Provides details of all volumegroups.
+        description: Provides details of all volume groups.
         type: list
         returned: When vg is in a given gather_subset
         contains:
           id:
-            description: volumegroup id
+            description: ID of the volume group.
             type: str
           name:
-            description: volumegroup name
+            description: Name of the volume group.
             type: str
       Volumes:
         description: Provides details of all volumes.
@@ -448,10 +499,10 @@ subset_result:
         returned: When vol is in a given gather_subset
         contains:
           id:
-            description: volume id
+            description: ID of the volume.
             type: str
           name:
-            description: volume name
+            description: Name of the volume.
             type: str
       TreeQuotas:
         description: Provides details of all tree quotas.
@@ -459,10 +510,10 @@ subset_result:
         returned: When tree_quota is in a given gather_subset
         contains:
           id:
-            description: tree quota id
+            description: ID of the tree quota.
             type: str
           path:
-            description: tree quota path
+            description: Path of the tree quota.
             type: str
       UserQuotas:
         description: Provides details of all user quotas.
@@ -470,7 +521,7 @@ subset_result:
         returned: When user_quota is in a given gather_subset
         contains:
           id:
-            description: user quota id
+            description: ID of the user quota.
             type: str
 '''
 
@@ -479,7 +530,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_gatherfacts')
+LOG = utils.get_logger('info')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -490,11 +541,11 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
-class PowerstoreGatherFacts(object):
-    """Gather Facts operations"""
+class PowerstoreInfo(object):
+    """Info operations"""
     cluster_name = ' '
     cluster_global_id = ' '
     filter_mapping = {'equal': 'eq.', 'greater': 'gt.', 'notequal': 'neq.',
@@ -504,7 +555,7 @@ class PowerstoreGatherFacts(object):
         self.result = {}
         """Define all the parameters required by this module"""
         self.module_params = utils.get_powerstore_management_host_parameters()
-        self.module_params.update(get_powerstore_gatherfacts_parameters())
+        self.module_params.update(get_powerstore_info_parameters())
 
         self.filter_keys = sorted(
             [k for k in self.module_params['filters']['options'].keys()
@@ -612,9 +663,24 @@ class PowerstoreGatherFacts(object):
             'appliance': {
                 'func': self.configuration.get_appliances,
                 'display_as': 'Appliance'
+            },
+            'ad': {
+                'func': self.provisioning.get_file_ads,
+                'display_as': 'ActiveDirectory'
+            },
+            'ldap': {
+                'func': self.provisioning.get_file_ldaps,
+                'display_as': 'LDAP'
+            },
+            'certificate': {
+                'func': self.configuration.get_certificates,
+                'display_as': 'Certificate'
+            },
+            'security_config': {
+                'func': self.configuration.get_security_configs,
+                'display_as': 'SecurityConfig'
             }
         }
-
         LOG.info('Got Py4ps connection object %s',
                  self.conn)
 
@@ -645,7 +711,7 @@ class PowerstoreGatherFacts(object):
                 .format(self.subset_mapping[item]['display_as'], self.
                         cluster_name, self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def validate_filter(self, filter_dict):
         """ Validate given filter_dict """
@@ -657,8 +723,8 @@ class PowerstoreGatherFacts(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        is_invalid_filter = any([filter_dict[i] is None for i in filter_dict])
-        if is_invalid_filter:
+        is_invalid_filter = [filter_dict[i] is None for i in filter_dict]
+        if True in is_invalid_filter:
             msg = "Filter keys: '{0}' cannot be None".format(self.filter_keys)
             LOG.error(msg)
             self.module.fail_json(msg=msg)
@@ -703,7 +769,7 @@ class PowerstoreGatherFacts(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_array_software_version(self):
         """Get array software version"""
@@ -717,7 +783,7 @@ class PowerstoreGatherFacts(object):
             msg = 'Failed to get the array software version with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         clusters = self.get_clusters()
@@ -755,7 +821,7 @@ class PowerstoreGatherFacts(object):
         self.module.exit_json(**self.result)
 
 
-def get_powerstore_gatherfacts_parameters():
+def get_powerstore_info_parameters():
     """This method provides the parameters required for the ansible modules on
        PowerStore"""
     return dict(
@@ -767,7 +833,8 @@ def get_powerstore_gatherfacts_parameters():
                                     'tree_quota', 'user_quota', 'file_system',
                                     'replication_rule', 'replication_session',
                                     'remote_system', 'network', 'role',
-                                    'user', 'appliance'
+                                    'user', 'appliance', 'ad', 'ldap',
+                                    'security_config', 'certificate'
                                     ]),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
@@ -785,9 +852,9 @@ def get_powerstore_gatherfacts_parameters():
 
 
 def main():
-    """ Create PowerStore gather facts object and perform action on it
+    """ Create PowerStore Info object and perform action on it
         based on user input from playbook """
-    obj = PowerstoreGatherFacts()
+    obj = PowerstoreInfo()
     obj.perform_module_operation()
 
 

@@ -14,7 +14,7 @@
   - dellemc.powerstore
   tasks:
   - name: Deleting multiple volumes
-    dellemc_powerstore_volume:
+    volume:
      array_ip: "{{array_ip}}"
      user: "{{user}}"
      password: "{{password}}"

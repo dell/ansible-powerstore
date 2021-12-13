@@ -6,14 +6,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_filesystem
+module: filesystem
 version_added: '1.1.0'
 short_description: Filesystem operations on PowerStore Storage system
 description:
@@ -176,7 +172,7 @@ EXAMPLES = r'''
 
  - name: Create FileSystem by Name
    register: result_fs
-   dellemc_powerstore_filesystem:
+   filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -200,7 +196,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Modify File System by id
-   dellemc_powerstore_filesystem:
+   filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -218,7 +214,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Get File System details by id
-   dellemc_powerstore_filesystem:
+   filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -227,7 +223,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Delete File System by id
-   dellemc_powerstore_filesystem:
+   filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -317,7 +313,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_filesystem',
+LOG = utils.get_logger('filesystem',
                        log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -329,7 +325,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreFileSystem(object):
@@ -423,7 +419,7 @@ class PowerStoreFileSystem(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_nas_server(self, nas_server):
         """Get the details of NAS Server of a given Powerstore storage
@@ -464,7 +460,7 @@ class PowerStoreFileSystem(object):
                   ' {3} '.format(nas_server, self.cluster_name,
                                  self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_protection_policy(self, protection_policy):
         """Get protection policy"""
@@ -504,7 +500,7 @@ class PowerStoreFileSystem(object):
                   'failed with error : {1} '.format(protection_policy,
                                                     str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_filesystem(self, name, nas_server_id, size_total):
         """Create a filesystem."""
@@ -558,7 +554,7 @@ class PowerStoreFileSystem(object):
                   'error {3} '.format(name, self.cluster_name,
                                       self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_filesystem(self, filesystem_id):
         """Deletes a filesystem"""
@@ -570,7 +566,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to delete filesystem id {0} with ' \
                   'error {1}'.format(filesystem_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def to_modify_filesystem(self, filesystem_details):
         """Determines if any modification required on a specific
@@ -689,7 +685,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to determine if modify filesystem required with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_filesystem(self, filesystem_id, modify_parameters):
         """Modify FileSystem attributes."""
@@ -704,7 +700,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to modify filesystem id {0} with ' \
                   'error {1}'.format(filesystem_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def display_filesystem_details(self, filesystem_id):
         """Display FileSystem details"""
@@ -735,7 +731,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to display filesystem id {0} with ' \
                   'error {1}'.format(filesystem_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -747,7 +743,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_enum_keys(self, user_input):
         """Get the ENUM Keys for user input string"""
@@ -768,7 +764,7 @@ class PowerStoreFileSystem(object):
             msg = 'Failed to get the enum value for user_ip : %s with ' \
                   'error %s' % (user_input, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         clusters = self.get_clusters()

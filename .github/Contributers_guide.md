@@ -1,4 +1,4 @@
-﻿**Open Source Contributors’ guide**
+**Open Source Contributor's guide**
 
 # **Contributors**
 Contributors are individuals willing to contribute to an open source project in GitHub in order to learn, teach, and gain experience. Contributors have the ability to:

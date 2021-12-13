@@ -7,13 +7,9 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r"""
-module: dellemc_powerstore_nfs
+module: nfs
 version_added: '1.1.0'
 short_description: Manage NFS exports on Dell EMC PowerStore.
 description:
@@ -146,7 +142,7 @@ options:
 
 EXAMPLES = r"""
 - name: Create NFS export (filesystem)
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -175,7 +171,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Create NFS export Create NFS export for filesystem snapshot with mandatory parameters
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -187,7 +183,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Get NFS export details using ID
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -196,7 +192,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Add Read-Only and Read-Write hosts to NFS export
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -210,7 +206,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Remove Read-Only and Read-Write hosts from NFS export
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -224,7 +220,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Modify the attributes of NFS export
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -235,7 +231,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Delete NFS export using name
-  dellemc_powerstore_nfs:
+  nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -341,7 +337,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 
-LOG = utils.get_logger('dellemc_powerstore_nfs', log_devel=logging.INFO)
+LOG = utils.get_logger('nfs', log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -352,7 +348,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreNfsExport(object):
@@ -430,7 +426,7 @@ class PowerStoreNfsExport(object):
             error_msg = "Failed to get details of NAS server {0} with error" \
                         " {1}".format(nas_server_id_or_name, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_fs_id_from_filesystem(self, filesystem, nas_server):
         """Get the id of the filesystem."""
@@ -471,7 +467,7 @@ class PowerStoreNfsExport(object):
             error_msg = "Failed to get the filesystem {0} by name with " \
                         "error {1}".format(filesystem, str(e))
             LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_nfs_export(self, nfs_export_name, nfs_export_id, export_parent,
                        nas_server, path):
@@ -517,7 +513,7 @@ class PowerStoreNfsExport(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_enum_keys(self, user_input):
         """Get the ENUM key for for user input"""
@@ -540,7 +536,7 @@ class PowerStoreNfsExport(object):
             msg = 'Failed to get the enum value for user_input : {0} ' \
                   'with error {1}'.format(user_input, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_nfs_export(self, nfs_export_details):
         """Delete NFS export"""
@@ -558,7 +554,7 @@ class PowerStoreNfsExport(object):
                 format(nfs_export_details['name'], nfs_export_details['id'],
                        str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def create_nfs_export(self, export_parent, nfs_export_name,
                           export_parent_id, path):
@@ -609,7 +605,7 @@ class PowerStoreNfsExport(object):
                             'filesystem {1} with error: {2}'.format(
                                 nfs_export_name, export_parent, str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def create_current_host_dict_playbook(self):
         """Create dict from the playbook host parameters"""
@@ -825,7 +821,7 @@ class PowerStoreNfsExport(object):
                        "id: {1} failed with error {2}".\
                 format(export_details['name'], export_details['id'], str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def validate_input(self, export_parent):
         """Validate the input parameters"""

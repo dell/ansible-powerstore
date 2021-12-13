@@ -5,21 +5,17 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_replicationrule
+module: replicationrule
 version_added: '1.2.0'
 short_description: Replication rule operations on a PowerStore storage system.
 description:
 - Performs all replication rule operations on a PowerStore Storage System.
-  This module supports get details of an existing replication rule. Create new
-  replication rule for all supported parameters. Modify replication rule with
-  supported parameters. Delete a specific replication rule.
+  This module supports get details of an existing replication rule, create new
+  replication rule for all supported parameters, modify replication rule with
+  supported parameters and delete a specific replication rule.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -71,6 +67,15 @@ options:
       associated resources.
     required : False
     type: str
+  remote_system_address:
+    description:
+    - The management IPv4 address of the remote system.
+    - It is required in case the remote system name passed in remote_system
+      parameter is not unique on the PowerStore Array.
+    - If ID of the remote system is passed then no need to pass
+      remote_system_address.
+    required : False
+    type: str
   state:
     description:
     - The state of the replication rule after the task is performed.
@@ -86,7 +91,7 @@ options:
 EXAMPLES = r'''
 
 - name: Create new replication rule
-  dellemc_powerstore_replicationrule:
+  replicationrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -98,7 +103,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify existing replication rule
-  dellemc_powerstore_replicationrule:
+  replicationrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -111,7 +116,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of replication rule
-  dellemc_powerstore_replicationrule:
+  replicationrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -120,7 +125,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete an existing replication rule
-  dellemc_powerstore_replicationrule:
+  replicationrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -173,7 +178,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_replicationrule')
+LOG = utils.get_logger('replicationrule')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -184,7 +189,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerstoreReplicationRule(object):
@@ -268,7 +273,7 @@ class PowerstoreReplicationRule(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_replication_rule(self, rep_rule_name=None, rpo=None,
                                 remote_system_id=None, alert_threshold=None):
@@ -300,7 +305,7 @@ class PowerstoreReplicationRule(object):
                   '{2}'.format(self.cluster_name, self.cluster_global_id,
                                str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def modify_replication_rule(self, rep_rule_id, new_name=None,
                                 rpo=None, remote_system_id=None,
@@ -327,7 +332,7 @@ class PowerstoreReplicationRule(object):
                   '{3}'.format(rep_rule_id, self.cluster_name,
                                self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_replication_rule(self, rep_rule_id):
         """ Delete a replication rule by id of a given PowerStore storage
@@ -349,7 +354,7 @@ class PowerstoreReplicationRule(object):
                   '{3} '.format(rep_rule_id, self.cluster_name,
                                 self.cluster_global_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_clusters(self):
         """Get the clusters"""
@@ -361,10 +366,10 @@ class PowerstoreReplicationRule(object):
             msg = 'Failed to get the clusters with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def get_remote_system_details(self, remote_system):
-        """ Get the Id of the remote system """
+    def get_remote_system_details(self, remote_system, remote_system_address):
+        """ Get the details of the remote system """
         try:
             LOG.info('Get details of the remote system ')
             remote_system_name = None
@@ -379,11 +384,23 @@ class PowerstoreReplicationRule(object):
             if remote_system_name:
                 resp = self.protection.get_remote_system_by_name(
                     remote_system_name)
-                if resp and len(resp) > 0:
+                if resp and len(resp) == 1:
                     return resp[0]
-                msg = "Remote system with name {0} not found. " \
-                      "Please enter a valid remote " \
-                      "system.".format(remote_system_name)
+                elif resp and len(resp) > 1:
+                    err_msg = 'There are more than one instance with the' \
+                              ' same remote system name. Please enter the' \
+                              ' remote_system_address to uniquely fetch the' \
+                              ' remote system instance.'
+                    if not remote_system_address:
+                        self.module.fail_json(msg=err_msg)
+                    resp = self.protection.get_remote_system_by_name(
+                        remote_system_name, remote_system_address)
+                    if len(resp) == 1:
+                        return resp[0]
+                msg = "Remote system with name {0} and address {1} not" \
+                      " found. Please enter a valid remote " \
+                      "system.".format(remote_system_name,
+                                       remote_system_address)
                 self.module.fail_json(msg=msg)
             if remote_system_id:
                 resp = self.protection.get_remote_system_details(
@@ -395,7 +412,7 @@ class PowerstoreReplicationRule(object):
             msg = 'Failed to get the remote system with ' \
                   'error {0}'.format(str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """collect input"""
@@ -405,6 +422,7 @@ class PowerstoreReplicationRule(object):
         rpo = self.module.params['rpo']
         alert_threshold = self.module.params['alert_threshold']
         remote_system = self.module.params['remote_system']
+        remote_system_address = self.module.params['remote_system_address']
         state = self.module.params['state']
 
         result = dict()
@@ -424,7 +442,7 @@ class PowerstoreReplicationRule(object):
         remote_system_id = None
         if remote_system:
             remote_system_details = self.get_remote_system_details(
-                remote_system)
+                remote_system, remote_system_address)
             if remote_system_details:
                 remote_system_id = remote_system_details['id']
 
@@ -486,12 +504,13 @@ class PowerstoreReplicationRule(object):
                         alert_threshold)
 
         if state == "present" and rep_rule_details:
-            rep_rule_details = self.show_output(rep_rule_id)
+            rep_rule_details = self.show_output(rep_rule_id,
+                                                remote_system_address)
         result['changed'] = changed
         result['replication_rule_details'] = rep_rule_details
         self.module.exit_json(**result)
 
-    def show_output(self, rep_rule_id):
+    def show_output(self, rep_rule_id, remote_system_address):
         """
         Return the updated replication rule details.
         """
@@ -500,7 +519,8 @@ class PowerstoreReplicationRule(object):
         rep_rule_details = self.get_replication_rule_details(
             rep_rule_id=rep_rule_id)
         rem_sys_id = rep_rule_details['remote_system_id']
-        rem_sys_name = self.get_remote_system_details(rem_sys_id)['name']
+        rem_sys_name = self.get_remote_system_details(
+            rem_sys_id, remote_system_address)['name']
         rep_rule_details['remote_system_name'] = rem_sys_name
         return rep_rule_details
 
@@ -528,7 +548,7 @@ def get_powerstore_replication_rule_parameters():
         rpo=dict(required=False, type='str',
                  choices=['Five_Minutes', 'Fifteen_Minutes', 'Thirty_Minutes',
                           'One_Hour', 'Six_Hours', 'Twelve_Hours', 'One_Day']),
-        remote_system=dict(),
+        remote_system=dict(), remote_system_address=dict(),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
 

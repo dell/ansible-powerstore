@@ -1,4 +1,5 @@
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+# Copyright: (c) 2019, Dell EMC
 """
 import PyPowerStore library for PowerStore Storage
 """
@@ -91,20 +92,24 @@ def get_powerstore_management_host_parameters():
         user=dict(type='str', required=True),
         password=dict(type='str', required=True, no_log=True),
         array_ip=dict(type='str', required=True),
+        port=dict(type='int', required=False),
+        timeout=dict(type='int', required=False, default=120),
         verifycert=dict(type='bool', required=True, choices=[True, False])
     )
 
 
 def get_powerstore_connection(module_params, application_type=None,
-                              timeout=None, enable_log=False):
+                              enable_log=False):
     if HAS_Py4PS:
         conn = PyPowerStore.powerstore_conn.PowerStoreConn(
             server_ip=module_params['array_ip'],
             username=module_params['user'],
             password=module_params['password'],
             verify=module_params['verifycert'],
+            timeout=module_params['timeout'],
             application_type=application_type,
-            timeout=timeout, enable_log=enable_log)
+            port_no=module_params['port'],
+            enable_log=enable_log)
         return conn
 
 
@@ -178,3 +183,15 @@ def get_size_in_gb(size, cap_units):
     size = Decimal(size_in_bytes / GB_IN_BYTES)
     size_in_gb = round(size, 2)
     return size_in_gb
+
+
+'''
+returns a dictionary of error_code and status_code if the exception is of PowerstoreExcpetion type
+'''
+
+
+def failure_codes(exception):
+    codes = {}
+    if isinstance(exception, PowerStoreException):
+        codes = dict({'error_code': exception.err_code, 'status_code': exception.status_code})
+    return codes

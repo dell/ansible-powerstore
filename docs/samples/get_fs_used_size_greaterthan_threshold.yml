@@ -14,7 +14,7 @@
   tasks:
 
     - name: Get filesystem
-      dellemc_powerstore_gatherfacts:
+      info:
         array_ip: "{{array_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -28,7 +28,7 @@
         all_filesystem_ids: "{{ all_filesystem['FileSystems'] | map(attribute='id') | list }}"
 
     - name: Get filesystem detail by id
-      dellemc_powerstore_filesystem:
+      filesystem:
         array_ip: "{{array_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"

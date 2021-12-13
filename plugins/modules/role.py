@@ -6,13 +6,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_role
+module: role
 
 version_added: '1.3.0'
 
@@ -55,7 +52,7 @@ notes:
 EXAMPLES = r'''
 
 - name: Get the details of role by name
-  dellemc_powerstore_role:
+  role:
     array_ip: "{{array_ip}}"
     verifycert: "{{verify_cert}}"
     user: "{{user}}"
@@ -64,7 +61,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get the details of role by id
-  dellemc_powerstore_role:
+  role:
     array_ip: "{{array_ip}}"
     verifycert: "{{verify_cert}}"
     user: "{{user}}"
@@ -102,7 +99,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 from ansible.module_utils.basic import AnsibleModule
 
-LOG = utils.get_logger('dellemc_powerstore_role')
+LOG = utils.get_logger('role')
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -113,7 +110,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreRole(object):
@@ -189,7 +186,7 @@ class PowerStoreRole(object):
                 LOG.info(err_msg)
                 return None
             LOG.error(err_msg)
-            self.module.fail_json(msg=err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """

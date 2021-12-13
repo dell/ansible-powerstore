@@ -15,7 +15,7 @@
   tasks:
   - name: Create multiple volumes
     register: result_vol
-    dellemc_powerstore_volume:
+    volume:
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"

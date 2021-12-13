@@ -6,13 +6,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_quota
+module: quota
 
 version_added: '1.1.0'
 
@@ -142,7 +139,7 @@ notes:
 EXAMPLES = r'''
 
     - name: Create a Quota for a User using unix name
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -158,7 +155,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Create a Tree Quota
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -174,7 +171,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Modify attributes for Tree Quota
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -187,7 +184,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Get details of User Quota
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -199,7 +196,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Get details of Tree Quota
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -208,7 +205,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Delete a Tree Quota
-      dellemc_powerstore_quota:
+      quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -335,7 +332,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 from ansible.module_utils.basic import AnsibleModule
 
-LOG = utils.get_logger('dellemc_powerstore_quota', log_devel=logging.INFO)
+LOG = utils.get_logger('quota', log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -346,7 +343,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreQuota(object):
@@ -416,7 +413,7 @@ class PowerStoreQuota(object):
                 error_msg = "Failed to get details of NAS server {0} with" \
                             " error: {1}".format(nas_server, str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         else:
             try:
                 nas_details = self.provisioning.get_nas_server_details(
@@ -427,7 +424,7 @@ class PowerStoreQuota(object):
                             " {0} with error: {1}".format(nas_server_id,
                                                           str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_filesystem_id(self, filesystem, nas_server):
         """
@@ -456,7 +453,7 @@ class PowerStoreQuota(object):
                 error_msg = "Failed to get details of File System" \
                             " {0} with error: {1}".format(filesystem, str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         else:
             try:
                 fs_details = self.provisioning.get_filesystem_details(
@@ -467,7 +464,7 @@ class PowerStoreQuota(object):
                             " {0} with error: {1}".format(file_system_id,
                                                           str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_tree_quota_details(self, quota_id=None, path=None,
                                filesystem_id=None):
@@ -507,7 +504,7 @@ class PowerStoreQuota(object):
                 LOG.info(msg)
                 return None
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_user_quota_details(self, quota_id, path=None,
                                filesystem_id=None, uid=None, unix_name=None,
@@ -589,7 +586,7 @@ class PowerStoreQuota(object):
                 LOG.info(error_message)
                 return None
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def get_tree_quota_id(self, path, filesystem_id):
         """
@@ -615,7 +612,7 @@ class PowerStoreQuota(object):
                   " failed with error: {2}" \
                   "".format(path, self.module.params['filesystem'], str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_quota_details(self, quota_id, quota_type=None, path=None,
                           filesystem_id=None, uid=None, unix_name=None,
@@ -679,7 +676,7 @@ class PowerStoreQuota(object):
             error_message = "Unable to enable quota, " \
                             "failed with error: {0}".format(str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def enforce_user_quota_on_tree_quota(self, path, filesystem):
         """
@@ -700,7 +697,7 @@ class PowerStoreQuota(object):
             error_message = "Unable to enforce user quotas on tree quotas," \
                             " failed with error: {0}".format(str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def create_quota(self, quota_type, path=None, filesystem=None,
                      description=None, windows_name=None, windows_sid=None,
@@ -739,7 +736,7 @@ class PowerStoreQuota(object):
                           "".format(path, self.module.params['filesystem'],
                                     str(e))
                 LOG.error(err_msg)
-                self.module.fail_json(msg=err_msg)
+                self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
 
         if quota_type == "user":
             if not filesystem or not (uid or windows_sid or
@@ -787,7 +784,7 @@ class PowerStoreQuota(object):
                                 " with {2}".format(user_type, user_name,
                                                    str(e))
                 LOG.error(error_message)
-                self.module.fail_json(msg=error_message)
+                self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def update_quota(self, quota_type, quota_details=None,
                      description=None, hard_limit=None,
@@ -830,7 +827,7 @@ class PowerStoreQuota(object):
             error_message = "Update quota for quota_id: {0} failed" \
                             " with {1}".format(quota_id, str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def delete_quota(self, quota_type, quota_id):
         """
@@ -850,7 +847,7 @@ class PowerStoreQuota(object):
             error_message = "Delete Tree quota with quota_id: {0} failed" \
                             " with {1}".format(quota_id, str(e))
             LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+            self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def show_quota_details(self, quota_id, quota_type, path, filesystem_id,
                            uid, unix_name,

@@ -5,14 +5,10 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_volumegroup
+module: volumegroup
 version_added: '1.0.0'
 short_description: Manage volume groups on a PowerStore Storage System
 description:
@@ -93,7 +89,7 @@ notes:
 
 EXAMPLES = r'''
 - name: Create volume group without protection policy
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -103,7 +99,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of volume group
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -112,7 +108,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Add volumes to volume group
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -126,7 +122,7 @@ EXAMPLES = r'''
     vol_state: "present-in-group"
 
 - name: Remove volumes from volume group
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -139,7 +135,7 @@ EXAMPLES = r'''
     vol_state: "absent-in-group"
 
 - name: Rename volume group and change is_write_order_consistent flag
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -150,7 +146,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of volume group by ID
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -159,7 +155,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete volume group
-  dellemc_powerstore_volumegroup:
+  volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -245,7 +241,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_volumegroup',
+LOG = utils.get_logger('volumegroup',
                        log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
@@ -257,7 +253,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreVolumeGroup(object):
@@ -331,7 +327,7 @@ class PowerStoreVolumeGroup(object):
                 LOG.info(errormsg)
                 return None
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def delete_volume_group(self, volume_group_id):
         """Delete volume group"""
@@ -343,13 +339,13 @@ class PowerStoreVolumeGroup(object):
             errormsg = "Failed to delete volume group {0} with error {1}". \
                 format(volume_group_id, str(pe))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(pe))
 
         except Exception as e:
             errormsg = "Failed to delete volume group {0} with error {1}".\
                 format(volume_group_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def get_volume_id_by_name(self, vol_name):
         """Get the details of a volume by name"""
@@ -448,13 +444,13 @@ class PowerStoreVolumeGroup(object):
             errormsg = "Remove existing volume(s) from volume group {0} " \
                        "failed with error {1}".format(vg_id, str(pe))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(pe))
 
         except Exception as e:
             errormsg = "Remove existing volume(s) from volume group {0} " \
                        "failed with error {1}".format(vg_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def add_volumes_to_volume_group(self, vg_id, vol_list):
         """adds volumes to volume group"""
@@ -517,13 +513,13 @@ class PowerStoreVolumeGroup(object):
             errormsg = "Add existing volumes to volume group {0} " \
                        "failed with error {1}".format(vg_id, str(pe))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(pe))
 
         except Exception as e:
             errormsg = "Add existing volumes to volume group {0} " \
                        "failed with error {1}".format(vg_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def modify_volume_group(self, vg_id, vg_name, description,
                             is_write_order_consistent,
@@ -544,13 +540,13 @@ class PowerStoreVolumeGroup(object):
             errormsg = "Modify volume group {0} failed with error {1}". \
                 format(vg_id, str(pe))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(pe))
 
         except Exception as e:
             errormsg = "Modify volume group {0} failed with error {1}".\
                 format(vg_id, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def is_volume_group_modified(self, volume_group, protection_policy):
         """Check if the desired volume group state is different from existing
@@ -610,13 +606,13 @@ class PowerStoreVolumeGroup(object):
             errormsg = "Failed to create volume group {0} with error {1}". \
                 format(vg_name, str(pe))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(pe))
 
         except Exception as e:
             errormsg = "Failed to create volume group {0} with error {1}".\
                 format(vg_name, str(e))
             LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def get_protection_policy_id_by_name(self, name):
         """Get protection policy by name"""
@@ -637,7 +633,7 @@ class PowerStoreVolumeGroup(object):
             msg = 'Get details of protection policy name: {0} failed' \
                   ' with error : {1} '.format(name, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_protection_policy_details_by_id(self, policy_id):
         """Get protection policy details by id"""
@@ -662,7 +658,7 @@ class PowerStoreVolumeGroup(object):
             msg = 'Get details of protection policy id: {0} failed' \
                   ' with error {1}'.format(policy_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def perform_module_operation(self):
         """

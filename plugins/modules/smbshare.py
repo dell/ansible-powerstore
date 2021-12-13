@@ -3,14 +3,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
-module: dellemc_powerstore_smbshare
+module: smbshare
 version_added: '1.1.0'
 short_description:  Manage SMB shares on a PowerStore storage system.
 extends_documentation_fragment:
@@ -130,7 +126,7 @@ notes:
 EXAMPLES = r'''
 
 - name: Create SMB share for a filesystem
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -148,7 +144,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify Attributes of SMB share for a filesystem
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -165,7 +161,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Create SMB share for a snapshot
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -181,7 +177,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify Attributes of SMB share for a snapshot
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -197,7 +193,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of SMB share
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -206,7 +202,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete SMB share
-  dellemc_powerstore_smbshare:
+  smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -282,7 +278,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import dellemc_ansible_powerstore_utils as utils
 import logging
 
-LOG = utils.get_logger('dellemc_powerstore_smbshare', log_devel=logging.INFO)
+LOG = utils.get_logger('smbshare', log_devel=logging.INFO)
 
 py4ps_sdk = utils.has_pyu4ps_sdk()
 HAS_PY4PS = py4ps_sdk['HAS_Py4PS']
@@ -293,7 +289,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.3.0'
+APPLICATION_TYPE = 'Ansible/1.4.0'
 
 
 class PowerStoreSMBShare(object):
@@ -374,7 +370,7 @@ class PowerStoreSMBShare(object):
                   'failed with error: {2}'.format(share_id,
                                                   share_name, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_smb_share(self, share_name, smb_parent_id, path, description,
                          is_branch_cache_enabled, offline_availability,
@@ -406,7 +402,7 @@ class PowerStoreSMBShare(object):
             msg = 'Create SMB share {0} failed with error {1}'.format(
                 share_name, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def delete_smb_share(self, smb_share_details):
 
@@ -419,7 +415,7 @@ class PowerStoreSMBShare(object):
             msg = 'Deletion of SMB share with name = {0}, id = {1} failed' \
                   ' with error: {2}'.format(share_name, share_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_nas_server_id(self, nas_server):
         """
@@ -436,7 +432,7 @@ class PowerStoreSMBShare(object):
                 error_msg = "Failed to get details of NAS server {0} with" \
                             " error: {1}".format(nas_server, str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         return nas_server_id
 
     def get_filesystem_id(self, smb_parent, snapshot, nas_server):
@@ -463,7 +459,7 @@ class PowerStoreSMBShare(object):
                 error_msg = "Failed to get details of File System/Snapshot" \
                             " {0} with error: {1}".format(smb_parent, str(e))
                 LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
+                self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
         if snapshot and fs_details[0]['filesystem_type'] == 'Primary':
             self.module.fail_json(msg="Please enter a valid snapshot,"
@@ -522,7 +518,7 @@ class PowerStoreSMBShare(object):
             msg = 'Update SMB share with name = {0}, id = {1} failed' \
                   ' with error: {2}'.format(share_name, share_id, str(e))
             LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def validate_umask(self, umask):
         err_msg = "umask should be a 3 digit octal number. " \

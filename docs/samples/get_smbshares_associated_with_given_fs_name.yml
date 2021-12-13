@@ -12,7 +12,7 @@
   - dellemc.powerstore
   tasks:
     - name: Get given filesystem
-      dellemc_powerstore_gatherfacts:
+      info:
         array_ip: "{{array_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -27,7 +27,7 @@
       register: my_filesystem
 
     - name: Get all SMBShares
-      dellemc_powerstore_gatherfacts:
+      info:
         array_ip: "{{array_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
