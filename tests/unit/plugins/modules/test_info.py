@@ -83,3 +83,69 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_file_ldaps.assert_called()
+
+    def test_get_dns_response(self, info_module_mock):
+        MockInfoApi.get_dns_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['dns'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_dns_list()
+
+    def test_get_ntp_response(self, info_module_mock):
+        MockInfoApi.get_ntp_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['ntp'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_ntp_list()
+
+    def test_get_smtp_response(self, info_module_mock):
+        MockInfoApi.get_smtp_config_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['smtp_config'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_smtp_configs()
+
+    def test_get_email_destination_response(self, info_module_mock):
+        MockInfoApi.get_email_destination_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['email_notification'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_destination_emails()
+
+    def test_get_remote_support_contact_response(self, info_module_mock):
+        MockInfoApi.get_remote_support_contact_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['remote_support_contact'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_remote_support_contact_list()
+
+    def test_get_remote_support_contact_response(self, info_module_mock):
+        MockInfoApi.get_remote_support_response('api')
+        self.get_module_args.update({
+            'gather_subset': ['remote_support'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_remote_support_list()

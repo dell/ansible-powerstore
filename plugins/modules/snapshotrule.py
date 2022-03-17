@@ -10,13 +10,12 @@ DOCUMENTATION = r'''
 ---
 module: snapshotrule
 version_added: '1.0.0'
-short_description: Snapshot Rule operations on a PowerStore storage system.
+short_description: Snapshot Rule operations on a PowerStore storage system
 description:
 - Performs all snapshot rule operations on PowerStore Storage System.
-  This modules supports get details of an existing snapshot rule, create new
-  Snapshot Rule with Interval, create new Snapshot Rule with specific time and
-  days_of_week with all supported parameters. Modify Snapshot Rule with
-  supported parameters. Delete a specific Snapshot Rule.
+- This modules supports get details of a snapshot rule, create new Snapshot
+  Rule with Interval, create new Snapshot Rule with specific time and
+  days_of_week. Modify Snapshot Rule. Delete Snapshot Rule.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -32,19 +31,18 @@ options:
     - String variable. Indicates the ID of the Snapshot rule.
     required: False
     type: str
-
   new_name:
     description:
     - String variable. Indicates the new name of the Snapshot rule.
-    - Used for renaming operation
+    - Used for renaming operation.
     required: False
     type: str
   days_of_week:
     description:
-    - List of strings to specify days of the week on which the Snapshot rule.
-      should be applied.
-      Must be applied for Snapshot rules where the 'time_of_day' parameter is
-      set. Optional for the Snapshot rule created with an interval. When
+    - List of strings to specify days of the week on which the Snapshot rule
+      should be applied. Must be applied for Snapshot rules where the
+      'time_of_day' parameter is set.
+    - Optional for the Snapshot rule created with an interval. When
       'days_of_week' is not specified for a new Snapshot rule, the rule is
       applied on every day of the week.
     required: False
@@ -71,7 +69,7 @@ options:
   time_of_day:
     description:
     - String variable. Indicates the time of the day to take a daily
-     Snapshot, with the format "hh:mm" in 24 hour time format
+      Snapshot, with the format "hh:mm" in 24 hour time format.
     - When creating a Snapshot rule, specify either "interval"or
       "time_of_day" but not both.
     required : False
@@ -83,7 +81,7 @@ options:
     - True specifies to delete all previously created Snapshots by this rule
       while deleting this rule.
     - False specifies to retain all previously created Snapshots while
-     deleting this rule
+      deleting this rule.
     type: bool
   state:
     description:
@@ -95,12 +93,14 @@ options:
     choices: [ present, absent]
     type: str
 
+notes:
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 
 - name: Get details of an existing snapshot rule by name
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -109,7 +109,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of an existing snapshot rule by id
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -118,7 +118,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Create new snapshot rule by interval
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -132,7 +132,7 @@ EXAMPLES = r'''
 
 
 - name: Create new snapshot rule by time_of_day and days_of_week
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -147,7 +147,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify existing snapshot rule to time_of_day and days_of_week
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -162,7 +162,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify existing snapshot rule to interval
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -172,14 +172,13 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete an existing snapshot rule by name
-  snapshotrule:
+  dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
     state: "absent"
-
 '''
 
 RETURN = r'''
@@ -188,6 +187,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "true"
 
 snapshotrule_details:
     description: Details of the snapshot rule.
@@ -225,7 +225,19 @@ snapshotrule_details:
                     description: Name of the protection policy in which the
                                  snapshot rule is selected.
                     type: str
- '''
+    sample: {
+        "days_of_week": [
+            "Sunday",
+            "Thursday"
+        ],
+        "desired_retention": 24,
+        "id": "afa86b51-1171-498f-9786-2c78c33b4c14",
+        "interval": "Five_Minutes",
+        "name": "Sample_snapshot_rule",
+        "policies": [],
+        "time_of_day": null
+    }
+'''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
@@ -245,7 +257,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerstoreSnapshotrule(object):
@@ -577,12 +589,11 @@ def get_powerstore_snapshotrule_parameters():
 def modify_snapshotrule_required(snapruledict1, snapruledict2):
     """to compare two snapshot rule"""
     for key in snapruledict1.keys():
-        if key in snapruledict2.keys() and snapruledict2[key] is not None and\
+        if key in snapruledict2.keys() and snapruledict2[key] is not None and \
                 ((isinstance(snapruledict1[key], list) and
-                 set(snapruledict1[key]) != set(snapruledict2[key])) or
-                 (snapruledict1[key] != snapruledict2[key])):
-            LOG.debug("Key %s in snapruledict1=%s, snapruledict2=%s", key,
-                      snapruledict1[key], snapruledict2[key])
+                  set(snapruledict1[key]) != set(snapruledict2[key])) or
+                 ((not isinstance(snapruledict1[key], list)) and (snapruledict1[key] != snapruledict2[key]))):
+            LOG.debug("Key %s in snapruledict1=%s, snapruledict2=%s", key, snapruledict1[key], snapruledict2[key])
             return True
     return False
 

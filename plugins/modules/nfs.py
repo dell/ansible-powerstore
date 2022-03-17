@@ -11,7 +11,7 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 module: nfs
 version_added: '1.1.0'
-short_description: Manage NFS exports on Dell EMC PowerStore.
+short_description: Manage NFS exports on Dell EMC PowerStore
 description:
 - Managing NFS exports on PowerStore Storage System includes creating new NFS
   Export, getting details of NFS export, modifying attributes of NFS export,
@@ -138,11 +138,14 @@ options:
     required: true
     choices: ['absent', 'present']
     type: str
+
+notes:
+- The check_mode is not supported.
 """
 
 EXAMPLES = r"""
 - name: Create NFS export (filesystem)
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -171,7 +174,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Create NFS export Create NFS export for filesystem snapshot with mandatory parameters
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -183,7 +186,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Get NFS export details using ID
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -192,7 +195,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Add Read-Only and Read-Write hosts to NFS export
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -206,7 +209,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Remove Read-Only and Read-Write hosts from NFS export
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -220,7 +223,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Modify the attributes of NFS export
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -231,7 +234,7 @@ EXAMPLES = r"""
     state: "present"
 
 - name: Delete NFS export using name
-  nfs:
+  dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -243,9 +246,10 @@ EXAMPLES = r"""
 
 RETURN = r"""
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 nfs_export_details:
     description: The NFS export details.
@@ -323,6 +327,35 @@ nfs_export_details:
             description: Hosts with read and write for root user access to the
                          NFS export.
             type: list
+    sample: {
+        "anonymous_GID": -2,
+        "anonymous_UID": -2,
+        "default_access": "No_Access",
+        "default_access_l10n": "No_Access",
+        "description": null,
+        "export_path": "10.xx.xx.xx:/sample_nfs_export",
+        "file_system": {
+            "filesystem_type": "Primary",
+            "id": "61d68815-1ac2-fc68-7263-96e8abdcbab0",
+            "name": "sample_file_system",
+            "nas_server": {
+                "id": "60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9",
+                "name": "ansible_nas_server_2"
+            }
+        },
+        "id": "61d6888b-52ed-0d4b-2b35-96e8abdcbab0",
+        "is_no_SUID": false,
+        "min_security": "Sys",
+        "min_security_l10n": "Sys",
+        "name": "sample_nfs_export",
+        "nfs_owner_username": 0,
+        "no_access_hosts": [],
+        "path": "/sample_file_system",
+        "read_only_hosts": [],
+        "read_only_root_hosts": [],
+        "read_write_hosts": [],
+        "read_write_root_hosts": []
+    }
 """
 
 import re
@@ -348,7 +381,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreNfsExport(object):

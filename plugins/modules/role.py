@@ -10,12 +10,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: role
-
 version_added: '1.3.0'
-
 short_description: Get details of the roles present on the PowerStore storage
-                   system.
-
+                   system
 description:
 - Manage role in PowerStore storage system includes getting the details of a
   role.
@@ -37,8 +34,8 @@ options:
   state:
     description:
     - Define whether the role should exist or not.
-    - present, indicates that the role should exist on the system.
-    - absent, indicates that the role should not exist on the system.
+    - Value present, indicates that the role should exist on the system.
+    - Value absent, indicates that the role should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
@@ -47,12 +44,12 @@ notes:
 - Only getting the details of the role is supported by the ansible module.
 - Creation, modification and deletion of roles is not supported by the ansible
   modules.
-
+- The check_mode is not supported.
 '''
 EXAMPLES = r'''
 
 - name: Get the details of role by name
-  role:
+  dellemc.powerstore.role:
     array_ip: "{{array_ip}}"
     verifycert: "{{verify_cert}}"
     user: "{{user}}"
@@ -61,7 +58,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get the details of role by id
-  role:
+  dellemc.powerstore.role:
     array_ip: "{{array_ip}}"
     verifycert: "{{verify_cert}}"
     user: "{{user}}"
@@ -93,6 +90,12 @@ role_details:
         description:
             description: Description of the role.
             type: str
+    sample: {
+        "description": "Can view status and performance information",
+        "id": "1",
+        "is_built_in": true,
+        "name": "Administrator"
+    }
 '''
 
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
@@ -110,7 +113,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreRole(object):

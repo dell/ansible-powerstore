@@ -38,7 +38,7 @@ options:
    description:
    - Name or ID of the NAS Server on which the file system is created.
      Mandatory parameter whenever filesystem_name is provided,
-     since filesystem names are unique only within a NAS server
+     since filesystem names are unique only within a NAS server.
    type: str
  size:
    description:
@@ -47,7 +47,7 @@ options:
    type: int
  cap_unit:
    description:
-   - capacity unit for the size.
+   - Capacity unit for the size.
    - It defaults to 'GB', if not specified.
    choices: ['GB', 'TB']
    type: str
@@ -79,7 +79,7 @@ options:
    type: str
  smb_properties:
    description:
-   - Advance settings for SMB. It contains below optional candidate variables
+   - Advance settings for SMB. It contains below optional candidate variables.
    type: dict
    suboptions:
      is_smb_sync_writes_enabled:
@@ -109,7 +109,7 @@ options:
      is_smb_notify_on_write_enabled:
        description:
        - Indicates whether file write notifications are enabled on the file
-        system
+        system.
        type: bool
        required: False
      smb_notify_on_change_dir_depth:
@@ -166,13 +166,14 @@ options:
 notes:
 - It is recommended to remove the protection policy before deleting the
   filesystem.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 
  - name: Create FileSystem by Name
    register: result_fs
-   filesystem:
+   dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -196,7 +197,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Modify File System by id
-   filesystem:
+   dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -214,7 +215,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Get File System details by id
-   filesystem:
+   dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -223,7 +224,7 @@ EXAMPLES = r'''
      state: "present"
 
  - name: Delete File System by id
-   filesystem:
+   dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
      verifycert: "{{verifycert}}"
      user: "{{user}}"
@@ -235,14 +236,14 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 filesystem_details:
-    description: Details of the filesystem
+    description: Details of the filesystem.
     returned: When filesystem exists
     type: complex
     contains:
@@ -306,6 +307,50 @@ filesystem_details:
         snapshots:
             description: Id and name of the snapshots of a filesystem.
             type: list
+    sample: {
+        "access_policy": "Native",
+        "access_policy_l10n": "Native",
+        "access_type": null,
+        "access_type_l10n": null,
+        "creation_timestamp": null,
+        "creator_type": null,
+        "creator_type_l10n": null,
+        "default_hard_limit": 0,
+        "default_soft_limit": 0,
+        "description": null,
+        "expiration_timestamp": null,
+        "filesystem_type": "Primary",
+        "filesystem_type_l10n": "Primary",
+        "folder_rename_policy": "All_Forbidden",
+        "folder_rename_policy_l10n": "All Renames Forbidden",
+        "grace_period": 604800,
+        "id": "61e49f3f-9b57-e69b-1038-aa02b52a030f",
+        "is_async_MTime_enabled": false,
+        "is_modified": false,
+        "is_quota_enabled": false,
+        "is_smb_no_notify_enabled": false,
+        "is_smb_notify_on_access_enabled": false,
+        "is_smb_notify_on_write_enabled": false,
+        "is_smb_op_locks_enabled": true,
+        "is_smb_sync_writes_enabled": true,
+        "last_refresh_timestamp": null,
+        "last_writable_timestamp": null,
+        "locking_policy": "Advisory",
+        "locking_policy_l10n": "Advisory",
+        "name": "sample-filesystem",
+        nas_server: {
+            "id": "6026056b-5405-0e36-7697-c285b9fa42b7",
+            "name": "ansible_nas_server_2"
+        },
+        "parent_id": null,
+        "protection_policy": null,
+        "size_total": "214748364800",
+        "size_used": "1621098496",
+        "smb_notify_on_change_dir_depth": 512,
+        "snapshots": {},
+        "total_size_with_unit": "200.0 GB",
+        "used_size_with_unit": "1.51 GB"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -325,7 +370,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreFileSystem(object):

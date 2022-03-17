@@ -12,7 +12,7 @@ DOCUMENTATION = r'''
 module: security_config
 version_added: '1.4.0'
 short_description: Security configuration operations on PowerStore Storage
-                   System.
+                   System
 description:
 - Managing security configuration on PowerStore storage system includes getting
   details and modifying security configuration parameters.
@@ -47,11 +47,12 @@ notes:
   modules.
 - Modification of protocol mode is only supported for PowerStore v2.0.0.0 and
   above.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get security config
-  security_config:
+  dellemc.powerstore.security_config:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -60,7 +61,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify attribute of security config
-  security_config:
+  dellemc.powerstore.security_config:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -72,9 +73,10 @@ EXAMPLES = r'''
 
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "true"
 security_config_details:
     description: Details of the security configuration.
     returned: When security config exists
@@ -91,6 +93,12 @@ security_config_details:
         protocol_mode:
             description: The protocol mode of the security configuration.
             type: str
+    sample: {
+        "id": "1",
+        "idle_timeout": 3600,
+        "protocol_mode": "TLSv1_2",
+        "protocol_mode_l10n": "TLSv1_2"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -108,7 +116,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreSecurityConfig(object):

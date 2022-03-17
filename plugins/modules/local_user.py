@@ -49,8 +49,8 @@ options:
     type: str
   role_id:
     description:
-    - The unique identifier of the role to which the local user account will be
-      mapped.
+    - The unique identifier of the role to which the local user account will
+      be mapped.
     - It is mutually exclusive with role_name.
     type: int
   is_locked:
@@ -64,11 +64,14 @@ options:
     choices: ['absent', 'present']
     required: True
     type: str
+
+notes:
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
-- name: create local user
-  local_user:
+- name: Create local user
+  dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -79,8 +82,8 @@ EXAMPLES = r'''
     is_locked: False
     state: "present"
 
-- name: get the details local user with user id
-  local_user:
+- name: Get the details local user with user id
+  dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -88,8 +91,8 @@ EXAMPLES = r'''
     user_id: "{{user_id}}"
     state: "present"
 
-- name: get the details local user with user name
-  local_user:
+- name: Get the details local user with user name
+  dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -98,7 +101,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify attributes of local user
-  local_user:
+  dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -110,8 +113,8 @@ EXAMPLES = r'''
     is_locked: True
     state: "present"
 
-- name: delete local user
-  local_user:
+- name: Delete local user
+  dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -122,11 +125,12 @@ EXAMPLES = r'''
 
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 local_user_details:
-    description: Details of the local user
+    description: Details of the local user.
     returned: When local user exists
     type: complex
     contains:
@@ -155,6 +159,15 @@ local_user_details:
             description: Name of the role to which local user account is
                          mapped.
             type: str
+    sample: {
+        "id": "272",
+        "is_built_in": false,
+        "is_default_password": false,
+        "is_locked": false,
+        "name": "sampleuser",
+        "role_id": "1",
+        "role_name": "Administrator"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -172,7 +185,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreLocalUser(object):

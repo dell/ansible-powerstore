@@ -10,13 +10,13 @@ DOCUMENTATION = r'''
 ---
 module: snapshot
 version_added: '1.0.0'
-short_description: Manage Snapshots on Dell EMC PowerStore.
+short_description: Manage Snapshots on Dell EMC PowerStore
 description:
 - Managing Snapshots on PowerStore storage system, Create a new Volume Group
   Snapshot, Get details of Volume Group Snapshot, Modify Volume Group
-  Snapshot, Delete an existing Volume Group Snapshot, Create a new Volume
-  Snapshot, Get details of Volume Snapshot, Modify Volume Snapshot, Delete an
-  existing Volume Snapshot.
+  Snapshot, Delete an existing Volume Group Snapshot.
+- Module also supports Create a new Volume Snapshot, Get details of Volume
+  Snapshot, Modify Volume Snapshot, Delete an existing Volume Snapshot.
 author:
 - Rajshree Khare (@khareRajshree) <ansible.team@dell.com>
 - Prashant Rakheja (@prashant-dell) <ansible.team@dell.com>
@@ -76,11 +76,14 @@ options:
     required: true
     choices: [absent, present]
     type: str
-  '''
+
+notes:
+- The check_mode is not supported.
+'''
 
 EXAMPLES = r'''
     - name: Create a volume snapshot on PowerStore
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -93,7 +96,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Get details of a volume snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -103,7 +106,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Rename volume snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -114,7 +117,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Delete volume snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -124,7 +127,7 @@ EXAMPLES = r'''
         state: "{{state_absent}}"
 
     - name: Create a volume group snapshot on PowerStore
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -136,7 +139,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Get details of a volume group snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -146,7 +149,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Modify volume group snapshot expiration timestamp
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -158,7 +161,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Rename volume group snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -169,7 +172,7 @@ EXAMPLES = r'''
         state: "{{state_present}}"
 
     - name: Delete volume group snapshot
-      snapshot:
+      dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
         verifycert: "{{verifycert}}"
         user: "{{user}}"
@@ -182,48 +185,55 @@ EXAMPLES = r'''
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "true"
 
 create_vg_snap:
     description: A boolean flag to indicate whether volume group snapshot got
                  created.
     returned: When value exists
     type: bool
+    sample: "true"
 
 create_vol_snap:
     description: A boolean flag to indicate whether volume snapshot got
                  created.
     returned: When value exists
     type: bool
+    sample: "true"
 
 delete_vg_snap:
     description: A boolean flag to indicate whether volume group snapshot got
                  deleted.
     returned: When value exists
     type: bool
+    sample: "true"
 
 delete_vol_snap:
     description: A boolean flag to indicate whether volume snapshot got
                  deleted.
     returned: When value exists
     type: bool
+    sample: "true"
 
 modify_vg_snap:
     description: A boolean flag to indicate whether volume group snapshot got
                  modified.
     returned: When value exists
     type: bool
+    sample: "true"
 
 modify_vol_snap:
     description: A boolean flag to indicate whether volume snapshot got
                  modified.
     returned: When value exists
     type: bool
+    sample: "true"
 
 snap_details:
-    description: Details of the snapshot
+    description: Details of the snapshot.
     returned: When snapshot exists
     type: complex
     contains:
@@ -269,6 +279,51 @@ snap_details:
                     description: The system generated ID given to the volume
                                  associated with the volume group.
                     type: str
+    sample: {
+        "appliance_id": "A1",
+        "creation_timestamp": "2022-01-06T05:41:59.381459+00:00",
+        "description": "Snapshot created",
+        "hlu_details": [],
+        "host": [],
+        "host_group": [],
+        "id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+        "is_replication_destination": false,
+        "location_history": null,
+        "mapped_volumes": [],
+        "migration_session_id": null,
+        "name": "sample_snapshot",
+        "nguid": null,
+        "node_affinity": "System_Select_At_Attach",
+        "node_affinity_l10n": "System Select At Attach",
+        "nsid": null,
+        "performance_policy": {
+            "id": "default_medium",
+            "name": "Medium"
+        },
+        "performance_policy_id": "default_medium",
+        "protection_data": {
+            "copy_signature": "b9978b85-4a73-4abb-a25a-634e36f3e3d1",
+            "created_by_rule_id": null,
+            "created_by_rule_name": null,
+            "creator_type": "User",
+            "creator_type_l10n": "User",
+            "expiration_timestamp": "2022-01-06T08:41:00+00:00",
+            "family_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
+            "is_app_consistent": false,
+            "parent_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
+            "source_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
+            "source_timestamp": "2022-01-06T05:41:59.381459+00:00"
+        },
+        "protection_policy": null,
+        "protection_policy_id": null,
+        "size": 1073741824,
+        "state": "Ready",
+        "state_l10n": "Ready",
+        "type": "Snapshot",
+        "type_l10n": "Snapshot",
+        "volume_groups": [],
+        "wwn": null
+    }
 '''
 
 import logging
@@ -289,7 +344,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreSnapshot(object):

@@ -25,30 +25,21 @@ class MockInfoApi:
 
     EMPTY_GATHERSUBSET_ERROR_MSG = "Please specify gather_subset"
     EMPTY_RESULT = {
-        'SecurityConfig': [
-        ],
-        'Certificate': [
-        ],
-        'LDAP': [
-        ],
-        'ActiveDirectory': [
-        ]
+        'SecurityConfig': [],
+        'Certificate': [],
+        'LDAP': [],
+        'ActiveDirectory': [],
+        'DNS': [],
+        'EmailNotification': [],
+        'NTP': [],
+        'RemoteSupport': [],
+        'RemoteSupportContact': [],
+        'SMTPConfig': []
     }
 
     @staticmethod
     def get_security_config_response(response_type):
         if response_type == 'api':
-            return {
-                "securityconfig": [
-                    {
-                        "id": "1",
-                        "idle_timeout": 3600,
-                        "protocol_mode": "TLSv1_0",
-                        "protocol_mode_l10n": "TLSv1_0"
-                    }
-                ]
-            }
-        elif response_type == 'module':
             return [
                 {
                     "id": "1"
@@ -61,22 +52,6 @@ class MockInfoApi:
     @staticmethod
     def get_certificate_response(response_type):
         if response_type == 'api':
-            return {
-                "certificate": [
-                    {
-                        "id": "e940144f-393f-4e9c-8f54-9a4d57b38c48",
-                        "is_current": False,
-                        "is_valid": False,
-                        "members": [],
-                        "scope": "Syslog_HTTP",
-                        "service": "Syslog_HTTP",
-                        "service_l10n": "Syslog_HTTP",
-                        "type": "Client",
-                        "type_l10n": "Client"
-                    }
-                ]
-            }
-        elif response_type == 'module':
             return [
                 {
                     "id": "e940144f-393f-4e9c-8f54-9a4d57b38c48"
@@ -104,12 +79,6 @@ class MockInfoApi:
     @staticmethod
     def get_ad_response(response_type):
         if response_type == 'api':
-            return {
-                "ad": [
-                    # fill response here
-                ]
-            }
-        elif response_type == 'module':
             return [
                 {
                     "id": "60c05c4a-a5aa-d547-d882-ee6f605dfe5a"
@@ -122,12 +91,6 @@ class MockInfoApi:
     @staticmethod
     def get_ldap_response(response_type):
         if response_type == 'api':
-            return {
-                "ldap": [
-                    # fill response here
-                ]
-            }
-        elif response_type == 'module':
             return [
                 {
                     "id": "60c05ba8-362e-159a-0205-ee6f605dfe5a"
@@ -136,3 +99,78 @@ class MockInfoApi:
         else:
             return "Getting list of ldap for powerstore: %s failed with error: PyPowerStore Error message" % (
                    MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_dns_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "DNS1"
+                }
+            ]
+        else:
+            return "Getting list of dns for powerstore: %s failed with error: PyPowerStore Error message" % (
+                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_ntp_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "NTP1"
+                }
+            ]
+        else:
+            return "Getting list of ntp for powerstore: %s failed with error: PyPowerStore Error message" % (
+                MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_smtp_config_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "0"
+                }
+            ]
+        else:
+            return "Getting list of smtp config for powerstore: %s failed with error: PyPowerStore Error message" % (
+                MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_email_destination_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "9c3e5cba-17d5-4d64-b97c-350f91e2b714"
+                }
+            ]
+        else:
+            return "Getting list of email destination for powerstore: %s failed with error: PyPowerStore Error " \
+                   "message" % (MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_remote_support_contact_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "0"
+                },
+                {
+                    "id": "1"
+                }
+            ]
+        else:
+            return "Getting list of remote support contacts for powerstore: %s failed with error: PyPowerStore Error " \
+                   "message" % (MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_remote_support_response(response_type):
+        if response_type == 'api':
+            return [
+                {
+                    "id": "0"
+                }
+            ]
+        else:
+            return "Getting list of remote support for powerstore: %s failed with error: PyPowerStore Error message" % (
+                MockInfoApi.INFO_COMMON_ARGS['array_ip'])

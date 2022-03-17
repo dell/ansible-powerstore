@@ -13,10 +13,8 @@ module: filesystem_snapshot
 version_added: '1.1.0'
 short_description: Manage Filesystem Snapshots on Dell EMC PowerStore
 description:
-- Managing filesystem snapshots on PowerStore Storage System includes
-  creating new filesystem snapshot, getting details of filesystem snapshot,
-  modifying attributes of filesystem snapshot and deleting filesystem
-  snapshot.
+- Supports the provisioning operations on a filesystem snapshot such as
+  create, modify, delete and get the details of a filesystem snapshot.
 
 author:
 - Akash Shendge (@shenda1) <ansible.team@dell.com>
@@ -83,11 +81,13 @@ options:
     required: true
     choices: ['absent', 'present']
     type: str
+notes:
+- The check_mode is not supported.
 """
 
 EXAMPLES = r"""
 - name: Create filesystem snapshot
-  filesystem_snapshot:
+  dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -100,7 +100,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Get the details of filesystem snapshot
-  filesystem_snapshot:
+  dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -109,7 +109,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Modify the filesystem snapshot
-  filesystem_snapshot:
+  dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -121,7 +121,7 @@ EXAMPLES = r"""
       state: "present"
 
 - name: Delete filesystem snapshot
-  filesystem_snapshot:
+  dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
@@ -132,21 +132,25 @@ EXAMPLES = r"""
 
 RETURN = r"""
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 create_fs_snap:
-    description: Whether or not the resource has created
+    description: Whether or not the resource has created.
     returned: always
     type: bool
+    sample: "false"
 delete_fs_snap:
-    description: Whether or not the resource has deleted
+    description: Whether or not the resource has deleted.
     returned: always
     type: bool
+    sample: "false"
 modify_fs_snap:
-    description: Whether or not the resource has modified
+    description: Whether or not the resource has modified.
     returned: always
     type: bool
+    sample: "false"
 filesystem_snap_details:
     description: Details of the snapshot.
     returned: When snapshot exists.
@@ -188,6 +192,48 @@ filesystem_snap_details:
         parent_name:
             description: Name of the filesystem on which snapshot is taken.
             type: str
+    sample: {
+        "access_policy": null,
+        "access_policy_l10n": null,
+        "access_type": "Snapshot",
+        "access_type_l10n": "Snapshot",
+        "creation_timestamp": "2022-01-16T21:58:02+00:00",
+        "creator_type": "User",
+        "creator_type_l10n": "User",
+        "default_hard_limit": null,
+        "default_soft_limit": null,
+        "description": null,
+        "expiration_timestamp": "2022-01-17T00:58:00+00:00",
+        "filesystem_type": "Snapshot",
+        "filesystem_type_l10n": "Snapshot",
+        "folder_rename_policy": null,
+        "folder_rename_policy_l10n": null,
+        "grace_period": null,
+        "id": "61e49f3f-9b57-e69b-1038-aa02b52a030f",
+        "is_async_MTime_enabled": false,
+        "is_modified": false,
+        "is_quota_enabled": null,
+        "is_smb_no_notify_enabled": null,
+        "is_smb_notify_on_access_enabled": null,
+        "is_smb_notify_on_write_enabled": null,
+        "is_smb_op_locks_enabled": null,
+        "is_smb_sync_writes_enabled": null,
+        "last_refresh_timestamp": null,
+        "last_writable_timestamp": null,
+        "locking_policy": null,
+        "locking_policy_l10n": null,
+        "name": "sample-filesystem-snapshot",
+        nas_server: {
+            "id": "6026056b-5405-0e36-7697-c285b9fa42b7",
+            "name": "ansible_nas_server_2"
+        },
+        "parent_id": "61e4947b-8992-3db7-2859-aa02b52a0308",
+        "parent_name": "sample-filesystem",
+        "protection_policy": null,
+        "size_total": "214748364800",
+        "size_used": "1621098496",
+        "smb_notify_on_change_dir_depth": 0
+    }
 """
 
 from datetime import datetime, timedelta
@@ -207,7 +253,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreFilesystemSnapshot(object):

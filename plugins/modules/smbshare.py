@@ -8,7 +8,7 @@ DOCUMENTATION = r'''
 ---
 module: smbshare
 version_added: '1.1.0'
-short_description:  Manage SMB shares on a PowerStore storage system.
+short_description:  Manage SMB shares on a PowerStore storage system
 extends_documentation_fragment:
 - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -110,8 +110,8 @@ options:
   state:
     description:
     - Define whether the SMB share should exist or not.
-    - present  indicates that the share should exist on the system.
-    - absent  indicates that the share should not exist on the system.
+    - Value present indicates that the share should exist on the system.
+    - Value absent indicates that the share should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
@@ -121,12 +121,13 @@ notes:
   required. If passed, then the filesystem/snapshot should exist for the
   nas_server, else the task will fail.
 - Multiple SMB shares can be created for the same local path.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 
 - name: Create SMB share for a filesystem
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -144,7 +145,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify Attributes of SMB share for a filesystem
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -161,7 +162,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Create SMB share for a snapshot
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -177,7 +178,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify Attributes of SMB share for a snapshot
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -193,7 +194,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of SMB share
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -202,7 +203,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete SMB share
-  smbshare:
+  dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -213,7 +214,7 @@ EXAMPLES = r'''
 
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
     sample: True
@@ -272,6 +273,27 @@ smb_share_details:
             description: Whether encryption is enabled or not.
             type: bool
             sample: false
+    sample: {
+        "description": "SMB Share created",
+        "file_system": {
+            "filesystem_type": "Primary",
+            "id": "61d68c36-7c59-f5d9-65f0-96e8abdcbab0",
+            "name": "sample_file_system",
+            "nas_server": {
+                "id": "60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9",
+                "name": "ansible_nas_server"
+            }
+        },
+        "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0",
+        "is_ABE_enabled": true,
+        "is_branch_cache_enabled": true,
+        "is_continuous_availability_enabled": true,
+        "is_encryption_enabled": true,
+        "name": "sample_smb_share",
+        "offline_availability": "Documents",
+        "path": "/sample_file_system",
+        "umask": "177"
+    }
 '''
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
@@ -289,7 +311,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreSMBShare(object):
