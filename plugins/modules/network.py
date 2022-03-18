@@ -9,7 +9,7 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 module: network
 version_added: '1.3.0'
-short_description: Manage networks on Dell EMC PowerStore.
+short_description: Manage networks on Dell EMC PowerStore
 description:
 - Managing networks on PowerStore Storage System includes getting details of
   network, modifying attributes of network and adding/removing IP ports
@@ -138,6 +138,7 @@ options:
     required: true
     choices: ['absent', 'present']
     type: str
+
 notes:
 - It is recommended to perform task asynchronously while changing cluster
   management address.
@@ -145,11 +146,12 @@ notes:
   esxi_credentials.
 - For PowerStore X model, vasa_provider_credentials has to be specified
   along with new_cluster_mgmt_address.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get network details using ID
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -158,7 +160,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get network details using name
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -167,7 +169,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Rename the storage network
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -178,7 +180,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Replace the IP's in the management network and re-register VASA vendor provider
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -198,7 +200,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Map port to the storage network
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -210,7 +212,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Unmap port from the storage network
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -223,7 +225,7 @@ EXAMPLES = r'''
 
 - name: Replace the IP's in the management network and re-register VASA vendor
         provider for X model
-  network:
+  dellemc.powerstore.network:
     array_ip: "{{array_ip1}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -261,6 +263,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 job_details:
     description: The job details.
@@ -270,6 +273,31 @@ job_details:
         id:
             description: The ID of the job.
             type: str
+    sample: {
+        "description_l10n": "Modify network parameters.",
+        "end_time": "2022-01-06T07:39:05.846+00:00",
+        "estimated_completion_time": null,
+        "id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "parent_id": null,
+        "phase": "Completed",
+        "phase_l10n": "Completed",
+        "progress_percentage": 100,
+        "resource_action": "modify",
+        "resource_action_l10n": "modify",
+        "resource_id": "nw6",
+        "resource_name": null,
+        "resource_type": "network",
+        "resource_type_l10n": "network",
+        "response_body": null,
+        "response_status": null,
+        "response_status_l10n": null,
+        "root_id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "start_time": "2022-01-06T07:39:05.47+00:00",
+        "state": "COMPLETED",
+        "state_l10n": "Completed",
+        "step_order": 23792565,
+        "user": "admin"
+    }
 
 network_details:
     description: The network details.
@@ -382,6 +410,77 @@ network_details:
                     description: General status of the VASA vendor provider
                                  in vCenter.
                     type: str
+    sample: {
+        "cluster_details": {
+            "appliance_count": 1,
+            "chap_mode": "Disabled",
+            "compatibility_level": 10,
+            "global_id": "PS00d01e1bb312",
+            "id": 0,
+            "is_encryption_enabled": true,
+            "management_address": "10.xx.xx.xx",
+            "master_appliance_id": "A1",
+            "name": "WN-D8977",
+            "physical_mtu": 1500,
+            "service_config_details": null,
+            "state": "Configured",
+            "state_l10n": "Configured",
+            "storage_discovery_address": "10.xx.xx.xx",
+            "system_time": "2022-02-04T11:18:37.441Z"
+        },
+        "gateway": "10.xx.xx.xx",
+        "id": "NW1",
+        "ip_version": "IPv4",
+        "ip_version_l10n": "IPv4",
+        "member_ips": [
+            {
+                "address": "10.xx.xx.xx",
+                "appliance_id": null,
+                "id": "IP1",
+                "ip_port_id": null,
+                "name": "Default Management Network (10.xx.xx.xx)",
+                "network_id": "NW1",
+                "node_id": null,
+                "purposes": [
+                    "Mgmt_Cluster_Floating"
+                ],
+                "purposes_l10n": [
+                    "Mgmt_Cluster_Floating"
+                ]
+            },
+            {
+                "address": "10.xx.xx.xx",
+                "appliance_id": null,
+                "id": "IP2",
+                "ip_port_id": null,
+                "name": "Default Management Network (10.xx.xx.xx)",
+                "network_id": "NW1",
+                "node_id": null,
+                "purposes": [
+                    "Mgmt_Appliance_Floating"
+                ],
+                "purposes_l10n": [
+                    "Mgmt_Appliance_Floating"
+                ]
+            }
+        ],
+        "mtu": 1500,
+        "name": "Default Management Network",
+        "prefix_length": 24,
+        "purposes": [],
+        "purposes_l10n": null,
+        "type": "Management",
+        "type_l10n": "Management",
+        "vcenter_details": {
+            "address": "10.xx.xx.xx",
+            "id": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
+            "instance_uuid": "c4c14fbb-828b-40f3-99bb-5bd4db723516",
+            "username": "administrator@vsphere.local",
+            "vendor_provider_status": "Online",
+            "vendor_provider_status_l10n": "Online"
+        },
+        "vlan_id": 0
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -399,7 +498,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreNetwork(object):

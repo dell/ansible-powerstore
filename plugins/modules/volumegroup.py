@@ -12,10 +12,11 @@ module: volumegroup
 version_added: '1.0.0'
 short_description: Manage volume groups on a PowerStore Storage System
 description:
-- Managing volume group on PowerStore Storage System includes
-  creating new volume group, adding volumes to volume
-  group, removing volumes from volume group, renaming volume group,
-  modifying volume group, and deleting volume group.
+- Managing volume group on PowerStore Storage System includes creating new
+  volume group, adding volumes to volume group, removing volumes from volume
+  group.
+- Module also include renaming volume group, modifying volume group, and
+  deleting volume group.
 author:
 - Akash Shendge (@shenda1) <ansible.team@dell.com>
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
@@ -78,18 +79,18 @@ options:
     required: true
     type: str
 notes:
-- vol_state is mandatory if volumes are provided.
+- Parameter vol_state is mandatory if volumes are provided.
 - A protection policy can be specified either for an volume group, or
   for the individual volumes inside the volume group.
 - A volume can be a member of at most one volume group.
 - Specifying "protection_policy" as empty string or "" removes the existing
   protection policy from a volume group.
-
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Create volume group without protection policy
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -99,7 +100,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of volume group
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -108,7 +109,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Add volumes to volume group
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -122,7 +123,7 @@ EXAMPLES = r'''
     vol_state: "present-in-group"
 
 - name: Remove volumes from volume group
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -135,7 +136,7 @@ EXAMPLES = r'''
     vol_state: "absent-in-group"
 
 - name: Rename volume group and change is_write_order_consistent flag
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -146,7 +147,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get details of volume group by ID
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -155,14 +156,13 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Delete volume group
-  volumegroup:
+  dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{new_vg_name}}"
     state: "absent"
-
 '''
 
 RETURN = r"""
@@ -170,33 +170,39 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 add_vols_to_vg:
     description: A boolean flag to indicate whether volume/s got added to
                  volume group.
     returned: When value exists
     type: bool
+    sample: "false"
 
 create_vg:
     description: A boolean flag to indicate whether volume group got created.
     returned: When value exists
     type: bool
+    sample: "false"
 
 delete_vg:
     description: A boolean flag to indicate whether volume group got deleted.
     returned: When value exists
     type: bool
+    sample: "false"
 
 modify_vg:
     description: A boolean flag to indicate whether volume group got modified.
     returned: When value exists
     type: bool
+    sample: "false"
 
 remove_vols_from_vg:
     description: A boolean flag to indicate whether volume/s got removed from
                  volume group.
     returned: When value exists
     type: bool
+    sample: "false"
 
 volume_group_details:
     description: Details of the volume group.
@@ -234,6 +240,41 @@ volume_group_details:
                     description: The name of the volume associated with the
                                  volume group.
                     type: str
+    sample: {
+        "creation_timestamp": "2022-01-06T05:41:59.381459+00:00",
+        "description": "Volume group created",
+        "id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+        "is_importing": false,
+        "is_protectable": true,
+        "is_replication_destination": false,
+        "is_write_order_consistent": false,
+        "location_history": null,
+        "mapped_volumes": [],
+        "migration_session_id": null,
+        "name": "sample_volume_group",
+        "placement_rule": "Same_Appliance",
+        "protection_data": {
+            "copy_signature": null,
+            "created_by_rule_id": null,
+            "created_by_rule_name": null,
+            "creator_type": "User",
+            "creator_type_l10n": "User",
+            "expiration_timestamp": null,
+            "family_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+            "is_app_consistent": false,
+            "parent_id": null,
+            "source_id": null,
+            "source_timestamp": null
+        },
+        "protection_policy": {
+            "id": "4bbb6333-59e4-489c-9015-c618d3e8384b",
+            "name": "sample_protection_policy"
+        },
+        "protection_policy_id": 4bbb6333-59e4-489c-9015-c618d3e8384b,
+        "type": "Primary",
+        "type_l10n": "Primary",
+        "volumes": []
+    }
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -253,7 +294,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreVolumeGroup(object):

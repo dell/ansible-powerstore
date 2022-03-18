@@ -4,6 +4,9 @@
 import PyPowerStore library for PowerStore Storage
 """
 from __future__ import (absolute_import, division, print_function)
+from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_powerstore_logging_handler \
+    import CustomRotatingFileHandler
+
 __metaclass__ = type
 
 try:
@@ -59,7 +62,7 @@ def py4ps_version_check():
                                           "'pkg_resources', please install" \
                                           " the required package"
         else:
-            min_ver = '1.3.0'
+            min_ver = '1.6.0'
             curr_version = PyPowerStore.__version__
             unsupported_version_message = "PyPowerStore {0} is not supported " \
                                           "by this module. Minimum supported" \
@@ -122,12 +125,17 @@ def name_or_id(val):
         return "NAME"
 
 
-def get_logger(module_name, log_file_name='dellemc_ansible_provisioning.log',
-               log_devel=logging.INFO):
+def get_logger(module_name, log_file_name='ansible_powerstore.log', log_devel=logging.INFO):
     FORMAT = '%(asctime)-15s %(filename)s %(levelname)s : %(message)s'
+    max_bytes = 5 * 1024 * 1024
     logging.basicConfig(filename=log_file_name, format=FORMAT)
     LOG = logging.getLogger(module_name)
     LOG.setLevel(log_devel)
+    handler = CustomRotatingFileHandler(log_file_name, maxBytes=max_bytes, backupCount=5)
+    formatter = logging.Formatter(FORMAT)
+    handler.setFormatter(formatter)
+    LOG.addHandler(handler)
+    LOG.propagate = False
     return LOG
 
 

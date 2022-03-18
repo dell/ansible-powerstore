@@ -10,12 +10,11 @@ DOCUMENTATION = r'''
 ---
 module: volume
 version_added: '1.0.0'
-short_description:  Manage volumes on a PowerStore storage system.
+short_description:  Manage volumes on a PowerStore storage system
 description:
 - Managing volume on PowerStore storage system includes create volume, get
-  details of volume, modify name, size, description, protection policy,
-  performance policy, map or unmap volume to host/host group, and delete
-  volume.
+  details of volume, modify volume attributes, map or unmap volume to
+  host/host group, and delete volume.
 author:
 - Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
@@ -25,7 +24,7 @@ options:
   vol_name:
     description:
     - Unique name of the volume. This value must contain 128 or fewer
-     printable unicode characters.
+      printable unicode characters.
     - Required when creating a volume. All other functionalities on a volume
       are supported using volume name or ID.
     type: str
@@ -59,7 +58,7 @@ options:
   new_name:
     description:
     - The new volume name for the volume, used in case of rename
-     functionality.
+      functionality.
     type: str
   description:
     description:
@@ -109,10 +108,10 @@ options:
   mapping_state:
     description:
     - Define whether the volume should be mapped to a host or hostgroup.
-    - mapped - indicates that the volume should be mapped to the host or host
-      group.
-    - unmapped - indicates that the volume should not be mapped to the host or
-      host group.
+    - Value mapped - indicates that the volume should be mapped to the host
+      or host group.
+    - Value unmapped - indicates that the volume should not be mapped to the
+      host or host group.
     - Only one of a host or host group can be supplied in one call.
     choices: [mapped, unmapped]
     type: str
@@ -126,8 +125,8 @@ options:
   state:
     description:
     - Define whether the volume should exist or not.
-    - present - indicates that the volume should exist on the system.
-    - absent - indicates that the volume should not exist on the system.
+    - Value present - indicates that the volume should exist on the system.
+    - Value absent - indicates that the volume should not exist on the system.
     required: true
     choices: [absent, present]
     type: str
@@ -136,17 +135,18 @@ notes:
 - To create a new volume, vol_name and size is required. cap_unit,
   description, vg_name, performance_policy, and protection_policy are
   optional.
-- new_name  should not be provided when creating a new volume.
-- size is a required parameter for expand volume.
+- Parameter new_name should not be provided when creating a new volume.
+- The size is a required parameter for expand volume.
 - Clones or Snapshots of a deleted production volume or a clone are not
   deleted.
 - A volume that is attached to a host/host group, or that is part of a volume
   group cannot be deleted.
-  '''
+- The Check_mode is not supported.
+'''
 
 EXAMPLES = r'''
 - name: Create stand-alone volume
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -157,7 +157,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Create stand-alone volume with performance and protection policy
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -171,7 +171,7 @@ EXAMPLES = r'''
     protection_policy: 'protection_policy_name'
 
 - name: Create volume and assign to a volume group
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -183,7 +183,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Create volume and map it to a host
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -196,7 +196,7 @@ EXAMPLES = r'''
     state: 'present'
 
 - name: Get volume details using ID
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -205,7 +205,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Get volume details using name
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -214,7 +214,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify volume size, name, description and performance policy
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -227,7 +227,7 @@ EXAMPLES = r'''
     description: 'new description'
 
 - name: Remove protection policy from Volume
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -238,7 +238,7 @@ EXAMPLES = r'''
     protection_policy: ""
 
 - name: Map volume to a host with HLU
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -250,7 +250,7 @@ EXAMPLES = r'''
     hlu: 12
 
 - name: Map volume to a host without HLU
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -261,7 +261,7 @@ EXAMPLES = r'''
     host: 'host2'
 
 - name: Delete volume
-  volume:
+  dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -276,6 +276,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 volume_details:
     description: Details of the volume.
@@ -376,6 +377,54 @@ volume_details:
                     description: Logical unit number for the host volume
                                  access.
                     type: int
+    sample: {
+        "appliance_id": "A1",
+        "creation_timestamp": "2022-01-06T05:41:59.381459+00:00",
+        "description": "Volume created",
+        "hlu_details": [],
+        "host": [],
+        "host_group": [],
+        "id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+        "is_replication_destination": false,
+        "location_history": null,
+        "mapped_volumes": [],
+        "migration_session_id": null,
+        "name": "sample_volume",
+        "nguid": "nguid.ac8ab0e2506d99be8ccf096800e29e40",
+        "node_affinity": "System_Select_At_Attach",
+        "node_affinity_l10n": "System Select At Attach",
+        "nsid": 54768,
+        "performance_policy": {
+            "id": "default_medium",
+            "name": "Medium"
+        },
+        "performance_policy_id": "default_medium",
+        "protection_data": {
+            "copy_signature": null,
+            "created_by_rule_id": null,
+            "created_by_rule_name": null,
+            "creator_type": "User",
+            "creator_type_l10n": "User",
+            "expiration_timestamp": null,
+            "family_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+            "is_app_consistent": false,
+            "parent_id": null,
+            "source_id": null,
+            "source_timestamp": null
+        },
+        "protection_policy": {
+            "id": "4bbb6333-59e4-489c-9015-c618d3e8384b",
+            "name": "sample_protection_policy"
+        },
+        "protection_policy_id": 4bbb6333-59e4-489c-9015-c618d3e8384b,
+        "size": 1073741824,
+        "state": "Ready",
+        "state_l10n": "Ready",
+        "type": "Primary",
+        "type_l10n": "Primary",
+        "volume_groups": [],
+        "wwn": "naa.68ccf09800ac8ab0e2506d99bee29e40"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -394,7 +443,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreVolume(object):

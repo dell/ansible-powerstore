@@ -13,11 +13,11 @@ module: quota
 
 version_added: '1.1.0'
 
-short_description: Manage Tree Quotas and User Quotas on PowerStore.
+short_description: Manage Tree Quotas and User Quotas on PowerStore
 
 description:
-- Managing  Quotas on Powerstore storage system includes getting details,
-  modifying, creating and deleting  Quotas.
+- Managing  Quotas on PowerStore storage system includes getting details,
+  modifying, creating and deleting Quotas.
 
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
@@ -58,7 +58,7 @@ options:
   description:
     description:
     - Additional information that can be mentioned for a Tree Quota.
-    - Description parameter can only be used when quota_type is 'tree'
+    - Description parameter can only be used when quota_type is 'tree'.
     type: str
   unix_name:
     description:
@@ -115,31 +115,32 @@ options:
   state:
     description:
     - Define whether the Quota should exist or not.
-    - present  indicates that the Quota should exist on the system.
-    - absent  indicates that the Quota should not exist on the system.
+    - Value present  indicates that the Quota should exist on the system.
+    - Value absent  indicates that the Quota should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
 
 notes:
-- Tree quota can't be created at the root of the filesystem.
+- Tree quota cannot be created at the root of the filesystem.
 - When the ID of the filesystem is passed then nas_server is not required.
   If passed, then filesystem should exist for the nas_server, else the task
   will fail.
 - If a primary directory of the current directory or a subordinate directory
   of the path is having a Tree Quota configured, then the quota for that path
-  can't be created. Hierarchical tree quotas are not allowed.
+  cannot be created.
+- Hierarchical tree quotas are not allowed.
 - When the first quota is created for a directory/user in a filesystem then
   the quotas will be enabled for that filesystem automatically.
 - If a user quota is to be created on a tree quota, then the user quotas will
   be enabled automatically in a tree quota.
 - Delete User Quota operation is not supported.
-
+- The check_mode is not supported.
 '''
 EXAMPLES = r'''
 
     - name: Create a Quota for a User using unix name
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -155,7 +156,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Create a Tree Quota
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -171,7 +172,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Modify attributes for Tree Quota
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -184,7 +185,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Get details of User Quota
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -196,7 +197,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Get details of Tree Quota
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -205,7 +206,7 @@ EXAMPLES = r'''
         state: "present"
 
     - name: Delete a Tree Quota
-      quota:
+      dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
         verifycert: "{{verify_cert}}"
         user: "{{user}}"
@@ -219,10 +220,10 @@ EXAMPLES = r'''
 '''
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
-    sample: True
+    sample: "True"
 
 quota_details:
     description: The quota details.
@@ -325,6 +326,26 @@ quota_details:
             description: Localized message string corresponding to state.
             type: str
             sample: "Ok"
+    sample: {
+        "description": "Tree quota created on filesystem",
+        "file_system": {
+            "filesystem_type": "Primary",
+            "id": "61d68a87-6000-3cc3-f816-96e8abdcbab0",
+            "name": "sample_file_system",
+            "nas_server": {
+                "id": "60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9",
+                "name": "ansible_nas_server_2"
+            }
+        },
+        "hard_limit(GB)": "90.0",
+        "id": "00000006-08f2-0000-0200-000000000000",
+        "is_user_quotas_enforced": false,
+        "path": "/sample_file_system",
+        "remaining_grace_period": -1,
+        "size_used": 0,
+        "soft_limit(GB)": "50.0",
+        "state": "Ok"
+    }
 '''
 
 import logging
@@ -343,7 +364,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreQuota(object):

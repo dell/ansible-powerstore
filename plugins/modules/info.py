@@ -5,10 +5,6 @@
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 DOCUMENTATION = r'''
 ---
@@ -16,15 +12,20 @@ module: info
 version_added: '1.0.0'
 short_description: Gathers information about PowerStore Storage entities
 description:
-- Gathers the list of specified PowerStore Storage System entities, such as
-  the list of cluster nodes, volumes, volume groups, hosts, host groups,
-  snapshot rules, protection policies, NAS servers, NFS exports, SMB shares,
-  tree quotas, user quotas, file systems, replication rules, replication
-  sessions, remote system, network, roles, local users, appliances, security
-  configs, certificates, AD and LDAP servers etc.
+- Gathers the list of specified PowerStore Storage System entities, includes
+  block/file provisioning modules, replication modules and configuration modules.
+- Block provisioning module includes volumes, volume groups, hosts, host groups,
+  snapshot rules, protection policies.
+- File provisioning module includes NAS servers, NFS exports, SMB shares,
+  tree quotas, user quotas, file systems.
+- Replication module includes replication rules, replication sessions, remote system.
+- Configuration module includes cluster nodes, network, roles, local users, appliances,
+  security configs, certificates, AD/LDAP servers.
+- It also includes DNS/NTP servers, smtp configs, email destinations, remote support, remote support contacts.
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Vivek Soni (@v-soni11) <ansible.team@dell.com>
+- Akash Shendge (@shenda1) <ansible.team@dell.com>
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 options:
@@ -32,37 +33,44 @@ options:
     description:
     - A list of string variables which specify the PowerStore system entities
       requiring information.
-    - vol - volumes.
-    - node - all the nodes.
-    - vg - volume groups.
-    - protection_policy - protection policies.
-    - host - hosts.
-    - hg -  host groups.
-    - snapshot_rule - snapshot rules.
-    - nas_server - NAS servers.
-    - nfs_export - NFS exports.
-    - smb_share - SMB shares.
-    - tree_quota - tree quotas.
-    - user_quota - user quotas.
-    - file_system - file systems.
-    - replication_rule - replication rules.
-    - replication_session - replication sessions.
-    - remote_system - remote systems.
-    - network - various networks.
-    - role - roles.
-    - user - local users.
-    - appliance - appliances.
-    - security_config - security configurations.
-    - certificate - certificates.
-    - ad - active directories.
-    - ldap - LDAPs.
+    - Volumes - vol.
+    - All the nodes - node.
+    - Volume groups - vg.
+    - Protection policies - protection_policy.
+    - Hosts - host.
+    - Host groups - hg.
+    - Snapshot rules - snapshot_rule.
+    - NAS servers - nas_server.
+    - NFS exports - nfs_export.
+    - SMB shares - smb_share.
+    - Tree quotas - tree_quota.
+    - User quotas - user_quota.
+    - File systems - file_system.
+    - Replication rules - replication_rule.
+    - Replication sessions - replication_session.
+    - Remote systems - remote_system.
+    - Various networks - network.
+    - Roles - role.
+    - Local users - user.
+    - Appliances - appliance.
+    - Security configurations - security_config.
+    - Certificates - certificate.
+    - Active directories - ad.
+    - LDAPs - ldap.
+    - DNS servers - dns.
+    - NTP servers - ntp.
+    - Email notification destinations - email_notification.
+    - SMTP configurations - smtp_config.
+    - Remote Support - remote_support.
+    - Remote support contacts - remote_support_contact.
     required: True
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
               file_system, replication_rule, replication_session,
               remote_system, network, role, user, appliance, ad, ldap,
-              security_config, certificate]
+              security_config, certificate, dns, ntp, smtp_config,
+              email_notification, remote_support, remote_support_contact]
     type: list
   filters:
     description:
@@ -101,6 +109,7 @@ options:
 notes:
 - Pagination is not supported for role, local user and security configs. If
   all_pages is passed, it will be ignored.
+- Check mode is not currently supported for info Ansible module.
 '''
 
 EXAMPLES = r'''
@@ -117,6 +126,7 @@ EXAMPLES = r'''
       - host
       - hg
       - node
+
 - name: Get list of replication related entities
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
@@ -251,6 +261,33 @@ EXAMPLES = r'''
       - filter_key: "name"
         filter_operator: "like"
         filter_value: "*Management*"
+
+- name: Get list of dns, email notification, ntp, remote support, remote support contact and smtp config
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - dns
+      - email_notification
+      - ntp
+      - remote_support
+      - remote_support_contact
+      - smtp_config
+
+- name: Get list of emails which receives minor notifications
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+    - email_notification
+    filters:
+        - filter_key: 'notify_minor'
+          filter_operator: 'equal'
+          filter_value: 'False'
 '''
 
 RETURN = r'''
@@ -258,271 +295,528 @@ changed:
     description: Shows whether or not the resource has changed.
     returned: always
     type: bool
-subset_result:
-    description: Provides details of all given subsets.
+    sample: 'false'
+
+Array_Software_Version:
+    description: API version of PowerStore array.
     returned: always
-    type: complex
+    type: str
+    sample: "2.1.0.0"
+ActiveDirectory:
+    description: Provides details of all active directories.
+    type: list
+    returned: When ad is in a given gather_subset
     contains:
-      ActiveDirectory:
-        description: Provides details of all active directories.
-        type: list
-        contains:
-          id:
+        id:
             description: ID of the active directory.
             type: str
-      Appliance:
-        description: Provides details of all appliances.
-        type: list
-        contains:
-          id:
+    sample: [
+          {
+            "id": "60866158-5d00-3d7a-971b-5adabf42d82c"
+          }
+    ]
+Appliance:
+    description: Provides details of all appliances.
+    type: list
+    returned: When appliance is in a given gather_subset
+    contains:
+        id:
             description: ID of the appliance.
             type: str
-          name:
+        name:
             description: Name of the appliance.
             type: str
-          model:
+        model:
             description: Model type of the PowerStore.
             type: str
-      Certificate:
-        description: Provides details of all certificates.
-        type: list
-        returned: When certificates is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "A1",
+            "model": "PowerStore 1000T",
+            "name": "Appliance-WND8977"
+          }
+    ]
+Certificate:
+    description: Provides details of all certificates.
+    type: list
+    returned: When certificates is in a given gather_subset
+    contains:
+        id:
             description: ID of the certificate.
             type: str
-      Cluster:
-        description: Provides details of all clusters.
-        type: list
-        returned: always
-        contains:
-          id:
+    sample: [
+          {
+            "id": "e940144f-393f-4e9c-8f54-9a4d57b38c48"
+          }
+    ]
+Cluster:
+    description: Provides details of all clusters.
+    type: list
+    returned: always
+    contains:
+        id:
             description: ID of the cluster.
             type: str
             returned: always
-          name:
+        name:
             description: Name of the cluster.
             type: str
             returned: always
-      FileSystems:
-        description: Provides details of all filesystems.
-        type: list
-        returned: When file_system is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+              "id": "0",
+              "name": "RT-D1006"
+          }
+    ]
+DNS:
+    description: Provides details of all DNS servers.
+    type: list
+    returned: When dns is in a given gather_subset
+    contains:
+        id:
+            description: ID of the DNS server.
+            type: str
+            returned: always
+    sample: [
+          {
+            "id": "DNS1"
+          }
+    ]
+EmailNotification:
+    description: Provides details of all emails to which notifications will be sent.
+    type: list
+    returned: When email_notification is in a given gather_subset
+    contains:
+        id:
+            description: ID of the email.
+            type: str
+            returned: always
+        email_address:
+            description: Email address.
+            type: str
+            returned: always
+    sample: [
+          {
+            "email_address": "abc",
+            "id": "9c3e5cba-17d5-4d64-b97c-350f91e2b714"
+          }
+    ]
+FileSystems:
+    description: Provides details of all filesystems.
+    type: list
+    returned: When file_system is in a given gather_subset
+    contains:
+        id:
             description: ID of the filesystem.
             type: str
-          name:
+        name:
             description: Name of the filesystem.
             type: str
-      HostGroups:
-        description: Provides details of all host groups.
-        type: list
-        returned: When hg is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "61ef399b-f4c4-ccb6-1761-16c6ac7490fc",
+            "name": "test_fs"
+          }
+    ]
+HostGroups:
+    description: Provides details of all host groups.
+    type: list
+    returned: When hg is in a given gather_subset
+    contains:
+        id:
             description: ID of the host group.
             type: str
-          name:
+        name:
             description: Name of the host group.
             type: str
-      Hosts:
-        description: Provides details of all hosts.
-        type: list
-        returned: When host is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "f62b97b4-f262-417c-8dc9-39bec9024665",
+            "name": "test_hg"
+          }
+    ]
+Hosts:
+    description: Provides details of all hosts.
+    type: list
+    returned: When host is in a given gather_subset
+    contains:
+        id:
             description: ID of the host.
             type: str
-          name:
+        name:
             description: Name of the host.
             type: str
-      LDAP:
-        description: Provides details of all LDAPs.
-        type: list
-        returned: When ldap is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "42a0d739-20e6-49ec-afa6-65d2b3c006c8",
+            "name": "test_host"
+          }
+    ]
+LDAP:
+    description: Provides details of all LDAPs.
+    type: list
+    returned: When ldap is in a given gather_subset
+    contains:
+        id:
             description: ID of the LDAP.
             type: str
-      LocalUsers:
-        description: Provides details of all local users.
-        type: list
-        returned: When user is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "60ba0edd-551a-64f1-ce49-8a83a5bce479"
+          }
+    ]
+LocalUsers:
+    description: Provides details of all local users.
+    type: list
+    returned: When user is in a given gather_subset
+    contains:
+        id:
             description: ID of the user.
             type: str
-          name:
+        name:
             description: Name of the user.
             type: str
-      NASServers:
-        description: Provides details of all nas servers.
-        type: list
-        returned: When nas_server is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "1",
+            "name": "admin"
+          }
+    ]
+NASServers:
+    description: Provides details of all nas servers.
+    type: list
+    returned: When nas_server is in a given gather_subset
+    contains:
+        id:
             description: ID of the nas server.
             type: str
-          name:
+        name:
             description: Name of the nas server.
             type: str
-      Networks:
-        description: Provides details of all networks.
-        type: list
-        returned: When network is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+              "id": "61e1c9bb-b791-550e-a785-16c6ac7490fc",
+              "name": "test_nas"
+          }
+    ]
+Networks:
+    description: Provides details of all networks.
+    type: list
+    returned: When network is in a given gather_subset
+    contains:
+        id:
             description: ID of the network.
             type: str
-          name:
+        name:
             description: Name of the network.
             type: str
-      NFSExports:
-        description: Provides details of all nfs exports.
-        type: list
-        returned: When nfs_export is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "NW1",
+            "name": "Default Management Network"
+          }
+    ]
+NFSExports:
+    description: Provides details of all nfs exports.
+    type: list
+    returned: When nfs_export is in a given gather_subset
+    contains:
+        id:
             description: ID of the nfs export.
             type: str
-          name:
+        name:
             description: Name of the nfs export.
             type: str
-      Nodes:
-        description: Provides details of all nodes.
-        type: list
-        returned: When a node is in a given gather_subset
-        contains:
-          id:
+    sample: [
+          {
+            "id": "61ef39a0-09b3-5339-c8bb-16c6ac7490fc",
+            "name": "test_nfs"
+          }
+    ]
+Nodes:
+    description: Provides details of all nodes.
+    type: list
+    returned: When a node is in a given gather_subset
+    contains:
+        id:
             description: ID of the node.
             type: str
-          name:
+        name:
             description: Name of the node.
             type: str
-      ProtectionPolicies:
-        description: Provides details of all protection policies.
-        type: list
-        returned: When protection_policy is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "N1",
+            "name": "Appliance-RT-D1006-node-A"
+          }
+    ]
+NTP:
+    description: Provides details of all NTP servers.
+    type: list
+    returned: When ntp is in a given gather_subset
+    contains:
+          id:
+            description: ID of the NTP server.
+            type: str
+            returned: always
+    sample: [
+          {
+            "id": "NTP1"
+          }
+    ]
+ProtectionPolicies:
+    description: Provides details of all protection policies.
+    type: list
+    returned: When protection_policy is in a given gather_subset
+    contains:
           id:
             description: ID of the protection policy.
             type: str
           name:
             description: Name of the protection policy.
             type: str
-      ReplicationRules:
-        description: Provides details of all replication rules.
-        type: list
-        returned: When replication_rule is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "4eff379c-090c-48e0-9949-b2cd0ce2cf88",
+            "name": "test_protection_policy"
+          }
+    ]
+RemoteSupport:
+    description: Provides details of all remote support config.
+    type: list
+    returned: When remote_support is in a given gather_subset
+    contains:
+          id:
+            description: ID of the remote support.
+            type: str
+    sample: [
+          {
+            "id": "0"
+          }
+    ]
+RemoteSupportContact:
+    description: Provides details of all remote support contacts.
+    type: list
+    returned: When remote_support_contact is in a given gather_subset
+    contains:
+          id:
+            description: ID of the remote support contact.
+            type: str
+    sample: [
+          {
+            "id": "0"
+          },
+          {
+            "id": "1"
+          }
+    ]
+ReplicationRules:
+    description: Provides details of all replication rules.
+    type: list
+    returned: When replication_rule is in a given gather_subset
+    contains:
           id:
             description: ID of the replication rule.
             type: str
           name:
             description: Name of the replication rule.
             type: str
-      ReplicationSession:
-        description: details of all replication sessions.
-        type: list
-        returned: when replication_session given in gather_subset
-        contains:
+    sample: [
+          {
+            "id": "55d14477-de22-4d39-b24d-07cf08ba329f",
+            "name": "ansible_rep_rule"
+          }
+    ]
+ReplicationSession:
+    description: Details of all replication sessions.
+    type: list
+    returned: when replication_session given in gather_subset
+    contains:
           id:
             description: ID of the replication session.
             type: str
-      RemoteSystems:
-        description: Provides details of all remote systems.
-        type: list
-        returned: When remote_system is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "0b0a7ae9-c0c4-4dce-8c49-570f4ea80bb0"
+          }
+    ]
+RemoteSystems:
+    description: Provides details of all remote systems.
+    type: list
+    returned: When remote_system is in a given gather_subset
+    contains:
           id:
             description: ID of the remote system.
             type: str
           name:
             description: Name of the remote system.
             type: str
-      Roles:
-        description: Provides details of all roles.
-        type: list
-        returned: When role is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "f07be373-dafd-4a46-8b21-f7cf790c287f",
+            "name": "WN-D8978"
+          }
+    ]
+Roles:
+    description: Provides details of all roles.
+    type: list
+    returned: When role is in a given gather_subset
+    contains:
           id:
             description: ID of the role.
             type: str
           name:
             description: Name of the role.
             type: str
-      SecurityConfig:
-        description: Provides details of all security configs.
-        type: list
-        returned: When security_config is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "1",
+            "name": "Administrator"
+          },
+          {
+            "id": "2",
+            "name": "Storage Administrator"
+          },
+          {
+            "id": "3",
+            "name": "Operator"
+          },
+          {
+            "id": "4",
+            "name": "VM Administrator"
+          },
+          {
+            "id": "5",
+            "name": "Security Administrator"
+          },
+          {
+            "id": "6",
+            "name": "Storage Operator"
+          }
+    ]
+SecurityConfig:
+    description: Provides details of all security configs.
+    type: list
+    returned: When security_config is in a given gather_subset
+    contains:
           id:
             description: ID of the security config.
             type: str
-      SMBShares:
-        description: Provides details of all smb shares.
-        type: list
-        returned: When smb_share is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "1"
+          }
+    ]
+SMBShares:
+    description: Provides details of all smb shares.
+    type: list
+    returned: When smb_share is in a given gather_subset
+    contains:
           id:
             description: ID of the smb share.
             type: str
           name:
             description: name of the smb share.
             type: str
-      SnapshotRules:
-        description: Provides details of all snapshot rules.
-        type: list
-        returned: When snapshot_rule is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "72ef39a0-09b3-5339-c8bb-16c6ac7490fc",
+            "name": "test_smb"
+          }
+    ]
+SMTPConfig:
+    description: Provides details of all smtp config.
+    type: list
+    returned: When smtp_config is in a given gather_subset
+    contains:
+          id:
+            description: ID of the smtp config.
+            type: str
+    sample: [
+          {
+            "id": "0"
+          }
+    ]
+SnapshotRules:
+    description: Provides details of all snapshot rules.
+    type: list
+    returned: When snapshot_rule is in a given gather_subset
+    contains:
           id:
             description: ID of the snapshot rule.
             type: str
           name:
             description: Name of the snapshot rule.
             type: str
-      VolumeGroups:
-        description: Provides details of all volume groups.
-        type: list
-        returned: When vg is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "e1b1bc3e-f8a1-4c81-a143-9ffd6af55837",
+            "name": "Snapshot Rule Test"
+          }
+    ]
+VolumeGroups:
+    description: Provides details of all volume groups.
+    type: list
+    returned: When vg is in a given gather_subset
+    contains:
           id:
             description: ID of the volume group.
             type: str
           name:
             description: Name of the volume group.
             type: str
-      Volumes:
-        description: Provides details of all volumes.
-        type: list
-        returned: When vol is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "faaa8370-c62e-4fa2-b8ca-7f54419a5b40",
+            "name": "Volume Group Test"
+          }
+    ]
+Volumes:
+    description: Provides details of all volumes.
+    type: list
+    returned: When vol is in a given gather_subset
+    contains:
           id:
             description: ID of the volume.
             type: str
           name:
             description: Name of the volume.
             type: str
-      TreeQuotas:
-        description: Provides details of all tree quotas.
-        type: list
-        returned: When tree_quota is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "01854336-94ef-4df9-b1e7-0a729ca7c944",
+            "name": "test_vol"
+          }
+        ]
+TreeQuotas:
+    description: Provides details of all tree quotas.
+    type: list
+    returned: When tree_quota is in a given gather_subset
+    contains:
           id:
             description: ID of the tree quota.
             type: str
           path:
             description: Path of the tree quota.
             type: str
-      UserQuotas:
-        description: Provides details of all user quotas.
-        type: list
-        returned: When user_quota is in a given gather_subset
-        contains:
+    sample: [
+          {
+            "id": "00000003-0fe0-0001-0000-0000e8030000"
+          }
+    ]
+UserQuotas:
+    description: Provides details of all user quotas.
+    type: list
+    returned: When user_quota is in a given gather_subset
+    contains:
           id:
             description: ID of the user quota.
             type: str
+    sample: [
+          {
+            "id": "00000003-0708-0000-0000-000004000080"
+          }
+    ]
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -541,7 +835,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerstoreInfo(object):
@@ -560,7 +854,7 @@ class PowerstoreInfo(object):
         self.filter_keys = sorted(
             [k for k in self.module_params['filters']['options'].keys()
              if 'filter' in k])
-
+        LOG.info("Self.filter_keys: %s", self.filter_keys)
         # initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
@@ -679,10 +973,33 @@ class PowerstoreInfo(object):
             'security_config': {
                 'func': self.configuration.get_security_configs,
                 'display_as': 'SecurityConfig'
+            },
+            'dns': {
+                'func': self.configuration.get_dns_list,
+                'display_as': 'DNS'
+            },
+            'ntp': {
+                'func': self.configuration.get_ntp_list,
+                'display_as': 'NTP'
+            },
+            'smtp_config': {
+                'func': self.configuration.get_smtp_configs,
+                'display_as': 'SMTPConfig'
+            },
+            'email_notification': {
+                'func': self.configuration.get_destination_emails,
+                'display_as': 'EmailNotification'
+            },
+            'remote_support': {
+                'func': self.configuration.get_remote_support_list,
+                'display_as': 'RemoteSupport'
+            },
+            'remote_support_contact': {
+                'func': self.configuration.get_remote_support_contact_list,
+                'display_as': 'RemoteSupportContact'
             }
         }
-        LOG.info('Got Py4ps connection object %s',
-                 self.conn)
+        LOG.info('Got Py4ps connection object %s', self.conn)
 
     def update_result_with_item_list(self, item, filter_dict=None,
                                      all_pages=False):
@@ -834,8 +1151,9 @@ def get_powerstore_info_parameters():
                                     'replication_rule', 'replication_session',
                                     'remote_system', 'network', 'role',
                                     'user', 'appliance', 'ad', 'ldap',
-                                    'security_config', 'certificate'
-                                    ]),
+                                    'security_config', 'certificate', 'dns', 'ntp',
+                                    'smtp_config', 'email_notification',
+                                    'remote_support', 'remote_support_contact']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

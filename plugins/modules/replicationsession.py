@@ -11,11 +11,12 @@ DOCUMENTATION = r'''
 module: replicationsession
 version_added: '1.2.0'
 short_description: Replication session operations on a PowerStore storage
-                   system.
+                   system
 description:
 - Performs all replication session state change operations on a PowerStore
-  Storage System. This module supports get details of an existing replication
-  session. Updating the state of the replication session.
+  Storage System.
+- This module supports get details of an existing replication session.
+  Updating the state of the replication session.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -24,19 +25,19 @@ options:
   volume_group:
     description:
     - Name/ID of the volume group for which a replication session exists.
-    - volume_group, volume, and session_id are mutually exclusive.
+    - Parameter volume_group, volume, and session_id are mutually exclusive.
     required: False
     type: str
   volume:
     description:
     - Name/ID of the volume for which replication session exists.
-    - volume_group, volume, and session_id are mutually exclusive.
+    - Parameter volume_group, volume, and session_id are mutually exclusive.
     required: False
     type: str
   session_id:
     description:
     - ID of the replication session.
-    - volume_group, volume, and session_id are mutually exclusive.
+    - Parameter volume_group, volume, and session_id are mutually exclusive.
     required: False
     type: str
   session_state:
@@ -50,15 +51,17 @@ notes:
 - Manual synchronization for a replication session is not supported through
   the Ansible module.
 - When the current state of the replication session is 'OK' and in the
-  playbook task 'synchronizing', then it will return "changed" as False. This
-  is because there is a scheduled synchronization in place with the associated
-  replication rule's RPO in the protection policy.
+  playbook task 'synchronizing', then it will return "changed" as False.
+- The changed as False in above scenario is because of there is a scheduled
+  synchronization in place with the associated replication rule's RPO in the
+  protection policy.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 
 - name: Pause a replication session
-  replicationsession:
+  dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -67,7 +70,7 @@ EXAMPLES = r'''
     session_state: "paused"
 
 - name: Synchronize a replication session
-  replicationsession:
+  dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -76,7 +79,7 @@ EXAMPLES = r'''
     session_state: "synchronizing"
 
 - name: Get details of a replication session
-  replicationsession:
+  dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -84,25 +87,25 @@ EXAMPLES = r'''
     volume: "sample_volume_1"
 
 - name: Fail over a replication session
-  replicationsession:
+  dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     volume: "sample_volume_1"
     session_state: "failed_over"
-
 '''
 
 RETURN = r'''
 
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 replication_session_details:
-    description: Details of the replication session
+    description: Details of the replication session.
     returned: When replication session exists
     type: complex
     contains:
@@ -153,7 +156,41 @@ replication_session_details:
             description: Estimated completion time of the current replication
                          operation.
             type: str
- '''
+    sample: {
+        "estimated_completion_timestamp": null,
+        "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+        "last_sync_timestamp": "2022-01-06T06:55:01.870946+00:00",
+        "local_resource_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
+        "local_resource_name": "sample_volume",
+        "migration_session": null,
+        "progress_percentage": null,
+        "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+        "remote_system": {
+            "id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+            "name": "WN-D8989"
+        },
+        "remote_system_id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+        "replication_rule": {
+            "id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+            "name": "sample_replication_rule"
+        },
+        "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+        "resource_type": "Volume",
+        "resource_type_l10n": "Volume",
+        "role": "Destination",
+        "role_l10n": "Destination",
+        "state": "Paused",
+        "state_l10n": "Paused",
+        "storage_element_pairs": [
+            {
+                "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
+                "remote_storage_element_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+                "replication_shadow_id": null,
+                "storage_element_type": "volume"
+            }
+        ]
+    }
+'''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
@@ -170,7 +207,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of
@@ -313,7 +350,7 @@ class PowerstoreReplicationSession(object):
         try:
             if vol:
                 # when name of the volume is entered in vol parameter, then,
-                # fetching the id of the volume via name.
+                # fetching the id of the volume by name.
                 if utils.name_or_id(vol) == "NAME":
                     vol_details = self.provisioning.get_volume_by_name(vol)
                     msg = "Volume details {0} fetched by volume name" \
@@ -332,7 +369,7 @@ class PowerstoreReplicationSession(object):
 
             else:
                 # when name of the volume group is entered in vol_grp parameter
-                # ,then fetching the id of the volume group via name.
+                # ,then fetching the id of the volume group by name.
                 if utils.name_or_id(vol_grp) == "NAME":
                     vol_grp_details = \
                         self.provisioning.get_volume_group_by_name(vol_grp)
@@ -568,9 +605,10 @@ class PowerstoreReplicationSession(object):
                     self.protection.sync_replication_session(session_id)
                     return True
                 if role == "destination":
-                    self.module.fail_json(msg="Sync call can't be made at the "
-                                              "destination when the session is"
-                                              " in failed_over state")
+                    self.module.fail_json(msg="Sync call can not be made at "
+                                              "the destination when the "
+                                              "session is in failed_over "
+                                              "state")
 
             # Current state is failed_over and entered session state is paused.
             # This is an invalid transition

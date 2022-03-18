@@ -81,11 +81,12 @@ notes:
 - Only is_current parameter is supported for modification of certificate.
 - Reset operation can reset more than one certificate at a time.
 - Add/import, modify and reset are supported for PowerStore versions 2.0 and above only.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get details of certificate with certificate_id
-  certificate:
+  dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
@@ -94,7 +95,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Reset certificates
-  certificate:
+  dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
@@ -103,7 +104,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Exchange certificates
-  certificate:
+  dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
@@ -116,7 +117,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Add/import a certificate
-  certificate:
+  dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
@@ -128,7 +129,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify certificate
-  certificate:
+  dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
@@ -140,11 +141,12 @@ EXAMPLES = r'''
 
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 certificate_details:
-    description: Details of the certificate
+    description: Details of the certificate.
     returned: When certificate exists
     type: complex
     contains:
@@ -216,6 +218,33 @@ certificate_details:
                 thumbprint_algorithm_l10n:
                     description: Localized message string corresponding to thumbprint_algorithm.
                     type: str
+    sample: {
+        "id": "1f0fd938-f122-482a-97b3-72ab1500d007",
+        "is_current": true,
+        "is_valid": true,
+        "members": [
+            {
+                "certificate": "MIIFejCCA2KgAwIBAgIJAPru9o7dBIwFMA0GCSqGSIb3D
+                                QEBCwUAMFcxCzAJBgNVBAYTAlVTMQswCQ",
+                "depth": 1,
+                "issuer": "CN=Dell EMC PowerStore CA LBSD548W,O=Dell EMC,ST=MA,C=US",
+                "key_length": 4096,
+                "public_key_algorithm": "SHA256withRSA",
+                "subject": "CN=Dell EMC PowerStore CA LBSD548W,O=Dell EMC,ST=MA,C=US",
+                "subject_alternative_names": [],
+                "thumbprint": "5ff9bc0108dffb0374189d08bc11a6a97eaedac5add511e8a30e7ce283a0ced6",
+                "thumbprint_algorithm": "SHA-256",
+                "thumbprint_algorithm_l10n": "SHA-256",
+                "valid_from": "2021-02-02T17:35:29.0Z",
+                "valid_to": "2026-01-16T17:35:29.0Z"
+            }
+        ],
+        "scope": "1.2.3.4",
+        "service": "Management_HTTP",
+        "service_l10n": "Management_HTTP",
+        "type": "Server",
+        "type_l10n": "Server"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -233,7 +262,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreCertificate(object):

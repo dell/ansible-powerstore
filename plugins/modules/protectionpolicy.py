@@ -12,14 +12,10 @@ DOCUMENTATION = r'''
 module: protectionpolicy
 version_added: '1.0.0'
 short_description: Perform Protection policy operations on PowerStore storage
-                   system.
+                   system
 description:
 - Performs all protection policy operations on PowerStore Storage System. This
-  modules supports get details of an existing protection policy. Create new
-  protection policy with existing Snapshot Rule or replication rule. Modify
-  protection policy to change the name and description, and add or remove
-  existing snapshot rules/ replication rule. Delete an existing protection
-  policy.
+  module supports create, modify, get and delete a protection policy.
 extends_documentation_fragment:
   - dellemc.powerstore.dellemc_powerstore.powerstore
 author:
@@ -39,7 +35,7 @@ options:
   new_name:
     description:
     - String variable. Indicates the new name of the protection policy.
-    - Used for renaming operation
+    - Used for renaming operation.
     type: str
   snapshotrules:
     description:
@@ -63,9 +59,9 @@ options:
   state:
     description:
     - String variable. Indicates the state of protection policy.
-    - For Delete operation only, it should be set to "absent"
+    - For Delete operation only, it should be set to "absent".
     - For all other operations like Create, Modify or Get details,
-      it should be set to "present"
+      it should be set to "present".
     required : True
     choices: [ present, absent]
     type: str
@@ -74,20 +70,21 @@ options:
     - String variable. Indicates the state of a snapshotrule in a
       protection policy.
     - When snapshot rules are specified, this variable is required.
-    - present-in-policy indicates to add to protection policy.
-    - absent-in-policy indicates to remove from protection policy.
+    - Value present-in-policy indicates to add to protection policy.
+    - Value absent-in-policy indicates to remove from protection policy.
     required : False
     choices: [ present-in-policy, absent-in-policy]
     type: str
 notes:
 - Before deleting a protection policy, the replication rule has to be removed
   from the protection policy.
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 
 - name: Create a protection policy with snapshot rule and replication rule
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -102,7 +99,7 @@ EXAMPLES = r'''
 
 
 - name : Modify protection policy, change name
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -113,7 +110,7 @@ EXAMPLES = r'''
 
 
 - name : Modify protection policy, add snapshot rule
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -125,7 +122,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Modify protection policy, remove snapshot rule, replication rule
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -138,7 +135,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Get details of protection policy by name
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -147,7 +144,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Get details of protection policy by ID
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -156,14 +153,13 @@ EXAMPLES = r'''
     state: "present"
 
 - name : Delete protection policy
-  protectionpolicy:
+  dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
     state: "absent"
-
 '''
 
 RETURN = r'''
@@ -172,9 +168,10 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 protectionpolicy_details:
-    description: Details of the protection policy
+    description: Details of the protection policy.
     returned: When protection policy exists
     type: complex
     contains:
@@ -189,7 +186,7 @@ protectionpolicy_details:
             description: description about the protection policy.
             type: str
         type:
-            description: The type for the protection policy
+            description: The type for the protection policy.
             type: str
         replication_rules:
             description: The replication rule details of the protection
@@ -216,6 +213,17 @@ protectionpolicy_details:
                     description: The snapshot rule name of the protection
                                  policy.
                     type: str
+    sample: {
+        "description": null,
+        "id": "bce845ea-78ba-4414-ada1-8130f3a49e74",
+        "name": "sample_protection_policy",
+        "replication_rules": [
+            "id": "7ec83605-bed4-4e2b-8405-504a614db318",
+            "name": "sample_replication_rule"
+        ],
+        "snapshot_rules": [],
+        "type": "Protection"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -236,7 +244,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerstoreProtectionpolicy(object):

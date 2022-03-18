@@ -12,7 +12,7 @@ module: cluster
 
 version_added: '1.3.0'
 
-short_description: Manage cluster related opeartions on PowerStore.
+short_description: Manage cluster related opeartions on PowerStore
 
 description:
 - Managing cluster on PowerStore storage system includes getting details and
@@ -49,14 +49,14 @@ options:
   appliance_id:
     description:
     - ID of the appliance.
-    - appliance_id and appliance_name are mutually exclusive.
-    - is_ssh_enabled has to be passed along with appliance_id.
+    - Parameters appliance_id and appliance_name are mutually exclusive.
+    - Parameter is_ssh_enabled has to be passed along with appliance_id.
     type: str
   appliance_name:
     description:
     - Name of the appliance.
-    - appliance_id and appliance_name are mutually exclusive.
-    - is_ssh_enabled has to be passed along with appliance_name.
+    - Parameters appliance_id and appliance_name are mutually exclusive.
+    - Parameter is_ssh_enabled has to be passed along with appliance_name.
     type: str
   is_ssh_enabled:
     description:
@@ -72,19 +72,20 @@ options:
   state:
     description:
     - Define whether the cluster should exist or not.
-    - present  indicates that the cluster should exist on the system.
-    - absent  indicates that the cluster should not exist on the system.
+    - Value present indicates that the cluster should exist on the system.
+    - Value absent indicates that the cluster should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
 
 notes:
 - Creation and deletion of cluster is not supported by ansible modules.
-
+- The check_mode is not supported.
 '''
+
 EXAMPLES = r'''
-- name: get the details of cluster using id
-  cluster:
+- name: Get the details of cluster using id
+  dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -93,7 +94,7 @@ EXAMPLES = r'''
     state: "present"
 
 - name: Modify details of cluster using the name
-  cluster:
+  dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -105,14 +106,14 @@ EXAMPLES = r'''
     chap_mode: "Disabled"
     new_name: "new_RT-D1320"
     state: "present"
-
 '''
+
 RETURN = r'''
 changed:
-    description: Whether or not the resource has changed
+    description: Whether or not the resource has changed.
     returned: always
     type: bool
-    sample: True
+    sample: "true"
 cluster_details:
     description: The cluster details.
     type: complex
@@ -219,7 +220,23 @@ cluster_details:
                 name:
                     description: Name of the appliance.
                     type: str
-
+    sample: {
+        "appliance_count": 1,
+        "chap_mode": "Disabled",
+        "compatibility_level": 10,
+        "global_id": "PS00d01e1bb312",
+        "id": 0,
+        "is_encryption_enabled": true,
+        "management_address": "1.2.3.4",
+        "master_appliance_id": "A1",
+        "name": "WN-D8977",
+        "physical_mtu": 1500,
+        "service_config_details": null,
+        "state": "Configured",
+        "state_l10n": "Configured",
+        "storage_discovery_address": "10.230.42.228",
+        "system_time": "2022-02-04T11:18:37.441Z"
+    }
 '''
 
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
@@ -237,7 +254,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreCluster(object):
@@ -389,7 +406,7 @@ class PowerStoreCluster(object):
         """
         try:
             # There can be only one service user with name as
-            # 'service' and id as '1'. This can't be changed or updated.
+            # 'service' and id as '1'. This can not be changed or updated.
             return self.configuration.get_service_user_details(
                 service_user_id='1')
         except Exception as e:

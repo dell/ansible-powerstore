@@ -9,7 +9,7 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 module: job
 version_added: '1.3.0'
-short_description: Manage jobs on Dell EMC PowerStore.
+short_description: Manage jobs on Dell EMC PowerStore
 description:
 - Managing jobs on PowerStore Storage System includes getting details of job.
 
@@ -25,11 +25,14 @@ options:
     - The ID of the job.
     type: str
     required: true
+
+notes:
+- The check_mode is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get Job Details
-  job:
+  dellemc.powerstore.job:
     array_ip: "{{mgmt_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
@@ -42,6 +45,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
+    sample: "false"
 
 job_details:
     description: The job details.
@@ -128,6 +132,31 @@ job_details:
             description: Order of a given job step with respect to its
                          siblings within the job hierarchy.
             type: int
+    sample: {
+        "description_l10n": "Modify network parameters.",
+        "end_time": "2022-01-06T07:39:05.846+00:00",
+        "estimated_completion_time": null,
+        "id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "parent_id": null,
+        "phase": "Completed",
+        "phase_l10n": "Completed",
+        "progress_percentage": 100,
+        "resource_action": "modify",
+        "resource_action_l10n": "modify",
+        "resource_id": "nw6",
+        "resource_name": null,
+        "resource_type": "network",
+        "resource_type_l10n": "network",
+        "response_body": null,
+        "response_status": null,
+        "response_status_l10n": null,
+        "root_id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "start_time": "2022-01-06T07:39:05.47+00:00",
+        "state": "COMPLETED",
+        "state_l10n": "Completed",
+        "step_order": 23792565,
+        "user": "admin"
+    }
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -145,7 +174,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.4.0'
+APPLICATION_TYPE = 'Ansible/1.5.0'
 
 
 class PowerStoreJob(object):

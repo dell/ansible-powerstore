@@ -1,10 +1,20 @@
 # ansible-powerstore Change Log
+## Version 1.5.0 - released on 25/03/2022
+- Added CRUD operations and sending test email for email module.
+- DNS module is added to get the details and add/remove addresses.
+- NTP module is added to get the details and add/remove addresses.
+- Remote support module is added to get the details, modify the attributes, verify the connection and send a test alert.
+- Remote support contact module is added to get the details and modify the attributes.
+- SMTP config module is added to get the details, modify the attributes and send a test email.
+- Info module is enhanced to list dns servers, email notification destinations, NTP servers, remote support configuration, remote support contacts and SMTP configuration.
+
 ## Version 1.4.0 - released on 16/12/2021
 - Added CRUD operations for remote system.
 - Certificate module is added to get the details, add/import a certificate, exchange certificate, reset certificates and modify attributes of network.
 - Security config module is added to get the details and modify attributes of a security configuration.
 - Host module is enhanced to provide support for NVMe initiators.
 - Info module is enhanced to list certificates, AD/LDAP providers and security configuration.
+- Names of previously released modules have been changed from dellemc_powerstore_\<module name> to \<module name>.
 
 ## Version 1.3.0 - released on 28/09/2021
 - Added dual licensing.
