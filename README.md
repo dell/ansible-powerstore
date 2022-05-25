@@ -17,7 +17,7 @@ For any Ansible modules issues, questions or feedback, join the [Dell Automation
   * Please follow PyPowerStore installation instructions on [PyPowerStore Documentation](https://github.com/dell/python-powerstore)
 
 ## Idempotency
-The modules are written in such a way that all requests are idempotent and hence fault-tolerant. It essentially means that the result of a successfully performed request is independent of the number of times it is executed.
+The modules are written in such a way that all requests are idempotent and hence fault-tolerant. It essentially means that the result of a successfully performed request is independent of the number of times it is executed..
 
 ## List of Ansible Modules for Dell PowerStore
 * [Volume module](https://github.com/dell/ansible-powerstore/blob/1.5.0/docs/Product%20Guide.md#volume-module)
