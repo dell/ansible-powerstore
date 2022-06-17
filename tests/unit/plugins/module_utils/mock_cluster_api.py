@@ -1,21 +1,17 @@
-# Copyright: (c) 2022, DellEMC
+# Copyright: (c) 2022, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Mock Api response for Unit tests of Cluster module on PowerStore"""
+"""Mock Api response for Unit tests of Cluster module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 
 class MockClusterApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.cluster.PowerStoreCluster'
-    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_ansible_powerstore_utils'
+    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     CLUSTER_COMMON_ARGS = {
         'array_ip': '**.***.**.***',

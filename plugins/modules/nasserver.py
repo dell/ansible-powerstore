@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2020-2021, DellEMC
+# Copyright: (c) 2020-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """ Ansible module for managing NAS server on PowerStore"""
@@ -11,11 +11,11 @@ DOCUMENTATION = r'''
 ---
 module: nasserver
 version_added: '1.1.0'
-short_description: NAS Server operations on PowerStore Storage system
+short_description: NAS Server operations for PowerStore Storage system
 description:
 - Supports getting the details and modifying the attributes of a NAS server.
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 options:
@@ -261,7 +261,7 @@ nasserver_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('nasserver',
@@ -276,7 +276,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreNasServer(object):

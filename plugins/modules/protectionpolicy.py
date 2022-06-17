@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -11,13 +11,13 @@ DOCUMENTATION = r'''
 
 module: protectionpolicy
 version_added: '1.0.0'
-short_description: Perform Protection policy operations on PowerStore storage
+short_description: Perform Protection policy operations for PowerStore storage
                    system
 description:
 - Performs all protection policy operations on PowerStore Storage System. This
   module supports create, modify, get and delete a protection policy.
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
@@ -78,6 +78,8 @@ options:
 notes:
 - Before deleting a protection policy, the replication rule has to be removed
   from the protection policy.
+- In PowerStore version 3.0.0.0, protection policy without snapshot rule/replication rule
+  is not allowed.
 - The check_mode is not supported.
 '''
 
@@ -228,7 +230,7 @@ protectionpolicy_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger(
@@ -244,7 +246,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerstoreProtectionpolicy(object):
@@ -561,27 +563,29 @@ class PowerstoreProtectionpolicy(object):
                     if is_present:
                         snapshotrule_ids.append(sn)
                     else:
-                        msg = "snapshot rule name: {0} is not found on" \
-                              " the array".format(each_snap)
-                        LOG.error(msg)
-                        self.module.fail_json(msg=msg)
+                        if snapshotrule_state == "present-in-policy":
+                            msg = "snapshot rule name: {0} is not found on the " \
+                                  "array".format(each_snap)
+                            LOG.error(msg)
+                            self.module.fail_json(msg=msg)
+
                 if entity_type == 'ID':
                     '''if a valid id'''
-                    is_present, sn = self.get_snapshot_rule_details(
-                        rule_id=each_snap)
-                    if is_present:
-                        snapshotrule_ids.append(sn)
+                    if snapshotrule_state == "present-in-policy":
+                        is_present, sn = self.get_snapshot_rule_details(
+                            rule_id=each_snap)
+                        if is_present:
+                            snapshotrule_ids.append(sn)
                     else:
-                        msg = "snapshot rule id: {0} is not found on the " \
-                              "array".format(each_snap)
-                        LOG.error(msg)
-                        self.module.fail_json(msg=msg)
+                        snapshotrule_ids.append(sn)
 
         """Get replication rule id"""
         rep_rule_id = None
         if rep_rule:
             if utils.name_or_id(rep_rule) == "ID":
-                rep_rule_id = rep_rule
+                rep_rule_details = self.get_replication_rule_details(
+                    rep_rule_id=rep_rule)
+                rep_rule_id = rep_rule_details['id']
             else:
                 rep_rule_details = self.get_replication_rule_details(
                     rep_rule_name=rep_rule)
@@ -719,13 +723,11 @@ class PowerstoreProtectionpolicy(object):
             # is to be replaced by new replication rule
             if present_rep_rule and rep_rule_id and\
                     rep_rule_id != present_rep_rule[0]['id']:
-                # remove the old replication rule
+                # remove the old replication rule and add the new replication rule
                 self.modify_protection_policy(
                     policy_id=prot_pol_id,
-                    remove_rep_rule_id=[present_rep_rule[0]['id']])
-                # add the new replication rule
-                self.modify_protection_policy(
-                    policy_id=prot_pol_id, add_rep_rule_id=[rep_rule_id])
+                    remove_rep_rule_id=[present_rep_rule[0]['id']],
+                    add_rep_rule_id=[rep_rule_id])
                 changed = True
         result['changed'] = changed
         result['protectionpolicy_details'] = \

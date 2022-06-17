@@ -1,4 +1,10 @@
 # ansible-powerstore Change Log
+## Version 1.6.0 - released on 28/06/2022
+- Added CRUD operations for LDAP domain and LDAP account.
+- Added execution environment manifest file to support building an execution environment with ansible-builder.
+- Info module is enhanced to list ldap domain, ldap accounts.
+- Enabled the check_mode support for info module.
+
 ## Version 1.5.0 - released on 25/03/2022
 - Added CRUD operations and sending test email for email module.
 - DNS module is added to get the details and add/remove addresses.

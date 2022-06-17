@@ -1,16 +1,13 @@
-# Copyright: (c) 2022, DellEMC
+# Copyright: (c) 2022, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Unit Tests for Certificate module on PowerStore"""
+"""Unit Tests for Certificate module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
+
 
 import pytest
 from mock.mock import MagicMock
@@ -20,7 +17,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 utils.get_logger = MagicMock()
 utils.get_powerstore_connection = MagicMock()
@@ -88,6 +85,19 @@ class TestPowerstoreCertificate():
             return_value=MockSDKResponse(MockCertificateApi.CERTIFICATE_DETAILS))
         certificate_module_mock.perform_module_operation()
         assert certificate_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_create_certificate_certificate_id(self, certificate_module_mock):
+        self.get_module_args.update({'certificate_type': "CA_Server_Validation",
+                                     'service': "Syslog_HTTP",
+                                     'certificate_id': "f19b38ac-4b8b-45b1-96eb-abe4faae51ca",
+                                     'certificate': "certificate_string",
+                                     'is_current': True,
+                                     'state': "present"})
+        certificate_module_mock.module.params = self.get_module_args
+        certificate_module_mock.get_certificate_details = MagicMock(return_value=None)
+        certificate_module_mock.perform_module_operation()
+        assert MockCertificateApi.create_certificate_certificate_id_failed_msg() in \
+            certificate_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_modify_certificate(self, certificate_module_mock):
         self.get_module_args.update({'certificate_id': "f19b38ac-4b8b-45b1-96eb-abe4faae51ca",

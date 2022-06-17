@@ -1,21 +1,17 @@
-# Copyright: (c) 2022, DellEMC
+# Copyright: (c) 2022, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Mock Api response for Unit tests of Certificate module on PowerStore"""
+"""Mock Api response for Unit tests of Certificate module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 
 class MockCertificateApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.certificate.PowerStoreCertificate.'
-    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_ansible_powerstore_utils'
+    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     CERTIFICATE_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
@@ -82,5 +78,5 @@ class MockCertificateApi:
         return "Create certificate on PowerStore array name"
 
     @staticmethod
-    def reset_certificate_failed_msg():
-        return "Resetting certificates with service Syslog_HTTP"
+    def create_certificate_certificate_id_failed_msg():
+        return "certificate_id is not accepted while adding a certificate"

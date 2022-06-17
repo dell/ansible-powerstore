@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
@@ -10,7 +10,7 @@ DOCUMENTATION = r'''
 ---
 module: snapshot
 version_added: '1.0.0'
-short_description: Manage Snapshots on Dell EMC PowerStore
+short_description: Manage Snapshots for PowerStore
 description:
 - Managing Snapshots on PowerStore storage system, Create a new Volume Group
   Snapshot, Get details of Volume Group Snapshot, Modify Volume Group
@@ -21,7 +21,7 @@ author:
 - Rajshree Khare (@khareRajshree) <ansible.team@dell.com>
 - Prashant Rakheja (@prashant-dell) <ansible.team@dell.com>
 extends_documentation_fragment:
-- dellemc.powerstore.dellemc_powerstore.powerstore
+- dellemc.powerstore.powerstore
 options:
   snapshot_name:
     description:
@@ -329,7 +329,7 @@ snap_details:
 import logging
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 from datetime import datetime, timedelta
 
 LOG = utils.get_logger('snapshot',
@@ -344,7 +344,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreSnapshot(object):
@@ -459,13 +459,15 @@ class PowerStoreSnapshot(object):
                     break
             return snapshot
         except Exception as e:
-            msg = ("Not able to get snapshot details for volume group: %s"
-                   " with error %s", vg_id, str(e))
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR \
                     and e.status_code == "404":
+                msg = ('No Volume Group Snapshot present with name %s, id %s'
+                       ' error: %s', snapshot_name, snapshot_id, str(e))
                 LOG.info(msg)
                 return None
+            msg = ("Not able to get snapshot details for volume group: %s"
+                   " with error %s", vg_id, str(e))
             LOG.info(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -542,11 +544,6 @@ class PowerStoreSnapshot(object):
             self.module.fail_json(msg="Invalid param: new_name while "
                                       "creating a new snapshot.")
 
-        snapshot = self.get_vol_snapshot(volume_id, snapshot_name, None)
-        if snapshot is not None:
-            LOG.error("Snapshot: %s already exists", snapshot_name)
-            return False
-
         try:
             resp = \
                 self.protection.create_volume_snapshot(
@@ -620,16 +617,13 @@ class PowerStoreSnapshot(object):
             return True
         except Exception as e:
             error_message = ("Failed to delete snapshot: %s with error: %s"
-                             % snapshot['name'], str(e))
+                             % (snapshot['name'], str(e)))
             LOG.error(error_message)
             self.module.fail_json(msg=error_message, **utils.failure_codes(e))
 
     def rename_vol_snapshot(self, snapshot, new_name):
         """Renames a vol snapshot"""
         # Check if new name is same is present name
-
-        if snapshot is None:
-            self.module.fail_json(msg="Snapshot not found.")
 
         if snapshot['name'] == new_name:
             return False, None
@@ -653,9 +647,6 @@ class PowerStoreSnapshot(object):
 
     def rename_vol_group_snapshot(self, snapshot, new_name):
         """Renames a vol group snapshot"""
-
-        if snapshot is None:
-            self.module.fail_json(msg="Snapshot not found.")
 
         if snapshot['name'] == new_name:
             return False, None
@@ -703,13 +694,13 @@ class PowerStoreSnapshot(object):
             snap_details = self.get_vol_group_snap_details(snapshot)
 
         snap_creation_timestamp = None
-        if 'creation_timestamp' in snap_details:
+        if snap_details and 'creation_timestamp' in snap_details:
             # Only taking into account YYYY-MM-DDTHH-MM, ignoring
             # seconds component.
             snap_creation_timestamp = \
                 snap_details['creation_timestamp'][0:16] + 'Z'
 
-        if desired_retention is not None and desired_retention != 'None':
+        if snap_creation_timestamp and desired_retention is not None and desired_retention != 'None':
             if retention_unit is None or retention_unit == 'hours':
                 expiration_timestamp = (datetime.strptime(
                     snap_creation_timestamp, datetime_format) +
@@ -729,7 +720,7 @@ class PowerStoreSnapshot(object):
         modified = False
         # Only taking into account YYYY-MM-DDTHH-MM, ignoring
         # seconds component.
-        if snap_details['protection_data']['expiration_timestamp'] \
+        if snap_details and snap_details['protection_data']['expiration_timestamp'] \
                 and expiration_timestamp and \
                 snap_details['protection_data']['expiration_timestamp'][0:16]\
                 != expiration_timestamp[0:16]:
@@ -758,21 +749,21 @@ class PowerStoreSnapshot(object):
                     expiration_timestamp
                 modified = True
 
-        if (not snap_details['protection_data']['expiration_timestamp']) \
+        if (snap_details and not snap_details['protection_data']['expiration_timestamp']) \
                 and expiration_timestamp:
             snapshot_modification_details['is_timestamp_modified'] = True
             snapshot_modification_details[
                 'new_expiration_timestamp_value'] = expiration_timestamp
             modified = True
 
-        if (not expiration_timestamp) and \
+        if (not expiration_timestamp) and snap_details and \
                 snap_details['protection_data']['expiration_timestamp']:
             snapshot_modification_details['is_timestamp_modified'] = True
             snapshot_modification_details['new_expiration_timestamp_value'] =\
                 expiration_timestamp
             modified = True
 
-        if 'description' in snap_details and description is not None and \
+        if snap_details and 'description' in snap_details and description is not None and \
                 snap_details['description'] != description:
             snapshot_modification_details['is_description_modified'] = True
             snapshot_modification_details['new_description_value'] = \
@@ -781,7 +772,6 @@ class PowerStoreSnapshot(object):
 
         LOG.info("Snapshot modified %s, modification details: %s",
                  modified, snapshot_modification_details)
-
         return modified, snapshot_modification_details
 
     def modify_vol_snapshot(self, snapshot,

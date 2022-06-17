@@ -1,8 +1,8 @@
 #!/usr/bin/python
-# Copyright: (c) 2021, Dell EMC
+# Copyright: (c) 2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-""" Ansible module for managing certificates on PowerStore"""
+""" Ansible module for managing certificates for PowerStore"""
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
@@ -11,13 +11,13 @@ DOCUMENTATION = r'''
 ---
 module: certificate
 version_added: '1.4.0'
-short_description: Certificate operations on PowerStore Storage System
+short_description: Certificate operations for PowerStore Storage System
 description:
 - Supports the provisioning operations on a Certificate such as add/import, modify,
   reset, exchange and get the details of a certificate.
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 
 author:
 - Trisha Datta (@Trisha_Datta) <ansible.team@dell.com>
@@ -227,10 +227,10 @@ certificate_details:
                 "certificate": "MIIFejCCA2KgAwIBAgIJAPru9o7dBIwFMA0GCSqGSIb3D
                                 QEBCwUAMFcxCzAJBgNVBAYTAlVTMQswCQ",
                 "depth": 1,
-                "issuer": "CN=Dell EMC PowerStore CA LBSD548W,O=Dell EMC,ST=MA,C=US",
+                "issuer": "CN=Dell Technologies PowerStore CA LBSD548W,O=Dell Technologies,ST=MA,C=US",
                 "key_length": 4096,
                 "public_key_algorithm": "SHA256withRSA",
-                "subject": "CN=Dell EMC PowerStore CA LBSD548W,O=Dell EMC,ST=MA,C=US",
+                "subject": "CN=Dell Technologies PowerStore CA LBSD548W,O=Dell Technologies,ST=MA,C=US",
                 "subject_alternative_names": [],
                 "thumbprint": "5ff9bc0108dffb0374189d08bc11a6a97eaedac5add511e8a30e7ce283a0ced6",
                 "thumbprint_algorithm": "SHA-256",
@@ -249,7 +249,7 @@ certificate_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 LOG = utils.get_logger('certificate')
 
@@ -262,7 +262,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreCertificate(object):
@@ -376,9 +376,20 @@ class PowerStoreCertificate(object):
             create_cert_dict = dict()
             create_cert_dict['type'] = certificate_type
             create_cert_dict['service'] = service
-            create_cert_dict['scope'] = scope
             create_cert_dict['certificate'] = certificate
-            create_cert_dict['is_current'] = is_current
+
+            if is_current is not None:
+                create_cert_dict['is_current'] = is_current
+
+            if scope is None:
+                create_cert_dict['scope'] = ""
+            else:
+                create_cert_dict['scope'] = scope
+
+            if self.module.params['certificate_id'] is not None:
+                msg = "certificate_id is not accepted while adding a certificate"
+                LOG.error(msg)
+                self.module.fail_json(msg=msg)
 
             resp = self.configuration.create_certificate(create_cert_dict=create_cert_dict)
             LOG.info(resp)
@@ -472,7 +483,7 @@ class PowerStoreCertificate(object):
                                                             is_current=is_current, scope=scope)
                     changed = True
 
-                if remote_address and remote_port and remote_user and remote_password:
+                elif remote_address and remote_port and remote_user and remote_password:
                     self.exchange_certificate(service=service,
                                               remote_address=remote_address,
                                               remote_port=remote_port,
@@ -493,7 +504,7 @@ class PowerStoreCertificate(object):
                 LOG.error(msg)
                 self.module.fail_json(msg=msg)
 
-        if state == 'present' and certi_details:
+        elif state == 'present' and certi_details:
             if certificate:
                 msg = 'Modification of certificate string is not supported through Ansible Module'
                 LOG.error(msg)
@@ -503,8 +514,7 @@ class PowerStoreCertificate(object):
                 changed = self.modify_certificate(certificate_id=certi_details.get("id"),
                                                   modify_params=modify_params, cert_details=certi_details)
                 certi_details = self.get_certificate_details(certi_details.get("id"))
-            else:
-                result['certificate_details'] = certi_details
+        result['certificate_details'] = certi_details
         result['changed'] = changed
         self.module.exit_json(**result)
 

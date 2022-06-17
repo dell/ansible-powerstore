@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2021, Dell EMC
+# Copyright: (c) 2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """ Ansible module for managing security configs on PowerStore"""
@@ -11,14 +11,14 @@ DOCUMENTATION = r'''
 ---
 module: security_config
 version_added: '1.4.0'
-short_description: Security configuration operations on PowerStore Storage
+short_description: Security configuration operations for PowerStore Storage
                    System
 description:
 - Managing security configuration on PowerStore storage system includes getting
   details and modifying security configuration parameters.
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 
 author:
 - Bhavneet Sharma (@sharmb5) <ansible.team@dell.com>
@@ -103,7 +103,7 @@ security_config_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 LOG = utils.get_logger('security_config')
 
@@ -116,7 +116,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreSecurityConfig(object):

@@ -1,16 +1,13 @@
-# Copyright: (c) 2021, DellEMC
+# Copyright: (c) 2021, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Unit Tests for Host module on PowerStore"""
+"""Unit Tests for Host module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
+
 
 import pytest
 from mock.mock import MagicMock
@@ -20,7 +17,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 utils.get_logger = MagicMock()
 utils.get_powerstore_connection = MagicMock()

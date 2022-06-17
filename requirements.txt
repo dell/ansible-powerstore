@@ -1,2 +1,4 @@
+PyPowerStore
 urllib3>=1.26.7
+requests>=2.23.0
 setuptools

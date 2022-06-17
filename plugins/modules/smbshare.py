@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2020-2021, DellEMC
+# Copyright: (c) 2020-2021, Dell Technologies
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
@@ -10,7 +10,7 @@ module: smbshare
 version_added: '1.1.0'
 short_description:  Manage SMB shares on a PowerStore storage system
 extends_documentation_fragment:
-- dellemc.powerstore.dellemc_powerstore.powerstore
+- dellemc.powerstore.powerstore
 author:
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
 description:
@@ -297,7 +297,7 @@ smb_share_details:
 '''
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('smbshare', log_devel=logging.INFO)
@@ -311,7 +311,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreSMBShare(object):

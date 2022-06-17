@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -20,14 +20,14 @@ description:
   tree quotas, user quotas, file systems.
 - Replication module includes replication rules, replication sessions, remote system.
 - Configuration module includes cluster nodes, network, roles, local users, appliances,
-  security configs, certificates, AD/LDAP servers.
+  security configs, certificates, AD/LDAP servers, LDAP accounts, LDAP domain.
 - It also includes DNS/NTP servers, smtp configs, email destinations, remote support, remote support contacts.
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Vivek Soni (@v-soni11) <ansible.team@dell.com>
 - Akash Shendge (@shenda1) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 options:
   gather_subset:
     description:
@@ -63,14 +63,16 @@ options:
     - SMTP configurations - smtp_config.
     - Remote Support - remote_support.
     - Remote support contacts - remote_support_contact.
+    - LDAP accounts - ldap_account.
+    - LDAP domain - ldap_domain.
     required: True
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
               file_system, replication_rule, replication_session,
-              remote_system, network, role, user, appliance, ad, ldap,
+              remote_system, network, role, ldap_account, user, appliance, ad, ldap,
               security_config, certificate, dns, ntp, smtp_config,
-              email_notification, remote_support, remote_support_contact]
+              email_notification, remote_support, remote_support_contact, ldap_domain]
     type: list
   filters:
     description:
@@ -107,9 +109,9 @@ options:
     type: bool
     default: False
 notes:
-- Pagination is not supported for role, local user and security configs. If
+- Pagination is not supported for role, local user, security configs, LDAP accounts and LDAP domain. If
   all_pages is passed, it will be ignored.
-- Check mode is not currently supported for info Ansible module.
+- The check_mode is supported.
 '''
 
 EXAMPLES = r'''
@@ -288,6 +290,51 @@ EXAMPLES = r'''
         - filter_key: 'notify_minor'
           filter_operator: 'equal'
           filter_value: 'False'
+
+- name: Get list of LDAP accounts
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - ldap_account
+
+- name: Get list of LDAP accounts with type as "User"
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+    - ldap_account
+    filters:
+        - filter_key: 'type'
+          filter_operator: 'equal'
+          filter_value: 'User'
+
+- name: Get list of LDAP domain
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - ldap_domain
+
+- name: Get list of LDAP domain with protocol as "LDAPS"
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+    - ldap_domain
+    filters:
+        - filter_key: 'protocol'
+          filter_operator: 'equal'
+          filter_value: 'LDAPS'
+
 '''
 
 RETURN = r'''
@@ -464,6 +511,127 @@ LDAP:
           {
             "id": "60ba0edd-551a-64f1-ce49-8a83a5bce479"
           }
+    ]
+LDAPAccounts:
+    description: Provides details of all LDAP accounts.
+    type: list
+    returned: When LDAP account is in a given gather_subset
+    contains:
+        id:
+            description: ID of the LDAP account.
+            type: str
+        role_id:
+            description: Unique identifier of the role to which the LDAP account is mapped.
+            type: int
+        domain_id:
+            description: Unique identifier of the LDAP domain to which LDAP user or group belongs.
+            type: int
+        name:
+            description: Name of the LDAP account.
+            type: str
+        type:
+            description: Type of LDAP account.
+            type: str
+        dn:
+            description: Types of directory service protocol.
+            type: str
+    sample: [
+        {
+            "id": "5",
+            "role_id": "1",
+            "domain_id": "2",
+            "name": "sample_ldap_user",
+            "type": "User",
+            "type_l10n": "User",
+            "dn": "cn=sample_ldap_user,dc=ldap,dc=com"
+        }
+    ]
+LDAPDomain:
+    description: Provides details of the LDAP domain configurations.
+    type: list
+    returned: When LDAP domain configuration is in a given gather_subset
+    contains:
+        id:
+            description: Unique identifier of the new LDAP server configuration.
+            type: str
+        domain_name:
+            description: Name of the LDAP authority to construct the LDAP server configuration.
+            type: str
+        ldap_servers:
+            description: List of IP addresses of the LDAP servers for the domain. IP addresses are in IPv4 format.
+            type: list
+        port:
+            description: Port number used to connect to the LDAP server(s).
+            type: int
+        ldap_server_type:
+            description: Types of LDAP server.
+            type: str
+        protocol:
+            description: Types of directory service protocol.
+            type: str
+        bind_user:
+            description: Distinguished Name (DN) of the user to be used when binding.
+            type: str
+        ldap_timeout:
+            description: Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
+            type: int
+        is_global_catalog:
+            description: Whether or not the catalog is global. Default value is false.
+            type: bool
+        user_id_attribute:
+            description: Name of the LDAP attribute whose value indicates the unique identifier of the user.
+            type: str
+        user_object_class:
+            description: LDAP object class for users.
+            type: str
+        user_search_path:
+            description: Path used to search for users on the directory server.
+            type: str
+        group_name_attribute:
+            description: Name of the LDAP attribute whose value indicates the group name.
+            type: str
+        group_member_attribute:
+            description: Name of the LDAP attribute whose value contains the names of group members within a group.
+            type: str
+        group_object_class:
+            description: LDAP object class for groups.
+            type: str
+        group_search_path:
+            description: Path used to search for groups on the directory server.
+            type: str
+        group_search_level:
+            description: Nested search level for performing group search.
+            type: int
+        ldap_server_type_l10n:
+            description: Localized message string corresponding to ldap_server_type.
+            type: str
+        protocol_l10n:
+            description: Localized message string corresponding to protocol.
+            type: str
+    sample: [
+        {
+            "id": "9",
+            "domain_name": "domain.com",
+            "port": 636,
+            "protocol": "LDAPS",
+            "protocol_l10n": "LDAPS",
+            "bind_user": "cn=ldapadmin,dc=domain,dc=com",
+            "ldap_timeout": 300000,
+            "ldap_server_type": "OpenLDAP",
+            "ldap_server_type_l10n": "OpenLDAP",
+            "is_global_catalog": false,
+            "user_id_attribute": "uid",
+            "user_object_class": "inetOrgPerson",
+            "user_search_path": "dc=domain,dc=com",
+            "group_name_attribute": "cn",
+            "group_member_attribute": "member",
+            "group_object_class": "groupOfNames",
+            "group_search_path": "dc=domain,dc=com",
+            "group_search_level": 0,
+            "ldap_servers": [
+                "10.xxx.xx.xxx"
+            ]
+        }
     ]
 LocalUsers:
     description: Provides details of all local users.
@@ -821,7 +989,7 @@ UserQuotas:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('info')
@@ -835,7 +1003,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerstoreInfo(object):
@@ -858,7 +1026,7 @@ class PowerstoreInfo(object):
         # initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=False
+            supports_check_mode=True
         )
 
         LOG.info('HAS_PY4PS = %s, IMPORT_ERROR = %s', HAS_PY4PS, IMPORT_ERROR)
@@ -997,6 +1165,14 @@ class PowerstoreInfo(object):
             'remote_support_contact': {
                 'func': self.configuration.get_remote_support_contact_list,
                 'display_as': 'RemoteSupportContact'
+            },
+            'ldap_account': {
+                'func': self.configuration.get_ldap_account_list,
+                'display_as': 'LDAPAccounts'
+            },
+            'ldap_domain': {
+                'func': self.configuration.get_ldap_domain_configuration_list,
+                'display_as': 'LDAPDomain'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -1153,7 +1329,8 @@ def get_powerstore_info_parameters():
                                     'user', 'appliance', 'ad', 'ldap',
                                     'security_config', 'certificate', 'dns', 'ntp',
                                     'smtp_config', 'email_notification',
-                                    'remote_support', 'remote_support_contact']),
+                                    'remote_support', 'remote_support_contact',
+                                    'ldap_account', 'ldap_domain']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

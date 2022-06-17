@@ -10,6 +10,7 @@ plugins/modules/host.py validate-modules:missing-gplv3-license
 plugins/modules/hostgroup.py validate-modules:missing-gplv3-license
 plugins/modules/info.py validate-modules:missing-gplv3-license
 plugins/modules/job.py validate-modules:missing-gplv3-license
+plugins/modules/ldap_account.py validate-modules:missing-gplv3-license
 plugins/modules/local_user.py validate-modules:missing-gplv3-license
 plugins/modules/nasserver.py validate-modules:missing-gplv3-license
 plugins/modules/network.py validate-modules:missing-gplv3-license
@@ -30,3 +31,4 @@ plugins/modules/snapshot.py validate-modules:missing-gplv3-license
 plugins/modules/snapshotrule.py validate-modules:missing-gplv3-license
 plugins/modules/volume.py validate-modules:missing-gplv3-license
 plugins/modules/volumegroup.py validate-modules:missing-gplv3-license
+plugins/modules/ldap_domain.py validate-modules:missing-gplv3-license

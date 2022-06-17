@@ -1,26 +1,23 @@
-# Copyright: (c) 2021, DellEMC
+# Copyright: (c) 2021, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Mock Api response for Unit tests of Info module on PowerStore"""
+"""Mock Api response for Unit tests of Info module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 
 class MockInfoApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.info.PowerstoreInfo'
-    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_ansible_powerstore_utils'
+    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     INFO_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'filters': None,
-        'all_pages': None
+        'all_pages': None,
+        'gather_subset': None
     }
 
     EMPTY_GATHERSUBSET_ERROR_MSG = "Please specify gather_subset"
@@ -37,6 +34,16 @@ class MockInfoApi:
         'SMTPConfig': []
     }
 
+    CLUSTER_DETAILS_TWO = [
+        {
+            "id": "0",
+            "name": "WN-ABCD"},
+        {
+            "id": "1",
+            "name": "WN-WXYZ"}
+
+    ]
+
     @staticmethod
     def get_security_config_response(response_type):
         if response_type == 'api':
@@ -45,9 +52,6 @@ class MockInfoApi:
                     "id": "1"
                 }
             ]
-        else:
-            return "Getting list of security config for powerstore: %s failed with error: PyPowerStore Error message" % (
-                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_certificate_response(response_type):
@@ -72,33 +76,6 @@ class MockInfoApi:
                     "id": "cedeb3ed-0203-405b-b6c0-b3117a331704"
                 }
             ]
-        else:
-            return "Getting list of certificate for powerstore: %s failed with error: PyPowerStore Error message" % (
-                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
-
-    @staticmethod
-    def get_ad_response(response_type):
-        if response_type == 'api':
-            return [
-                {
-                    "id": "60c05c4a-a5aa-d547-d882-ee6f605dfe5a"
-                }
-            ]
-        else:
-            return "Getting list of active directory for powerstore: %s failed with error: PyPowerStore Error message" % (
-                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
-
-    @staticmethod
-    def get_ldap_response(response_type):
-        if response_type == 'api':
-            return [
-                {
-                    "id": "60c05ba8-362e-159a-0205-ee6f605dfe5a"
-                }
-            ]
-        else:
-            return "Getting list of ldap for powerstore: %s failed with error: PyPowerStore Error message" % (
-                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_dns_response(response_type):
@@ -108,9 +85,6 @@ class MockInfoApi:
                     "id": "DNS1"
                 }
             ]
-        else:
-            return "Getting list of dns for powerstore: %s failed with error: PyPowerStore Error message" % (
-                   MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_ntp_response(response_type):
@@ -120,21 +94,15 @@ class MockInfoApi:
                     "id": "NTP1"
                 }
             ]
-        else:
-            return "Getting list of ntp for powerstore: %s failed with error: PyPowerStore Error message" % (
-                MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
-    def get_smtp_config_response(response_type):
+    def get_one_id_response(response_type):
         if response_type == 'api':
             return [
                 {
                     "id": "0"
                 }
             ]
-        else:
-            return "Getting list of smtp config for powerstore: %s failed with error: PyPowerStore Error message" % (
-                MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_email_destination_response(response_type):
@@ -144,9 +112,6 @@ class MockInfoApi:
                     "id": "9c3e5cba-17d5-4d64-b97c-350f91e2b714"
                 }
             ]
-        else:
-            return "Getting list of email destination for powerstore: %s failed with error: PyPowerStore Error " \
-                   "message" % (MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_remote_support_contact_response(response_type):
@@ -159,9 +124,6 @@ class MockInfoApi:
                     "id": "1"
                 }
             ]
-        else:
-            return "Getting list of remote support contacts for powerstore: %s failed with error: PyPowerStore Error " \
-                   "message" % (MockInfoApi.INFO_COMMON_ARGS['array_ip'])
 
     @staticmethod
     def get_remote_support_response(response_type):
@@ -171,6 +133,19 @@ class MockInfoApi:
                     "id": "0"
                 }
             ]
-        else:
-            return "Getting list of remote support for powerstore: %s failed with error: PyPowerStore Error message" % (
-                MockInfoApi.INFO_COMMON_ARGS['array_ip'])
+
+    @staticmethod
+    def get_volumes_failed_msg():
+        return "Given filter operator 'None' is not supported"
+
+    @staticmethod
+    def get_invalid_gather_subset_failed_msg():
+        return "subset_mapping do not have details"
+
+    @staticmethod
+    def get_no_gather_subset_failed_msg():
+        return "No subset specified in gather_subset"
+
+    @staticmethod
+    def get_subset_invalid_filter():
+        return "Filter should have all keys: 'filter_key, filter_operator, filter_value'"

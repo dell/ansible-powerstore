@@ -1,10 +1,10 @@
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
-# Copyright: (c) 2019, Dell EMC
+# Copyright: (c) 2019, Dell Technologies
 """
 import PyPowerStore library for PowerStore Storage
 """
 from __future__ import (absolute_import, division, print_function)
-from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_powerstore_logging_handler \
+from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.logging_handler \
     import CustomRotatingFileHandler
 
 __metaclass__ = type
@@ -62,7 +62,7 @@ def py4ps_version_check():
                                           "'pkg_resources', please install" \
                                           " the required package"
         else:
-            min_ver = '1.6.0'
+            min_ver = '1.7.0'
             curr_version = PyPowerStore.__version__
             unsupported_version_message = "PyPowerStore {0} is not supported " \
                                           "by this module. Minimum supported" \
