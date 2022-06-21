@@ -1,4 +1,5 @@
 # This sample provides list of the filesystem ids which are unused.
+---
 - name: List filesystems which are unused
   hosts: localhost
   connection: local

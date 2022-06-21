@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2021, DellEMC
+# Copyright: (c) 2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """ Ansible module for managing roles on PowerStore"""
@@ -18,7 +18,7 @@ description:
   role.
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 
 author:
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
@@ -99,7 +99,7 @@ role_details:
 '''
 
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 from ansible.module_utils.basic import AnsibleModule
 
 LOG = utils.get_logger('role')
@@ -113,7 +113,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreRole(object):

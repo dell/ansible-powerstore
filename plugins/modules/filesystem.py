@@ -1,8 +1,8 @@
 #!/usr/bin/python
-# Copyright: (c) 2020-2021, Dell EMC
+# Copyright: (c) 2020-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-""" Ansible module for managing filesystems on PowerStore"""
+""" Ansible module for managing filesystems for PowerStore"""
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
@@ -11,13 +11,13 @@ DOCUMENTATION = r'''
 ---
 module: filesystem
 version_added: '1.1.0'
-short_description: Filesystem operations on PowerStore Storage system
+short_description: Filesystem operations for PowerStore Storage system
 description:
 - Supports the provisioning operations on a filesystem such as create, modify,
   delete and get the details of a filesystem.
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 options:
@@ -355,7 +355,7 @@ filesystem_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('filesystem',
@@ -370,7 +370,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreFileSystem(object):

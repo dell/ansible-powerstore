@@ -1,4 +1,5 @@
 # This sample provides list of the filesystem ids whose used_size is greater than given threshold percentage.
+---
 - name: List filesystems whose used size is greater than given threshold
   hosts: localhost
   connection: local

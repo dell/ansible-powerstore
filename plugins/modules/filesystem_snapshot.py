@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2020-2021, DellEMC
+# Copyright: (c) 2020-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """Ansible module for managing filesystem snapshots on PowerStore"""
@@ -11,7 +11,7 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 module: filesystem_snapshot
 version_added: '1.1.0'
-short_description: Manage Filesystem Snapshots on Dell EMC PowerStore
+short_description: Manage Filesystem Snapshots for PowerStore
 description:
 - Supports the provisioning operations on a filesystem snapshot such as
   create, modify, delete and get the details of a filesystem snapshot.
@@ -20,7 +20,7 @@ author:
 - Akash Shendge (@shenda1) <ansible.team@dell.com>
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 
 options:
   snapshot_name:
@@ -239,7 +239,7 @@ filesystem_snap_details:
 from datetime import datetime, timedelta
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 LOG = utils.get_logger('filesystem_snapshot',
                        log_devel=utils.logging.INFO)
@@ -253,7 +253,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreFilesystemSnapshot(object):

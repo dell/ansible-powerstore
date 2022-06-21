@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2021, DellEMC
+# Copyright: (c) 2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -17,7 +17,7 @@ description:
   remote system for all supported parameters, modify remote system with
   supported parameters and delete/remove a remote system.
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 author:
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
 options:
@@ -305,7 +305,7 @@ remote_system_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 
 LOG = utils.get_logger('remotesystem')
 
@@ -318,7 +318,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerstoreRemoteSystem(object):
@@ -630,7 +630,7 @@ def modify_remote_system_required(remote_sys_details, passed_args):
 
 def get_powerstore_remote_system_parameters():
     """This method provide the parameters required for the remote system
-     operations on PowerStore"""
+     operations for PowerStore"""
 
     return dict(
         remote_id=dict(), remote_name=dict(),

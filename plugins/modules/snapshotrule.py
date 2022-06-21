@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -17,7 +17,7 @@ description:
   Rule with Interval, create new Snapshot Rule with specific time and
   days_of_week. Modify Snapshot Rule. Delete Snapshot Rule.
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 options:
@@ -83,6 +83,7 @@ options:
     - False specifies to retain all previously created Snapshots while
       deleting this rule.
     type: bool
+    default: False
   state:
     description:
     - String variable indicates the state of Snapshot rule.
@@ -241,7 +242,7 @@ snapshotrule_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger(
@@ -257,7 +258,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerstoreSnapshotrule(object):
@@ -581,7 +582,7 @@ def get_powerstore_snapshotrule_parameters():
                                                            'One_Day']),
         time_of_day=dict(required=False, type='str'),
         desired_retention=dict(required=False, type='int'),
-        delete_snaps=dict(required=False, type='bool'),
+        delete_snaps=dict(required=False, type='bool', default=False),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
 

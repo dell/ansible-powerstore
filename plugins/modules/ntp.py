@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2022, DellEMC
+# Copyright: (c) 2022, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -18,7 +18,7 @@ description:
 author:
 - Bhavneet Sharma (@sharmb5) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 options:
   ntp_id:
     description:
@@ -117,7 +117,7 @@ ntp_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.\
-    dell import dellemc_ansible_powerstore_utils as utils
+    dell import utils
 
 LOG = utils.get_logger('ntp')
 
@@ -130,7 +130,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerstoreNtp(object):
@@ -279,7 +279,7 @@ class PowerstoreNtp(object):
 
 def get_powerstore_ntp_parameters():
     """This method provide the parameters required for the
-      NTP operations on PowerStore"""
+      NTP operations for PowerStore"""
 
     return dict(
         ntp_id=dict(required=True, type='str'),

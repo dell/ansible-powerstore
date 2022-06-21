@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -18,7 +18,7 @@ description:
 author:
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 options:
   host_name:
     description:
@@ -387,7 +387,7 @@ host_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('host', log_devel=logging.INFO)
@@ -401,7 +401,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 # DO NOT CHANGE BELOW PORT_TYPES SEQUENCE AS ITS USED IN SCRIPT USING INDEX
 PORT_TYPES = ["iSCSI", "FC", "NVMe"]

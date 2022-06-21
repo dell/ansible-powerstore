@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, DellEMC
+# Copyright: (c) 2019-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -19,7 +19,7 @@ author:
 - Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 options:
   vol_name:
     description:
@@ -429,7 +429,7 @@ volume_details:
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 import logging
 
 LOG = utils.get_logger('volume', log_devel=logging.INFO)
@@ -443,7 +443,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreVolume(object):
@@ -579,11 +579,11 @@ class PowerStoreVolume(object):
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def map_unmap_volume_to_host(self, vol, host, mapping_state):
-        current_hosts = vol['host']
+        current_hosts = []
         current_host_ids = []
         host_identifier = self.module.params['host']
-        for host_t in current_hosts:
-            current_host_ids.append(host_t['id'])
+
+        prepare_host_list(vol, current_hosts, current_host_ids)
 
         if mapping_state == 'mapped' and host in current_host_ids:
             LOG.info('Volume %s is already mapped to host %s', vol['name'],
@@ -1024,6 +1024,24 @@ class PowerStoreVolume(object):
             return None
         else:
             return self.performance_policy_dict.get(performance_policy)
+
+
+def prepare_host_list(vol, current_hosts, current_host_ids):
+    if 'host' in vol:
+        current_hosts = vol['host']
+    else:
+        if 'hlu_details' in vol:
+            for map_details in vol['hlu_details']:
+                if map_details['host_id'] is not None:
+                    current_hosts.append(map_details['host_id'])
+
+    # In PowerStore version 3.0.0.0 volume response, will get the only list of host IDs mapped.
+    # In PowerStore versions below 3.0.0.0 volume response, will get ID and name of host mapped.
+    for host_t in current_hosts:
+        if 'id' in host_t:
+            current_host_ids.append(host_t['id'])
+        else:
+            current_host_ids.append(host_t)
 
 
 def check_modify_volume_required(vol, vol_dict2):

@@ -1,0 +1,5 @@
+---
+version: 1
+dependencies:
+  galaxy: ../requirements.yml # Absolute/relative path of requirements.yml
+  python: ../requirements.txt # Absolute/relative path of requirements.txt

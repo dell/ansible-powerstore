@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2020-2021, DellEMC
+# Copyright: (c) 2020-2021, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 """ Ansible module for managing Tree Quotas and User Quotas on PowerStore"""
@@ -20,7 +20,7 @@ description:
   modifying, creating and deleting Quotas.
 
 extends_documentation_fragment:
-  - dellemc.powerstore.dellemc_powerstore.powerstore
+  - dellemc.powerstore.powerstore
 
 author:
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
@@ -350,7 +350,7 @@ quota_details:
 
 import logging
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
-    import dellemc_ansible_powerstore_utils as utils
+    import utils
 from ansible.module_utils.basic import AnsibleModule
 
 LOG = utils.get_logger('quota', log_devel=logging.INFO)
@@ -364,7 +364,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.5.0'
+APPLICATION_TYPE = 'Ansible/1.6.0'
 
 
 class PowerStoreQuota(object):
@@ -881,6 +881,7 @@ class PowerStoreQuota(object):
             quota_details, user_or_tree = self.get_quota_details(
                 quota_id, quota_type, path, filesystem_id, uid, unix_name,
                 windows_name, windows_sid)
+
         if state == "present" and quota_type == "user" and \
                 quota_details and quota_details['tree_quota']:
             tree_quota = add_limits_with_unit(quota_details['tree_quota'])
@@ -1047,7 +1048,7 @@ def add_limits_with_unit(quota_details):
         return None
     limit_list = ['hard_limit', 'soft_limit']
     for limit in limit_list:
-        if quota_details[limit]:
+        if limit in quota_details and quota_details[limit]:
             size_with_unit = utils.convert_size_with_unit(
                 quota_details[limit]).split(" ")
             new_limit = limit + "(" + size_with_unit[1] + ")"

@@ -1,4 +1,5 @@
 # This sample lists the IDs of all the SMB Shares created on a given file system name.
+---
 - name: List SMB Share IDs created on given filesystem
   hosts: localhost
   connection: local

@@ -1,21 +1,17 @@
-# Copyright: (c) 2021, DellEMC
+# Copyright: (c) 2021, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
-"""Mock Api response for Unit tests of Email module on PowerStore"""
+"""Mock Api response for Unit tests of Email module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'
-                    }
 
 
 class MockEmailApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.email.PowerstoreEmail'
-    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.dellemc_ansible_powerstore_utils'
+    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     EMAIL_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
@@ -56,3 +52,15 @@ class MockEmailApi:
     MODIFY_EMAIL = None
     TEST_EMAIL = {}
     DELETE_EMAIL = None
+
+    @staticmethod
+    def create_email_address_failed_msg():
+        return "new_address is not allowed during creation"
+
+    @staticmethod
+    def get_email_address_using_email_id_failed_msg():
+        return "Please provide a valid email_id"
+
+    @staticmethod
+    def get_email_address_failed_msg():
+        return "Please provide a valid email_address"
