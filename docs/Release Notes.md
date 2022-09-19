@@ -1,6 +1,6 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 1.6.0
+### Release Notes 1.7.0
 
 >   © 2022 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
@@ -28,7 +28,7 @@ Table 1. Revision history
 
 | Revision | Date      | Description                                               |
 |----------|-----------|-----------------------------------------------------------|
-| 01       | June 2022  | Current release of Ansible Modules for Dell PowerStore 1.6.0 |
+| 01       | September 2022  | Current release of Ansible Modules for Dell PowerStore 1.7.0 |
 
 Product Description
 -------------------
@@ -36,48 +36,38 @@ The Ansible modules for Dell PowerStore are used to automate and orchestrate the
 
 New features & enhancements
 ---------------------------
-Along with the previous release deliverables, this release supports these features -
+Along with the previous release deliverables, this release supports these features:
 
--   LDAP account module supports these functionalities:
-    -   Get LDAP account details.
-    -   Create an LDAP account.
-    -   Modify attributes of an LDAP account.
-    -   Delete an LDAP account.
-
--   LDAP domain module supports these functionalities:
-    -   Get LDAP domain configuration details.
-    -   Configure an LDAP domain.
-    -   Modify attributes of an LDAP domain configuration.
-    -   Verify an LDAP domain configuration.
-    -   Delete an LDAP domain configuration.
-    
--   Info module has these enhancements:
-    -  List of LDAP accounts.
-    -  List of LDAP domain configurations.
-    -  Enabled check mode support.
-    
-- Added execution environment manifest file to support building an execution environment with ansible-builder.
+- Cluster module is enhanced to create a cluster and validate the cluster create attributes.
+- NAS server module is enhanced to support the following functionalities:
+    - Associate a protection policy to a NAS server
+    - Disassociate a protection policy from a NAS server.
+- Replication session module is enhanced to support filesystem and NAS server replication sessions.
+- Volume group is enhanced to support the following functionalities:
+    -  Clone a volume group.
+    -  Refresh a volume group.
+    -  Restore a volume group.
 
 Known issues
 ------------
-There are no known issues.
+Hosts in IPv4/prefix_length format do not get mapped to an NFS export in Foothills Prime version of PowerStore.
 
 Limitations
 -----------
--   All occurrences of Password and related parameters do not support Idempotency.
--   Exchange, reset and add/import of certificates do not support Idempotency.
--   Verify connection  and send test alert for remote support module do not support Idempotency.
--   Sending test alert through SMTP configuration and Email module does not support Idempotency.
--   Verify operation for LDAP domain module does not support Idempotency.
+- All occurrences of Password and related parameters do not support Idempotency.
+- Exchange, reset and add/import of certificates do not support Idempotency.
+- Verify connection  and send test alert for remote support module do not support Idempotency.
+- Sending test alert through SMTP configuration and Email module does not support Idempotency.
+- Verify operation for LDAP domain module does not support Idempotency.
 
 Distribution
 ----------------
 The software package is available for download from the [Ansible Modules
-for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.6.0) page.
+for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.7.0) page.
 
 Documentation
 -------------
-The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.6.0/docs)
+The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.7.0/docs)
 page. It includes these:
 - README
 - Release Notes (this document)

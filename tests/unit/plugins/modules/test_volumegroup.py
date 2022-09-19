@@ -330,3 +330,102 @@ class TestPowerstoreVolumeGroup():
         volume_group_module_mock.perform_module_operation()
         assert MockVolumeGroupApi.get_non_existing_volume_failed_msg() in \
                volume_group_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_refresh_volume_group(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'source_vg': "src_volume_group",
+            'create_backup_snap': "true",
+            'backup_snap_profile': {'name': 'backup_test'},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.validate_input = MagicMock(return_value=True)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=(None, None))
+        volume_group_module_mock.perform_module_operation()
+        volume_group_module_mock.provisioning.refresh_volume_group.assert_called()
+
+    def test_refresh_volume_group_throws_ex(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'source_vg': "src_volume_group",
+            'create_backup_snap': "true",
+            'backup_snap_profile': {'name': 'backup_test'},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.validate_input = MagicMock(return_value=True)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=None)
+        volume_group_module_mock.provisioning.refresh_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.perform_module_operation()
+        assert MockVolumeGroupApi.refresh_vol_group_ex() in \
+               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_restore_volume_group(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'source_snap': "src_volume_group",
+            'create_backup_snap': "true",
+            'backup_snap_profile': {'name': 'backup_test'},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.validate_input = MagicMock(return_value=True)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=[None, MagicMock()])
+        volume_group_module_mock.perform_module_operation()
+        volume_group_module_mock.provisioning.restore_volume_group.assert_called()
+
+    def test_restore_volume_group_throws_ex(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'source_snap': "src_volume_group",
+            'create_backup_snap': "true",
+            'backup_snap_profile': {'name': 'backup_test'},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.validate_input = MagicMock(return_value=True)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=[None, MagicMock()])
+        volume_group_module_mock.provisioning.restore_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.perform_module_operation()
+        print(volume_group_module_mock.module.fail_json.call_args[1]['msg'])
+        assert MockVolumeGroupApi.restore_vol_group_ex() in \
+               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_clone_volume_group(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'vg_clone': {'name': 'clone_test', 'protection_policy': None, 'description': None},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=None)
+        volume_group_module_mock.perform_module_operation()
+        volume_group_module_mock.provisioning.clone_volume_group.assert_called()
+
+    def test_clone_volume_group_throws_ex(self, volume_group_module_mock):
+        self.get_module_args.update({
+            'vg_name': "sample_volume_group",
+            'vg_clone': {'name': 'clone_test', 'protection_policy': None, 'description': None},
+            'state': "present"
+        })
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=None)
+        volume_group_module_mock.provisioning.clone_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.perform_module_operation()
+        assert MockVolumeGroupApi.clone_vol_group_ex() in \
+               volume_group_module_mock.module.fail_json.call_args[1]['msg']

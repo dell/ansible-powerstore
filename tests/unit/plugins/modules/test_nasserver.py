@@ -44,7 +44,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.perform_module_operation()
         assert self.get_module_args['nas_server_id'] == nasserver_module_mock.module.exit_json.call_args[1]['nasserver_details']['id']
         nasserver_module_mock.provisioning.get_nas_server_details.assert_called()
@@ -56,7 +56,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.perform_module_operation()
         assert self.get_module_args['nas_server_name'] == nasserver_module_mock.module.exit_json.call_args[1]['nasserver_details']['name']
         nasserver_module_mock.provisioning.get_nas_server_by_name.assert_called()
@@ -94,7 +94,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.perform_module_operation()
         assert MockNasServerApi.delete_nas_server_failed_msg() in \
             nasserver_module_mock.module.fail_json.call_args[1]['msg']
@@ -107,11 +107,50 @@ class TestPowerstoreNasServer():
             'current_unix_directory_service': "LOCAL_FILES",
             'default_unix_user': "admin",
             'default_windows_user': "admin",
+            'protection_policy': "Sample_protection_policy",
             'state': "present"
         })
         nasserver_module_mock.module.params = self.get_module_args
-        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
             return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
+        nasserver_module_mock.provisioning.get_nodes = MagicMock(
+            return_value=MockNasServerApi.NODE_DETAILS)
+        nasserver_module_mock.protection.get_protection_policy_by_name = MagicMock(
+            return_value=MockNasServerApi.PROTECTION_POLICY_DETAILS)
+        nasserver_module_mock.perform_module_operation()
+        nasserver_module_mock.provisioning.modify_nasserver.assert_called()
+
+    def test_add_protection_policy_by_id_response(self, nasserver_module_mock):
+        self.get_module_args.update({
+            'nas_server_name': "Sample_nas_server_1",
+            'protection_policy': "bce845ea-78ba-4414-ada1-8130f3a49e74",
+            'state': "present"
+        })
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
+        nasserver_module_mock.provisioning.get_nodes = MagicMock(
+            return_value=MockNasServerApi.NODE_DETAILS)
+        nasserver_module_mock.protection.get_protection_policy_details = MagicMock(
+            return_value=MockNasServerApi.PROTECTION_POLICY_DETAILS[0])
+        nasserver_module_mock.perform_module_operation()
+        nasserver_module_mock.provisioning.modify_nasserver.assert_called()
+
+    def test_remove_protection_policy_response(self, nasserver_module_mock):
+        self.get_module_args.update({
+            'nas_server_name': "Sample_nas_server_2",
+            'protection_policy': "",
+            'state': "present"
+        })
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_2_DETAILS)
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_2_DETAILS[0])
         nasserver_module_mock.provisioning.get_nodes = MagicMock(
             return_value=MockNasServerApi.NODE_DETAILS)
         nasserver_module_mock.perform_module_operation()
@@ -126,7 +165,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.provisioning.get_nodes = MagicMock(
             return_value=MockNasServerApi.NODE_DETAILS)
         nasserver_module_mock.perform_module_operation()
@@ -144,7 +183,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.provisioning.get_nodes = MagicMock(
             return_value=MockNasServerApi.NODE_DETAILS)
         nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
@@ -159,7 +198,7 @@ class TestPowerstoreNasServer():
         })
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
         nasserver_module_mock.provisioning.get_cluster_list = MagicMock(
             return_value=MockNasServerApi.CLUSTER_DETAILS)
         nasserver_module_mock.perform_module_operation()

@@ -14,7 +14,8 @@ short_description: Manage volume groups on a PowerStore Storage System
 description:
 - Managing volume group on PowerStore Storage System includes creating new
   volume group, adding volumes to volume group, removing volumes from volume
-  group.
+  group, clone of a volume group, refresh of a volume group and restore of
+  volume group.
 - Module also include renaming volume group, modifying volume group, and
   deleting volume group.
 author:
@@ -72,6 +73,56 @@ options:
      true.
     required: false
     type: bool
+  source_vg:
+    description:
+    - ID or name of the volume group to refresh from.
+    type: str
+  source_snap:
+    description:
+    - ID or name of the snapshot to restore from.
+    type: str
+  create_backup_snap:
+    description:
+    - Specifies whether a backup snapshot set of the target volume group needs
+      to be created before attempting refresh or restore.
+    - If not specified it will be set to True.
+    type: bool
+  backup_snap_profile:
+    description:
+    - Snapshot volume group request.
+    type: dict
+    suboptions:
+      name:
+        description:
+        - Name of snapshot set to be created.
+        type: str
+        required: True
+      description:
+        description:
+        - Description of the snapshot set.
+        type: str
+      expiration_timestamp:
+        description:
+        - Time after which the snapshot set can be auto-purged.
+        type: str
+  vg_clone:
+    description:
+    - Parameters to support clone of a volume group.
+    type: dict
+    suboptions:
+      name:
+        description:
+        - Name for the clone volume group.
+        type: str
+        required: True
+      description:
+        description:
+        - Description for the clone volume group.
+        type: str
+      protection_policy:
+        description:
+        - ID or name of the protection policy to assign to the clone volume.
+        type: str
   state:
     description:
     - Define whether the volume group should exist or not.
@@ -163,6 +214,44 @@ EXAMPLES = r'''
     password: "{{password}}"
     name: "{{new_vg_name}}"
     state: "absent"
+
+- name: Refresh a volume group
+  dellemc.powerstore.volumegroup:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vg_name: "ansible_vg"
+    source_vg: "vg_source"
+    create_backup_snap: True
+    backup_snap_profile:
+        name: "test_snap"
+    state: "present"
+
+- name: Restore a volume group
+  dellemc.powerstore.volumegroup:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vg_name: "ansible_vg"
+    source_snap: "snap_source"
+    create_backup_snap: True
+    backup_snap_profile:
+        name: "test_snap_restore"
+    state: "present"
+
+- name: Clone a volume group
+  dellemc.powerstore.volumegroup:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vg_name: "ansible_vg"
+    vg_clone:
+        name: "ansible_vg_clone"
+        protection_policy: "policy1"
+    state: "present"
 '''
 
 RETURN = r"""
@@ -228,6 +317,16 @@ volume_group_details:
         type:
             description: The type of the volume group.
             type: str
+        snapshots:
+            description: The snapshots associated with the volume group.
+            type: complex
+            contains:
+                id:
+                    description: ID of the snapshot.
+                    type: str
+                name:
+                    description: Name of the snapshot.
+                    type: str
         volumes:
             description: The volumes details of the volume group.
             type: complex
@@ -273,7 +372,17 @@ volume_group_details:
         "protection_policy_id": 4bbb6333-59e4-489c-9015-c618d3e8384b,
         "type": "Primary",
         "type_l10n": "Primary",
-        "volumes": []
+        "volumes": [],
+        "snapshots": [
+            {
+                "id": "2179802f-f975-434a-b317-9e55460e3e08",
+                "name": "test_snapshot"
+            },
+            {
+                "id": "33d8990b-a468-4708-ba42-8b41af545939",
+                "name": "backup.2022-08-04T10:57:41Z 001113180"
+            }
+        ]
     }
 """
 
@@ -294,7 +403,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.6.0'
+APPLICATION_TYPE = 'Ansible/1.7.0'
 
 
 class PowerStoreVolumeGroup(object):
@@ -336,6 +445,106 @@ class PowerStoreVolumeGroup(object):
         self.protection = self.conn.protection
         LOG.info('Got Py4ps instance for protection on PowerStore %s',
                  self.protection)
+
+    def get_snapshots_of_volume_group(self, vg_id, backup_snap_profile=None, source_snap=None, all_snapshots=False):
+        try:
+            snapshots = self.provisioning.get_volume_group_list(filter_dict={'type': 'eq.Snapshot',
+                                                                'protection_data->>parent_id': 'eq.' + vg_id})
+            if all_snapshots:
+                return snapshots
+            if backup_snap_profile and backup_snap_profile['name']:
+                snapshot = get_existing_snapshot(snapshots, backup_snap_profile['name'])
+                if snapshot:
+                    return True, snapshot
+            if source_snap:
+                snapshot = get_existing_snapshot(snapshots, source_snap)
+                if snapshot:
+                    return None, snapshot
+            return None, None
+        except Exception as e:
+            errormsg = "Retrieving snapshot of volume group %s failed with error %s" % (vg_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def validate_input(self, create_backup_snap, backup_snap_profile, source_vg=None):
+        try:
+            if backup_snap_profile:
+                if not create_backup_snap:
+                    self.module.fail_json(msg="Specify create_back_snap as True to set backup_snap_profile")
+                if backup_snap_profile['expiration_timestamp']:
+                    self.validate_expiration_timestamp(backup_snap_profile['expiration_timestamp'])
+            if source_vg:
+                is_valid_uuid = utils.name_or_id(source_vg)
+                if is_valid_uuid == 'NAME':
+                    vg_exists = self.get_volume_group_details(name=source_vg)
+                else:
+                    vg_exists = self.get_volume_group_details(vg_id=source_vg)
+                if not vg_exists:
+                    self.module.fail_json(msg="Source volume group %s does not exist" % source_vg)
+                return vg_exists['id']
+        except Exception as e:
+            errormsg = "Retrieving source volume group %s failed with error %s" % (source_vg, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def refresh_volume_group(self, vg_id, source_vg, create_backup_snap, backup_snap_profile):
+        """Refresh volume group"""
+        try:
+            LOG.info("Refreshing volume group")
+            source_vg_id = self.validate_input(create_backup_snap, backup_snap_profile, source_vg)
+            snapshot_existing, snapshot = self.get_snapshots_of_volume_group(vg_id, backup_snap_profile)
+            if snapshot_existing:
+                LOG.debug("Snapshot %s exists", snapshot)
+                return False
+            resp = self.provisioning.refresh_volume_group(vg_id, source_vg_id,
+                                                          create_backup_snap, backup_snap_profile)
+            LOG.debug(resp)
+            return True
+        except Exception as e:
+            errormsg = "Refreshing volume group %s failed with error %s" % (vg_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def restore_volume_group(self, vg_id, source_snap, create_backup_snap, backup_snap_profile):
+        """Restore volume group"""
+        try:
+            LOG.info("Restoring volume group")
+            self.validate_input(create_backup_snap, backup_snap_profile)
+            snapshot_existing, snapshot = \
+                self.get_snapshots_of_volume_group(vg_id, backup_snap_profile, source_snap)
+            if snapshot_existing:
+                return False
+            if not snapshot:
+                self.module.fail_json(msg="Source snapshot %s does not exist" % source_snap)
+            resp = self.provisioning.restore_volume_group(vg_id, snapshot['id'],
+                                                          create_backup_snap, backup_snap_profile)
+            LOG.debug(resp)
+            return True
+        except Exception as e:
+            errormsg = "Restoring volume group %s failed with error %s" % (vg_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def clone_volume_group(self, vg_id, vg_clone_params):
+        """Clone volume group"""
+        try:
+            LOG.info("Cloning volume group")
+            vg = self.get_volume_group_details(name=vg_clone_params['name'])
+            if vg:
+                return False
+            protection_policy = None
+            if vg_clone_params['protection_policy']:
+                protection_policy = \
+                    self.get_protection_policy(vg_clone_params['protection_policy'])
+            resp = self.provisioning.clone_volume_group(vg_id, vg_clone_params['name'],
+                                                        vg_clone_params['description'],
+                                                        protection_policy)
+            LOG.debug(resp)
+            return True
+        except Exception as e:
+            errormsg = "Cloning volume group %s failed with error %s" % (vg_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
     def get_volume_group_details(self, vg_id=None, name=None):
         """Get volume group details"""
@@ -630,6 +839,14 @@ class PowerStoreVolumeGroup(object):
 
         return modified
 
+    def validate_expiration_timestamp(self, expiration_timestamp):
+        """Validates whether the expiration timestamp is valid"""
+        if not utils.validate_timestamp(expiration_timestamp):
+            error_msg = 'Incorrect date format, should be ' \
+                        'YYYY-MM-DDTHH:MM:SSZ'
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
+
     def create_volume_group(self, vg_name,
                             description,
                             protection_policy_id,
@@ -701,6 +918,21 @@ class PowerStoreVolumeGroup(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def get_protection_policy(self, protection_policy):
+        prot_pol_identifier_type = utils.name_or_id(protection_policy)
+        if prot_pol_identifier_type == "ID":
+            protection_policy = self.get_protection_policy_details_by_id(
+                protection_policy)
+        if prot_pol_identifier_type == "NAME":
+            protection_policy = self.get_protection_policy_id_by_name(
+                protection_policy)
+        return protection_policy
+
+    def validate_params(self, input_params):
+        if (input_params['backup_snap_profile'] is not None or input_params['create_backup_snap'] is not None) \
+                and (input_params['source_snap'] is None and input_params['source_vg'] is None):
+            self.module.fail_json("Specify source_snap or source_vg to perform restore or refresh.")
+
     def perform_module_operation(self):
         """
         Perform different actions on volume group based on user parameter
@@ -717,21 +949,18 @@ class PowerStoreVolumeGroup(object):
         protection_policy = self.module.params['protection_policy']
         is_write_order_consistent = self.module.params[
             'is_write_order_consistent']
+        source_vg = self.module.params['source_vg']
+        source_snap = self.module.params['source_snap']
+        vg_clone = self.module.params['vg_clone']
 
         volume_group = None
-
+        self.validate_params(self.module.params)
         volume_group = self.get_volume_group_details(vg_id=vg_id,
                                                      name=vg_name)
         LOG.debug('volume_group details: %s', volume_group)
 
         if protection_policy:
-            prot_pol_identifier_type = utils.name_or_id(protection_policy)
-            if prot_pol_identifier_type == "ID":
-                protection_policy = self.get_protection_policy_details_by_id(
-                    protection_policy)
-            if prot_pol_identifier_type == "NAME":
-                protection_policy = self.get_protection_policy_id_by_name(
-                    protection_policy)
+            protection_policy = self.get_protection_policy(protection_policy)
 
         modified = False
 
@@ -796,6 +1025,22 @@ class PowerStoreVolumeGroup(object):
             updated_vg = self.get_volume_group_details(vg_id=vg_id)
             result['volume_group_details'] = updated_vg
 
+        if state == 'present' and source_vg:
+            result['changed'] = \
+                self.refresh_volume_group(vg_id, source_vg, self.module.params['create_backup_snap'],
+                                          self.module.params['backup_snap_profile'])
+
+        if state == 'present' and source_snap:
+            result['changed'] = \
+                self.restore_volume_group(vg_id, source_snap, self.module.params['create_backup_snap'],
+                                          self.module.params['backup_snap_profile'])
+
+        if state == 'present' and vg_clone:
+            result['changed'] = self.clone_volume_group(vg_id, vg_clone)
+
+        if result['volume_group_details']:
+            result['volume_group_details'].update(snapshots=self.get_snapshots_of_volume_group(vg_id, all_snapshots=True))
+
         if result['create_vg'] or result['modify_vg'] or result[
             'add_vols_to_vg'] or result['remove_vols_from_vg'] or \
                 result['delete_vg']:
@@ -816,8 +1061,31 @@ def get_powerstore_volume_group_parameters():
         state=dict(required=True, choices=['present', 'absent'], type='str'),
         description=dict(required=False, type='str'),
         is_write_order_consistent=dict(required=False, type='bool'),
-        protection_policy=dict(required=False, type='str')
+        protection_policy=dict(required=False, type='str'),
+        source_vg=dict(type='str'),
+        source_snap=dict(type='str'),
+        create_backup_snap=dict(type='bool'),
+        backup_snap_profile=dict(
+            type='dict', options=dict(
+                name=dict(type='str', required=True),
+                description=dict(type='str'),
+                expiration_timestamp=dict(type='str')
+            )
+        ),
+        vg_clone=dict(
+            type='dict', options=dict(
+                name=dict(type='str', required=True),
+                description=dict(type='str'),
+                protection_policy=dict(type='str')
+            )
+        )
     )
+
+
+def get_existing_snapshot(snapshots, snap_name_or_id):
+    for snapshot in snapshots:
+        if snapshot['name'] == snap_name_or_id or snapshot['id'] == snap_name_or_id:
+            return snapshot
 
 
 def main():

@@ -1,4 +1,10 @@
 # ansible-powerstore Change Log
+## Version 1.7.0 - released on 27/09/2022
+- Added support for cluster creation and validating cluster creation attributes.
+- Added support to associate/disassociate protection policy to/from a NAS server.
+- Added support to handle filesystem and NAS server replication sessions.
+- Added support to clone, refresh and restore a volume group. 
+
 ## Version 1.6.0 - released on 28/06/2022
 - Added CRUD operations for LDAP domain and LDAP account.
 - Added execution environment manifest file to support building an execution environment with ansible-builder.

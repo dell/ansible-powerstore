@@ -23,6 +23,11 @@ class MockVolumeGroupApi:
         'new_vg_name': None,
         'volumes': None,
         'vol_state': None,
+        'source_snap': None,
+        'source_vg': None,
+        'create_backup_snap': None,
+        'backup_snap_profile': None,
+        'vg_clone': None,
         'state': None
     }
     DESCRIPTION1 = 'Volume group created'
@@ -246,3 +251,15 @@ class MockVolumeGroupApi:
     @staticmethod
     def get_non_existing_volume_failed_msg():
         return "Volume with id 6b730a66-494a-4aea-88d2-45552bb4adfc not found. Please enter a correct volume id"
+
+    @staticmethod
+    def refresh_vol_group_ex():
+        return "Refreshing volume group 634e4b95-e7bd-49e7-957b-6dc932642464 failed with error"
+
+    @staticmethod
+    def restore_vol_group_ex():
+        return "Restoring volume group 634e4b95-e7bd-49e7-957b-6dc932642464 failed with error"
+
+    @staticmethod
+    def clone_vol_group_ex():
+        return "Cloning volume group 634e4b95-e7bd-49e7-957b-6dc932642464 failed with error"
