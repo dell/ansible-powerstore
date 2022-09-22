@@ -65,6 +65,37 @@ class TestPowerstoreReplicationSession():
         replicationsession_module_mock.perform_module_operation()
         replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
 
+    def test_get_replication_session_using_volume_id_response(self, replicationsession_module_mock):
+        self.get_module_args.update({
+            'volume': "634e4b95-e7bd-49e7-957b-6dc932642464"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS[0])
+        replicationsession_module_mock.protection.get_replication_sessions = MagicMock(
+            return_value=MockReplicationSessionApi.SESSION_IDS_VOLUME)
+        replicationsession_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockReplicationSessionApi.VOLUME_DETAILS[0])
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
+
+    def test_get_replication_session_using_volume_not_found_response(self, replicationsession_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "404"
+        self.get_module_args.update({
+            'volume': "634e4b95-e7bd-49e7-957b-6dc932642464"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS[0])
+        replicationsession_module_mock.protection.get_replication_sessions = MagicMock(
+            return_value=MockReplicationSessionApi.SESSION_IDS_VOLUME)
+        replicationsession_module_mock.provisioning.get_volume_details = MagicMock(
+            side_effect=MockApiException)
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.provisioning.get_volume_details.assert_called()
+
     def test_get_replication_session_using_volume_group_response(self, replicationsession_module_mock):
         self.get_module_args.update({
             'volume_group': "sample_volume_group"
@@ -78,6 +109,38 @@ class TestPowerstoreReplicationSession():
             return_value=MockReplicationSessionApi.VOLUME_GROUP_DETAILS)
         replicationsession_module_mock.provisioning.get_volume_group_details = MagicMock(
             return_value=MockReplicationSessionApi.VOLUME_GROUP_DETAILS[0])
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
+
+    def test_get_replication_session_using_nas_server_response(self, replicationsession_module_mock):
+        self.get_module_args.update({
+            'nas_server': "sample_nas_server"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS_NAS_SERVER[0])
+        replicationsession_module_mock.protection.get_replication_sessions = MagicMock(
+            return_value=MockReplicationSessionApi.SESSION_IDS_NAS_SERVER)
+        replicationsession_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=MockReplicationSessionApi.NAS_SERVER_DETAILS)
+        replicationsession_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockReplicationSessionApi.NAS_SERVER_DETAILS[0])
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
+
+    def test_get_replication_session_using_filesystem_response(self, replicationsession_module_mock):
+        self.get_module_args.update({
+            'filesystem': "sample_filesystem"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS_FILESYSTEM[0])
+        replicationsession_module_mock.protection.get_replication_sessions = MagicMock(
+            return_value=MockReplicationSessionApi.SESSION_IDS_FILESYSTEM)
+        replicationsession_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            return_value=MockReplicationSessionApi.FILESYSTEM_DETAILS)
+        replicationsession_module_mock.provisioning.get_filesystem_details = MagicMock(
+            return_value=MockReplicationSessionApi.FILESYSTEM_DETAILS[0])
         replicationsession_module_mock.perform_module_operation()
         replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
 

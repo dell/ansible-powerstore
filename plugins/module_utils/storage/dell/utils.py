@@ -31,6 +31,7 @@ import logging
 import math
 from decimal import Decimal
 from uuid import UUID
+from datetime import datetime
 
 '''
 Check required libraries
@@ -62,7 +63,7 @@ def py4ps_version_check():
                                           "'pkg_resources', please install" \
                                           " the required package"
         else:
-            min_ver = '1.7.0'
+            min_ver = '1.8.0'
             curr_version = PyPowerStore.__version__
             unsupported_version_message = "PyPowerStore {0} is not supported " \
                                           "by this module. Minimum supported" \
@@ -203,3 +204,23 @@ def failure_codes(exception):
     if isinstance(exception, PowerStoreException):
         codes = dict({'error_code': exception.err_code, 'status_code': exception.status_code})
     return codes
+
+
+def validate_timestamp(expiration_timestamp):
+    """Validates whether the timestamp is valid"""
+    try:
+        datetime.strptime(expiration_timestamp,
+                          '%Y-%m-%dT%H:%M:%SZ')
+        return True
+    except ValueError:
+        return False
+
+
+'''
+Validate whether param is empty or not
+'''
+
+
+def is_param_empty(param):
+    if param is not None and (param.count(" ") > 0 or len(param.strip()) == 0):
+        return True

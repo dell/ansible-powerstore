@@ -12,17 +12,19 @@ module: cluster
 
 version_added: '1.3.0'
 
-short_description: Manage cluster related opeartions on PowerStore
+short_description: Manage cluster related operations on PowerStore
 
 description:
-- Managing cluster on PowerStore storage system includes getting details and
-  modifying cluster configuration parameters.
+- Managing cluster on PowerStore storage system includes creating cluster,
+  validating create cluster attributes, getting details and modifying cluster
+  configuration parameters.
 
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 
 author:
 - P Srinivas Rao (@srinivas-rao5) <ansible.team@dell.com>
+- Bhavneet Sharma (@sharmb5) <ansible.team@dell.com>
 
 options:
   cluster_name:
@@ -69,6 +71,234 @@ options:
     - MTU for ethernet ports in the cluster.
     - The MTU can be set between 1500 to 9000.
     type: int
+  ignore_network_warnings:
+    description:
+    - Whether to ignore the network warning about unreachable external network.
+    type: bool
+    required: false
+  appliances:
+    description:
+    - Appliance configuration setting during cluster creation.
+    - This is mandatory for create cluster operation.
+    type: list
+    elements: dict
+    suboptions:
+      link_local_address:
+        description:
+        - The unique IPv4 address of the appliance and is set by zeroconf.
+        type: str
+        required: True
+      name:
+        description:
+        - Name of new appliance.
+        type: str
+      drive_failure_tolerance_level:
+        description:
+        - Specifies the possible drive failure tolerance levels.
+        type: str
+        choices: ['Single', 'Double']
+  dns_servers:
+    description:
+    - DNS server addresses in IPv4 format. At least one DNS server should be
+      provided.
+    - This is mandatory for create cluster operation.
+    type: list
+    elements: str
+  ntp_servers:
+    description:
+    - NTP server addresses in IPv4 or hostname format. At least one NTP server
+      should be provided.
+    - This is mandatory for create cluster operation.
+    type: list
+    elements: str
+  physical_switches:
+    description:
+    - Physical switch setting for a new cluster.
+    type: list
+    elements: dict
+    suboptions:
+      name:
+        description:
+        - Name of the physical switch.
+        type: str
+        required: True
+      purpose:
+        description:
+        - Specifies the purpose of the physical switch.
+        type: str
+        required: True
+        choices: ['Data_and_Management', 'Management_Only']
+      connections:
+        description:
+        - specifies the supported connection for the physical switch.
+        type: list
+        required: True
+        elements: dict
+        suboptions:
+          address:
+            description:
+            - Specifies the physical switch address in IPv4 or DNS hostname
+              format.
+            type: str
+            required: True
+          port:
+            description:
+            - Specifies the port used for connection to switch.
+            type: int
+          connect_method:
+            description:
+            - Specifies the connection method type for the physical Switch.
+            type: str
+            required: True
+            choices: ['SSH', 'SNMPv2c']
+          username:
+            description:
+            - Specifies username to connect a physical switch for SSH connection
+              method.
+            type: str
+          ssh_password:
+            description:
+            - Specifies SSH password to connect a physical switch.
+            type: str
+          snmp_community_string:
+            description:
+            - Specifies SNMPv2 community string, if SNMPv2 connect method is
+              selected.
+            type: str
+  networks:
+    description:
+    - Configuration of one or more network(s) based on network type.
+    - This is mandatory for create cluster operation.
+    type: list
+    elements: dict
+    suboptions:
+      type:
+        description:
+        - Specifies the type of the network.
+        type: str
+        required: True
+        choices: ['Management', 'Intra_Cluster_Management',
+          'Intra_Cluster_Data', 'Storage', 'VMotion', 'File_Mobility']
+      vlan_id:
+        description:
+        - The ID of the VLAN.
+        type: int
+      prefix_length:
+        description:
+        - Network prefix length.
+        type: int
+        required: True
+      gateway:
+        description:
+        - Network gateway in IPv4 format.
+        type: str
+      cluster_mgmt_address:
+        description:
+        - New cluster management IP address in IPv4 format.
+        type: str
+      storage_discovery_address:
+        description:
+        - New storage discovery IP address in IPv4 format.
+        - This can be specified only when configure the storage network type.
+        type: str
+      addresses:
+        description:
+        - IP addresses in IPv4 format.
+        type: list
+        elements: str
+        required: True
+      purposes:
+        description:
+        - Purpose of the network.
+        - Only applicable for storage network.
+        type: list
+        elements: str
+        choices: ['ISCSI', 'NVMe_TCP', 'File_Mobility']
+  vcenters:
+    description:
+    - Configure vCenter settings when creating cluster.
+    - Currently, for vcenters parameter API supports only single element.
+    - This is required when creating PowerStore X cluster and optional for
+      PowerStore T.
+    type: list
+    elements: dict
+    suboptions:
+      address:
+        description:
+        - IP address of vCenter in IPv4 or hostname format.
+        type: str
+        required: True
+      username:
+        description:
+        - User name to login to vCenter.
+        type: str
+        required: True
+      password:
+        description:
+        - Password to login to vCenter.
+        type: str
+        required: True
+      is_verify_server_cert:
+        description:
+        - Whether or not the connection will be secured with the vcenter SSL
+          certificate.
+        type: bool
+        required: True
+      data_center_name:
+        description:
+        - Name of the data center.
+        - This is used to join an existing datacenter in vcenter.
+        - This should be specified when creating PowerStore X cluster.
+        - Mutually exclusive with data_center_id.
+        type: str
+      data_center_id:
+        description:
+        - The VMWare ID of datacenter.
+        - This is used to join an existing datacenter in vcenter.
+        - This should be specified when creating PowerStore X cluster.
+        - Mutually exclusive with data_center_name.
+        type: str
+      esx_cluster_name:
+        description:
+        - Name of the ESXi cluster.
+        - This should be specified when creating PowerStore X cluster.
+        type: str
+      vasa_provider_credentials:
+        description:
+        - Storage system credentials for vCenter to use for communicating with
+          the storage system using VASA.
+        type: dict
+        required: True
+        suboptions:
+          username:
+            description:
+            - Username of the local user account which will be used by vSphere
+              to register VASA provider.
+            type: str
+            required: True
+          password:
+            description:
+            - Password of the local user account which will be used by vSphere
+              to register VASA provider.
+            type: str
+            required: True
+  is_http_redirect_enabled:
+    description:
+    - Whether to redirect the HTTP requests to HTTPS.
+    type: bool
+  validate_create:
+    description:
+    - Whether to perform create cluster validate call.
+    default: True
+    type: bool
+  wait_for_completion:
+    description:
+    - Flag to indicate if the operation should be run synchronously or
+      asynchronously.
+    - True signifies synchronous execution. By default, create cluster
+      operation will run asynchronously.
+    default: False
+    type: bool
   state:
     description:
     - Define whether the cluster should exist or not.
@@ -79,8 +309,18 @@ options:
     choices: ['absent', 'present']
 
 notes:
-- Creation and deletion of cluster is not supported by ansible modules.
+- Deletion of a cluster is not supported by ansible module.
 - The check_mode is not supported.
+- Before performing create operation, the default password for admin user and
+  service user should be changed.
+- For management type network during cluster creation,
+  storage_discovery_address and purposes should not be passed.
+- The vcenters parameter is mandatory for PowerStore X cluster creation.
+- Minimum 3 and 5 addresses are required for management network for PowerStore
+  T and X model respectively.
+- The File_Mobility purpose is supported only in FootHills Prime and above.
+- Parameter is_http_redirect_enabled is supported only in PowerStore FootHills
+  Prime and above.
 '''
 
 EXAMPLES = r'''
@@ -106,6 +346,101 @@ EXAMPLES = r'''
     chap_mode: "Disabled"
     new_name: "new_RT-D1320"
     state: "present"
+
+- name: Validate create cluster
+  dellemc.powerstore.cluster:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    cluster_name: "RT-D1320"
+    ignore_network_warnings: True
+    appliances:
+      - link_local_address: "1.2.x.x"
+        name: "Ansible_cluster"
+        derive_failure_tolerance_level: "Double"
+    dns_servers:
+      - "1.1.x.x"
+    ntp_servers:
+      - "1.3.x.x"
+    networks:
+      - type: "Management"
+        vlan_id: 0
+        prefix_length: 24
+        gateway: "1.x.x.x"
+        cluster_mgmt_address: "1.x.x.x"
+        addresses:
+          - "2.x.x.x"
+          - "3.x.x.x"
+      - type: "Storage"
+        vlan_id: 0
+        prefix_length: 42
+        gateway: "1.x.x.x"
+        storage_discovery_address: "1.x.x.x"
+        addresses:
+          - "2.x.x.x"
+          - "3.x.x.x"
+        purpose:
+          - "ISCSI"
+    is_http_redirect_enabled: True
+    validate_create: True
+    state: "present"
+
+- name: Create cluster
+  dellemc.powerstore.cluster:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    cluster_name: "RT-D1320"
+    ignore_network_warnings: True
+    appliances:
+      - link_local_address: "1.2.x.x"
+        name: "Ansible_cluster"
+        derive_failure_tolerance_level: "Double"
+    dns_servers:
+      - "1.1.x.x"
+    ntp_servers:
+      - "1.3.x.x"
+    physical_switch:
+      - name: "Ansible_switch"
+        purpose: "Management_Only"
+        connections:
+          - address: "1.x.x.x"
+            port: 20
+            connect_method: "SSH"
+            username: "user"
+            ssh_password: "password"
+    networks:
+      - type: "Management"
+        vlan_id: 0
+        prefix_length: 24
+        gateway: "1.x.x.x"
+        cluster_mgmt_address: "1.x.x.x"
+        addresses:
+          - "2.x.x.x"
+          - "3.x.x.x"
+      - type: "Storage"
+        vlan_id: 0
+        prefix_length: 42
+        gateway: "1.x.x.x"
+        storage_discovery_address: "1.x.x.x"
+        addresses:
+          - "2.x.x.x"
+          - "3.x.x.x"
+        purpose:
+          - "ISCSI"
+    vcenters:
+      - address: "1.x.x.x"
+        username: "user"
+        password: "password"
+        is_verify_server_cert: True
+        vasa_provider_credentials:
+          username: "user"
+          password: "password"
+    is_http_redirect_enabled: True
+    wait_for_completion: False
+    state: "present"
 '''
 
 RETURN = r'''
@@ -114,6 +449,44 @@ changed:
     returned: always
     type: bool
     sample: "true"
+
+job_details:
+    description: The job details.
+    type: complex
+    returned: When asynchronous task is performed.
+    contains:
+        id:
+            description: The ID of the job.
+            type: str
+    sample: {
+        "description_l10n": "Create Cluster.",
+        "end_time": "2022-01-06T07:39:05.846+00:00",
+        "estimated_completion_time": null,
+        "id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "parent_id": null,
+        "phase": "Completed",
+        "phase_l10n": "Completed",
+        "progress_percentage": 100,
+        "resource_action": "create",
+        "resource_action_l10n": "create",
+        "resource_id": "0",
+        "resource_name": null,
+        "resource_type": "cluster",
+        "resource_type_l10n": "cluster",
+        "response_body": {
+            "id": 0,
+            "response_type": "job_create_response"
+        },
+        "response_status": null,
+        "response_status_l10n": null,
+        "root_id": "be0d099c-a6cf-44e8-88d7-9be80ccae369",
+        "start_time": "2022-01-06T07:39:05.47+00:00",
+        "state": "COMPLETED",
+        "state_l10n": "Completed",
+        "step_order": 23792565,
+        "user": "admin"
+    }
+
 cluster_details:
     description: The cluster details.
     type: complex
@@ -242,6 +615,7 @@ cluster_details:
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import utils
 from ansible.module_utils.basic import AnsibleModule
+import copy
 
 LOG = utils.get_logger('cluster')
 
@@ -254,7 +628,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.6.0'
+APPLICATION_TYPE = 'Ansible/1.7.0'
 
 
 class PowerStoreCluster(object):
@@ -271,11 +645,14 @@ class PowerStoreCluster(object):
             ['cluster_name', 'cluster_id'],
             ['appliance_name', 'appliance_id']
         ]
+        required_together = [['appliances', 'networks', 'dns_servers',
+                              'ntp_servers']]
         required_one_of = [['cluster_name', 'cluster_id']]
         self.module = AnsibleModule(
             argument_spec=self.module_params,
             supports_check_mode=False,
             mutually_exclusive=mut_ex_args,
+            required_together=required_together,
             required_one_of=required_one_of
         )
 
@@ -299,6 +676,7 @@ class PowerStoreCluster(object):
         self.conn = utils.get_powerstore_connection(
             self.module.params, application_type=APPLICATION_TYPE)
         self.configuration = self.conn.config_mgmt
+        self.provisioning = self.conn.provisioning
         msg = 'Got Py4Ps instance for configuring cluster on' \
               ' PowerStore {0}'.format(self.conn)
         LOG.info(msg)
@@ -447,6 +825,267 @@ class PowerStoreCluster(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def prepare_network_payload(self, networks):
+        """
+        To remove storage_discovery_address and purposes key form management type
+        network
+        :param networks: List of dict of networks for cluster
+        """
+        for net_dict in networks:
+            if net_dict['type'] == 'Management' and \
+                    ('storage_discovery_address' in net_dict
+                     or 'purposes' in net_dict):
+                if net_dict['storage_discovery_address'] is not None or \
+                        net_dict['purposes'] is not None:
+                    error_msg = "storage_discovery_address and purposes " \
+                                "should not be provided for management " \
+                                "type network."
+                    self.module.fail_json(msg=error_msg)
+                else:
+                    del net_dict['storage_discovery_address']
+                    del net_dict['purposes']
+                    break
+            elif net_dict['type'] == 'Storage' and \
+                    'cluster_mgmt_address' in net_dict:
+                del net_dict['cluster_mgmt_address']
+                break
+            elif net_dict['type'] == 'VMotion' and \
+                    ('cluster_mgmt_address' in net_dict or
+                     'storage_discovery_address' in net_dict or
+                     'purpose' in net_dict):
+                del net_dict['cluster_mgmt_address']
+                del net_dict['storage_discovery_address']
+                del net_dict['purposes']
+                break
+
+    def create_cluster_validate(self, cluster_name):
+        """Create cluster validation operation"""
+
+        ignore_network_warnings = self.module.params['ignore_network_warnings']
+        dns_servers = self.module.params['dns_servers']
+        ntp_servers = self.module.params['ntp_servers']
+        is_http_redirect_enabled = self.module.params['is_http_redirect_enabled']
+
+        clusters = dict()
+        clusters['name'] = cluster_name
+        clusters['ignore_network_warnings'] = ignore_network_warnings
+        appliances = copy.deepcopy(self.module.params['appliances'])
+        physical_switches = copy.deepcopy(self.module.params['physical_switches'])
+        networks = copy.deepcopy(self.module.params['networks'])
+        vcenters = self.module.params['vcenters']
+
+        if networks is not None:
+            self.prepare_network_payload(networks)
+
+        try:
+            # cluster create validate operation
+            LOG.info("Validating the new cluster configurations.")
+            resp = self.configuration.cluster_create_validate(
+                cluster=clusters, appliances=appliances,
+                dns_servers=dns_servers, ntp_servers=ntp_servers,
+                networks=networks,
+                is_http_redirect_enabled=is_http_redirect_enabled,
+                physical_switches=physical_switches, vcenters=vcenters)
+            LOG.info("response of validate create %s ", str(resp))
+            return True, resp
+        except Exception as e:
+            msg = "Validation of create cluster {0} failed with " \
+                  "{1}".format(cluster_name, str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def create_cluster(self, cluster_name, wait_for_completion):
+        """ Create the new cluster"""
+
+        ignore_network_warnings = self.module.params['ignore_network_warnings']
+        dns_servers = self.module.params['dns_servers']
+        ntp_servers = self.module.params['ntp_servers']
+        is_http_redirect_enabled = self.module.params['is_http_redirect_enabled']
+
+        clusters = dict()
+        clusters['name'] = cluster_name
+        clusters['ignore_network_warnings'] = ignore_network_warnings
+        appliances = copy.deepcopy(self.module.params['appliances'])
+        physical_switches = copy.deepcopy(
+            self.module.params['physical_switches'])
+        networks = copy.deepcopy(self.module.params['networks'])
+        vcenters = self.module.params['vcenters']
+
+        if networks is not None:
+            self.prepare_network_payload(networks)
+
+        if wait_for_completion:
+            is_async = False
+        else:
+            is_async = True
+
+        try:
+            # cluster create operation
+            LOG.info("Creating new cluster configurations.")
+            job_dict = self.configuration.cluster_create(
+                cluster=clusters, appliances=appliances,
+                dns_servers=dns_servers, ntp_servers=ntp_servers,
+                networks=networks,
+                is_http_redirect_enabled=is_http_redirect_enabled,
+                physical_switches=physical_switches, vcenters=vcenters,
+                is_async=is_async)
+            LOG.info("response is: %s", str(job_dict))
+            return True, job_dict
+        except Exception as e:
+            err_msg = "Cluster {0} creation failed with " \
+                      "{1}".format(cluster_name, str(e))
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
+
+    def validate_vcenters_params(self):
+        """Validate vCenters parameters"""
+
+        vcenters = self.module.params['vcenters']
+
+        if vcenters:
+            for vcenter in vcenters:
+                if 'address' in vcenter and vcenter['address'] is not None and \
+                        len(vcenter['address'].strip()) == 0:
+                    err_msg = "Provide valid address for new " \
+                              "vcenter configuration."
+                    self.module.fail_json(msg=err_msg)
+                if 'data_center_name' in vcenter and \
+                        'data_center_id' in vcenter and \
+                        vcenter['data_center_name'] is not None and \
+                        vcenter['data_center_id'] is not None:
+                    err_msg = "parameters are mutually exclusive: " \
+                              "data_center_name|data_center_id"
+                    self.module.fail_json(msg=err_msg)
+
+    def validate_addresses_params(self, net_dict):
+        """
+        Validate the addresses related params
+        """
+        param_list = ['cluster_mgmt_address', 'storage_discovery_address']
+        for param in param_list:
+            if param in net_dict and net_dict[param] is not None and \
+                    (len(net_dict[param].strip()) == 0 or
+                     " " in net_dict[param]):
+                err_msg = "Provide valid {0}.".format(param)
+                self.module.fail_json(msg=err_msg)
+
+    def validate_networks_params(self):
+        """Validate Networks parameters"""
+
+        networks = self.module.params['networks']
+        if networks:
+            for net_dict in networks:
+                if 'addresses' in net_dict and \
+                        net_dict['type'] == 'Management' and \
+                        len(net_dict['addresses']) < 3:
+                    err_msg = "For Management network, minimum 3 addresses " \
+                              "for PowerStore T and minimum 5 addresses for" \
+                              " PowerStore X should be provided."
+                    self.module.fail_json(msg=err_msg)
+                if net_dict['type'] == 'Management' and \
+                        ('cluster_mgmt_address' not in net_dict or
+                         net_dict['cluster_mgmt_address'] is None):
+                    err_msg = "The cluster_mgmt_address should be provided" \
+                              " for Management type network."
+                    self.module.fail_json(msg=err_msg)
+                self.validate_addresses_params(net_dict)
+
+    def validate_connections_dict(self, connections):
+        """Validate connections dict parameters"""
+
+        for connect_dict in connections:
+            if 'address' in connect_dict and connect_dict['address'] is not None and \
+                    len(connect_dict['address'].strip()) == 0:
+                error_msg = "The address should be provided" \
+                            " in connections."
+                self.module.fail_json(msg=error_msg)
+            if connect_dict['connect_method'] == "SSH" and \
+                    (connect_dict['username'] is None or
+                     connect_dict['ssh_password'] is None):
+                error_msg = "username/ssh_password should be provided with " \
+                            "SSH connect_method"
+                self.module.fail_json(msg=error_msg)
+            if connect_dict['connect_method'] == "SNMPv2c" and \
+                    not connect_dict['snmp_community_string']:
+                error_msg = "snmp_community_string should be provided with " \
+                            "SNMPv2c connect_method"
+                self.module.fail_json(msg=error_msg)
+
+    def validate_physical_switch_params(self):
+        """ Validate physical switch parameters"""
+
+        physical_switches = self.module.params['physical_switches']
+        if physical_switches:
+            for switch_list in physical_switches:
+                if 'name' in switch_list and \
+                        utils.is_param_empty(switch_list['name']):
+                    err_msg = "Provide valid physical switch name."
+                    self.module.fail_json(msg=err_msg)
+                connections = switch_list['connections']
+                if len(connections) == 0:
+                    error_msg = "connections details should be present in " \
+                                "physical_switches."
+                    self.module.fail_json(msg=error_msg)
+                self.validate_connections_dict(connections)
+
+    def validate_ntp_or_dns(self):
+        """validate the NTP and DNS server addresses"""
+
+        dns_servers = self.module.params['dns_servers']
+        ntp_servers = self.module.params['ntp_servers']
+
+        if dns_servers is not None and len(dns_servers) > 3:
+            err_msg = "Maximum three address should be provided for" \
+                      " dns_servers."
+            self.module.fail_json(msg=err_msg)
+
+        if ntp_servers is not None and len(ntp_servers) > 3:
+            err_msg = "Maximum three address should be provided for" \
+                      " ntp_servers."
+            self.module.fail_json(msg=err_msg)
+
+    def validate_create_parameters(self):
+        """Validate the input parameters"""
+
+        # Check for space
+        if utils.is_param_empty(self.module.params['cluster_name']):
+            error_msg = "Provide valid {0}".format('cluster_name')
+            self.module.fail_json(msg=error_msg)
+
+        self.validate_ntp_or_dns()
+
+        appliances = self.module.params['appliances']
+        if appliances:
+            for app_dict in appliances:
+                if 'link_local_address' in app_dict and \
+                        (len(app_dict['link_local_address'].strip()) == 0 or
+                         " " in app_dict['link_local_address']):
+                    error_msg = "Provide valid link_local_address for " \
+                                "an appliance."
+                    self.module.fail_json(msg=error_msg)
+
+                if 'name' in app_dict and \
+                        utils.is_param_empty(app_dict['name']):
+                    error_msg = "Provide valid name of an appliance."
+                    self.module.fail_json(msg=error_msg)
+        self.validate_physical_switch_params()
+        self.validate_networks_params()
+        self.validate_vcenters_params()
+
+    def get_cluster_list(self):
+        """
+        Getting list of cluster to filter create and create validate operation
+        """
+        try:
+            LOG.info("Getting list of clusters.")
+            clusters = self.provisioning.get_cluster_list()
+            return clusters
+        except Exception as e:
+            error_msg = "Getting list of clusters failed with error: " \
+                        "{0}".format(str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
     def perform_module_operation(self):
         """
         Perform different actions on cluster module based on parameters
@@ -463,8 +1102,18 @@ class PowerStoreCluster(object):
         state = self.module.params['state']
         appliance_name = self.module.params['appliance_name']
         appliance_id = self.module.params['appliance_id']
+        validate_create = self.module.params['validate_create']
+        wait_for_completion = self.module.params['wait_for_completion']
 
         changed = False
+        create_changed = False
+        cluster_details = {}
+        validate_resp = {}
+        job_dict = {}
+
+        clusters = self.get_cluster_list()
+        self.validate_create_parameters()
+
         # if is_ssh_enabled is passed and appliance name/id is not passed.
         if not (appliance_id or appliance_name) and is_ssh_enabled is not None:
             self.module.fail_json(
@@ -487,18 +1136,24 @@ class PowerStoreCluster(object):
                 self.module.fail_json(
                     msg="Unable to fetch the appliance details. Please provide"
                         " a valid appliance_name.")
-            service_config_id = appliance_details['id']
-            appliance_id = appliance_details['id']
+            elif appliance_details:
+                service_config_id = appliance_details['id']
+                appliance_id = appliance_details['id']
 
-        cluster_details = self.get_cluster_details(cluster_name, cluster_id)
+        if clusters is not None and clusters[0]['name'] is not None:
+            cluster_details = self.get_cluster_details(cluster_name, cluster_id)
         if cluster_details and cluster_name:
             cluster_id = cluster_details['id']
 
+        # Validate create cluster operation
         if state == 'present' and not cluster_details:
-            self.module.fail_json(
-                msg="Creation of cluster is currently not supported by the "
-                    "module. Please enter the cluster_name/cluster_id of the "
-                    "existing cluster.")
+            if validate_create:
+                changed, validate_resp = self.\
+                    create_cluster_validate(cluster_name)
+            else:
+                # Create cluster operation
+                create_changed, job_dict = self.\
+                    create_cluster(cluster_name, wait_for_completion)
 
         if state == 'absent' and cluster_details:
             self.module.fail_json(
@@ -506,7 +1161,8 @@ class PowerStoreCluster(object):
                     "currently not supported by the module.")
 
         # cluster details with all the parameters needed for modify
-        cluster_details = self.show_cluster_details(cluster_id, appliance_id)
+        if clusters is not None and clusters[0]['name'] is not None:
+            cluster_details = self.show_cluster_details(cluster_id, appliance_id)
 
         if state == 'present' and cluster_details:
             update_params_dict = modify_payload(
@@ -517,9 +1173,19 @@ class PowerStoreCluster(object):
                                     update_params_dict)
                 changed = True
 
-        cluster_details = self.show_cluster_details(cluster_id, appliance_id)
-        self.result["changed"] = changed
-        self.result["cluster_details"] = cluster_details
+        if state == 'present' and not wait_for_completion and create_changed \
+                and not validate_create:
+            self.result["changed"] = create_changed
+            self.result["job_details"] = job_dict
+        elif state == 'present' and changed and validate_create and \
+                clusters[0]['name'] is None:
+            self.result["changed"] = changed
+            self.result["cluster_details"] = {}
+            self.result['validate_response'] = validate_resp
+        else:
+            self.result["changed"] = changed
+            self.result["cluster_details"] = self.\
+                show_cluster_details(cluster_id, appliance_id)
         self.module.exit_json(**self.result)
 
 
@@ -567,6 +1233,68 @@ def get_powerstore_cluster_parameters():
         chap_mode=dict(choices=['Disabled', 'Single', 'Mutual']),
         is_ssh_enabled=dict(type='bool'), new_name=dict(),
         physical_mtu=dict(type='int'),
+        ignore_network_warnings=dict(type='bool'),
+        appliances=dict(
+            type='list', elements='dict',
+            options=dict(
+                link_local_address=dict(
+                    type='str', required=True),
+                name=dict(type='str'),
+                drive_failure_tolerance_level=dict(
+                    type='str', choices=['Single', 'Double']))),
+        dns_servers=dict(type='list', elements='str'),
+        ntp_servers=dict(type='list', elements='str'),
+        physical_switches=dict(
+            type='list', elements='dict', options=dict(
+                name=dict(type='str', required=True), purpose=dict(
+                    type='str', required=True,
+                    choices=['Data_and_Management', 'Management_Only']),
+                connections=dict(
+                    type='list', elements='dict', required=True, options=dict(
+                        address=dict(type='str', required=True),
+                        port=dict(type='int'),
+                        connect_method=dict(
+                            type='str', choices=['SSH', 'SNMPv2c'],
+                            required=True), username=dict(type='str'),
+                        ssh_password=dict(type='str', no_log=True),
+                        snmp_community_string=dict(type='str', no_log=True))))),
+        networks=dict(type='list', elements='dict',
+                      options=dict(
+                          type=dict(
+                              type='str', required=True,
+                              choices=['Management',
+                                       'Intra_Cluster_Management',
+                                       'Intra_Cluster_Data', 'Storage',
+                                       'VMotion', 'File_Mobility']),
+                          vlan_id=dict(type='int'),
+                          prefix_length=dict(type='int', required=True),
+                          gateway=dict(type='str'),
+                          cluster_mgmt_address=dict(type='str'),
+                          storage_discovery_address=dict(type='str'),
+                          addresses=dict(type='list', elements='str',
+                                         required=True),
+                          purposes=dict(
+                              type='list', elements='str',
+                              choices=['ISCSI', 'NVMe_TCP',
+                                       'File_Mobility']))),
+        vcenters=dict(
+            type='list', elements='dict',
+            options=dict(
+                address=dict(type='str', required=True),
+                username=dict(type='str', required=True),
+                password=dict(type='str', required=True, no_log=True),
+                is_verify_server_cert=dict(type='bool', required=True),
+                data_center_name=dict(type='str'),
+                data_center_id=dict(type='str'),
+                esx_cluster_name=dict(type='str'),
+                vasa_provider_credentials=dict(
+                    type='dict', required=True, options=dict(
+                        username=dict(type='str', required=True),
+                        password=dict(type='str', required=True,
+                                      no_log=True))))),
+        is_http_redirect_enabled=dict(type='bool'),
+        validate_create=dict(type='bool', default=True),
+        wait_for_completion=dict(type='bool', default=False),
         state=dict(required=True, choices=['present', 'absent'])
     )
 

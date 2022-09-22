@@ -381,7 +381,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.6.0'
+APPLICATION_TYPE = 'Ansible/1.7.0'
 
 
 class PowerStoreNfsExport(object):
@@ -663,9 +663,11 @@ class PowerStoreNfsExport(object):
         for host in host_details:
             version = check_ipv4_ipv6_fqdn(host)
             if version == 4:
-                ipv4_hosts.append(self.get_ipv4_host(host))
+                updated_host, host = self.get_ipv4_host(host)
+                ipv4_hosts.append(updated_host)
             elif version == 6:
-                ipv6_hosts.append(self.get_ipv6_host(host))
+                updated_6host, host = self.get_ipv6_host(host)
+                ipv6_hosts.append(updated_6host)
             else:
                 fqdn_hosts.append(host)
 
@@ -676,7 +678,7 @@ class PowerStoreNfsExport(object):
 
         try:
             host = u'{0}'.format(host)
-            return IPv4Network(host, strict=False)
+            return IPv4Network(host, strict=False), host
         except ValueError as e:
             error_msg = "Given host {0} is an invalid IPv4 format -- " \
                         "error {1}".format(host, str(e))
@@ -688,7 +690,7 @@ class PowerStoreNfsExport(object):
 
         try:
             host = u'{0}'.format(host)
-            return IPv6Network(host, strict=False)
+            return IPv6Network(host, strict=False), host
         except ValueError as e:
             error_msg = "Given host {0} is an invalid IPv6 format -- " \
                         "error {1}".format(host, str(e))
@@ -716,20 +718,20 @@ class PowerStoreNfsExport(object):
                     if version:
                         if version == 4:
                             # IPv4 host is provided
-                            ipv4_host = self.get_ipv4_host(host)
+                            ipv4_host, hostv4 = self.get_ipv4_host(host)
                             # Check if given host is member of already added
                             # network
                             if ipv4_host not in ipv4_hosts and \
-                                    str(ipv4_host) not in hosts_to_add:
-                                hosts_to_add.append(str(ipv4_host))
+                                    str(hostv4) not in hosts_to_add:
+                                hosts_to_add.append(str(hostv4))
                         else:
                             # IPv6 host is provided
-                            ipv6_host = self.get_ipv6_host(host)
+                            ipv6_host, hostv6 = self.get_ipv6_host(host)
                             # Check if given host is member of already added
                             # network
                             if ipv6_host not in ipv6_hosts and \
-                                    str(ipv6_host) not in hosts_to_add:
-                                hosts_to_add.append(str(ipv6_host))
+                                    str(hostv6) not in hosts_to_add:
+                                hosts_to_add.append(str(hostv6))
                     else:
                         # FQDN/Netgroup is provided
                         if host not in fqdn_hosts and \
@@ -745,6 +747,23 @@ class PowerStoreNfsExport(object):
 
         LOG.info("Host list to add: %s", add_host_dict)
         return add_host_dict
+
+    def check_array_version(self):
+        """Verify PowerStore array version"""
+        try:
+            foot_hill_prime_version = '3.0.0.0'
+            release_version = self.provisioning.get_array_version()
+
+            if release_version and (
+                    utils.parse_version(release_version) >=
+                    utils.parse_version(foot_hill_prime_version)):
+                return True
+            return False
+        except Exception as e:
+            error_msg = "Failed to get the array version with error " \
+                        "{0}".format(str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def check_remove_hosts(self, export_details):
         """Check if hosts are to be removed from NFS export"""
@@ -767,7 +786,7 @@ class PowerStoreNfsExport(object):
                     if version:
                         if version == 4:
                             # IPv4 host is provided
-                            ipv4_host = self.get_ipv4_host(host)
+                            ipv4_host, hostv4 = self.get_ipv4_host(host)
                             # Check if given host is member of already added
                             # network
                             if ipv4_host in ipv4_hosts and \
@@ -776,10 +795,16 @@ class PowerStoreNfsExport(object):
                                 hosts_to_remove.append(str(ipv4_host.with_netmask))
                         else:
                             # IPv6 host is provided
-                            ipv6_host = self.get_ipv6_host(host)
+                            ipv6_host, hostv6 = self.get_ipv6_host(host)
                             # Check if given host is member of already added
-                            # network
-                            if ipv6_host in ipv6_hosts and \
+                            # network based on array version
+                            if self.check_array_version() and \
+                                    ipv6_host in ipv6_hosts and \
+                                    str(hostv6) not in hosts_to_remove:
+                                hosts_to_remove.append(
+                                    str(hostv6))
+                            elif not self.check_array_version() and \
+                                    ipv6_host in ipv6_hosts and \
                                     str(ipv6_host.with_prefixlen) not in \
                                     hosts_to_remove:
                                 hosts_to_remove.append(

@@ -19,6 +19,8 @@ class MockReplicationSessionApi:
         'array_ip': '**.***.**.***',
         'volume_group': None,
         'volume': None,
+        'nas_server': None,
+        'filesystem': None,
         'session_id': None,
         'session_state': None
     }
@@ -236,12 +238,84 @@ class MockReplicationSessionApi:
         }
     ]
 
+    REPLICATION_SESSION_DETAILS_NAS_SERVER = [
+        {
+            "id": "62a9b5c4-f82e-5668-3ea4-4ad525462806",
+            "state": "Partial_OK",
+            "role": "Destination",
+            "resource_type": "nas_server",
+            "data_transfer_state": "Asynchronous",
+            "type": "Asynchronous",
+            "last_sync_timestamp": None,
+            "local_resource_id": "629f413b-a583-9fac-a84b-4ad525462806",
+            "remote_resource_id": "62a7875c-042d-1885-be35-4ad525462806",
+            "remote_system_id": "57384c4e-0018-4464-829c-d567da38fac0",
+            "progress_percentage": None,
+            "estimated_completion_timestamp": None,
+            "replication_rule_id": "ea57f751-d4ea-4f37-9fce-4345d4ac3fb6",
+            "last_sync_duration": None,
+            "next_sync_timestamp": None,
+            "storage_element_pairs": None,
+            "failover_test_in_progress": False,
+            "error_code": None,
+            "data_connection_state": "OK",
+            "parent_replication_session_id": None,
+            "local_resource_state": None,
+            "state_l10n": "Partial OK",
+            "role_l10n": "Destination",
+            "resource_type_l10n": "NAS Server",
+            "data_transfer_state_l10n": "Asynchronous",
+            "type_l10n": "Asynchronous",
+            "data_connection_state_l10n": "OK",
+            "local_resource_state_l10n": None}
+    ]
+
+    REPLICATION_SESSION_DETAILS_FILESYSTEM = [
+        {
+            "id": "62a72cbf-36a0-c57a-04f0-da3630264434",
+            "state": "OK",
+            "role": "Source",
+            "resource_type": "file_system",
+            "data_transfer_state": None,
+            "type": "Asynchronous",
+            "last_sync_timestamp": "2022-07-06T10:25:40+00:00",
+            "local_resource_id": "629f3441-b76e-41ca-3f37-4ad525462806",
+            "remote_resource_id": "62a72ca3-a95b-4539-0641-da3630264434",
+            "remote_system_id": "57384c4e-0018-4464-829c-d567da38fac0",
+            "progress_percentage": None,
+            "estimated_completion_timestamp": None,
+            "replication_rule_id": "ea57f751-d4ea-4f37-9fce-4345d4ac3fb6",
+            "last_sync_duration": 2000,
+            "next_sync_timestamp": "2022-07-06T11:25:40+00:00",
+            "storage_element_pairs": None,
+            "failover_test_in_progress": False,
+            "error_code": None,
+            "data_connection_state": "OK",
+            "parent_replication_session_id": "62a72ca3-9efe-ce10-a94f-4ad525462806",
+            "local_resource_state": None,
+            "state_l10n": "OK",
+            "role_l10n": "Source",
+            "resource_type_l10n": "File System",
+            "data_transfer_state_l10n": None,
+            "type_l10n": "Asynchronous",
+            "data_connection_state_l10n": "OK",
+            "local_resource_state_l10n": None}
+    ]
+
     SESSION_IDS_VOLUME = [
         {'id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bc"}
     ]
 
     SESSION_IDS_VOLUME_GROUP = [
         {'id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bd"}
+    ]
+
+    SESSION_IDS_NAS_SERVER = [
+        {'id': "62a9b5c4-f82e-5668-3ea4-4ad525462806"}
+    ]
+
+    SESSION_IDS_FILESYSTEM = [
+        {'id': "62a72cbf-36a0-c57a-04f0-da3630264434"}
     ]
 
     VOLUME_DETAILS = [{
@@ -329,6 +403,92 @@ class MockReplicationSessionApi:
             "type_l10n": "Primary",
             "volumes": []
         }
+    ]
+
+    NAS_SERVER_DETAILS = [
+        {
+            "id": "6299d83a-37dc-340b-788f-4ad525462806",
+            "name": "sample_nas_server",
+            "description": None,
+            "operational_status": "Started",
+            "current_node_id": "Appliance-RT-D0338-node-B",
+            "preferred_node_id": "Appliance-RT-D0338-node-A",
+            "default_unix_user": None,
+            "default_windows_user": None,
+            "current_unix_directory_service": "None",
+            "is_username_translation_enabled": False,
+            "is_auto_user_mapping_enabled": False,
+            "production_IPv4_interface_id": None,
+            "production_IPv6_interface_id": None,
+            "backup_IPv4_interface_id": None,
+            "backup_IPv6_interface_id": None,
+            "current_preferred_IPv4_interface_id": "6299d84e-68e0-f4b2-c5e0-4ad525462806",
+            "current_preferred_IPv6_interface_id": None,
+            "protection_policy_id": "1df04c60-c098-40f2-929d-bb12ee3ea471",
+            "file_events_publishing_mode": "None",
+            "is_replication_destination": False,
+            "is_production_mode_enabled": True,
+            "operational_status_l10n": "Started",
+            "current_unix_directory_service_l10n": "None",
+            "file_events_publishing_mode_l10n": "None"}
+    ]
+
+    FILESYSTEM_DETAILS = [
+        {
+            "id": "629e34ae-2cf1-ca81-8ccd-4ad525462806",
+            "name": "File_TEST",
+            "description": None,
+            "nas_server_id": "6299d83a-37dc-340b-788f-4ad525462806",
+            "parent_id": None,
+            "filesystem_type": "Primary",
+            "size_total": 3221225472,
+            "size_used": 1621098496,
+            "config_type": "General",
+            "protection_policy_id": None,
+            "access_policy": "Native",
+            "locking_policy": "Advisory",
+            "folder_rename_policy": "All_Forbidden",
+            "is_smb_sync_writes_enabled": False,
+            "is_smb_op_locks_enabled": True,
+            "is_smb_no_notify_enabled": False,
+            "is_smb_notify_on_access_enabled": False,
+            "is_smb_notify_on_write_enabled": False,
+            "smb_notify_on_change_dir_depth": 512,
+            "is_async_MTime_enabled": False,
+            "is_quota_enabled": False,
+            "grace_period": 604800,
+            "default_hard_limit": 0,
+            "default_soft_limit": 0,
+            "creation_timestamp": None,
+            "expiration_timestamp": None,
+            "last_refresh_timestamp": None,
+            "last_writable_timestamp": None,
+            "is_modified": None,
+            "access_type": None,
+            "creator_type": None,
+            "file_events_publishing_mode": "None",
+            "flr_attributes": {
+                "mode": "None",
+                "minimum_retention": "0D",
+                "default_retention": "0D",
+                "maximum_retention": "0D",
+                "auto_lock": False,
+                "auto_delete": False,
+                "policy_interval": 0,
+                "has_protected_files": False,
+                "clock_time": None,
+                "maximum_retention_date": None
+            },
+            "host_io_size": None,
+            "filesystem_type_l10n": "Primary File system",
+            "config_type_l10n": "General",
+            "access_policy_l10n": "Native",
+            "locking_policy_l10n": "Advisory",
+            "folder_rename_policy_l10n": "All Renames Forbidden",
+            "access_type_l10n": None,
+            "creator_type_l10n": None,
+            "file_events_publishing_mode_l10n": "None",
+            "host_io_size_l10n": None}
     ]
 
     REPLICATION_SESSION_DETAILS_SYNC = [
@@ -696,3 +856,7 @@ class MockReplicationSessionApi:
     @staticmethod
     def paused_to_sync_dest_error_failed_msg():
         return "Synchronization at destination is not supported."
+
+    @staticmethod
+    def volume_not_found_failed_msg():
+        return "not found"

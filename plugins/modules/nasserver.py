@@ -62,6 +62,11 @@ options:
      to Windows user mapping failure. When empty, access in such case
      is denied.
    type: str
+ protection_policy:
+   description:
+   - Name/ID of the protection policy applied to the nas server.
+   - Policy can be removed by passing an empty string in the protection_policy parameter.
+   type: str
  state:
    description:
    - Define whether the nas server should exist or not.
@@ -71,6 +76,8 @@ options:
 
 notes:
 - The check_mode is not supported.
+- Adding/Removing protection policy to/from a NAS server
+  is supported for PowerStore version 3.0.0 and above.
 '''
 
 EXAMPLES = r'''
@@ -113,7 +120,19 @@ EXAMPLES = r'''
      current_unix_directory_service: "LOCAL_FILES"
      current_node: "{{cur_node_n1}}"
      preferred_node: "{{prefered_node}}"
+     protection_policy: "protection_policy_1"
      state: "present"
+
+ - name: Remove protection policy
+   dellemc.powerstore.nasserver:
+     array_ip: "{{array_ip}}"
+     verifycert: "{{verifycert}}"
+     user: "{{user}}"
+     password: "{{password}}"
+     nas_server_id: "{{nas_id}}"
+     protection_policy: ""
+     state: "present"
+
 '''
 
 RETURN = r'''
@@ -199,6 +218,9 @@ nasserver_details:
             description: This is the inverse of the resource type file_system
                          association.
             type: dict
+        protection_policy_id:
+            description: Id of the protection policy applied to the nas server.
+            type: str
     sample: {
         "backup_IPv4_interface_id": null,
         "backup_IPv6_interface_id": null,
@@ -251,6 +273,7 @@ nasserver_details:
         "preferred_node_id": "Appliance-WND8977-node-B",
         "production_IPv4_interface_id": "60c05652-b5d8-9d9b-7e6f-fe8be1eb93c",
         "production_IPv6_interface_id": null,
+        "protection_policy_id": null,
         "smb_servers": [
             {
                 "id": "60c05c18-6806-26ae-3b0d-fe8be1eb93c"
@@ -276,7 +299,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.6.0'
+APPLICATION_TYPE = 'Ansible/1.7.0'
 
 
 class PowerStoreNasServer(object):
@@ -284,6 +307,7 @@ class PowerStoreNasServer(object):
     cluster_name = None
     cluster_global_id = None
     IS_NAME = "NAME"
+    protection_policy_id = None
 
     def __init__(self):
         """Define all the parameters required by this module"""
@@ -317,6 +341,10 @@ class PowerStoreNasServer(object):
         msg = 'Got Py4ps instance for provisioning on' \
               ' PowerStore {0}'.format(self.conn)
         LOG.info(msg)
+        self.protection = self.conn.protection
+        msg = 'Got Py4ps instance for protection on' \
+              ' PowerStore {0}'.format(self.protection)
+        LOG.info(msg)
 
     def get_node_id(self, node):
         """Get respective node id from either node name or node id"""
@@ -345,6 +373,48 @@ class PowerStoreNasServer(object):
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
         LOG.error(msg)
         self.module.fail_json(msg=msg)
+
+    def get_protection_policy(self, protection_policy):
+        """Get protection policy"""
+        try:
+            msg = 'Getting the details of protection policy' \
+                  ' {0}'.format(protection_policy)
+
+            LOG.info(msg)
+            id_or_name = utils.name_or_id(val=protection_policy)
+            if id_or_name == self.IS_NAME:
+                resp = self.protection.get_protection_policy_by_name(
+                    name=protection_policy)
+                if len(resp) == 0:
+                    msg = 'No protection policy present with name {0}'. \
+                          format(protection_policy)
+                    LOG.debug(msg)
+                    self.module.fail_json(msg=msg)
+                elif resp and len(resp) > 0:
+                    pp_id = resp[0]['id']
+            else:
+                resp = self.protection.get_protection_policy_details(
+                    policy_id=protection_policy)
+                if resp:
+                    pp_id = resp['id']
+            if pp_id:
+                msg = 'Successfully got the details of protection ' \
+                    'policy name is {0} and id is ' \
+                    '{1}'.format(protection_policy, pp_id)
+                LOG.info(msg)
+                return pp_id
+            else:
+                msg = 'No protection policy present with name or id {0}'. \
+                      format(protection_policy)
+                LOG.debug(msg)
+                self.module.fail_json(msg=msg)
+
+        except Exception as e:
+            msg = 'Get details of protection policy name or ID : {0} ' \
+                  'failed with error : {1} '.format(protection_policy,
+                                                    str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def get_nas_server(self, nas_server_id=None, nas_server_name=None):
         """Get the details of NAS Server of a given Powerstore storage
@@ -409,9 +479,23 @@ class PowerStoreNasServer(object):
             modify_parameters = dict()
 
             description = self.module.params['description']
-            if description is not None and \
+
+            if description is not None and description != "" and \
                     description != nasserver_details['description']:
                 modify_parameters['description'] = description
+
+            if description == "" and \
+                    nasserver_details['description'] is not None:
+                modify_parameters['description'] = description
+
+            if self.protection_policy_id is not None and self.protection_policy_id != "" and \
+                    self.protection_policy_id != nasserver_details['protection_policy_id']:
+                modify_parameters['protection_policy_id'] = self.protection_policy_id
+
+            if self.protection_policy_id == "" and (
+                    nasserver_details['protection_policy_id'] is not None):
+                modify_parameters['protection_policy_id'] = \
+                    self.protection_policy_id
 
             nas_server_new_name = self.module.params['nas_server_new_name']
             if nas_server_new_name and nas_server_new_name != \
@@ -419,22 +503,14 @@ class PowerStoreNasServer(object):
                 modify_parameters['name'] = nas_server_new_name
 
             # Node Name appears as ID in NAS Server
-            current_node = self.module.params['current_node']
-            if current_node:
-                current_node_id = (self.get_node_id(
-                    node=current_node))['name']
-                if current_node_id != nasserver_details['current_node_id']:
-                    modify_parameters['current_node_id'] = current_node_id
-
-            preferred_node = self.module.params['preferred_node']
-            if preferred_node:
-                # Node Name appears as ID in NAS Server
-                preferred_node_id = (self.get_node_id(
-                    node=preferred_node))['name']
-                if preferred_node_id != \
-                        nasserver_details['preferred_node_id']:
-                    modify_parameters['preferred_node_id'] = \
-                        preferred_node_id
+            node_types = ['current_node', 'preferred_node']
+            for node_type in node_types:
+                node_type_val = self.module.params[node_type]
+                if node_type_val:
+                    node_id = (self.get_node_id(
+                        node=node_type_val))['name']
+                    if node_id != nasserver_details[node_type + '_id']:
+                        modify_parameters[node_type + '_id'] = node_id
 
             cur_unix_dir_ser = \
                 self.module.params['current_unix_directory_service']
@@ -444,28 +520,19 @@ class PowerStoreNasServer(object):
                 modify_parameters['current_unix_directory_service'] = \
                     self.get_enum_keys(cur_unix_dir_ser)
 
-            default_unix_user = self.module.params['default_unix_user']
+            users = ['unix', 'windows']
 
-            nas_details_unix_user = ""
-            if nasserver_details['default_unix_user']:
-                nas_details_unix_user = \
-                    nasserver_details['default_unix_user']
+            for user in users:
+                def_user = self.module.params['default_' + user + '_user']
 
-            if default_unix_user is not None and \
-                    default_unix_user != nas_details_unix_user:
-                modify_parameters['default_unix_user'] = default_unix_user
+                nas_details_user = ""
+                if nasserver_details['default_' + user + '_user']:
+                    nas_details_user = \
+                        nasserver_details['default_' + user + '_user']
 
-            default_windows_user = self.module.params['default_windows_user']
-
-            nas_details_windows_user = ""
-            if nasserver_details['default_windows_user']:
-                nas_details_windows_user = \
-                    nasserver_details['default_windows_user']
-
-            if default_windows_user is not None and \
-                    default_windows_user != nas_details_windows_user:
-                modify_parameters['default_windows_user'] = \
-                    default_windows_user
+                if def_user is not None and \
+                        def_user != nas_details_user:
+                    modify_parameters['default_' + user + '_user'] = def_user
 
             log_msg = "Modify Dict {0}".format(str(modify_parameters))
             LOG.info(log_msg)
@@ -522,6 +589,7 @@ class PowerStoreNasServer(object):
         nas_server_name = self.module.params['nas_server_name']
         nas_server_id = self.module.params['nas_server_id']
         state = self.module.params['state']
+        protection_policy = self.module.params['protection_policy']
 
         # result is a dictionary to contain end state and nasserver details
         changed = False
@@ -535,6 +603,13 @@ class PowerStoreNasServer(object):
         to_modify = False
         to_modify_dict = None
 
+        if protection_policy is not None:
+            if protection_policy == "":
+                self.protection_policy_id = protection_policy
+            else:
+                self.protection_policy_id = self.get_protection_policy(
+                    protection_policy=protection_policy)
+
         if nas_server_name:
             nasserver_details = self.get_nas_server(
                 nas_server_name=nas_server_name)
@@ -544,8 +619,15 @@ class PowerStoreNasServer(object):
 
         if nasserver_details:
             nas_id = nasserver_details['id']
-            to_modify_dict = self.to_modify_nasserver(
-                nasserver_details=nasserver_details)
+            if self.module.params['protection_policy'] is not None and \
+                    'protection_policy_id' not in nasserver_details.keys():
+                msg = "Protection policy can be handled only for PowerStore " \
+                      "FootHills Prime or above."
+                LOG.error(msg)
+                self.module.fail_json(msg=msg)
+            else:
+                to_modify_dict = self.to_modify_nasserver(
+                    nasserver_details=nasserver_details)
             if to_modify_dict:
                 to_modify = True
         log_msg = "NAS Server Details: {0} , To Modify {1}".format(
@@ -593,6 +675,7 @@ def get_powerstore_nasserver_parameters():
         nas_server_new_name=dict(required=False, type='str'),
         current_node=dict(required=False, type='str'),
         preferred_node=dict(required=False, type='str'),
+        protection_policy=dict(required=False, type='str'),
         current_unix_directory_service=dict(required=False, type='str',
                                             choices=['NIS',
                                                      'LDAP',
