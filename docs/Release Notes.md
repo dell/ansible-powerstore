@@ -1,6 +1,6 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 1.7.0
+### Release Notes 1.8.0
 
 >   © 2022 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
@@ -28,7 +28,7 @@ Table 1. Revision history
 
 | Revision | Date      | Description                                               |
 |----------|-----------|-----------------------------------------------------------|
-| 01       | September 2022  | Current release of Ansible Modules for Dell PowerStore 1.7.0 |
+| 01       | December 2022  | Current release of Ansible Modules for Dell PowerStore 1.8.0 |
 
 Product Description
 -------------------
@@ -63,11 +63,11 @@ Limitations
 Distribution
 ----------------
 The software package is available for download from the [Ansible Modules
-for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.7.0) page.
+for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.8.0) page.
 
 Documentation
 -------------
-The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.7.0/docs)
+The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/1.8.0/docs)
 page. It includes these:
 - README
 - Release Notes (this document)

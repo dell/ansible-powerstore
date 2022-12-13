@@ -298,10 +298,11 @@ class TestPowerstoreHostGroup():
         hostgroup_module_mock.perform_module_operation()
         hostgroup_module_mock.conn.provisioning.get_host_group_details.assert_called()
 
-    def test_rename_hostgroup(self, hostgroup_module_mock):
+    def test_modify_hostgroup(self, hostgroup_module_mock):
         self.get_module_args.update({
             'hostgroup_id': "d21beab9-15fa-4cee-9651-e3b740ceaa7c",
             'new_name': "Hostgroup_new_name",
+            'host_connectivity': MockHostGroupApi.HOST_CONNECTIVITY,
             'state': 'present'
         })
         hostgroup_module_mock.module.params = self.get_module_args

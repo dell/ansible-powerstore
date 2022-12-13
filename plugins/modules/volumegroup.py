@@ -96,7 +96,6 @@ options:
         description:
         - Name of snapshot set to be created.
         type: str
-        required: True
       description:
         description:
         - Description of the snapshot set.
@@ -403,7 +402,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 
 
 class PowerStoreVolumeGroup(object):
@@ -1067,7 +1066,7 @@ def get_powerstore_volume_group_parameters():
         create_backup_snap=dict(type='bool'),
         backup_snap_profile=dict(
             type='dict', options=dict(
-                name=dict(type='str', required=True),
+                name=dict(type='str'),
                 description=dict(type='str'),
                 expiration_timestamp=dict(type='str')
             )

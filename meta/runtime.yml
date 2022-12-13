@@ -1,5 +1,5 @@
 ---
-requires_ansible: ">=2.10"
+requires_ansible: ">=2.12"
 plugin_routing:
     modules:
         dellemc_powerstore_gatherfacts:

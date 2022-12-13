@@ -494,3 +494,45 @@ class TestPowerstoreReplicationSession():
         replicationsession_module_mock.perform_module_operation()
         assert self.get_module_args['session_id'] == replicationsession_module_mock.module.exit_json.call_args[1]['replication_session_details']['id']
         replicationsession_module_mock.conn.protection.get_replication_session_details.assert_called()
+
+    def test_modify_role_replicatio_session(self, replicationsession_module_mock):
+        self.get_module_args.update({
+            'session_id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            'role': "Metro_Preferred"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.conn.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS[0])
+        replicationsession_module_mock.perform_module_operation()
+        assert replicationsession_module_mock.module.exit_json.call_args[1]['changed'] is True
+        replicationsession_module_mock.conn.protection.modify_replication_session.assert_called()
+
+    def test_modify_metro_paused_to_sync_response(self, replicationsession_module_mock):
+        self.get_module_args.update({
+            'session_id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            'session_state': "synchronizing"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.conn.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.METRO_SESSION_DETAILS_PAUSED[0])
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.protection.resume_replication_session.assert_called()
+
+    def test_modify_role_replicatio_session_exception(self, replicationsession_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "404"
+        self.get_module_args.update({
+            'session_id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            'role': "Metro_Preferred"
+        })
+        replicationsession_module_mock.module.params = self.get_module_args
+        replicationsession_module_mock.provisioning.get_cluster_list = MagicMock(return_value=MockReplicationSessionApi.CLUSTER_DETAILS)
+        replicationsession_module_mock.conn.protection.get_replication_session_details = MagicMock(
+            return_value=MockReplicationSessionApi.REPLICATION_SESSION_DETAILS[0])
+        replicationsession_module_mock.conn.protection.modify_replication_session = MagicMock(
+            side_effect=MockApiException)
+        replicationsession_module_mock.perform_module_operation()
+        replicationsession_module_mock.conn.protection.modify_replication_session.assert_called()
+        assert MockReplicationSessionApi.modify_role_failed_msg() in \
+               replicationsession_module_mock.module.fail_json.call_args[1]['msg']

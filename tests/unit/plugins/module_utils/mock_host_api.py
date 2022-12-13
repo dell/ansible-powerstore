@@ -13,6 +13,7 @@ class MockHostApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.host.PowerStoreHost'
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
     iscsi_initiator = "iqn.1998-01.com.vmware:losat106-0eab2afe"
+    HOST_CONN_1 = "Metro_Optimize_Both"
     HOST_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'host_id': None,
@@ -22,7 +23,8 @@ class MockHostApi:
         'detailed_initiators': None,
         'initiator_state': None,
         'new_name': None,
-        'os_type': None
+        'os_type': None,
+        'host_connectivity': None
     }
     HOST_NAME_1 = "Sample_host_1"
     HOST_DETAILS = {
@@ -41,7 +43,8 @@ class MockHostApi:
         "mapped_hosts": [],
         "name": "Sample_host_1",
         "os_type": "ESXi",
-        "os_type_l10n": "ESXi"
+        "os_type_l10n": "ESXi",
+        "host_connectivity": "Local_Only"
     }
 
     HOST_DETAILS_2 = {

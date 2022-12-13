@@ -14,6 +14,7 @@ class MockReplicationSessionApi:
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
     local_time = "2022-01-06T06:55:01.870946+00:00"
     vg = "Volume Group"
+    ID = "b05b5108-26b6-4567-a1d8-1c7795b2e6bc"
 
     REPLICATION_SESSION_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
@@ -22,13 +23,14 @@ class MockReplicationSessionApi:
         'nas_server': None,
         'filesystem': None,
         'session_id': None,
-        'session_state': None
+        'session_state': None,
+        'role': None
     }
 
     REPLICATION_SESSION_DETAILS = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -99,7 +101,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_SRC = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -170,7 +172,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_VG = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume_group",
@@ -303,7 +305,7 @@ class MockReplicationSessionApi:
     ]
 
     SESSION_IDS_VOLUME = [
-        {'id': "b05b5108-26b6-4567-a1d8-1c7795b2e6bc"}
+        {'id': ID}
     ]
 
     SESSION_IDS_VOLUME_GROUP = [
@@ -494,7 +496,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_SYNC = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -531,7 +533,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_SYNC_SRC = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -568,7 +570,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_PAUSED = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -598,14 +600,53 @@ class MockReplicationSessionApi:
                     "replication_shadow_id": None,
                     "storage_element_type": "volume"
                 }
-            ]
+            ],
+            "type": "Asynchronous",
+        }
+    ]
+
+    METRO_SESSION_DETAILS_PAUSED = [
+        {
+            "estimated_completion_timestamp": None,
+            "id": ID,
+            "last_sync_timestamp": local_time,
+            "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+            "local_resource_name": "sample_volume",
+            "migration_session": None,
+            "progress_percentage": None,
+            "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+            "remote_system": {
+                "id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+                "name": "WN-D8989"
+            },
+            "remote_system_id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+            "replication_rule": {
+                "id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+                "name": "sample_replication_rule"
+            },
+            "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+            "resource_type": "Volume",
+            "resource_type_l10n": "Volume",
+            "role": "Source",
+            "role_l10n": "Source",
+            "state": "paused",
+            "state_l10n": "paused",
+            "storage_element_pairs": [
+                {
+                    "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
+                    "remote_storage_element_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+                    "replication_shadow_id": None,
+                    "storage_element_type": "volume"
+                }
+            ],
+            "type": "Metro_Active_Active",
         }
     ]
 
     REPLICATION_SESSION_DETAILS_PAUSED_DES = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -635,14 +676,15 @@ class MockReplicationSessionApi:
                     "replication_shadow_id": None,
                     "storage_element_type": "volume"
                 }
-            ]
+            ],
+            "type": "Asynchronous",
         }
     ]
 
     REPLICATION_SESSION_DETAILS_FAILING_OVER = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -679,7 +721,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_FAILED_OVER = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -716,7 +758,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_FAILED_OVER_DES = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -753,7 +795,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_RESUMING = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -790,7 +832,7 @@ class MockReplicationSessionApi:
     REPLICATION_SESSION_DETAILS_SYSTEM_PAUSED = [
         {
             "estimated_completion_timestamp": None,
-            "id": "b05b5108-26b6-4567-a1d8-1c7795b2e6bc",
+            "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
             "local_resource_name": "sample_volume",
@@ -860,3 +902,7 @@ class MockReplicationSessionApi:
     @staticmethod
     def volume_not_found_failed_msg():
         return "not found"
+
+    @staticmethod
+    def modify_role_failed_msg():
+        return "Modifying the role Metro_Preferred of replication session b05b5108-26b6-4567-a1d8-1c7795b2e6bc failed with error"

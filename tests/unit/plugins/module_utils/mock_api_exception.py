@@ -10,5 +10,7 @@ __metaclass__ = type
 
 
 class MockApiException(Exception):
+    HTTP_ERR = "1"
+    err_code = "1"
+    status_code = "500"
     body = "PyPowerStore Error message"
-    status = "500"

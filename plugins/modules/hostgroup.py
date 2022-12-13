@@ -75,14 +75,25 @@ options:
     - The new name for host group renaming function. This value must contain
       128 or fewer printable Unicode characters.
     type: str
+  host_connectivity:
+    description:
+    - Connectivity type for host group.
+    - If any of metro connectivity options specified, a metro host group must
+      exists in both cluster provide connectivity to a metro volume from both
+      cluster.
+    choices: ['Local_Only', 'Metro_Optimize_Both', 'Metro_Optimize_Local',
+              'Metro_Optimize_Remote']
+    type: str
+    required: False
 
 notes:
 - The check_mode is not supported.
+- The host_connectivity is supported only PowerStore 3.0.0.0 and above.
 '''
 
 
 EXAMPLES = r'''
-  - name: Create host group with hosts using host name
+  - name: Create host group with hosts
     dellemc.powerstore.hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
@@ -91,30 +102,9 @@ EXAMPLES = r'''
       hostgroup_name: "{{hostgroup_name}}"
       hosts:
         - host1
-        - host2
-      state: 'present'
-      host_state: 'present-in-group'
-
-  - name: Create host group with hosts using host ID
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
         - c17fc987-bf82-480c-af31-9307b89923c3
       state: 'present'
       host_state: 'present-in-group'
-
-  - name: Get host group details
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      state: 'present'
 
   - name: Get host group details using ID
     dellemc.powerstore.hostgroup:
@@ -149,13 +139,14 @@ EXAMPLES = r'''
       host_state: 'absent-in-group'
       state: 'present'
 
-  - name: Rename host group
+  - name: Modify host group
     dellemc.powerstore.hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
       user: "{{user}}"
       password: "{{password}}"
       hostgroup_name: "{{hostgroup_name}}"
+      host_connectivity: "Metro_Optimize_Both"
       new_name: "{{new_hostgroup_name}}"
       state: 'present'
 
@@ -201,6 +192,9 @@ hostgroup_details:
                 name:
                     description: The name of the host.
                     type: str
+        host_connectivity:
+            description: Connectivity type for host group. It was added in 3.0.0.0.
+            type: str
     sample: {
         "description": null,
         "hosts": [
@@ -210,6 +204,7 @@ hostgroup_details:
             }
         ],
         "id": "80fc96fa-227e-4796-84b8-c6452c5b8f64",
+        "host_connectivity": "Local_Only",
         "name": "sample_host_group"
     }
 '''
@@ -230,7 +225,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 
 
 class PowerStoreHostgroup(object):
@@ -282,7 +277,11 @@ class PowerStoreHostgroup(object):
             host_state=dict(required=False,
                             choices=['absent-in-group', 'present-in-group'],
                             type='str'),
-            new_name=dict(required=False, type='str')
+            new_name=dict(required=False, type='str'),
+            host_connectivity=dict(
+                required=False, type='str',
+                choices=['Local_Only', 'Metro_Optimize_Both',
+                         'Metro_Optimize_Local', 'Metro_Optimize_Remote'])
         )
 
     def get_hostgroup(self, hostgroup_id):
@@ -490,14 +489,17 @@ class PowerStoreHostgroup(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
-    def rename_hostgroup(self, hostgroup, new_name):
+    def modify_host_group(self, hostgroup, new_name=None,
+                          host_connectivity=None):
+        """ Modify the host group"""
         try:
             self.conn.provisioning.modify_host_group(
-                hostgroup['id'], name=new_name)
+                hostgroup['id'], name=new_name,
+                host_connectivity=host_connectivity)
             return True
         except Exception as e:
-            error_msg = 'Renaming of host group {0} failed with error {1}'.format(
-                hostgroup['name'], str(e))
+            error_msg = 'Modifying host group {0} failed with error ' \
+                        '{1}'.format(hostgroup['name'], str(e))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
@@ -518,7 +520,7 @@ class PowerStoreHostgroup(object):
     def _create_result_dict(self, changed, hostgroup_id):
         self.result['changed'] = changed
         if self.module.params['state'] == 'absent':
-            self.result['hostgroup_details'] = {}
+            self.result['hostgroup_details'] = dict()
         else:
             self.result['hostgroup_details'] = self.get_hostgroup(
                 hostgroup_id)
@@ -534,13 +536,15 @@ class PowerStoreHostgroup(object):
         hostgroup_id = self.module.params['hostgroup_id']
         hosts = self.module.params['hosts']
         new_name = self.module.params['new_name']
+        host_connectivity = self.module.params['host_connectivity']
+
+        hostgroup = None
 
         if hostgroup_name:
             hostgroup_id = self.get_hostgroup_id_by_name(hostgroup_name)
         if hostgroup_id:
             hostgroup = self.get_hostgroup(hostgroup_id)
-        else:
-            hostgroup = None
+
         changed = False
         host_ids_list = []
         if hosts:
@@ -570,11 +574,13 @@ class PowerStoreHostgroup(object):
                     hostgroup,
                     hosts=host_ids_list) or changed)
 
-        if state == 'present' and hostgroup and new_name and \
-                hostgroup['name'] != new_name:
-            LOG.info('Renaming host group %s to %s', hostgroup['name'],
-                     new_name)
-            changed = self.rename_hostgroup(hostgroup, new_name)
+        if state == 'present' and hostgroup and (new_name or host_connectivity):
+            modify_flag = is_modify_required(hostgroup, new_name,
+                                             host_connectivity)
+            if modify_flag:
+                changed = self.modify_host_group(
+                    hostgroup=hostgroup, new_name=new_name,
+                    host_connectivity=host_connectivity)
 
         if state == 'absent' and hostgroup:
             LOG.info('Deleting host group %s ', hostgroup['name'])
@@ -584,6 +590,18 @@ class PowerStoreHostgroup(object):
         # Update the module's final state
         LOG.info('changed %s', changed)
         self.module.exit_json(**self.result)
+
+
+def is_modify_required(hostgroup, new_name, host_connectivity):
+    """ Check whether modification for host group is required or not."""
+
+    modify_flag = False
+    if new_name is not None and hostgroup['name'] != new_name:
+        modify_flag = True
+    if host_connectivity is not None and \
+            hostgroup['host_connectivity'] != host_connectivity:
+        modify_flag = True
+    return modify_flag
 
 
 def main():
