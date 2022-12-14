@@ -807,7 +807,7 @@ class PowerStoreVolumeGroup(object):
         prot_pol_modified = False
         write_order_modified = False
 
-        if(('name' in volume_group and self.module.params['new_vg_name']
+        if (('name' in volume_group and self.module.params['new_vg_name']
             is not None) and (volume_group['name'].lower() !=
                               self.module.params['new_vg_name'].lower())):
             name_modified = True
@@ -819,7 +819,7 @@ class PowerStoreVolumeGroup(object):
                  self.module.params['description'] is not None and
                  self.module.params['description'].lower() != 'none'):
             description_modified = True
-        elif((volume_group['protection_policy_id'] is not None and
+        elif ((volume_group['protection_policy_id'] is not None and
               protection_policy is not None and
               volume_group['protection_policy_id'] !=
               protection_policy) or
@@ -827,7 +827,7 @@ class PowerStoreVolumeGroup(object):
                  protection_policy is not None and
                  protection_policy != '')):
             prot_pol_modified = True
-        elif('is_write_order_consistent' in volume_group and
+        elif ('is_write_order_consistent' in volume_group and
                 self.module.params['is_write_order_consistent'] is not None
                 and volume_group['is_write_order_consistent'] !=
                 self.module.params['is_write_order_consistent']):

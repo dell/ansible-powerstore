@@ -1,5 +1,3 @@
-plugins/modules/remote_support.py compile-2.6
-plugins/modules/remote_support.py import-2.6
 plugins/modules/certificate.py validate-modules:missing-gplv3-license
 plugins/modules/cluster.py validate-modules:missing-gplv3-license
 plugins/modules/dns.py validate-modules:missing-gplv3-license
