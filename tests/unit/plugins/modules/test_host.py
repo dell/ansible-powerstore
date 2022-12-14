@@ -91,6 +91,7 @@ class TestPowerstoreHost():
                 'chap_single_username': 'chapuserSingle',
                 'chap_single_password': 'chappasswd12345'}],
             'state': 'present',
+            'host_connectivity': 'Local_Only',
             'initiator_state': 'present-in-host'
         })
         host_module_mock.module.params = self.get_module_args
@@ -310,6 +311,7 @@ class TestPowerstoreHost():
         self.get_module_args.update({
             'host_id': "4d56e60-fc10-4f51-a698-84a664562f0d",
             'os_type': 'Windows',
+            "host_connectivity": MockHostApi.HOST_CONN_1,
             'state': 'present'
         })
         host_module_mock.module.params = self.get_module_args

@@ -125,6 +125,16 @@ options:
       or fewer printable Unicode characters.
     - Cannot be specified when creating a host.
     type: str
+  host_connectivity:
+    description:
+    - Connectivity type for host.
+    - If any of metro connectivity options specified, a metro host must
+      exists in both cluster provide connectivity to a metro volume from both
+      cluster.
+    choices: ['Local_Only', 'Metro_Optimize_Both', 'Metro_Optimize_Local',
+              'Metro_Optimize_Remote']
+    type: str
+    required: False
 
 notes:
 - Only completely and correctly configured iSCSI initiators can be associated
@@ -132,6 +142,7 @@ notes:
 - The parameters initiators and detailed_initiators are mutually exclusive.
 - For mutual CHAP authentication, single CHAP credentials are mandatory.
 - Support of NVMe type of initiators is for PowerStore 2.0 and beyond.
+- The host_connectivity is supported only in PowerStore 3.0.0.0 and above.
 - The check_mode is not supported.
 '''
 EXAMPLES = r'''
@@ -143,6 +154,7 @@ EXAMPLES = r'''
       password: "{{password}}"
       host_name: "ansible-test-host-1"
       os_type: 'Windows'
+      host_connectivity: "Metro_Optimize_Local"
       initiators:
         - 21:00:00:24:ff:31:e9:fc
       state: 'present'
@@ -167,15 +179,6 @@ EXAMPLES = r'''
           chap_mutual_password: 'chappasswd12345'
       state: 'present'
       initiator_state: 'present-in-host'
-
-  - name: Get host details by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      state: 'present'
 
   - name: Get host details by id
     dellemc.powerstore.host:
@@ -213,21 +216,6 @@ EXAMPLES = r'''
       initiator_state: 'present-in-host'
       state: 'present'
 
-  - name: Remove initiators from host by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-2"
-      detailed_initiators:
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
-      initiator_state: 'absent-in-host'
-      state: 'present'
-
   - name: Remove initiators from by id
     dellemc.powerstore.host:
       array_ip: "{{array_ip}}"
@@ -240,7 +228,7 @@ EXAMPLES = r'''
       initiator_state: 'absent-in-host'
       state: 'present'
 
-  - name: Rename host by name
+  - name: Modify host by name
     dellemc.powerstore.host:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
@@ -248,16 +236,7 @@ EXAMPLES = r'''
       password: "{{password}}"
       host_name: "ansible-test-host-1"
       new_name: "ansible-test-host-1-new"
-      state: 'present'
-
-  - name: Rename host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      new_name: "ansible-test-host-2-new"
+      host_connectivity: "Metro_Optimize_Remote"
       state: 'present'
 
   - name: Delete host
@@ -267,15 +246,6 @@ EXAMPLES = r'''
       user: "{{user}}"
       password: "{{password}}"
       host_name: "ansible-test-host-1-new"
-      state: 'absent'
-
-  - name: Delete host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
       state: 'absent'
 '''
 
@@ -365,6 +335,9 @@ host_details:
                         name:
                             description: Name of the volume.
                             type: str
+        host_connectivity:
+            description: Connectivity type for host. It was added in 3.0.0.0.
+            type: str
     sample: {
         "description": null,
         "host_group_id": null,
@@ -381,6 +354,7 @@ host_details:
         "mapped_hosts": [],
         "name": "sample_host",
         "os_type": "ESXi",
+        "host_connectivity": "Local_Only",
         "os_type_l10n": "ESXi"
     }
 '''
@@ -401,7 +375,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 
 # DO NOT CHANGE BELOW PORT_TYPES SEQUENCE AS ITS USED IN SCRIPT USING INDEX
 PORT_TYPES = ["iSCSI", "FC", "NVMe"]
@@ -487,6 +461,7 @@ class PowerStoreHost(object):
         try:
             initiators = self.module.params['initiators']
             detailed_initiators = self.module.params['detailed_initiators']
+            host_connectivity = self.module.params['host_connectivity']
 
             os_type = self.module.params['os_type']
             if os_type is None:
@@ -525,7 +500,8 @@ class PowerStoreHost(object):
                          list_of_initiators)
                 resp = self.conn.provisioning.create_host(
                     name=host_name, os_type=os_type,
-                    initiators=list_of_initiators)
+                    initiators=list_of_initiators,
+                    host_connectivity=host_connectivity)
             else:
                 for initiator in detailed_initiators:
                     if initiator['port_type'] is None:
@@ -540,7 +516,8 @@ class PowerStoreHost(object):
                          detailed_initiators)
                 resp = self.conn.provisioning.create_host(
                     name=host_name, os_type=os_type,
-                    initiators=detailed_initiators)
+                    initiators=detailed_initiators,
+                    host_connectivity=host_connectivity)
             LOG.info("The response is %s", resp)
             return True
 
@@ -697,9 +674,10 @@ class PowerStoreHost(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
-    def rename_host(self, host, new_name):
+    def update_host(self, host, new_name=None, host_connectivity=None):
         try:
-            self.conn.provisioning.modify_host(host['id'], name=new_name)
+            self.conn.provisioning.modify_host(
+                host['id'], name=new_name, host_connectivity=host_connectivity)
             return True
         except Exception as e:
             error_msg = 'Renaming of host {0} failed with error {1}'.format(
@@ -738,7 +716,7 @@ class PowerStoreHost(object):
     def _create_result_dict(self, changed, host_id):
         self.result['changed'] = changed
         if self.module.params['state'] == 'absent':
-            self.result['host_details'] = {}
+            self.result['host_details'] = dict()
         else:
             self.result['host_details'] = self.get_host(host_id)
 
@@ -755,6 +733,7 @@ class PowerStoreHost(object):
         detailed_initiators = self.module.params['detailed_initiators']
         new_name = self.module.params['new_name']
         os_type = self.module.params['os_type']
+        host_connectivity = self.module.params['host_connectivity']
 
         if host_name:
             host_id = self.get_host_id_by_name(host_name)
@@ -819,9 +798,11 @@ class PowerStoreHost(object):
             LOG.info('Removing initiators from host %s', host_id)
             changed = (self.remove_host_initiators(host) or changed)
 
-        if state == 'present' and host and new_name and host_name != new_name:
-            LOG.info('Renaming host %s to %s', host_name, new_name)
-            changed = self.rename_host(host, new_name)
+        if state == 'present' and host and (new_name or host_connectivity):
+            modify_flag = is_modify_required(host, new_name, host_connectivity)
+            if modify_flag:
+                changed = self.update_host(host=host, new_name=new_name,
+                                           host_connectivity=host_connectivity)
 
         if state == 'absent' and host:
             LOG.info('Delete host %s ', host['name'])
@@ -831,6 +812,18 @@ class PowerStoreHost(object):
         # Update the module's final state
         LOG.info('changed %s', changed)
         self.module.exit_json(**self.result)
+
+
+def is_modify_required(host, new_name, host_connectivity):
+    """ Check whether modification for host is required or not."""
+
+    modify_flag = False
+    if new_name is not None and host['name'] != new_name:
+        modify_flag = True
+    if host_connectivity is not None and \
+            host['host_connectivity'] != host_connectivity:
+        modify_flag = True
+    return modify_flag
 
 
 def get_powerstore_host_parameters():
@@ -862,12 +855,13 @@ def get_powerstore_host_parameters():
                                                       'present-in-host'],
                              type='str'),
         new_name=dict(required=False, type='str'),
-        os_type=dict(required=False, type='str', choices=['Windows',
-                                                          'Linux',
-                                                          'ESXi',
-                                                          'AIX',
-                                                          'HP-UX',
-                                                          'Solaris'])
+        os_type=dict(
+            required=False, type='str',
+            choices=['Windows', 'Linux', 'ESXi', 'AIX', 'HP-UX', 'Solaris']),
+        host_connectivity=dict(
+            required=False, type='str',
+            choices=['Local_Only', 'Metro_Optimize_Both',
+                     'Metro_Optimize_Local', 'Metro_Optimize_Remote'])
     )
 
 

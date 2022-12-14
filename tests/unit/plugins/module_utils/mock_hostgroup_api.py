@@ -13,6 +13,7 @@ class MockHostGroupApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.hostgroup.PowerStoreHostgroup'
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
     iscsi_initiator = "iqn.1998-01.com.vmware:losatxxx-0xxxxxfe"
+    HOST_CONNECTIVITY = "Metro_Optimize_Both"
     HOSTGROUP_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'hostgroup_id': None,
@@ -21,6 +22,7 @@ class MockHostGroupApi:
         'state': None,
         'host_state': None,
         'new_name': None,
+        'host_connectivity': None
     }
     HOSTGROUP_NAME_1 = "Sample_hostgroup_1"
 
@@ -44,7 +46,8 @@ class MockHostGroupApi:
             }
         ],
         "id": "d21beab9-15fa-4cee-9651-e3b740ceaa7c",
-        "name": "Sample_hostgroup_1"
+        "name": "Sample_hostgroup_1",
+        "host_connectivity": "Local_Only"
     }
 
     HOSTGROUP_DETAILS_BY_NAME = [{

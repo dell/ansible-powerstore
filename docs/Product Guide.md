@@ -1,6 +1,6 @@
 # Ansible Modules for Dell Technologies PowerStore
-## Product Guide 1.7.0
-© 2022 Dell Inc. or its subsidiaries. All rights reserved. Dell, and other trademarks are trademarks of Dell Inc. or its subsidiaries. Other trademarks may be trademarks of their respective owners.
+## Product Guide 1.8.0
+© 2022 Dell Inc. or its subsidiaries. All rights reserved. Dell and other trademarks are trademarks of Dell Inc. or its subsidiaries. Other trademarks may be trademarks of their respective owners.
 
 --------------
 ## Contents
@@ -393,7 +393,7 @@ Certificate operations for PowerStore Storage System
 * Reset operation can reset more than one certificate at a time.
 * Add/import, modify and reset are supported for PowerStore versions 2.0 and above only.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -415,19 +415,6 @@ Certificate operations for PowerStore Storage System
     service: "VASA_HTTP"
     state: "present"
 
-- name: Exchange certificates
-  dellemc.powerstore.certificate:
-    array_ip: "{{array_ip}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    verifycert: "{{verifycert}}"
-    service: "Replication_HTTP"
-    remote_address: "{{remote_array_ip}}"
-    remote_port: 443
-    remote_user: "{{remote_user}}"
-    remote_password: "{{remote_password}}"
-    state: "present"
-
 - name: Add/import a certificate
   dellemc.powerstore.certificate:
     array_ip: "{{array_ip}}"
@@ -437,16 +424,6 @@ Certificate operations for PowerStore Storage System
     certificate_type: "CA_Client_Validation"
     service: "VASA_HTTP"
     certificate: "{{certificate_string}}"
-    is_current: True
-    state: "present"
-
-- name: Modify certificate
-  dellemc.powerstore.certificate:
-    array_ip: "{{array_ip}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    verifycert: "{{verifycert}}"
-    certificate_id: "37b76535-612b-456a-a694-1389f17632c7"
     is_current: True
     state: "present"
 ```
@@ -1161,7 +1138,7 @@ Manage cluster related operations on PowerStore
 * Minimum 3 and 5 addresses are required for management network for PowerStore T and X model respectively.
 * The File_Mobility purpose is supported only in FootHills Prime and above.
 * Parameter is_http_redirect_enabled is supported only in PowerStore FootHills Prime and above.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -1186,45 +1163,6 @@ Manage cluster related operations on PowerStore
     service_password: "S@mple_password"
     chap_mode: "Disabled"
     new_name: "new_RT-D1320"
-    state: "present"
-
-- name: Validate create cluster
-  dellemc.powerstore.cluster:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    cluster_name: "RT-D1320"
-    ignore_network_warnings: True
-    appliances:
-      - link_local_address: "1.2.x.x"
-        name: "Ansible_cluster"
-        derive_failure_tolerance_level: "Double"
-    dns_servers:
-      - "1.1.x.x"
-    ntp_servers:
-      - "1.3.x.x"
-    networks:
-      - type: "Management"
-        vlan_id: 0
-        prefix_length: 24
-        gateway: "1.x.x.x"
-        cluster_mgmt_address: "1.x.x.x"
-        addresses:
-          - "2.x.x.x"
-          - "3.x.x.x"
-      - type: "Storage"
-        vlan_id: 0
-        prefix_length: 42
-        gateway: "1.x.x.x"
-        storage_discovery_address: "1.x.x.x"
-        addresses:
-          - "2.x.x.x"
-          - "3.x.x.x"
-        purpose:
-          - "ISCSI"
-    is_http_redirect_enabled: True
-    validate_create: True
     state: "present"
 
 - name: Create cluster
@@ -1621,7 +1559,7 @@ DNS operations on a PowerStore storage system
 * Parameters dns_addresses and dns_address_state are required together.
 * Creation and deletion of DNS is not supported.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -1645,18 +1583,6 @@ DNS operations on a PowerStore storage system
         - "XX.XX.XX.XX"
         - "YY.YY.YY.YY"
        dns_address_state: "present-in-dns"
-       state: "present"
-
-  - name: Remove addresses from DNS instance
-    dellemc.powerstore.dns:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       verifycert: "{{verifycert}}"
-       dns_id: "DNS1"
-       dns_addresses:
-        - "YY.YY.YY.YY"
-       dns_address_state: "absent-in-dns"
        state: "present"
 ```
 
@@ -1859,7 +1785,7 @@ Destination Email operations on a PowerStore storage system
 ### Notes
 * Idempotency is not supported for Test operation of Email module.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -1870,15 +1796,6 @@ Destination Email operations on a PowerStore storage system
        password: "{{password}}"
        verifycert: "{{verifycert}}"
        email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
-       state: "present"
-
-  - name: Get details of destination email with email_address
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       verifycert: "{{verifycert}}"
-       email_address: "abc@dell.com"
        state: "present"
 
   - name: Create destination email
@@ -1894,19 +1811,6 @@ Destination Email operations on a PowerStore storage system
          major: False
        state: "present"
 
-  - name: Modify destination email
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       verifycert: "{{verifycert}}"
-       email_address: "abc_xyz@dell.com"
-       new_address: "def_pqr@dell.com"
-       notify:
-         info: False
-         major: False
-       state: "present"
-
   - name: Send a test mail to the destination email with email_id
     dellemc.powerstore.email:
        array_ip: "{{array_ip}}"
@@ -1916,15 +1820,6 @@ Destination Email operations on a PowerStore storage system
        email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
        send_test_email: True
        state: "present"
-
-  - name: Delete destination email
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       verifycert: "{{verifycert}}"
-       email_address: "def_pqr@dell.com"
-       state: "absent"
 ```
 
 ### Return Values
@@ -2281,7 +2176,7 @@ Filesystem operations for PowerStore Storage system
 ### Notes
 * It is recommended to remove the protection policy before deleting the filesystem.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -2308,24 +2203,6 @@ Filesystem operations for PowerStore Storage system
        default_hard_limit: 3
        default_soft_limit: 2
      protection_policy: "{{protection_policy_id}}"
-     state: "present"
-
- - name: Modify File System by id
-   dellemc.powerstore.filesystem:
-     array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     filesystem_id: "{{fs_id}}"
-     folder_rename_policy: "ALL_ALLOWED"
-     smb_properties:
-       is_smb_op_locks_enabled: True
-       smb_notify_on_change_dir_depth: 3
-     quota_defaults:
-       grace_period: 2
-       grace_period_unit: 'weeks'
-       default_hard_limit: 2
-       default_soft_limit: 1
      state: "present"
 
  - name: Get File System details by id
@@ -2650,7 +2527,7 @@ Manage Filesystem Snapshots for PowerStore
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -2674,18 +2551,6 @@ Manage Filesystem Snapshots for PowerStore
       user: "{{user}}"
       password: "{{password}}"
       snapshot_id: "{{fs_snapshot_id}}"
-      state: "present"
-
-- name: Modify the filesystem snapshot
-  dellemc.powerstore.filesystem_snapshot:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      snapshot_name: "sample_filesystem_snapshot"
-      nas_server: "ansible_nas_server"
-      description: "modify description"
-      expiration_timestamp: ""
       state: "present"
 
 - name: Delete filesystem snapshot
@@ -2830,7 +2695,7 @@ Manage host on PowerStore storage system
  Managing host on PowerStore storage system includes create host with a set of initiators, add/remove initiators from host, rename host and delete host.
 
 ### Parameters
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 <table>
     <tr>
         <th colspan=2>Parameter</th>
@@ -2959,6 +2824,14 @@ Manage host on PowerStore storage system
             <td> <br> The new name of host for renaming function. This value must contain 128 or fewer printable Unicode characters.  <br> Cannot be specified when creating a host. </td>
         </tr>
                     <tr>
+            <td colspan=2 > host_connectivity</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>Local_Only</li>  <li>Metro_Optimize_Both</li>  <li>Metro_Optimize_Local</li>  <li>Metro_Optimize_Remote</li> </ul></td>
+            <td> <br> Connectivity type for host.  <br> If any of metro connectivity options specified, a metro host must exists in both cluster provide connectivity to a metro volume from both cluster. </td>
+        </tr>
+                    <tr>
             <td colspan=2 > array_ip</td>
             <td> str  </td>
             <td> True </td>
@@ -3013,24 +2886,12 @@ Manage host on PowerStore storage system
 * The parameters initiators and detailed_initiators are mutually exclusive.
 * For mutual CHAP authentication, single CHAP credentials are mandatory.
 * Support of NVMe type of initiators is for PowerStore 2.0 and beyond.
+* The host_connectivity is supported only in PowerStore 3.0.0.0 and above.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-  - name: Create host with FC initiator
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      os_type: 'Windows'
-      initiators:
-        - 21:00:00:24:ff:31:e9:fc
-      state: 'present'
-      initiator_state: 'present-in-host'
-
   - name: Create host with iSCSI initiator and its details
     dellemc.powerstore.host:
       array_ip: "{{array_ip}}"
@@ -3044,10 +2905,6 @@ Manage host on PowerStore storage system
           port_type: 'iSCSI'
           chap_single_username: 'chapuserSingle'
           chap_single_password: 'chappasswd12345'
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
       state: 'present'
       initiator_state: 'present-in-host'
 
@@ -3058,15 +2915,6 @@ Manage host on PowerStore storage system
       user: "{{user}}"
       password: "{{password}}"
       host_name: "ansible-test-host-1"
-      state: 'present'
-
-  - name: Get host details by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
       state: 'present'
 
   - name: Add initiators to host by name
@@ -3081,68 +2929,6 @@ Manage host on PowerStore storage system
       initiator_state: 'present-in-host'
       state: 'present'
 
-  - name: Add initiators to host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      detailed_initiators:
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
-      initiator_state: 'present-in-host'
-      state: 'present'
-
-  - name: Remove initiators from host by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-2"
-      detailed_initiators:
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
-      initiator_state: 'absent-in-host'
-      state: 'present'
-
-  - name: Remove initiators from by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "8c1e869b-fe8a-4845-hiae-h802bc249d41"
-      initiators:
-        - 21:00:00:24:ff:31:e9:ee
-      initiator_state: 'absent-in-host'
-      state: 'present'
-
-  - name: Rename host by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      new_name: "ansible-test-host-1-new"
-      state: 'present'
-
-  - name: Rename host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      new_name: "ansible-test-host-2-new"
-      state: 'present'
-
   - name: Delete host
     dellemc.powerstore.host:
       array_ip: "{{array_ip}}"
@@ -3151,19 +2937,10 @@ Manage host on PowerStore storage system
       password: "{{password}}"
       host_name: "ansible-test-host-1-new"
       state: 'absent'
-
-  - name: Delete host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      state: 'absent'
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 <table>
     <tr>
         <th colspan=6>Key</th>
@@ -3189,6 +2966,13 @@ Manage host on PowerStore storage system
                 <td> str </td>
                 <td>success</td>
                 <td> Description about the host. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=5 > host_connectivity </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Connectivity type for host. It was added in 3.0.0.0. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -3362,7 +3146,7 @@ Manage host group on PowerStore Storage System
  Deletion of a host group results in deletion of the containing hosts as well. Remove hosts from the host group first to retain them.
 
 ### Parameters
-                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                    
 <table>
     <tr>
         <th colspan=1>Parameter</th>
@@ -3421,6 +3205,14 @@ Manage host group on PowerStore Storage System
             <td> <br> The new name for host group renaming function. This value must contain 128 or fewer printable Unicode characters. </td>
         </tr>
                     <tr>
+            <td colspan=1 > host_connectivity</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>Local_Only</li>  <li>Metro_Optimize_Both</li>  <li>Metro_Optimize_Local</li>  <li>Metro_Optimize_Remote</li> </ul></td>
+            <td> <br> Connectivity type for host group.  <br> If any of metro connectivity options specified, a metro host group must exists in both cluster provide connectivity to a metro volume from both cluster. </td>
+        </tr>
+                    <tr>
             <td colspan=1 > array_ip</td>
             <td> str  </td>
             <td> True </td>
@@ -3472,11 +3264,12 @@ Manage host group on PowerStore Storage System
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* The host_connectivity is supported only PowerStore 3.0.0.0 and above.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-  - name: Create host group with hosts using host name
+  - name: Create host group with hosts
     dellemc.powerstore.hostgroup:
       array_ip: "{{array_ip}}"
       verifycert: "{{verifycert}}"
@@ -3485,18 +3278,6 @@ Manage host group on PowerStore Storage System
       hostgroup_name: "{{hostgroup_name}}"
       hosts:
         - host1
-        - host2
-      state: 'present'
-      host_state: 'present-in-group'
-
-  - name: Create host group with hosts using host ID
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
         - c17fc987-bf82-480c-af31-9307b89923c3
       state: 'present'
       host_state: 'present-in-group'
@@ -3508,15 +3289,6 @@ Manage host group on PowerStore Storage System
       user: "{{user}}"
       password: "{{password}}"
       hostgroup_name: "{{hostgroup_name}}"
-      state: 'present'
-
-  - name: Get host group details using ID
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_id: "{{host group_id}}"
       state: 'present'
 
   - name: Add hosts to host group
@@ -3531,28 +3303,6 @@ Manage host group on PowerStore Storage System
       host_state: 'present-in-group'
       state: 'present'
 
-  - name: Remove hosts from host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
-        - host3
-      host_state: 'absent-in-group'
-      state: 'present'
-
-  - name: Rename host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      new_name: "{{new_hostgroup_name}}"
-      state: 'present'
-
   - name: Delete host group
     dellemc.powerstore.hostgroup:
       array_ip: "{{array_ip}}"
@@ -3564,7 +3314,7 @@ Manage host group on PowerStore Storage System
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                    
 <table>
     <tr>
         <th colspan=3>Key</th>
@@ -3590,6 +3340,13 @@ Manage host group on PowerStore Storage System
                 <td> str </td>
                 <td>success</td>
                 <td> Description about the host group. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=2 > host_connectivity </td>
+                <td> str </td>
+                <td>success</td>
+                <td> Connectivity type for host group. It was added in 3.0.0.0. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
@@ -3761,11 +3518,11 @@ Gathers information about PowerStore Storage entities
 ### Notes
 * Pagination is not supported for role, local user, security configs, LDAP accounts and LDAP domain. If all_pages is passed, it will be ignored.
 * The check_mode is supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-- name: Get list of volumes, volume groups, hosts, host groups and node
+- name: Get list of different attributes
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -3777,17 +3534,33 @@ Gathers information about PowerStore Storage entities
       - host
       - hg
       - node
-
-- name: Get list of replication related entities
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
+      - tree_quota
+      - user_quota
+      - file_system
       - replication_rule
       - replication_session
       - remote_system
+      - protection_policy
+      - snapshot_rule
+      - nas_server
+      - nfs_export
+      - smb_share
+      - user
+      - role
+      - network
+      - appliance
+      - dns
+      - email_notification
+      - ntp
+      - remote_support
+      - remote_support_contact
+      - smtp_config
+      - ad
+      - ldap
+      - certificate
+      - security_config
+      - ldap_account
+      - ldap_domain
 
 - name: Get list of volumes whose state notequal to ready
   dellemc.powerstore.info:
@@ -3802,17 +3575,7 @@ Gathers information about PowerStore Storage entities
         filter_operator: "notequal"
         filter_value: "ready"
 
-- name: Get list of protection policies and snapshot rules
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - protection_policy
-      - snapshot_rule
-
-- name: Get list of snapshot rules whose desired_retention between 101-499
+- name: Get list of snapshot rules whose desired_retention between 101-499 and name contains 'share'
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -3827,162 +3590,9 @@ Gathers information about PowerStore Storage entities
       - filter_key: "desired_retention"
         filter_operator: "lesser"
         filter_value: "500"
-
-- name: Get list of nas server, nfs_export and smb share
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - nas_server
-      - nfs_export
-      - smb_share
-
-- name: Get list of tree quota, user quota and file system
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - tree_quota
-      - user_quota
-      - file_system
-
-- name: Get list of nas server whose name equal to 'nas_server'
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - nas_server
-    filters:
-      - filter_key: "name"
-        filter_operator: "equal"
-        filter_value: "nas_server"
-
-- name: Get list of smb share whose name contains 'share'
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - nas_server
-    filters:
       - filter_key: "name"
         filter_operator: "like"
         filter_value: "*share*"
-
-- name: Get list of user, role, network and appliances
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - user
-      - role
-      - network
-      - appliance
-
-- name: Get list of ad, certificate, security config and ldaps
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - ad
-      - ldap
-      - certificate
-      - security_config
-
-- name: Get list of networks whose name contains 'Management'
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - network
-    filters:
-      - filter_key: "name"
-        filter_operator: "like"
-        filter_value: "*Management*"
-
-- name: Get list of dns, email notification, ntp, remote support, remote support contact and smtp config
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - dns
-      - email_notification
-      - ntp
-      - remote_support
-      - remote_support_contact
-      - smtp_config
-
-- name: Get list of emails which receives minor notifications
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-    - email_notification
-    filters:
-        - filter_key: 'notify_minor'
-          filter_operator: 'equal'
-          filter_value: 'False'
-
-- name: Get list of LDAP accounts
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - ldap_account
-
-- name: Get list of LDAP accounts with type as "User"
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-    - ldap_account
-    filters:
-        - filter_key: 'type'
-          filter_operator: 'equal'
-          filter_value: 'User'
-
-- name: Get list of LDAP domain
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-      - ldap_domain
-
-- name: Get list of LDAP domain with protocol as "LDAPS"
-  dellemc.powerstore.info:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    gather_subset:
-    - ldap_domain
-    filters:
-        - filter_key: 'protocol'
-          filter_operator: 'equal'
-          filter_value: 'LDAPS'
 ```
 
 ### Return Values
@@ -4829,7 +4439,6 @@ Manage jobs for PowerStore
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 ### Examples
 ```
@@ -5181,7 +4790,7 @@ Manage LDAP Account for PowerStore
 
 ### Notes
 * The check_mode is supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -5204,25 +4813,6 @@ Manage LDAP Account for PowerStore
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_name: "ldap_user_account_1"
-    state: "present"
-
-- name: Get the details of the LDAP account by id
-  dellemc.powerstore.ldap_account:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_account_id: "3"
-    state: "present"
-
-- name: Modify an LDAP account
-  dellemc.powerstore.ldap_account:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_account_name: "ldap_user_account_1"
-    role_name: "2"
     state: "present"
 
 - name: Delete an LDAP account
@@ -5569,29 +5159,10 @@ Manage LDAP domain for PowerStore
 * To use LDAPS protocol, the pre-requisite is to upload the certificate of LDAP server on PowerStore array.
 * Verify operation does not support idempotency.
 * The check_mode is supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-- name: Create LDAP domain
-  dellemc.powerstore.ldap_domain:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    domain_name: "{{domain_name}}"
-    ldap_servers: ["10.xxx.xx.xx"]
-    protocol: "LDAP"
-    ldap_server_type: "OpenLDAP"
-    bind_user: "{{bind_user}}"
-    bind_password: "{{bind_password}}"
-    ldap_domain_user_settings:
-      user_search_path: "cn=Users"
-    ldap_domain_group_settings:
-      group_search_path: "cn=Users"
-    ldap_server_state: "present-in-domain"
-    state: "present"
-
 - name: Get LDAP domain details using ID
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
@@ -5600,34 +5171,6 @@ Manage LDAP domain for PowerStore
     password: "{{password}}"
     ldap_domain_id: 4
     state: "present"
-
-- name: Get LDAP domain details using name
-  dellemc.powerstore.ldap_domain:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_domain_name: "{{ldap_domain_name}}"
-    state: "present"
-
-- name: Verify LDAP domain configuration
-  dellemc.powerstore.ldap_domain:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_domain_id: 4
-    verify_configuration: True
-    state: "present"
-
-- name: Delete LDAP domain configuration
-  dellemc.powerstore.ldap_domain:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_domain_id: 4
-    state: "absent"
 
 - name: Create LDAP domain with AD server type
   dellemc.powerstore.ldap_domain:
@@ -5649,15 +5192,6 @@ Manage LDAP domain for PowerStore
       user_search_path: ""
     ldap_domain_group_settings:
       group_search_path: ""
-    state: "present"
-
-- name: Get LDAP domain details using domain name
-  dellemc.powerstore.ldap_domain:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    ldap_domain_name: "{{domain_name}}"
     state: "present"
 
 - name: Delete LDAP domain using domain name
@@ -5964,7 +5498,7 @@ Local user operations for PowerStore Storage System
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -5980,15 +5514,6 @@ Local user operations for PowerStore Storage System
     is_locked: False
     state: "present"
 
-- name: Get the details local user with user id
-  dellemc.powerstore.local_user:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    user_id: "{{user_id}}"
-    state: "present"
-
 - name: Get the details local user with user name
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
@@ -5996,19 +5521,6 @@ Local user operations for PowerStore Storage System
     user: "{{user}}"
     password: "{{password}}"
     user_name: "ansible_user_1"
-    state: "present"
-
-- name: Modify attributes of local user
-  dellemc.powerstore.local_user:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    user_name: "ansible_user_1"
-    user_password: "Password123#"
-    new_password: "Ansible123#"
-    role_id: 4
-    is_locked: True
     state: "present"
 
 - name: Delete local user
@@ -6256,7 +5768,7 @@ NAS Server operations for PowerStore Storage system
 ### Notes
 * The check_mode is not supported.
 * Adding/Removing protection policy to/from a NAS server is supported for PowerStore version 3.0.0 and above.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -6267,25 +5779,6 @@ NAS Server operations for PowerStore Storage system
      user: "{{user}}"
      password: "{{password}}"
      nas_server_name: "{{nas_server_name}}"
-     state: "present"
-
- - name: Get Details of NAS Server by ID
-   dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_id: "{{nas_id}}"
-     state: "present"
-
- - name: Rename NAS Server by Name
-   dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_name: "{{nas_server_name}}"
-     nas_server_new_name : "{{nas_server_new_name}}"
      state: "present"
 
  - name: Modify NAS Server attributes by ID
@@ -6727,7 +6220,7 @@ Manage networks for PowerStore
 * Idempotency is not supported for vasa_provider_credentials and esxi_credentials.
 * For PowerStore X model, vasa_provider_credentials has to be specified along with new_cluster_mgmt_address.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -6740,68 +6233,17 @@ Manage networks for PowerStore
     network_id: "NW1"
     state: "present"
 
-- name: Get network details using name
-  dellemc.powerstore.network:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    network_name: "Default Management Network"
-    state: "present"
-
-- name: Rename the storage network
-  dellemc.powerstore.network:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    network_name: "Default Storage Network"
-    new_name: "iSCSI Network"
-    wait_for_completion: True
-    state: "present"
-
-- name: Replace the IP's in the management network and re-register VASA vendor provider
-  dellemc.powerstore.network:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    network_id: "NW1"
-    addresses:
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
-    new_cluster_mgmt_address: "100.230.x.x"
-    vasa_provider_credentials:
-      username: "vmadmin"
-      password: "{{vm_password}}"
-    state: "present"
-
 - name: Map port to the storage network
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
-    network_id: "NW6"
+    network_name: "Default Storage Network"
+    wait_for_completion: True
     ports:
     - "IP1"
     port_state: "present-in-network"
-    state: "present"
-
-- name: Unmap port from the storage network
-  dellemc.powerstore.network:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    network_id: "NW6"
-    ports:
-    - "IP1"
-    port_state: "absent-in-network"
     state: "present"
 
 - name: Replace the IP's in the management network and re-register VASA vendor
@@ -6817,12 +6259,6 @@ Manage networks for PowerStore
     mtu: 1500
     prefix_length: 24
     addresses:
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
     - current_address: "100.230.x.x"
       new_address: "100.231.x.x"
     - current_address: "100.230.x.x"
@@ -7329,7 +6765,7 @@ Manage NFS exports for PowerStore
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -7362,18 +6798,6 @@ Manage NFS exports for PowerStore
     host_state: "present-in-export"
     state: "present"
 
-- name: Create NFS export Create NFS export for filesystem snapshot with mandatory parameters
-  dellemc.powerstore.nfs:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    nfs_export_name: "{{export_name2}}"
-    snapshot: "{{snapshot}}"
-    nas_server: "{{nas_server}}"
-    path: "{{path2}}"
-    state: "present"
-
 - name: Get NFS export details using ID
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
@@ -7383,35 +6807,7 @@ Manage NFS exports for PowerStore
     nfs_export_id: "{{export_id}}"
     state: "present"
 
-- name: Add Read-Only and Read-Write hosts to NFS export
-  dellemc.powerstore.nfs:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    nfs_export_id: "{{export_id}}"
-    read_only_hosts:
-      - "{{host5}}"
-    read_write_hosts:
-      - "{{host6}}"
-    host_state: "present-in-export"
-    state: "present"
-
-- name: Remove Read-Only and Read-Write hosts from NFS export
-  dellemc.powerstore.nfs:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    nfs_export_id: "{{export_id}}"
-    read_only_hosts:
-      - "{{host1}}"
-    read_write_hosts:
-      - "{{host3}}"
-    host_state: "absent-in-export"
-    state: "present"
-
-- name: Modify the attributes of NFS export
+- name: Modify the attributes of NFS export, add Read-Only and Read-Write hosts to NFS export
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -7420,6 +6816,11 @@ Manage NFS exports for PowerStore
     nfs_export_id: "{{export_id}}"
     description: "modify description"
     default_access: "ROOT"
+    read_only_hosts:
+      - "{{host5}}"
+    read_write_hosts:
+      - "{{host6}}"
+    host_state: "present-in-export"
     state: "present"
 
 - name: Delete NFS export using name
@@ -7720,7 +7121,7 @@ NTP operations on a PowerStore storage system
 * Parameters ntp_addresses and ntp_address_state are required together.
 * Creation and deletion of NTP is not supported.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -7744,18 +7145,6 @@ NTP operations on a PowerStore storage system
         - "XX.XX.XX.XX"
         - "YY.YY.YY.YY"
        ntp_address_state: "present-in-ntp"
-       state: "present"
-
-  - name: Remove addresses from NTP instance
-    dellemc.powerstore.ntp:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       verifycert: "{{verifycert}}"
-       ntp_id: "NTP1"
-       ntp_addresses:
-        - "YY.YY.YY.YY"
-       ntp_address_state: "absent-in-ntp"
        state: "present"
 ```
 
@@ -7936,7 +7325,7 @@ Perform Protection policy operations for PowerStore storage system
 * Before deleting a protection policy, the replication rule has to be removed from the protection policy.
 * In PowerStore version 3.0.0.0, protection policy without snapshot rule/replication rule is not allowed.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -7954,19 +7343,7 @@ Perform Protection policy operations for PowerStore storage system
     snapshotrule_state: "present-in-policy"
     state: "present"
 
-
-- name : Modify protection policy, change name
-  dellemc.powerstore.protectionpolicy:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    name: "{{name}}"
-    new_name: "{{new_name}}"
-    state: "present"
-
-
-- name : Modify protection policy, add snapshot rule
+- name : Modify protection policy, add snapshot rule and remove replication rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -7976,17 +7353,6 @@ Perform Protection policy operations for PowerStore storage system
     snapshotrules:
       - "Ansible_test_snaprule_1"
     snapshotrule_state: "present-in-policy"
-    state: "present"
-
-- name : Modify protection policy, remove snapshot rule, replication rule
-  dellemc.powerstore.protectionpolicy:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    name: "{{name}}"
-    snapshotrules:
-      - "Ansible_test_to_be_removed"
     replicationrule: ""
     snapshotrule_state: "absent-in-policy"
     state: "present"
@@ -7998,15 +7364,6 @@ Perform Protection policy operations for PowerStore storage system
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
-    state: "present"
-
-- name : Get details of protection policy by ID
-  dellemc.powerstore.protectionpolicy:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    protectionpolicy_id: "{{protectionpolicy_id}}"
     state: "present"
 
 - name : Delete protection policy
@@ -8321,7 +7678,7 @@ Manage Tree Quotas and User Quotas on PowerStore
 * If a user quota is to be created on a tree quota, then the user quotas will be enabled automatically in a tree quota.
 * Delete User Quota operation is not supported.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -8335,22 +7692,6 @@ Manage Tree Quotas and User Quotas on PowerStore
         unix_name: "{{unix_name}}"
         filesystem: "sample_fs"
         nas_server: "{{nas_server_id}}"
-        quota:
-          soft_limit: 5
-          hard_limit: 10
-          cap_unit: "TB"
-        state: "present"
-
-    - name: Create a Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_type: "tree"
-        path: "/home"
-        filesystem: "sample_fs"
-        nas_server: "sample_nas_server"
         quota:
           soft_limit: 5
           hard_limit: 10
@@ -8380,15 +7721,6 @@ Manage Tree Quotas and User Quotas on PowerStore
         uid: 100
         path: "/home"
         filesystem: "{{filesystem_id}}"
-        state: "present"
-
-    - name: Get details of Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_id: "{{quota_id}}"
         state: "present"
 
     - name: Delete a Tree Quota
@@ -8828,7 +8160,7 @@ Remote Support operations on a PowerStore storage system
 * Creation and deletion of remote support configuration is not supported.
 * Support for check_mode is not available for this module.
 * Verify and send test alert operations do not support idempotency.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -8860,33 +8192,6 @@ Remote Support operations on a PowerStore storage system
       is_rsc_enabled: True
       is_cloudiq_enabled: False
       timeout: 300
-      state: "present"
-
-  - name: Modify remote support configuration - SRS_Integrated_Tier2
-    dellemc.powerstore.remote_support:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      verifycert: "{{verifycert}}"
-      remote_support_id: 0
-      support_type: "SRS_Integrated_Tier2"
-      proxy_address: "10.XX.XX.ZZ"
-      proxy_port: 3128
-      proxy_username: "user"
-      proxy_password: "password"
-      timeout: 300
-      state: "present"
-
-  - name: Verify remote support configuration
-    dellemc.powerstore.remote_support:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      verifycert: "{{verifycert}}"
-      remote_support_id: 0
-      support_type: "SRS_Integrated_Tier3"
-      timeout: 300
-      verify_connection: True
       state: "present"
 
   - name: Send a test alert
@@ -9169,7 +8474,6 @@ Remote Support Contact operations on a PowerStore storage system
 * Creation and deletion of remote support contact is not supported.
 * Parameters first_name, last_name, email and phone can be removed by passing empty string.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 ### Examples
 ```
@@ -9422,7 +8726,7 @@ Remote system operations on a PowerStore storage system
 * If wait_for_completion is set to True then the connection will be terminated after the timeout is exceeded. User can tweak timeout and pass it in the playbook task.
 * By default, the timeout is set to 120 seconds.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -9438,20 +8742,6 @@ Remote system operations on a PowerStore storage system
     remote_port: 443
     network_latency: "Low"
     decription: "Adding a new remote system"
-    state: "present"
-
-- name: Modify attributes of remote system using remote_id
-  dellemc.powerstore.remotesystem:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    remote_id: "7d7e7917-735b-3eef-8cc3-1302001c08e7"
-    remote_address: "xxx.xxx.xxx.xxx"
-    network_latency: "Low"
-    wait_for_completion: True
-    timeout: 300
-    decription: "Updating the description"
     state: "present"
 
 - name: Get details of remote system using remote_id
@@ -9778,7 +9068,7 @@ Replication rule operations on a PowerStore storage system
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -9792,19 +9082,6 @@ Replication rule operations on a PowerStore storage system
     rpo: "Five_Minutes"
     alert_threshold: "15"
     remote_system: "WN-D8877"
-    state: "present"
-
-- name: Modify existing replication rule
-  dellemc.powerstore.replicationrule:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    replication_rule_name: "sample_replication_rule"
-    new_name: "new_sample_replication_rule"
-    rpo: "One_Hour"
-    alert_threshold: "60"
-    remote_system: "WN-D0517"
     state: "present"
 
 - name: Get details of replication rule
@@ -9904,7 +9181,7 @@ Replication session operations on a PowerStore storage system
  This module supports get details of an existing replication session. Updating the state of the replication session.
 
 ### Parameters
-                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                    
 <table>
     <tr>
         <th colspan=1>Parameter</th>
@@ -9963,6 +9240,14 @@ Replication session operations on a PowerStore storage system
             <td> <br> State in which the replication session is present after performing the task. </td>
         </tr>
                     <tr>
+            <td colspan=1 > role</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td> <ul> <li>Metro_Preferred</li>  <li>Metro_Non_Preferred</li> </ul></td>
+            <td> <br> Role of the metro replication session. </td>
+        </tr>
+                    <tr>
             <td colspan=1 > array_ip</td>
             <td> str  </td>
             <td> True </td>
@@ -10017,29 +9302,11 @@ Replication session operations on a PowerStore storage system
 * When the current state of the replication session is 'OK' and in the playbook task 'synchronizing', then it will return "changed" as False.
 * The changed as False in above scenario is because of there is a scheduled synchronization in place with the associated replication rule's RPO in the protection policy.
 * The check_mode is not supported.
-* nas_server and filesystem parameters are supported only for PowerStore version 3.0.0. and above.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Parameter nas_server, filesystem, and role parameters are supported only for PowerStore version 3.0.0. and above.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-- name: Pause a replication session
-  dellemc.powerstore.replicationsession:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    volume: "sample_volume_1"
-    session_state: "paused"
-
-- name: Synchronize a replication session
-  dellemc.powerstore.replicationsession:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    volume: "sample_volume_1"
-    session_state: "synchronizing"
-
 - name: Get details of a replication session
   dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
@@ -10048,7 +9315,7 @@ Replication session operations on a PowerStore storage system
     password: "{{password}}"
     volume: "sample_volume_1"
 
-- name: Fail over a replication session
+- name: Modify a replication session
   dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -10265,7 +9532,6 @@ Get details of the roles present on the PowerStore storage system
 * Only getting the details of the role is supported by the ansible module.
 * Creation, modification and deletion of roles is not supported by the ansible modules.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 ### Examples
 ```
@@ -10276,15 +9542,6 @@ Get details of the roles present on the PowerStore storage system
     user: "{{user}}"
     password: "{{password}}"
     role_name: "Administrator"
-    state: "present"
-
-- name: Get the details of role by id
-  dellemc.powerstore.role:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verify_cert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    role_id: "1"
     state: "present"
 ```
 
@@ -10439,7 +9696,7 @@ Security configuration operations for PowerStore Storage System
 * Creation and deletion of security configs is not supported by Ansible modules.
 * Modification of protocol mode is only supported for PowerStore v2.0.0.0 and above.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -10695,7 +9952,7 @@ Manage SMB shares on a PowerStore storage system
 * When the ID of the filesystem/snapshot is passed then nas_server is not required. If passed, then the filesystem/snapshot should exist for the nas_server, else the task will fail.
 * Multiple SMB shares can be created for the same local path.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -10717,39 +9974,6 @@ Manage SMB shares on a PowerStore storage system
     is_encryption_enabled: True
     state: "present"
 
-- name: Modify Attributes of SMB share for a filesystem
-  dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    share_name: "sample_smb_share"
-    nas_server: "sample_nas_server"
-    description: "Sample SMB share attributes updated"
-    is_abe_enabled: False
-    is_branch_cache_enabled: False
-    offline_availability: "MANUAL"
-    is_continuous_availability_enabled: False
-    is_encryption_enabled: False
-    umask: "022"
-    state: "present"
-
-- name: Create SMB share for a snapshot
-  dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    share_name: "sample_snap_smb_share"
-    snapshot: "sample_snapshot"
-    nas_server: "{{nas_server_id}}"
-    path: "{{path}}"
-    description: "Sample SMB share created for snapshot"
-    is_abe_enabled: True
-    is_branch_cache_enabled: True
-    is_continuous_availability_enabled: True
-    state: "present"
-
 - name: Modify Attributes of SMB share for a snapshot
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
@@ -10764,15 +9988,6 @@ Manage SMB shares on a PowerStore storage system
     offline_availability: "MANUAL"
     is_continuous_availability_enabled: False
     umask: "022"
-    state: "present"
-
-- name: Get details of SMB share
-  dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    share_id: "{{smb_share_id}}"
     state: "present"
 
 - name: Delete SMB share
@@ -11021,7 +10236,7 @@ SMTP configuration operations on a PowerStore storage system
 * Idempotency is not supported for test operation for smtp_config module.
 * Creation and deletion of SMTP configuration is not supported.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -11043,16 +10258,6 @@ SMTP configuration operations on a PowerStore storage system
       smtp_id: "0"
       smtp_address: "sample.smtp.com"
       source_email: "def@dell.com"
-      state: "present"
-
-  - name: Send a test mail through the SMTP server
-    dellemc.powerstore.smtp_config:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      verifycert: "{{verifycert}}"
-      smtp_id: "0"
-      destination_email: "abc@dell.com"
       state: "present"
 ```
 
@@ -11262,7 +10467,7 @@ Manage Snapshots for PowerStore
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -11277,27 +10482,6 @@ Manage Snapshots for PowerStore
         description: "{{description}}"
         desired_retention: "{{desired_retention}}"
         retention_unit: "{{retention_unit_days}}"
-        state: "{{state_present}}"
-
-    - name: Get details of a volume snapshot
-      dellemc.powerstore.snapshot:
-        array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        snapshot_name: "{{snapshot_name}}"
-        volume: "{{volume}}"
-        state: "{{state_present}}"
-
-    - name: Rename volume snapshot
-      dellemc.powerstore.snapshot:
-        array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        snapshot_name: "{{snapshot_name}}"
-        new_snapshot_name: "{{new_snapshot_name}}"
-        volume: "{{volume}}"
         state: "{{state_present}}"
 
     - name: Delete volume snapshot
@@ -11329,29 +10513,6 @@ Manage Snapshots for PowerStore
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
-        volume_group: "{{volume_group}}"
-        state: "{{state_present}}"
-
-    - name: Modify volume group snapshot expiration timestamp
-      dellemc.powerstore.snapshot:
-        array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        snapshot_name: "{{snapshot_name}}"
-        volume_group: "{{volume_group}}"
-        description: "{{description}}"
-        expiration_timestamp: "{{expiration_timestamp_new}}"
-        state: "{{state_present}}"
-
-    - name: Rename volume group snapshot
-      dellemc.powerstore.snapshot:
-        array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        snapshot_name: "{{snapshot_name}}"
-        new_snapshot_name: "{{new_snapshot_name}}"
         volume_group: "{{volume_group}}"
         state: "{{state_present}}"
 
@@ -11666,19 +10827,10 @@ Snapshot Rule operations on a PowerStore storage system
 
 ### Notes
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-- name: Get details of an existing snapshot rule by name
-  dellemc.powerstore.snapshotrule:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    name: "{{name}}"
-    state: "present"
-
 - name: Get details of an existing snapshot rule by id
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
@@ -11687,20 +10839,6 @@ Snapshot Rule operations on a PowerStore storage system
     password: "{{password}}"
     snapshotrule_id: "{{snapshotrule_id}}"
     state: "present"
-
-- name: Create new snapshot rule by interval
-  dellemc.powerstore.snapshotrule:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    name: "{{name}}"
-    interval: "{{interval}}"
-    days_of_week:
-          - Monday
-    desired_retention: "{{desired_retention}}"
-    state: "present"
-
 
 - name: Create new snapshot rule by time_of_day and days_of_week
   dellemc.powerstore.snapshotrule:
@@ -11728,18 +10866,7 @@ Snapshot Rule operations on a PowerStore storage system
       - Monday
       - Wednesday
       - Friday
-      - Sunday
     time_of_day: "{{time_of_day}}"
-    state: "present"
-
-- name: Modify existing snapshot rule to interval
-  dellemc.powerstore.snapshotrule:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    name: "{{name}}"
-    interval: "{{interval}}"
     state: "present"
 
 - name: Delete an existing snapshot rule by name
@@ -11850,12 +10977,13 @@ Manage volumes on a PowerStore storage system
 
 ### Synopsis
  Managing volume on PowerStore storage system includes create volume, get details of volume, modify volume attributes, map or unmap volume to host/host group, and delete volume.
+ Volume module also supports start or end of a metro configuration for a volume, clone, refresh and restore a volume.
 
 ### Parameters
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 <table>
     <tr>
-        <th colspan=1>Parameter</th>
+        <th colspan=2>Parameter</th>
         <th width="20%">Type</th>
         <th>Required</th>
         <th>Default</th>
@@ -11863,7 +10991,7 @@ Manage volumes on a PowerStore storage system
         <th width="80%">Description</th>
     </tr>
                                                             <tr>
-            <td colspan=1 > vol_name</td>
+            <td colspan=2 > vol_name</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11871,7 +10999,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Unique name of the volume. This value must contain 128 or fewer printable unicode characters.  <br> Required when creating a volume. All other functionalities on a volume are supported using volume name or ID. </td>
         </tr>
                     <tr>
-            <td colspan=1 > vg_name</td>
+            <td colspan=2 > vg_name</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11879,7 +11007,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The name of the volume group. A volume can optionally be assigned to a volume group at the time of creation.  <br> Use the Volume Group Module for modification of the assignment. </td>
         </tr>
                     <tr>
-            <td colspan=1 > vol_id</td>
+            <td colspan=2 > vol_id</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11887,7 +11015,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The 36 character long ID of the volume, automatically generated when a volume is created.  <br> Cannot be used while creating a volume. All other functionalities on a volume are supported using volume name or ID. </td>
         </tr>
                     <tr>
-            <td colspan=1 > size</td>
+            <td colspan=2 > size</td>
             <td> float  </td>
             <td></td>
             <td></td>
@@ -11895,7 +11023,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Size of the volume. Minimum volume size is 1MB. Maximum volume size is 256TB. Size must be a multiple of 8192.  <br> Required in case of create and expand volume. </td>
         </tr>
                     <tr>
-            <td colspan=1 > cap_unit</td>
+            <td colspan=2 > cap_unit</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11903,7 +11031,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Volume size unit.  <br> Used to signify unit of the size provided for creation and expansion of volume.  <br> It defaults to 'GB', if not specified. </td>
         </tr>
                     <tr>
-            <td colspan=1 > new_name</td>
+            <td colspan=2 > new_name</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11911,7 +11039,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The new volume name for the volume, used in case of rename functionality. </td>
         </tr>
                     <tr>
-            <td colspan=1 > description</td>
+            <td colspan=2 > description</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11919,7 +11047,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Description for the volume.  <br> Optional parameter when creating a volume.  <br> To modify, pass the new value in description field. </td>
         </tr>
                     <tr>
-            <td colspan=1 > protection_policy</td>
+            <td colspan=2 > protection_policy</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11927,7 +11055,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The protection_policy of the volume.  <br> To represent policy, both name or ID can be used interchangably. The module will detect both.  <br> A volume can be assigned a protection policy at the time of creation of volume or later as well.  <br> The policy can also be changed for a given volume by simply passing the new value.  <br> The policy can be removed by passing an empty string.  <br> Check examples for more clarity. </td>
         </tr>
                     <tr>
-            <td colspan=1 > performance_policy</td>
+            <td colspan=2 > performance_policy</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11935,7 +11063,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The performance_policy for the volume.  <br> A volume can be assigned a performance policy at the time of creation of the volume, or later as well.  <br> The policy can also be changed for a given volume, by simply passing the new value.  <br> Check examples for more clarity.  <br> If not given, performance policy will be 'medium'. </td>
         </tr>
                     <tr>
-            <td colspan=1 > host</td>
+            <td colspan=2 > host</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11943,7 +11071,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Host to be mapped/unmapped to a volume. If not specified, an unmapped volume is created. Only one of the host or host group can be supplied in one call.  <br> To represent host, both name or ID can be used interchangeably. The module will detect both. </td>
         </tr>
                     <tr>
-            <td colspan=1 > hostgroup</td>
+            <td colspan=2 > hostgroup</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11951,7 +11079,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Hostgroup to be mapped/unmapped to a volume. If not specified, an unmapped volume is created.  <br> Only one of the host or host group can be mapped in one call.  <br> To represent a hostgroup, both name or ID can be used interchangeably. The module will detect both. </td>
         </tr>
                     <tr>
-            <td colspan=1 > mapping_state</td>
+            <td colspan=2 > mapping_state</td>
             <td> str  </td>
             <td></td>
             <td></td>
@@ -11959,7 +11087,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Define whether the volume should be mapped to a host or hostgroup.  <br> Value mapped - indicates that the volume should be mapped to the host or host group.  <br> Value unmapped - indicates that the volume should not be mapped to the host or host group.  <br> Only one of a host or host group can be supplied in one call. </td>
         </tr>
                     <tr>
-            <td colspan=1 > hlu</td>
+            <td colspan=2 > hlu</td>
             <td> int  </td>
             <td></td>
             <td></td>
@@ -11967,7 +11095,146 @@ Manage volumes on a PowerStore storage system
             <td> <br> Logical unit number for the host/host group volume access.  <br> Optional parameter when mapping a volume to host/host group.  <br> HLU modification is not supported. </td>
         </tr>
                     <tr>
-            <td colspan=1 > state</td>
+            <td colspan=2 > clone_volume</td>
+            <td> dict  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Details of the volume clone. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > name </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Name of the clone set to be created.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > description </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Description of the clone.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > host </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Unique identifier or name of the host to be attached to the clone.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > host_group </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Unique identifier or name of the host group to be attached to the clone.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > logical_unit_number </td>
+                <td> int  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> logical unit number when creating a mapped volume.  <br> If no host_id or host_group_id is specified, logical_unit_number is ignored.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > protection_policy </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> The protection policy of the clone set to be created.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > performance_policy </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td> <ul> <li>high</li>  <li>medium</li>  <li>low</li> </ul></td>
+                <td>  <br> The performance policy of the clone set to be created.  </td>
+            </tr>
+                                        <tr>
+            <td colspan=2 > source_volume</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Unique identifier or name of the volume to refresh from. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > source_snap</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Unique identifier or name of the source snapshot that will be used for the restore operation. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > create_backup_snap</td>
+            <td> bool  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Indicates whether a backup snapshot of the target volume will be created or not. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > backup_snap_profile</td>
+            <td> dict  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Details of the backup snapshot set to be created. </td>
+        </tr>
+                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > name </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Name of the backup snapshot set to be created.  <br> The default name of the volume snapshot is the date and time when the snapshot is taken.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > description </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Description of the backup snapshot set.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > performance_policy </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td> <ul> <li>high</li>  <li>medium</li>  <li>low</li> </ul></td>
+                <td>  <br> Performance policy assigned to the snapshot.  </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=1 > expiration_timestamp </td>
+                <td> str  </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>  <br> Time after which the snapshot set can be auto-purged.  </td>
+            </tr>
+                                        <tr>
+            <td colspan=2 > state</td>
             <td> str  </td>
             <td> True </td>
             <td></td>
@@ -11975,7 +11242,39 @@ Manage volumes on a PowerStore storage system
             <td> <br> Define whether the volume should exist or not.  <br> Value present - indicates that the volume should exist on the system.  <br> Value absent - indicates that the volume should not exist on the system. </td>
         </tr>
                     <tr>
-            <td colspan=1 > array_ip</td>
+            <td colspan=2 > remote_system</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> The remote system to which metro relationship will be established.  <br> The remote system must support metro volume.  <br> This is mandatory while configuring a metro volume.  <br> To represent remote system, both name and ID are interchangeable.  <br> This parameter is added in PowerStore version 3.0.0.0. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > remote_appliance_id</td>
+            <td> str  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> A remote system appliance ID to which volume will be assigned.  <br> This parameter is added in PowerStore version 3.0.0.0. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > end_metro_config</td>
+            <td> bool  </td>
+            <td></td>
+            <td> False </td>
+            <td></td>
+            <td> <br> Whether to end the metro session from a volume.  <br> This is mandatory for end metro configuration operation. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > delete_remote_volume</td>
+            <td> bool  </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td> <br> Whether to delete the remote volume during removal of metro session.  <br> This is parameter is added in the PowerStore version 3.0.0.0. </td>
+        </tr>
+                    <tr>
+            <td colspan=2 > array_ip</td>
             <td> str  </td>
             <td> True </td>
             <td></td>
@@ -11983,7 +11282,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> IP or FQDN of the PowerStore management system. </td>
         </tr>
                     <tr>
-            <td colspan=1 > verifycert</td>
+            <td colspan=2 > verifycert</td>
             <td> bool  </td>
             <td> True </td>
             <td></td>
@@ -11991,7 +11290,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Boolean variable to specify whether to validate SSL certificate or not.  <br> True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.  <br> False - indicates that the SSL certificate should not be verified. </td>
         </tr>
                     <tr>
-            <td colspan=1 > user</td>
+            <td colspan=2 > user</td>
             <td> str  </td>
             <td> True </td>
             <td></td>
@@ -11999,7 +11298,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The username of the PowerStore host. </td>
         </tr>
                     <tr>
-            <td colspan=1 > password</td>
+            <td colspan=2 > password</td>
             <td> str  </td>
             <td> True </td>
             <td></td>
@@ -12007,7 +11306,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> The password of the PowerStore host. </td>
         </tr>
                     <tr>
-            <td colspan=1 > timeout</td>
+            <td colspan=2 > timeout</td>
             <td> int  </td>
             <td></td>
             <td> 120 </td>
@@ -12015,7 +11314,7 @@ Manage volumes on a PowerStore storage system
             <td> <br> Time after which the connection will get terminated.  <br> It is to be mentioned in seconds. </td>
         </tr>
                     <tr>
-            <td colspan=1 > port</td>
+            <td colspan=2 > port</td>
             <td> int  </td>
             <td></td>
             <td></td>
@@ -12030,22 +11329,12 @@ Manage volumes on a PowerStore storage system
 * The size is a required parameter for expand volume.
 * Clones or Snapshots of a deleted production volume or a clone are not deleted.
 * A volume that is attached to a host/host group, or that is part of a volume group cannot be deleted.
+* If volume in metro session, volume can only be modified, refreshed and restored when session is in the pause state.
 * The Check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
-- name: Create stand-alone volume
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
-    state: 'present'
-
 - name: Create stand-alone volume with performance and protection policy
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
@@ -12059,31 +11348,9 @@ Manage volumes on a PowerStore storage system
     description: 'Description'
     performance_policy: 'low'
     protection_policy: 'protection_policy_name'
-
-- name: Create volume and assign to a volume group
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
     vg_name: "{{vg_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
-    state: 'present'
-
-- name: Create volume and map it to a host
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
     mapping_state: 'mapped'
     host: "{{host_name}}"
-    state: 'present'
 
 - name: Get volume details using ID
   dellemc.powerstore.volume:
@@ -12094,16 +11361,7 @@ Manage volumes on a PowerStore storage system
     vol_id: "{{result.volume_details.id}}"
     state: "present"
 
-- name: Get volume details using name
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    state: "present"
-
-- name: Modify volume size, name, description and performance policy
+- name: Modify volume size, name, description, protection and performance policy
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -12115,17 +11373,7 @@ Manage volumes on a PowerStore storage system
     size: 2
     performance_policy: 'high'
     description: 'new description'
-
-- name: Remove protection policy from Volume
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    new_name: "{{new_name}}"
-    vol_name: "{{vol_name}}"
-    state: "present"
-    protection_policy: ""
+    protection_policy: ''
 
 - name: Map volume to a host with HLU
   dellemc.powerstore.volume:
@@ -12139,16 +11387,59 @@ Manage volumes on a PowerStore storage system
     host: 'host1'
     hlu: 12
 
-- name: Map volume to a host without HLU
+- name: Clone a volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
-    state: 'present'
-    mapping_state: 'mapped'
-    host: 'host2'
+    clone_volume:
+      name: 'test_name'
+      description: 'test description'
+      host: 'test_host'
+      host_group: 'test_host_group'
+      logical_unit_number: 1
+      protection_policy: 'TEST_PP'
+      performance_policy: 'low'
+    state: "present"
+
+- name: Restore a volume
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    source_snap: 'refresh_backup_snap'
+    create_backup_snap: true
+    backup_snap_profile:
+      name: 'restore_snap_2'
+      description: 'test backup snap'
+      expiration_timestamp: '2022-12-23T01:20:00Z'
+      performance_policy: 'low'
+    state: "present"
+
+- name: Configure a metro volume
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    remote_system: "remote-D123"
+    state: "present"
+
+- name: End a metro volume configuration
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    end_metro_config: True
+    delete_remote_volume: True
+    state: "present"
 
 - name: Delete volume
   dellemc.powerstore.volume:
@@ -12161,36 +11452,54 @@ Manage volumes on a PowerStore storage system
 ```
 
 ### Return Values
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 <table>
     <tr>
-        <th colspan=7>Key</th>
+        <th colspan=8>Key</th>
         <th>Type</th>
         <th>Returned</th>
         <th width="100%">Description</th>
     </tr>
                                                                                             <tr>
-            <td colspan=7 > changed </td>
+            <td colspan=8 > changed </td>
             <td>  bool </td>
             <td> always </td>
             <td> Whether or not the resource has changed. </td>
         </tr>
                     <tr>
-            <td colspan=7 > volume_details </td>
+            <td colspan=8 > is_volume_cloned </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the clone of volume is created. </td>
+        </tr>
+                    <tr>
+            <td colspan=8 > is_volume_refreshed </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the volume is refreshed. </td>
+        </tr>
+                    <tr>
+            <td colspan=8 > is_volume_restored </td>
+            <td>  bool </td>
+            <td> always </td>
+            <td> Whether or not the volume is restored. </td>
+        </tr>
+                    <tr>
+            <td colspan=8 > volume_details </td>
             <td>  complex </td>
             <td> When volume exists </td>
             <td> Details of the volume. </td>
         </tr>
                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > description </td>
+                <td colspan=7 > description </td>
                 <td> str </td>
                 <td>success</td>
                 <td> description about the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > hlu_details </td>
+                <td colspan=7 > hlu_details </td>
                 <td> complex </td>
                 <td>success</td>
                 <td> HLU details for mapped host/host group. </td>
@@ -12198,7 +11507,7 @@ Manage volumes on a PowerStore storage system
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > host_group_id </td>
+                    <td colspan=6 > host_group_id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The host group ID mapped to the volume. </td>
@@ -12206,7 +11515,7 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > host_id </td>
+                    <td colspan=6 > host_id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The host ID mapped to the volume. </td>
@@ -12214,7 +11523,7 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > id </td>
+                    <td colspan=6 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The HLU ID. </td>
@@ -12222,14 +11531,14 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > logical_unit_number </td>
+                    <td colspan=6 > logical_unit_number </td>
                     <td> int </td>
                     <td>success</td>
                     <td> Logical unit number for the host/host group volume access. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > host </td>
+                <td colspan=7 > host </td>
                 <td> complex </td>
                 <td>success</td>
                 <td> Hosts details mapped to the volume. </td>
@@ -12237,7 +11546,7 @@ Manage volumes on a PowerStore storage system
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > id </td>
+                    <td colspan=6 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The host ID mapped to the volume. </td>
@@ -12245,14 +11554,14 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > name </td>
+                    <td colspan=6 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> Name of the Host mapped to the volume. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > host_group </td>
+                <td colspan=7 > host_group </td>
                 <td> complex </td>
                 <td>success</td>
                 <td> Host groups details mapped to the volume. </td>
@@ -12260,7 +11569,7 @@ Manage volumes on a PowerStore storage system
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > id </td>
+                    <td colspan=6 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The host group ID mapped to the volume. </td>
@@ -12268,21 +11577,21 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > name </td>
+                    <td colspan=6 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> Name of the Host group mapped to the volume. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > id </td>
+                <td colspan=7 > id </td>
                 <td> str </td>
                 <td>success</td>
                 <td> The system generated ID given to the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > mapped_volumes </td>
+                <td colspan=7 > mapped_volumes </td>
                 <td> complex </td>
                 <td>success</td>
                 <td> This is the inverse of the resource type host_volume_mapping association. </td>
@@ -12290,7 +11599,7 @@ Manage volumes on a PowerStore storage system
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > id </td>
+                    <td colspan=6 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> Unique identifier of a mapping between a host and a volume. </td>
@@ -12298,63 +11607,93 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > logical_unit_number </td>
+                    <td colspan=6 > logical_unit_number </td>
                     <td> int </td>
                     <td>success</td>
                     <td> Logical unit number for the host volume access. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > name </td>
+                <td colspan=7 > metro_replication_session_id </td>
+                <td> str </td>
+                <td>success</td>
+                <td> The ID of the metro replication session assigned to volume. </td>
+            </tr>
+                                <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=7 > name </td>
                 <td> str </td>
                 <td>success</td>
                 <td> Name of the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > nguid </td>
+                <td colspan=7 > nguid </td>
                 <td> int </td>
                 <td>success</td>
                 <td> NVMe Namespace globally unique identifier. Used for volumes attached to NVMEoF hosts. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > node_affinity </td>
+                <td colspan=7 > node_affinity </td>
                 <td> str </td>
                 <td>success</td>
                 <td> This attribute shows which node will be advertised as the optimized IO path to the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > nsid </td>
+                <td colspan=7 > nsid </td>
                 <td> int </td>
                 <td>success</td>
                 <td> NVMe Namespace unique identifier in the NVME subsystem. Used for volumes attached to NVMEoF hosts. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > performance_policy_id </td>
+                <td colspan=7 > performance_policy_id </td>
                 <td> str </td>
                 <td>success</td>
                 <td> The performance policy for the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > protection_policy_id </td>
+                <td colspan=7 > protection_policy_id </td>
                 <td> str </td>
                 <td>success</td>
                 <td> The protection policy of the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > size </td>
+                <td colspan=7 > size </td>
                 <td> int </td>
                 <td>success</td>
                 <td> Size of the volume. </td>
             </tr>
                                 <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > volume_groups </td>
+                <td colspan=7 > snapshots </td>
+                <td> complex </td>
+                <td>success</td>
+                <td> List of snapshot associated with the volume. </td>
+            </tr>
+                                         <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=6 > id </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> The system generated ID given to the snapshot. </td>
+                </tr>
+                                             <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                    <td colspan=6 > name </td>
+                    <td> str </td>
+                    <td>success</td>
+                    <td> Name of the snapshot. </td>
+                </tr>
+                                                            <tr>
+                <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan=7 > volume_groups </td>
                 <td> complex </td>
                 <td>success</td>
                 <td> The volume group details of the volume. </td>
@@ -12362,7 +11701,7 @@ Manage volumes on a PowerStore storage system
                                          <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > id </td>
+                    <td colspan=6 > id </td>
                     <td> str </td>
                     <td>success</td>
                     <td> The system generated ID given to the volume group. </td>
@@ -12370,14 +11709,14 @@ Manage volumes on a PowerStore storage system
                                              <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                     <td class="elbow-placeholder">&nbsp;</td>
-                    <td colspan=5 > name </td>
+                    <td colspan=6 > name </td>
                     <td> str </td>
                     <td>success</td>
                     <td> Name of the volume group. </td>
                 </tr>
                                                             <tr>
                 <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan=6 > wwn </td>
+                <td colspan=7 > wwn </td>
                 <td> str </td>
                 <td>success</td>
                 <td> The world wide name of the volume. </td>
@@ -12387,6 +11726,8 @@ Manage volumes on a PowerStore storage system
 ### Authors
 * Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
 * Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
+* Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
+* Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
 
 --------------------------------
 # Volume Group Module
@@ -12508,7 +11849,7 @@ Manage volume groups on a PowerStore Storage System
                 <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan=1 > name </td>
                 <td> str  </td>
-                <td> True </td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>  <br> Name of snapshot set to be created.  </td>
@@ -12630,7 +11971,7 @@ Manage volume groups on a PowerStore Storage System
 * A volume can be a member of at most one volume group.
 * Specifying "protection_policy" as empty string or "" removes the existing protection policy from a volume group.
 * The check_mode is not supported.
-* The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
+* Refer module documentation for more sample playbooks.
 
 ### Examples
 ```
@@ -12663,42 +12004,8 @@ Manage volume groups on a PowerStore Storage System
     state: "present"
     volumes:
       - "7f879569-676c-4749-a06f-c2c30e09b295"
-      - "68e4dad5-5de5-4644-a98f-6d4fb916e169"
       - "Ansible_Testing"
     vol_state: "present-in-group"
-
-- name: Remove volumes from volume group
-  dellemc.powerstore.volumegroup:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vg_name: "{{vg_name}}"
-    state: "present"
-    volumes:
-      - "7f879569-676c-4749-a06f-c2c30e09b295"
-      - "Ansible_Testing"
-    vol_state: "absent-in-group"
-
-- name: Rename volume group and change is_write_order_consistent flag
-  dellemc.powerstore.volumegroup:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vg_name: "{{vg_name}}"
-    new_vg_name: "{{new_vg_name}}"
-    is_write_order_consistent: False
-    state: "present"
-
-- name: Get details of volume group by ID
-  dellemc.powerstore.volumegroup:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vg_id: "{{vg_id}}"
-    state: "present"
 
 - name: Delete volume group
   dellemc.powerstore.volumegroup:
@@ -12708,19 +12015,6 @@ Manage volume groups on a PowerStore Storage System
     password: "{{password}}"
     name: "{{new_vg_name}}"
     state: "absent"
-
-- name: Refresh a volume group
-  dellemc.powerstore.volumegroup:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vg_name: "ansible_vg"
-    source_vg: "vg_source"
-    create_backup_snap: True
-    backup_snap_profile:
-        name: "test_snap"
-    state: "present"
 
 - name: Restore a volume group
   dellemc.powerstore.volumegroup:

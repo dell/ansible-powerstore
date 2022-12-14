@@ -15,9 +15,13 @@ description:
 - Managing volume on PowerStore storage system includes create volume, get
   details of volume, modify volume attributes, map or unmap volume to
   host/host group, and delete volume.
+- Volume module also supports start or end of a metro configuration for a
+  volume, clone, refresh and restore a volume.
 author:
 - Ambuj Dubey (@AmbujDube) <ansible.team@dell.com>
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
+- Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
+- Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 options:
@@ -122,6 +126,76 @@ options:
     - HLU modification is not supported.
     required: False
     type: int
+  clone_volume:
+    description:
+    - Details of the volume clone.
+    type: dict
+    suboptions:
+      name:
+        description:
+        - Name of the clone set to be created.
+        type: str
+      description:
+        description:
+        - Description of the clone.
+        type: str
+      host:
+        description:
+        - Unique identifier or name of the host to be attached to the clone.
+        type: str
+      host_group:
+        description:
+        - Unique identifier or name of the host group to be attached to the clone.
+        type: str
+      logical_unit_number:
+        description:
+        - logical unit number when creating a mapped volume.
+        - If no host_id or host_group_id is specified, logical_unit_number is ignored.
+        type: int
+      protection_policy:
+        description:
+        - The protection policy of the clone set to be created.
+        type: str
+      performance_policy:
+        description:
+        - The performance policy of the clone set to be created.
+        choices: ['high', 'medium', 'low']
+        type: str
+  source_volume:
+    description:
+    - Unique identifier or name of the volume to refresh from.
+    type: str
+  source_snap:
+    description:
+    - Unique identifier or name of the source snapshot that will be used for the restore operation.
+    type: str
+  create_backup_snap:
+    description:
+    - Indicates whether a backup snapshot of the target volume will be created or not.
+    type: bool
+  backup_snap_profile:
+    description:
+    - Details of the backup snapshot set to be created.
+    type: dict
+    suboptions:
+      name:
+        description:
+        - Name of the backup snapshot set to be created.
+        - The default name of the volume snapshot is the date and time when the snapshot is taken.
+        type: str
+      description:
+        description:
+        - Description of the backup snapshot set.
+        type: str
+      performance_policy:
+        description:
+        - Performance policy assigned to the snapshot.
+        choices: ['high', 'medium', 'low']
+        type: str
+      expiration_timestamp:
+        description:
+        - Time after which the snapshot set can be auto-purged.
+        type: str
   state:
     description:
     - Define whether the volume should exist or not.
@@ -130,6 +204,34 @@ options:
     required: true
     choices: [absent, present]
     type: str
+  remote_system:
+    description:
+    - The remote system to which metro relationship will be established.
+    - The remote system must support metro volume.
+    - This is mandatory while configuring a metro volume.
+    - To represent remote system, both name and ID are interchangeable.
+    - This parameter is added in PowerStore version 3.0.0.0.
+    required: False
+    type: str
+  remote_appliance_id:
+    description:
+    - A remote system appliance ID to which volume will be assigned.
+    - This parameter is added in PowerStore version 3.0.0.0.
+    required: False
+    type: str
+  end_metro_config:
+    description:
+    - Whether to end the metro session from a volume.
+    - This is mandatory for end metro configuration operation.
+    required: False
+    type: bool
+    default: False
+  delete_remote_volume:
+    description:
+    - Whether to delete the remote volume during removal of metro session.
+    - This is parameter is added in the PowerStore version 3.0.0.0.
+    required: False
+    type: bool
 
 notes:
 - To create a new volume, vol_name and size is required. cap_unit,
@@ -141,22 +243,13 @@ notes:
   deleted.
 - A volume that is attached to a host/host group, or that is part of a volume
   group cannot be deleted.
+- If volume in metro session, volume can only be modified, refreshed and
+  restored when session is in the pause state.
 - The Check_mode is not supported.
 '''
 
 EXAMPLES = r'''
-- name: Create stand-alone volume
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
-    state: 'present'
-
-- name: Create stand-alone volume with performance and protection policy
+- name: Create volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -169,31 +262,9 @@ EXAMPLES = r'''
     description: 'Description'
     performance_policy: 'low'
     protection_policy: 'protection_policy_name'
-
-- name: Create volume and assign to a volume group
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
     vg_name: "{{vg_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
-    state: 'present'
-
-- name: Create volume and map it to a host
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    size: 1
-    cap_unit: "{{cap_unit}}"
     mapping_state: 'mapped'
     host: "{{host_name}}"
-    state: 'present'
 
 - name: Get volume details using ID
   dellemc.powerstore.volume:
@@ -204,16 +275,7 @@ EXAMPLES = r'''
     vol_id: "{{result.volume_details.id}}"
     state: "present"
 
-- name: Get volume details using name
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    vol_name: "{{vol_name}}"
-    state: "present"
-
-- name: Modify volume size, name, description and performance policy
+- name: Modify volume size, name, description, protection and performance policy
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -225,17 +287,7 @@ EXAMPLES = r'''
     size: 2
     performance_policy: 'high'
     description: 'new description'
-
-- name: Remove protection policy from Volume
-  dellemc.powerstore.volume:
-    array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    new_name: "{{new_name}}"
-    vol_name: "{{vol_name}}"
-    state: "present"
-    protection_policy: ""
+    protection_policy: ''
 
 - name: Map volume to a host with HLU
   dellemc.powerstore.volume:
@@ -249,16 +301,75 @@ EXAMPLES = r'''
     host: 'host1'
     hlu: 12
 
-- name: Map volume to a host without HLU
+- name: Clone a volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
-    state: 'present'
-    mapping_state: 'mapped'
-    host: 'host2'
+    clone_volume:
+      name: 'test_name'
+      description: 'test description'
+      host: 'test_host'
+      host_group: 'test_host_group'
+      logical_unit_number: 1
+      protection_policy: 'TEST_PP'
+      performance_policy: 'low'
+    state: "present"
+
+- name: Refresh a volume
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    source_volume_name: 'test1'
+    create_backup_snap: true
+    backup_snap_profile:
+      name: 'refresh_backup_snap'
+      description: 'test refresh_backup_snap'
+      expiration_timestamp: '2022-12-23T01:20:00Z'
+      performance_policy: 'low'
+    state: "present"
+
+- name: Restore a volume
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    source_snap: 'refresh_backup_snap'
+    create_backup_snap: true
+    backup_snap_profile:
+      name: 'restore_snap_2'
+      description: 'test backup snap'
+      expiration_timestamp: '2022-12-23T01:20:00Z'
+      performance_policy: 'low'
+    state: "present"
+
+- name: Configure a metro volume
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    remote_system: "remote-D123"
+    state: "present"
+
+- name: End a metro volume configuration
+  dellemc.powerstore.volume:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    vol_name: "{{vol_name}}"
+    end_metro_config: True
+    delete_remote_volume: True
+    state: "present"
 
 - name: Delete volume
   dellemc.powerstore.volume:
@@ -277,7 +388,21 @@ changed:
     returned: always
     type: bool
     sample: "false"
-
+is_volume_cloned:
+    description: Whether or not the clone of volume is created.
+    returned: always
+    type: bool
+    sample: "false"
+is_volume_refreshed:
+    description: Whether or not the volume is refreshed.
+    returned: always
+    type: bool
+    sample: "false"
+is_volume_restored:
+    description: Whether or not the volume is restored.
+    returned: always
+    type: bool
+    sample: "false"
 volume_details:
     description: Details of the volume.
     returned: When volume exists
@@ -301,6 +426,16 @@ volume_details:
         protection_policy_id:
             description: The protection policy of the volume.
             type: str
+        snapshots:
+            description: List of snapshot associated with the volume.
+            type: complex
+            contains:
+                id:
+                    description: The system generated ID given to the snapshot.
+                    type: str
+                name:
+                    description: Name of the snapshot.
+                    type: str
         volume_groups:
             description: The volume group details of the volume.
             type: complex
@@ -364,6 +499,10 @@ volume_details:
             description: This attribute shows which node will be advertised as
                          the optimized IO path to the volume.
             type: str
+        metro_replication_session_id:
+            description: The ID of the metro replication session assigned to
+                         volume.
+            type: str
         mapped_volumes:
             description: This is the inverse of the resource type
                          host_volume_mapping association.
@@ -416,6 +555,12 @@ volume_details:
             "id": "4bbb6333-59e4-489c-9015-c618d3e8384b",
             "name": "sample_protection_policy"
         },
+        "snapshots": [
+            {
+                "id": "2a07be43-xxxx-4fd0-xxxx-18eaa4081bd9",
+                "name": "sample_snap_2"
+            }
+        ],
         "protection_policy_id": 4bbb6333-59e4-489c-9015-c618d3e8384b,
         "size": 1073741824,
         "state": "Ready",
@@ -443,7 +588,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 
 
 class PowerStoreVolume(object):
@@ -480,13 +625,14 @@ class PowerStoreVolume(object):
         self.conn = utils.get_powerstore_connection(
             self.module.params, application_type=APPLICATION_TYPE)
         self.provisioning = self.conn.provisioning
+        self.protection = self.conn.protection
         self.performance_policy_dict = {
             'low': 'default_low',
             'medium': 'default_medium',
             'high': 'default_high'
         }
-        LOG.info('Got Py4Ps instance for provisioning on PowerStore %s',
-                 self.conn)
+        LOG.info('Got Py4Ps instance for provisioning and protection on '
+                 'PowerStore %s', self.conn)
 
     def get_volume(self, vol_id=None, vol_name=None):
         """Get volume details"""
@@ -694,6 +840,262 @@ class PowerStoreVolume(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
+    def validate_clone_details(self, clone_details):
+        """
+        Validate clone details
+        :param clone_details: Clone details.
+        :return: Validated clone details.
+        """
+        clone_details['performance_policy_id'] = None
+        clone_details['protection_policy_id'] = None
+        if clone_details['performance_policy'] is not None:
+            clone_details['performance_policy_id'] = self.get_performance_policy(clone_details['performance_policy'])
+        if clone_details['protection_policy'] is not None:
+            clone_details['protection_policy_id'] = self.get_protection_policy_id_by_name(clone_details['protection_policy'])
+        clone_details['host_id'] = None
+        clone_details['host_group_id'] = None
+        if clone_details['host'] is not None:
+            clone_details['host_id'] = self.get_host_id_by_name(clone_details['host'])
+        if clone_details['host_group'] is not None:
+            clone_details['host_group_id'] = self.get_host_group_id_by_name(clone_details['host_group'])
+        if clone_details['host_id'] is None and clone_details['host_group_id'] is None and clone_details['logical_unit_number'] is not None:
+            errormsg = "Either of host identifier or host group identifier is required along with logical_unit_number."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        return clone_details
+
+    def clone_volume(self, vol_id, clone_details):
+        """
+        Clone volume
+        :param vol_id: Unique volume identifier.
+        :param clone_details: Clone details.
+        :return: True
+        """
+        try:
+            LOG.info("Cloning volume")
+            vol_details = self.get_volume(vol_name=clone_details['name'])
+            if vol_details:
+                return False
+            clone_details = self.validate_clone_details(clone_details)
+            clone_payload = {
+                'volume_id': vol_id,
+                'name': clone_details['name'],
+                'description': clone_details['description'],
+                'host_id': clone_details['host_id'],
+                'host_group_id': clone_details['host_group_id'],
+                'logical_unit_number': clone_details['logical_unit_number'],
+                'protection_policy_id': clone_details['protection_policy_id'],
+                'performance_policy_id': clone_details['performance_policy_id']
+            }
+            clone_result = self.provisioning.clone_volume(**clone_payload)
+            LOG.debug(clone_result)
+            return True
+        except Exception as e:
+            errormsg = "Cloning volume %s failed with error %s" % (vol_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def get_volume_snapshots(self, vol_id, snap_name_or_id=None, all_snapshots=False):
+        """
+        Get volume snapshots
+        :param vol_id: Unique volume identifier.
+        :param snap_name_or_id: Existing snapshot name or id
+        :param all_snapshots: Whether to retrieve all snapshots or not
+        :return: Retrieve all snapshots of volume or given snapshot
+        """
+        try:
+            LOG.info("Getting volume snapshots")
+            vol_snapshots_list = self.provisioning.get_volumes(filter_dict={'type': 'eq.Snapshot', 'protection_data->>family_id': 'eq.' + vol_id})
+            LOG.debug(vol_snapshots_list)
+            if all_snapshots:
+                return True, vol_snapshots_list
+            for snap in vol_snapshots_list:
+                if snap['name'] == snap_name_or_id or snap['id'] == snap_name_or_id:
+                    return True, snap
+            return False, None
+        except Exception as e:
+            errormsg = "Getting volume snapshots failed with error %s" % (str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def validate_refresh_op_params(self, data):
+        """
+        Validate refresh details
+        :param data: Refresh details.
+        :return: Validated refresh data.
+        """
+        if utils.name_or_id(data['source_volume']) == "NAME":
+            vol_details = self.get_volume(vol_name=data['source_volume'])
+        else:
+            vol_details = self.get_volume(vol_id=data['source_volume'])
+        if vol_details is None:
+            errormsg = "Source volume does not exist."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if vol_details['protection_data']['family_id'] != data['volume_family_id']:
+            errormsg = "Source volume does not belong to the family of the current volume."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        data['source_volume_id'] = vol_details['id']
+
+        return data
+
+    def validate_restore_op_params(self, data):
+        """
+        Validate restore details
+        :param data: Restore details.
+        :return: Validated restore data.
+        """
+        exists, snap_details = self.get_volume_snapshots(data['volume_family_id'], snap_name_or_id=data['source_snap'])
+        if not exists:
+            errormsg = "source snapshot does not exists."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        data['source_snap_id'] = snap_details['id']
+
+        return data
+
+    def validate_refresh_restore_details(self, operation, data):
+        """
+        Validate refresh and restore details
+        :param data: Refresh details or Restore details.
+        :return: Validated data.
+        """
+        if operation == 'refresh':
+            self.validate_refresh_op_params(data)
+        if operation == 'restore':
+            self.validate_restore_op_params(data)
+        if data['backup_snap_profile'] is not None:
+            if not data['create_backup_snap']:
+                errormsg = "Specify create_back_snap as True to set backup_snap_profile."
+                LOG.error(errormsg)
+                self.module.fail_json(msg=errormsg)
+            if data['backup_snap_profile']['performance_policy'] is not None:
+                data['backup_snap_profile']['performance_policy_id'] = self.get_performance_policy(data['backup_snap_profile']['performance_policy'])
+            if data['backup_snap_profile']['expiration_timestamp'] is not None and \
+                    not utils.validate_timestamp(data['backup_snap_profile']['expiration_timestamp']):
+                errormsg = 'Incorrect date format, should be YYYY-MM-DDTHH:MM:SSZ'
+                LOG.error(errormsg)
+                self.module.fail_json(msg=errormsg)
+        return data
+
+    def refresh_volume(self, volume, refresh_details):
+        """
+        Refresh volume
+        :param volume: Volume details.
+        :param refresh_details: Refresh details.
+        :return: True
+        """
+        try:
+            LOG.info("Refreshing volume")
+            refresh_details['volume_family_id'] = volume['protection_data']['family_id']
+            vol_id = volume['id']
+            if 'backup_snap_profile' in refresh_details and refresh_details['backup_snap_profile'] \
+                    and refresh_details['backup_snap_profile']['name'] is not None:
+                exists, snap_details = self.get_volume_snapshots(refresh_details['volume_family_id'],
+                                                                 snap_name_or_id=refresh_details['backup_snap_profile']['name'])
+                LOG.debug(snap_details)
+                if exists:
+                    return False
+            refresh_details = self.validate_refresh_restore_details('refresh', refresh_details)
+            refresh_payload = {
+                'volume_id': vol_id,
+                'volume_id_to_refresh_from': refresh_details['source_volume_id'],
+                'create_backup_snap': refresh_details['create_backup_snap']
+            }
+            refresh_payload.update(get_backupsnap_profile_details(refresh_details))
+            refresh_result = self.provisioning.refresh_volume(**refresh_payload)
+            LOG.debug(refresh_result)
+            return True
+        except Exception as e:
+            errormsg = "Refreshing volume %s failed with error %s" % (vol_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def restore_volume(self, volume, restore_details):
+        """
+        Restore volume
+        :param vol_id: Unique volume identifier.
+        :param restore_volume: Restore details.
+        :return: True
+        """
+        try:
+            LOG.info("Restoring volume")
+            restore_details['volume_family_id'] = volume['protection_data']['family_id']
+            vol_id = volume['id']
+            if 'backup_snap_profile' in restore_details and restore_details['backup_snap_profile'] and \
+                    restore_details['backup_snap_profile']['name'] is not None:
+                exists, snap_details = self.get_volume_snapshots(restore_details['volume_family_id'],
+                                                                 snap_name_or_id=restore_details['backup_snap_profile']['name'])
+                LOG.debug(snap_details)
+                if exists:
+                    return False
+            restore_details = self.validate_refresh_restore_details('restore', restore_details)
+            restore_payload = {
+                'volume_id': vol_id,
+                'snap_id_to_restore_from': restore_details['source_snap_id'],
+                'create_backup_snap': restore_details['create_backup_snap']
+            }
+            restore_payload.update(get_backupsnap_profile_details(restore_details))
+            restore_result = self.provisioning.restore_volume(**restore_payload)
+            LOG.debug(restore_result)
+            return True
+        except Exception as e:
+            errormsg = "Restoring volume %s failed with error %s" % (vol_id, str(e))
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def configure_metro_volume(self, volume, remote_system,
+                               remote_appliance_id=None):
+        """Configure a metro volume
+        :param volume: Volume details
+        :type volume: dict
+        :param remote_system: Remote system with which metro relationship will
+                              be established
+        :type remote_system: str
+        :param remote_appliance_id: A specific remote system appliance to which
+                                    volume will be configured
+        :type remote_appliance_id: str
+        :return: True if metro configuration is successful
+        :rtype: bool
+        """
+        try:
+            msg = "Establish a metro configuration for volume {0} to remote" \
+                  " system {1}".format(volume['name'], remote_system)
+            LOG.info(msg)
+            self.provisioning.configure_metro_volume(
+                volume_id=volume['id'], remote_system_id=remote_system,
+                remote_appliance_id=remote_appliance_id)
+            return True
+        except Exception as e:
+            err_msg = "Failed to configure metro for volume {0} with error" \
+                      " {1}".format(volume['name'], str(e))
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
+
+    def end_metro_volume(self, volume, delete_remote_volume=None):
+        """Remove the metro configuration for volume
+        :param volume: Details of the volume
+        :type volume: dict
+        :param delete_remote_volume: Whether to delete the remote volume
+                                     during metro removal
+        :type delete_remote_volume: bool
+        return: True if removal of metro config is successful
+        :rtype: bool
+        """
+        try:
+            msg = "Removing the metro configuration for volume %s" % volume['name']
+            LOG.info(msg)
+            self.provisioning.end_volume_metro_config(
+                volume_id=volume['id'],
+                delete_remote_volume=delete_remote_volume)
+            return True
+        except Exception as e:
+            err_msg = "Failed to remove the metro configuration for volume " \
+                      "{0} with error {1}".format(volume['name'], str(e))
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
+
     def perform_module_operation(self):
         """
         Perform different actions on volume based on user parameters
@@ -717,8 +1119,22 @@ class PowerStoreVolume(object):
         hostgroup = self.get_host_group_id_by_name(
             self.module.params['hostgroup'])
         hlu = self.module.params['hlu']
+        clone_volume = self.module.params['clone_volume']
+        source_volume = self.module.params['source_volume']
+        source_snap = self.module.params['source_snap']
+        create_backup_snap = self.module.params['create_backup_snap']
+        backup_snap_profile = self.module.params['backup_snap_profile']
+        remote_system = self.get_remote_system_id(
+            self.module.params['remote_system'])
+        remote_appliance_id = self.get_remote_appliance_id(
+            remote_system, self.module.params['remote_appliance_id'])
+        end_metro_config = self.module.params['end_metro_config']
+        delete_remote_volume = self.module.params['delete_remote_volume']
 
         changed = False
+        is_volume_refreshed = False
+        is_volume_cloned = False
+        is_volume_restored = False
         volume = self.get_volume(vol_id, vol_name)
         # fetching the volume id from volume details
         if volume is not None:
@@ -867,6 +1283,46 @@ class PowerStoreVolume(object):
                 changed = self.map_unmap_volume_to_hostgroup(
                     volume, hostgroup, mapping_state) or changed
 
+        if state == 'present' and clone_volume is not None:
+            changed = self.clone_volume(vol_id, clone_volume)
+            is_volume_cloned = changed
+
+        if state == 'present' and source_volume is not None:
+            refresh_details = {
+                'source_volume': source_volume,
+                'create_backup_snap': create_backup_snap,
+                'backup_snap_profile': backup_snap_profile
+            }
+            changed = self.refresh_volume(volume, refresh_details)
+            is_volume_refreshed = changed
+
+        if state == 'present' and source_snap is not None:
+            restore_details = {
+                'source_snap': source_snap,
+                'create_backup_snap': create_backup_snap,
+                'backup_snap_profile': backup_snap_profile
+            }
+            changed = self.restore_volume(volume, restore_details)
+            is_volume_restored = changed
+
+        if state == "present" and volume and remote_system is not None:
+            if 'metro_replication_session_id' in volume \
+                    and volume['metro_replication_session_id'] is not None:
+                session_id = volume['metro_replication_session_id']
+                is_metro_exists = self.is_metro_configured(
+                    session_id, remote_system)
+                changed = is_metro_exists
+            elif 'metro_replication_session_id' in volume and \
+                    volume['metro_replication_session_id'] is None:
+                changed = self.configure_metro_volume(
+                    volume, remote_system, remote_appliance_id)
+
+        if state == "present" and volume and end_metro_config is not None \
+                and end_metro_config and \
+                'metro_replication_session_id' in volume and \
+                volume['metro_replication_session_id'] is not None:
+            changed = self.end_metro_volume(volume, delete_remote_volume)
+
         if state == 'absent' and volume:
             LOG.info('Deleting volume %s ', volume['name'])
             changed = self.delete_volume(volume) or changed
@@ -876,9 +1332,32 @@ class PowerStoreVolume(object):
         '''
 
         self.result["changed"] = changed
+        self.result["is_volume_cloned"] = is_volume_cloned
+        self.result["is_volume_refreshed"] = is_volume_refreshed
+        self.result["is_volume_restored"] = is_volume_restored
         if state == 'present':
             self.result["volume_details"] = self.get_volume(vol_id=vol_id)
+            if self.result["volume_details"]:
+                self.result["volume_details"].update(
+                    snapshots=self.get_volume_snapshots(self.result["volume_details"]['id'], all_snapshots=True)[1])
         self.module.exit_json(**self.result)
+
+    def is_metro_configured(self, session_id, remote_system):
+        """Check whether metro is configured for volume"""
+        try:
+            session_details = self.protection.\
+                get_replication_session_details(session_id=session_id)
+            if session_details['remote_system_id'] == remote_system:
+                return False
+            msg = "Metro session is already configured for the volume."
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+
+        except Exception as e:
+            error_msg = "Get metro replication session {0} details failed " \
+                        "with error: {1}".format(session_id, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
     def get_volume_id_by_name(self, volume_name):
         try:
@@ -1019,6 +1498,60 @@ class PowerStoreVolume(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
+    def get_remote_system_id(self, remote_system):
+        """ Fetch the remote system ID."""
+        try:
+            if remote_system is None:
+                return None
+            elif utils.name_or_id(remote_system) == "NAME":
+                remote_system_info = self.protection.\
+                    get_remote_system_by_name(name=remote_system)
+
+                if remote_system_info and len(remote_system_info) == 1:
+                    return remote_system_info[0]['id']
+                elif remote_system_info and len(remote_system_info) > 1:
+                    err_msg = "Multiple remote system found with same name."
+                    LOG.error(err_msg)
+                    self.module.fail_json(msg=err_msg)
+
+            elif self.protection.get_remote_system_details(
+                    remote_system_id=remote_system):
+                return remote_system
+            er_msg = "Remote system %s not found." % remote_system
+            LOG.error(er_msg)
+            self.module.fail_json(msg=er_msg)
+
+        except Exception as e:
+            error_msg = "Fetching remote system {0} failed with error " \
+                        "{1}".format(remote_system, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
+    def get_remote_appliance_id(self, remote_system, remote_appliance_id):
+        """ Fetch the remote appliance ID."""
+        try:
+            if remote_appliance_id is None:
+                return None
+            else:
+                remote_app_details = self.protection.\
+                    get_remote_system_appliance_details(remote_system_id=remote_system)
+
+                if remote_app_details is not None:
+                    for apps in remote_app_details['remote_appliances']:
+                        if apps['id'] == remote_appliance_id:
+                            return remote_appliance_id
+
+            er_msg = "No remote appliance {0} found in remote system {1}.".\
+                format(remote_appliance_id, remote_system)
+            LOG.error(er_msg)
+            self.module.fail_json(msg=er_msg)
+
+        except Exception as e:
+            error_msg = "Fetching remote appliance {0} failed with error " \
+                        "{1}".format(remote_system, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
     def get_performance_policy(self, performance_policy):
         if performance_policy is None:
             return None
@@ -1093,6 +1626,32 @@ def check_for_hlu_modification(volume, hlu, host=None, hostgroup=None):
     return True, ""
 
 
+def get_backup_profile_parameters():
+    """
+    This method provide parameter required for the backup_profile
+    """
+    return dict(type='dict', options=dict(name=dict(type='str'),
+                                          description=dict(type='str'),
+                                          performance_policy=dict(required=False, choices=['high', 'medium', 'low'], type='str'),
+                                          expiration_timestamp=dict(type='str')))
+
+
+def get_backupsnap_profile_details(data):
+    """
+    Get backupsnap profile details
+    :param data: Refresh details or Restore details.
+    :return: backupsnap profil edetails.
+    """
+    backup_snap_profile = {}
+    if data['backup_snap_profile']:
+        backup_snap_profile['backup_snap_name'] = data['backup_snap_profile']['name']
+        backup_snap_profile['backup_snap_description'] = data['backup_snap_profile']['description']
+        backup_snap_profile['backup_snap_expiration_timestamp'] = data['backup_snap_profile']['expiration_timestamp']
+        if 'performance_policy_id' in data['backup_snap_profile']:
+            backup_snap_profile['backup_snap_performance_policy_id'] = data['backup_snap_profile']['performance_policy_id']
+    return backup_snap_profile
+
+
 def get_powerstore_volume_parameters():
     """
     This method provide parameter required for the ansible volume
@@ -1117,7 +1676,26 @@ def get_powerstore_volume_parameters():
                            type='str'),
         host=dict(required=False, type='str'),
         hostgroup=dict(required=False, type='str'),
-        hlu=dict(required=False, type='int')
+        hlu=dict(required=False, type='int'),
+        clone_volume=dict(
+            type='dict', options=dict(
+                name=dict(type='str'),
+                description=dict(type='str'),
+                host=dict(type='str'),
+                host_group=dict(type='str'),
+                logical_unit_number=dict(type='int'),
+                protection_policy=dict(type='str'),
+                performance_policy=dict(required=False, choices=['high', 'medium', 'low'], type='str')
+            )
+        ),
+        source_volume=dict(type='str'),
+        source_snap=dict(type='str'),
+        create_backup_snap=dict(type='bool'),
+        backup_snap_profile=get_backup_profile_parameters(),
+        remote_system=dict(required=False, type='str'),
+        remote_appliance_id=dict(required=False, type='str'),
+        end_metro_config=dict(required=False, type='bool', default=False),
+        delete_remote_volume=dict(required=False, type='bool')
     )
 
 

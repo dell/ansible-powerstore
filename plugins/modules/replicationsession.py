@@ -59,6 +59,12 @@ options:
     required: False
     choices: [ 'failed_over', 'paused', 'synchronizing']
     type: str
+  role:
+    description:
+    - Role of the metro replication session.
+    required: False
+    choices: ['Metro_Preferred', 'Metro_Non_Preferred']
+    type: str
 notes:
 - Manual synchronization for a replication session is not supported through
   the Ansible module.
@@ -68,11 +74,11 @@ notes:
   synchronization in place with the associated replication rule's RPO in the
   protection policy.
 - The check_mode is not supported.
-- nas_server and filesystem parameters are supported only for PowerStore version 3.0.0. and above.
+- Parameter nas_server, filesystem, and role parameters are supported only for
+  PowerStore version 3.0.0. and above.
 '''
 
 EXAMPLES = r'''
-
 - name: Pause a replication session
   dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
@@ -82,14 +88,14 @@ EXAMPLES = r'''
     volume: "sample_volume_1"
     session_state: "paused"
 
-- name: Synchronize a replication session
+- name: Modify a replication session
   dellemc.powerstore.replicationsession:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
     user: "{{user}}"
     password: "{{password}}"
     volume: "sample_volume_1"
-    session_state: "synchronizing"
+    role: "Metro_Preferred"
 
 - name: Get details of a replication session
   dellemc.powerstore.replicationsession:
@@ -220,7 +226,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of
@@ -237,7 +243,7 @@ ok                  | paused                | issue a pause sdk call
 synchronizing       |paused                 | issue a pause sdk call
                     |failed_over            | issue a failed_over sdk call
 -------------------------------------------------------------------------------
-                    |synchronizing          | resume and sync sdk calls
+                    |synchronizing          | resume or sync sdk calls
 paused              |paused                 | idempotency case
                     |failed_over            | issue a failed_over sdk call
 -------------------------------------------------------------------------------
@@ -602,11 +608,15 @@ class PowerstoreReplicationSession(object):
         try:
             session_id = rep_session_details['id']
             role = rep_session_details['role'].lower()
+            session_type = rep_session_details['type']
 
             if session_state == 'synchronizing':
                 # As the current state is paused so first the session has to be
                 # resumed then it can be synced
-                if role == "source":
+                if session_type == "Metro_Active_Active":
+                    self.protection.resume_replication_session(session_id)
+                    return True
+                elif role == "source":
                     self.protection.resume_replication_session(session_id)
                     self.protection.sync_replication_session(session_id)
                     return True
@@ -758,6 +768,18 @@ class PowerstoreReplicationSession(object):
                   " ansible module.".format(current_state)
         self.module.fail_json(msg=err_msg)
 
+    def modify_replication_session(self, session_id, role):
+        """ Modify the role of the replication session"""
+        try:
+            self.protection.modify_replication_session(
+                session_id=session_id, role=role)
+            return True
+        except Exception as e:
+            err_msg = "Modifying the role {0} of replication session {1}" \
+                      " failed with error {2}".format(role, session_id, str(e))
+            LOG.error(err_msg)
+            self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
+
     def perform_module_operation(self):
         """collect input"""
         vol = self.module.params['volume']
@@ -766,6 +788,7 @@ class PowerstoreReplicationSession(object):
         nas_server = self.module.params['nas_server']
         session_id = self.module.params['session_id']
         session_state = self.module.params['session_state']
+        role = self.module.params['role']
         result = dict()
         changed = False
 
@@ -829,7 +852,8 @@ class PowerstoreReplicationSession(object):
             changed = self.change_state_from_failing_over(
                 session_state, current_state, rep_session_details, err_msg)
 
-        transitioning_states = ['resuming', 'reprotecting', 'initializing']
+        transitioning_states = ['resuming', 'reprotecting', 'initializing',
+                                'fractured', 'switching_to_metro_sync']
         if session_state and current_state in transitioning_states:
             self.change_state_from_transitioning_states(
                 session_state, current_state)
@@ -839,6 +863,11 @@ class PowerstoreReplicationSession(object):
                             'partial_cutover_for_migration ']
         if session_state and current_state in remaining_states:
             self.change_state_from_remaining_states(current_state)
+
+        if rep_session_details and role is not None and \
+                rep_session_details['role'] != role:
+            changed = self.modify_replication_session(
+                rep_session_details['id'], role)
 
         result['changed'] = changed
         result['replication_session_details'] = self.show_output(session_id)
@@ -899,7 +928,10 @@ def get_powerstore_rep_session_parameters():
         volume_group=dict(), volume=dict(),
         filesystem=dict(), nas_server=dict(), session_id=dict(),
         session_state=dict(type='str', choices=['synchronizing', 'paused',
-                                                'failed_over'])
+                                                'failed_over']),
+        role=dict(
+            required=False, type='str',
+            choices=['Metro_Preferred', 'Metro_Non_Preferred'])
     )
 
 

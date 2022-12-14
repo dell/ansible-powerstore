@@ -213,7 +213,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.7.0'
+APPLICATION_TYPE = 'Ansible/1.8.0'
 
 
 class PowerstoreEmail(object):
@@ -301,11 +301,11 @@ class PowerstoreEmail(object):
 
             create_params = dict()
             create_params['email_address'] = email_address
+            notification_levels = ['critical', 'major', 'minor', 'info']
             if self.module.params['notify'] is not None:
-                create_params['notify_critical'] = self.module.params['notify']['critical']
-                create_params['notify_major'] = self.module.params['notify']['major']
-                create_params['notify_minor'] = self.module.params['notify']['minor']
-                create_params['notify_info'] = self.module.params['notify']['info']
+                for level in notification_levels:
+                    if self.module.params['notify'][level] is not None:
+                        create_params['notify_' + level] = self.module.params['notify'][level]
             resp = self.configuration.create_destination_email(
                 create_params=create_params)
 

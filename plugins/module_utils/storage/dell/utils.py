@@ -63,7 +63,7 @@ def py4ps_version_check():
                                           "'pkg_resources', please install" \
                                           " the required package"
         else:
-            min_ver = '1.8.0'
+            min_ver = '1.9.0'
             curr_version = PyPowerStore.__version__
             unsupported_version_message = "PyPowerStore {0} is not supported " \
                                           "by this module. Minimum supported" \

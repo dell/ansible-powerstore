@@ -49,7 +49,7 @@ class ModuleDocFragment(object):
           type: int
 
     requirements:
-      - A Dell PowerStore Storage System. Ansible 2.11, 2.12 or 2.13
+      - A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
         are built to support the Dell PowerStore storage platform.
