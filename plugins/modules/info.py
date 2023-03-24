@@ -13,19 +13,26 @@ version_added: '1.0.0'
 short_description: Gathers information about PowerStore Storage entities
 description:
 - Gathers the list of specified PowerStore Storage System entities, includes
-  block/file provisioning modules, replication modules and configuration modules.
-- Block provisioning module includes volumes, volume groups, hosts, host groups,
-  snapshot rules, protection policies.
+  block/file provisioning modules, replication modules, configuration modules,
+  and virtualization modules.
+- Block provisioning module includes volumes, volume groups, hosts,
+  host groups, snapshot rules, and protection policies.
 - File provisioning module includes NAS servers, NFS exports, SMB shares,
-  tree quotas, user quotas, file systems.
-- Replication module includes replication rules, replication sessions, remote system.
-- Configuration module includes cluster nodes, network, roles, local users, appliances,
-  security configs, certificates, AD/LDAP servers, LDAP accounts, LDAP domain.
-- It also includes DNS/NTP servers, smtp configs, email destinations, remote support, remote support contacts.
+  tree quotas, user quotas, and file systems.
+- Replication module includes replication rules, replication sessions, and
+  remote system.
+- Virtualization module includes vCenters and virtual volumes.
+- Configuration module includes cluster nodes, networks, roles, local users,
+  appliances, security configs, certificates, AD/LDAP servers, LDAP accounts,
+  and LDAP domain.
+- It also includes DNS/NTP servers, smtp configs, email destinations,
+  remote support, and remote support contacts.
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Vivek Soni (@v-soni11) <ansible.team@dell.com>
 - Akash Shendge (@shenda1) <ansible.team@dell.com>
+- Bhavneet Sharma (@sharmb5) <ansible.team@dell.com>
+- Trisha Datta (@trisha-dell) <ansible.team@dell.com>
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 options:
@@ -65,14 +72,17 @@ options:
     - Remote support contacts - remote_support_contact.
     - LDAP accounts - ldap_account.
     - LDAP domain - ldap_domain.
+    - All vCenters - vcenter.
+    - Virtual volumes - virtual_volume.
     required: True
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
               file_system, replication_rule, replication_session,
-              remote_system, network, role, ldap_account, user, appliance, ad, ldap,
-              security_config, certificate, dns, ntp, smtp_config,
-              email_notification, remote_support, remote_support_contact, ldap_domain]
+              remote_system, network, role, ldap_account, user, appliance, ad,
+              ldap, security_config, certificate, dns, ntp, smtp_config,
+              email_notification, remote_support, remote_support_contact,
+              ldap_domain, vcenter, virtual_volume]
     type: list
   filters:
     description:
@@ -109,8 +119,8 @@ options:
     type: bool
     default: False
 notes:
-- Pagination is not supported for role, local user, security configs, LDAP accounts and LDAP domain. If
-  all_pages is passed, it will be ignored.
+- Pagination is not supported for role, local user, security configs, LDAP
+  accounts and LDAP domain. If all_pages is passed, it will be ignored.
 - The check_mode is supported.
 '''
 
@@ -334,6 +344,24 @@ EXAMPLES = r'''
         - filter_key: 'protocol'
           filter_operator: 'equal'
           filter_value: 'LDAPS'
+
+- name: Get list of vCenters
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - vcenter
+
+- name: Get list of virtual volumes
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    verifycert: "{{verifycert}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - virtual_volume
 
 '''
 
@@ -985,6 +1013,227 @@ UserQuotas:
             "id": "00000003-0708-0000-0000-000004000080"
           }
     ]
+vCenter:
+    description: Provide details of all vCenters.
+    type: list
+    returned: When vCenter is in a given gather_subset
+    contains:
+        id:
+            description: Unique identifier of vCenter.
+            type: str
+        instance_uuid:
+            description: UUID instance of vCenter.
+            type: str
+        address:
+            description: IP address of vCenter host, in IPv4, IPv6 or hostname
+                         format.
+            type: str
+        username:
+            description: Username to login to vCenter.
+            type: str
+        version:
+            description: Version of vCenter including its build number. Was
+                         added in PowerStore version 3.0.0.0.
+            type: str
+        vendor_provider_status:
+            description: General status of the VASA vendor provider in vCenter.
+            type: str
+        vendor_provider_status_l10n:
+            description: Localized message string corresponding to
+                         vendor_provider_status.
+            type: str
+        virtual_machines:
+            description: Virtual Machine associated with vCenter.
+            type: list
+        datastores:
+            description: Datastores that exists on a specific vCenter. Was
+                         added in PowerStore version 3.0.0.0.
+            type: list
+        vsphere_hosts:
+            description: All vSphere hosts that exists on a specific vCenter.
+                         Was added in PowerStore version 3.0.0.0.
+            type: list
+    sample: [
+        {
+            "id": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
+            "instance_uuid": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
+            "address": "10.x.x.x",
+            "username": "administrator",
+            "version": "7.0.3",
+            "vendor_provider_status": "Online",
+            "vendor_provider_status_l10n": "Online",
+            "virtual_machines": [],
+            "datastores": [],
+            "vsphere_hosts": []
+        }
+    ]
+VirtualVolume:
+    description: Provides details of all virtual volumes.
+    type: list
+    returned: When virtual_volume is in a given gather_subset
+    contains:
+        id:
+            description: The unique identifier of the virtual volume.
+            type: str
+        name:
+            description: The name of the virtual volume, based on metadata provided by vSphere.
+            type: str
+        size:
+            description: The size of the virtual volume in bytes.
+            type: int
+        type:
+            description: The logical type of a virtual volume.
+            type: str
+        usage_type:
+            description: VMware's usage of the vVol.
+            type: str
+        appliance_id:
+            description: The appliance where the virtual volume resides.
+            type: str
+        storage_container_id:
+            description: The storage container where the virtual volume resides.
+            type: str
+        io_priority:
+            description: The I/O priority for quality of service rules.
+            type: str
+        profile_id:
+            description: The ID of the storage profile governing this virtual volume.
+            type: str
+        replication_group_id:
+            description: The unique identifier of the replication group object that this virtual volume belongs to.
+            type: str
+        creator_type:
+            description:
+            - Creator type of the storage resource.
+            - User - A resource created by a user.
+            - System - A resource created by the replication engine.
+            - Scheduler - A resource created by the snapshot scheduler.
+            type: str
+        is_readonly:
+            description: Indicates whether the virtual volume is read-only.
+            type: bool
+        migration_session_id:
+            description: If the virtual volume is part of a migration activity, the session ID for that migration.
+            type: str
+        virtual_machine_uuid:
+            description: UUID of the virtual machine that owns this virtual volume.
+            type: str
+        family_id:
+            description: Family id of the virtual volume.
+            type: str
+        parent_id:
+            description: For snapshots and clones, the ID of the parent virtual volume.
+            type: str
+        source_id:
+            description: Id of the virtual volume from which the content has been sourced.
+            type: str
+        source_timestamp:
+            description: The source data time-stamp of the virtual volume.
+            type: str
+        creation_timestamp:
+            description: Timestamp of the moment virtual volume was created at.
+            type: str
+        naa_name:
+            description: The NAA name used by hosts for I/O.
+            type: str
+        is_replication_destination:
+            description: Indicates whether virtual volume is replication destination or not.
+            type: bool
+        location_history:
+            description: Storage resource location history.
+            type: complex
+            contains:
+                from_appliance_id:
+                    description: Unique identifier of the appliance from which the volume was relocated.
+                    type: str
+                to_appliance_id:
+                    description: Unique identifier of the appliance to which the volume was relocated.
+                    type: str
+                reason:
+                    description:
+                    - Reason for storage resource relocation.
+                    - Initial - Initial placement.
+                    - Manual - Manual migration operation initiated by user.
+                    - Recommended - Storage system recommended migration.
+                    type: str
+                migrated_on:
+                    description: Time when the storage resource location changed.
+                    type: str
+                reason_l10n:
+                    description: Localized message string corresponding to reason.
+                    type: str
+        protection_policy_id:
+            description: The unique identifier of the protection policy applied to this virtual volume.
+            type: str
+        nsid:
+            description: NVMe Namespace unique identifier in the NVMe subsystem.
+            type: str
+        nguid:
+            description: NVMe Namespace globally unique identifier.
+            type: str
+        type_l10n:
+            description: Localized message string corresponding to type.
+            type: str
+        usage_type_l10n:
+            description: Localized message string corresponding to usage_type.
+            type: str
+        io_priority_l10n:
+            description: Localized message string corresponding to io_priority.
+            type: str
+        creator_type_l10n:
+            description: Localized message string corresponding to creator_type.
+            type: str
+        host_virtual_volume_mappings:
+            description: Virtual volume mapping details.
+            type: complex
+            contains:
+                id:
+                    description: Unique identifier of a mapping between a host and a virtual volume.
+                    type: str
+                host_id:
+                    description: Unique identifier of a host attached to a virtual volume.
+                    type: str
+                host_group_id:
+                    description: Unique identifier of a host group attached to a virtual volume.
+                    type: str
+                virtual_volume_id:
+                    description: Unique identifier of the virtual volume to which the host is attached.
+                    type: str
+
+    sample: [
+        {
+            "id": "85643b54-9429-49ee-b7c3-b061fcdaab7c",
+            "name": "test-centos_2.vmdk",
+            "size": 17179869184,
+            "type": "Primary",
+            "usage_type": "Data",
+            "appliance_id": "A1",
+            "storage_container_id": "4dff1460-4d1e-48b6-98d8-cae8d7bf63b5",
+            "io_priority": "Medium",
+            "profile_id": "f4e5bade-15a2-4805-bf8e-52318c4ce443",
+            "replication_group_id": null,
+            "creator_type": "User",
+            "is_readonly": false,
+            "migration_session_id": null,
+            "virtual_machine_uuid": "503629e5-8677-b26f-bf2d-e9f639bcc77f",
+            "family_id": "9ce8d828-14e3-44f8-bde1-a97f440a7259",
+            "parent_id": null,
+            "source_id": null,
+            "source_timestamp": null,
+            "creation_timestamp": "2022-12-27T10:01:32.622+00:00",
+            "naa_name": "naa.68ccf09800918d7f008769d29bc6a43a",
+            "is_replication_destination": false,
+            "location_history": null,
+            "protection_policy_id": null,
+            "nsid": 5114,
+            "nguid": "nguid.918d7f008769d29b8ccf096800c6a43a",
+            "type_l10n": "Primary",
+            "usage_type_l10n": "Data",
+            "io_priority_l10n": "Medium",
+            "creator_type_l10n": "User",
+            "host_virtual_volume_mappings": []
+}
+    ]
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -1003,7 +1252,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.8.0'
+APPLICATION_TYPE = 'Ansible/1.9.0'
 
 
 class PowerstoreInfo(object):
@@ -1173,7 +1422,15 @@ class PowerstoreInfo(object):
             'ldap_domain': {
                 'func': self.configuration.get_ldap_domain_configuration_list,
                 'display_as': 'LDAPDomain'
-            }
+            },
+            'vcenter': {
+                'func': self.configuration.get_vcenters,
+                'display_as': 'vCenter'
+            },
+            'virtual_volume': {
+                'func': self.configuration.get_virtual_volume_list,
+                'display_as': 'VirtualVolume'
+            },
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
 
@@ -1330,7 +1587,7 @@ def get_powerstore_info_parameters():
                                     'security_config', 'certificate', 'dns', 'ntp',
                                     'smtp_config', 'email_notification',
                                     'remote_support', 'remote_support_contact',
-                                    'ldap_account', 'ldap_domain']),
+                                    'ldap_account', 'ldap_domain', 'vcenter', 'virtual_volume']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

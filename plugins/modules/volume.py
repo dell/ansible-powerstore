@@ -70,13 +70,34 @@ options:
     - Optional parameter when creating a volume.
     - To modify, pass the new value in description field.
     type: str
+  app_type:
+    description:
+    - Application type to indicate the intended use of the volume.
+    choices: [Relational_Databases_Other, Relational_Databases_Oracle,
+      Relational_Databases_SQL_Server, Relational_Databases_PostgreSQL,
+      Relational_Databases_MySQL, Relational_Databases_IBM_DB2,
+      Big_Data_Analytics_Other, Big_Data_Analytics_MongoDB,
+      Big_Data_Analytics_Cassandra, Big_Data_Analytics_SAP_HANA,
+      Big_Data_Analytics_Spark, Big_Data_Analytics_Splunk,
+      Big_Data_Analytics_ElasticSearch, Business_Applications_Other,
+      Business_Applications_ERP_SAP, Business_Applications_CRM,
+      Business_Applications_Exchange, Business_Applications_Sharepoint,
+      Healthcare_Other, Healthcare_Epic, Healthcare_MEDITECH,
+      Healthcare_Allscripts, Healthcare_Cerner, Virtualization_Other,
+      Virtualization_Virtual_Servers_VSI, Virtualization_Containers_Kubernetes,
+      Virtualization_Virtual_Desktops_VDI, Other]
+    type: str
+  app_type_other:
+    description:
+    - Application type for volume when I(app_type) is set to C(*Other) types.
+    type: str
   protection_policy:
     description:
     - The protection_policy of the volume.
     - To represent policy, both name or ID can be used interchangably.
       The module will detect both.
-    - A volume can be assigned a protection policy at the time of creation of
-      volume or later as well.
+    - A volume can be assigned a protection policy at the time of creation of the
+      volume or later.
     - The policy can also be changed for a given volume by simply passing the
       new value.
     - The policy can be removed by passing an empty string.
@@ -86,7 +107,7 @@ options:
     description:
     - The performance_policy for the volume.
     - A volume can be assigned a performance policy at the time of creation of
-      the volume, or later as well.
+      the volume, or later.
     - The policy can also be changed for a given volume, by simply passing the
       new value.
     - Check examples for more clarity.
@@ -265,6 +286,8 @@ EXAMPLES = r'''
     vg_name: "{{vg_name}}"
     mapping_state: 'mapped'
     host: "{{host_name}}"
+    app_type: "Relational_Databases_Other"
+    app_type_other: "MaxDB"
 
 - name: Get volume details using ID
   dellemc.powerstore.volume:
@@ -275,7 +298,7 @@ EXAMPLES = r'''
     vol_id: "{{result.volume_details.id}}"
     state: "present"
 
-- name: Modify volume size, name, description, protection and performance policy
+- name: Modify volume size, name, description, protection,  performance policy and app_type
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
     verifycert: "{{verifycert}}"
@@ -288,6 +311,7 @@ EXAMPLES = r'''
     performance_policy: 'high'
     description: 'new description'
     protection_policy: ''
+    app_type: "Business_Applications_CRM"
 
 - name: Map volume to a host with HLU
   dellemc.powerstore.volume:
@@ -408,6 +432,12 @@ volume_details:
     returned: When volume exists
     type: complex
     contains:
+        app_type:
+            description: Application type indicating the intended use of the volume.
+            type: str
+        app_type_other:
+            description: Application type for volume when app_type is set to *Other.
+            type: str
         id:
             description: The system generated ID given to the volume.
             type: str
@@ -452,7 +482,7 @@ volume_details:
             type: complex
             contains:
                 id:
-                    description: The host ID mapped to the volume.
+                    description: The Host ID mapped to the volume.
                     type: str
                 name:
                     description: Name of the Host mapped to the volume.
@@ -462,7 +492,7 @@ volume_details:
             type: complex
             contains:
                 id:
-                    description: The host group ID mapped to the volume.
+                    description: The Host group ID mapped to the volume.
                     type: str
                 name:
                     description: Name of the Host group mapped to the volume.
@@ -472,10 +502,10 @@ volume_details:
             type: complex
             contains:
                 host_group_id:
-                    description: The host group ID mapped to the volume.
+                    description: The Host group ID mapped to the volume.
                     type: str
                 host_id:
-                    description: The host ID mapped to the volume.
+                    description: The Host ID mapped to the volume.
                     type: str
                 id:
                     description: The HLU ID.
@@ -588,7 +618,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.8.0'
+APPLICATION_TYPE = 'Ansible/1.9.0'
 
 
 class PowerStoreVolume(object):
@@ -601,13 +631,17 @@ class PowerStoreVolume(object):
 
         mutually_exclusive = [['vol_name', 'vol_id']]
         required_one_of = [['vol_name', 'vol_id']]
+        required_by = {
+            'app_type_other': 'app_type',
+        }
 
         # initialize the ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
             supports_check_mode=False,
             mutually_exclusive=mutually_exclusive,
-            required_one_of=required_one_of
+            required_one_of=required_one_of,
+            required_by=required_by
         )
 
         LOG.info('HAS_PY4PS = %s , IMPORT_ERROR = %s', HAS_PY4PS,
@@ -664,7 +698,9 @@ class PowerStoreVolume(object):
                       volume_group_id,
                       protection_policy_id,
                       performance_policy,
-                      description):
+                      description,
+                      app_type,
+                      app_type_other):
         """Create PowerStore volume"""
 
         try:
@@ -681,7 +717,9 @@ class PowerStoreVolume(object):
                 description=description,
                 performance_policy_id=performance_policy,
                 protection_policy_id=protection_policy_id,
-                volume_group_id=volume_group_id)
+                volume_group_id=volume_group_id,
+                app_type=app_type,
+                app_type_other=app_type_other)
             return True
         except Exception as e:
             msg = 'Create volume {0} failed with error {1}'.format(
@@ -695,7 +733,9 @@ class PowerStoreVolume(object):
                       size,
                       protection_policy_id,
                       performance_policy,
-                      description):
+                      description,
+                      app_type,
+                      app_type_other):
         """Modify PowerStore volume"""
         # old_volume_name and name can be same if a new name is not passed
         # old_volume_name added for logging purpose
@@ -716,7 +756,9 @@ class PowerStoreVolume(object):
                 size=size,
                 description=description,
                 performance_policy_id=performance_policy,
-                protection_policy_id=protection_policy_id)
+                protection_policy_id=protection_policy_id,
+                app_type=app_type,
+                app_type_other=app_type_other)
             return True
         except Exception as e:
             msg = 'Modify volume {0} failed with error {1}'.format(
@@ -928,15 +970,17 @@ class PowerStoreVolume(object):
             vol_details = self.get_volume(vol_name=data['source_volume'])
         else:
             vol_details = self.get_volume(vol_id=data['source_volume'])
+
         if vol_details is None:
             errormsg = "Source volume does not exist."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
-        if vol_details['protection_data']['family_id'] != data['volume_family_id']:
+        elif vol_details['protection_data']['family_id'] != data['volume_family_id']:
             errormsg = "Source volume does not belong to the family of the current volume."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
-        data['source_volume_id'] = vol_details['id']
+        else:
+            data['source_volume_id'] = vol_details['id']
 
         return data
 
@@ -1130,6 +1174,8 @@ class PowerStoreVolume(object):
             remote_system, self.module.params['remote_appliance_id'])
         end_metro_config = self.module.params['end_metro_config']
         delete_remote_volume = self.module.params['delete_remote_volume']
+        app_type = self.module.params['app_type']
+        app_type_other = self.module.params['app_type_other']
 
         changed = False
         is_volume_refreshed = False
@@ -1149,6 +1195,11 @@ class PowerStoreVolume(object):
         if (cap_unit is not None) and not size:
             self.module.fail_json(msg="cap_unit can be specified along "
                                       "with size. Please enter a valid size.")
+
+        if app_type_other is not None and len(app_type_other) > 32:
+            self.module.fail_json(msg="Max Length for option "
+                                      "'app_type_other' is 32. "
+                                      "Enter a valid string.")
 
         # Call to create volume
         if state == 'present' and volume is None:
@@ -1171,7 +1222,9 @@ class PowerStoreVolume(object):
                 volume_group_id=volume_group_id,
                 protection_policy_id=protection_policy_id,
                 performance_policy=performance_policy,
-                description=description)
+                description=description,
+                app_type=app_type,
+                app_type_other=app_type_other)
             if changed:
                 vol_id = self.get_volume_id_by_name(vol_name)
                 volume = self.get_volume(vol_id=vol_id)
@@ -1235,7 +1288,9 @@ class PowerStoreVolume(object):
                 'description': description,
                 'protection_policy_id': protection_policy_id,
                 'performance_policy_id': performance_policy,
-                'size': size
+                'size': size,
+                'app_type': app_type,
+                'app_type_other': app_type_other
             }
 
             # In update_dict parameters which are to be updated will have
@@ -1255,7 +1310,9 @@ class PowerStoreVolume(object):
                     size=update_dict['size'],
                     protection_policy_id=update_dict['protection_policy_id'],
                     performance_policy=update_dict['performance_policy_id'],
-                    description=update_dict['description']) or changed
+                    description=update_dict['description'],
+                    app_type=update_dict['app_type'],
+                    app_type_other=update_dict['app_type_other']) or changed
 
         if state == 'present' and volume and mapping_state in [
                 None, 'unmapped'] and hlu:
@@ -1582,7 +1639,8 @@ def check_modify_volume_required(vol, vol_dict2):
     vol_dict1 = {'name': vol['name'], 'description': vol['description'],
                  'protection_policy_id': vol['protection_policy_id'],
                  'performance_policy_id': vol['performance_policy_id'],
-                 'size': vol['size']
+                 'size': vol['size'], 'app_type': vol['app_type'],
+                 'app_type_other': vol['app_type_other']
                  }
 
     update_dict = {}
@@ -1695,7 +1753,32 @@ def get_powerstore_volume_parameters():
         remote_system=dict(required=False, type='str'),
         remote_appliance_id=dict(required=False, type='str'),
         end_metro_config=dict(required=False, type='bool', default=False),
-        delete_remote_volume=dict(required=False, type='bool')
+        delete_remote_volume=dict(required=False, type='bool'),
+        app_type=dict(
+            type='str',
+            choices=["Relational_Databases_Other",
+                     "Relational_Databases_Oracle",
+                     "Relational_Databases_SQL_Server",
+                     "Relational_Databases_PostgreSQL",
+                     "Relational_Databases_MySQL",
+                     "Relational_Databases_IBM_DB2",
+                     "Big_Data_Analytics_Other", "Big_Data_Analytics_MongoDB",
+                     "Big_Data_Analytics_Cassandra",
+                     "Big_Data_Analytics_SAP_HANA", "Big_Data_Analytics_Spark",
+                     "Big_Data_Analytics_Splunk",
+                     "Big_Data_Analytics_ElasticSearch",
+                     "Business_Applications_Other",
+                     "Business_Applications_ERP_SAP",
+                     "Business_Applications_CRM",
+                     "Business_Applications_Exchange",
+                     "Business_Applications_Sharepoint", "Healthcare_Other",
+                     "Healthcare_Epic", "Healthcare_MEDITECH",
+                     "Healthcare_Allscripts", "Healthcare_Cerner",
+                     "Virtualization_Other",
+                     "Virtualization_Virtual_Servers_VSI",
+                     "Virtualization_Containers_Kubernetes",
+                     "Virtualization_Virtual_Desktops_VDI", "Other"]),
+        app_type_other=dict(type='str')
     )
 
 

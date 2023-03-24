@@ -165,6 +165,11 @@ plugins:
       name: volume
       namespace: ''
       version_added: 1.0.0
+    vcenter:
+      description: Manage vCenter on a PowerStore Storage System
+      name: volume
+      namespace: ''
+      version_added: 1.9.0
     volumegroup:
       description: Manage volume groups on a PowerStore Storage System
       name: volumegroup
@@ -174,4 +179,4 @@ plugins:
   shell: {}
   strategy: {}
   vars: {}
-version: 1.8.0
+version: 1.9.0

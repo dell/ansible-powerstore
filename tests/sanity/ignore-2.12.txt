@@ -1,5 +1,11 @@
 plugins/modules/remote_support.py compile-2.6
+plugins/modules/vcenter.py compile-2.7
+plugins/modules/vcenter.py compile-3.5
 plugins/modules/remote_support.py import-2.6
+plugins/modules/vcenter.py compile-2.6
+plugins/modules/vcenter.py import-2.6
+plugins/modules/vcenter.py import-2.7
+plugins/modules/vcenter.py import-3.5
 plugins/modules/certificate.py validate-modules:missing-gplv3-license
 plugins/modules/cluster.py validate-modules:missing-gplv3-license
 plugins/modules/dns.py validate-modules:missing-gplv3-license
@@ -32,3 +38,4 @@ plugins/modules/snapshotrule.py validate-modules:missing-gplv3-license
 plugins/modules/volume.py validate-modules:missing-gplv3-license
 plugins/modules/volumegroup.py validate-modules:missing-gplv3-license
 plugins/modules/ldap_domain.py validate-modules:missing-gplv3-license
+plugins/modules/vcenter.py validate-modules:missing-gplv3-license

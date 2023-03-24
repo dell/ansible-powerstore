@@ -226,7 +226,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.8.0'
+APPLICATION_TYPE = 'Ansible/1.9.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of

@@ -15,20 +15,20 @@ short_description: Filesystem operations for PowerStore Storage system
 description:
 - Supports the provisioning operations on a filesystem such as create, modify,
   delete and get the details of a filesystem.
-
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
+- Trisha Datta (@trisha-dell) <ansible.team@dell.com>
 options:
  filesystem_name:
    description:
-   - Name of the file system. Mutually exclusive with filesystem_id.
+   - Name of the file system. Mutually exclusive with I(filesystem_id).
      Mandatory only for create operation.
    type: str
  filesystem_id:
    description:
-   - Unique id of the file system. Mutually exclusive with filesystem_name.
+   - Unique id of the file system. Mutually exclusive with I(filesystem_name).
    type: str
  description:
    description:
@@ -37,18 +37,18 @@ options:
  nas_server:
    description:
    - Name or ID of the NAS Server on which the file system is created.
-     Mandatory parameter whenever filesystem_name is provided,
+     Mandatory parameter whenever I(filesystem_name) is provided,
      since filesystem names are unique only within a NAS server.
    type: str
  size:
    description:
    - Size that the file system presents to the host or end user.
-     Mandatory only for create operation.
+   - Mandatory only for create operation.
    type: int
  cap_unit:
    description:
    - Capacity unit for the size.
-   - It defaults to 'GB', if not specified.
+   - It defaults to C(GB), if not specified.
    choices: ['GB', 'TB']
    type: str
  access_policy:
@@ -59,65 +59,59 @@ options:
  locking_policy:
    description:
    - File system locking policies.
-     ADVISORY- No lock checking for NFS and honor SMB lock range only for SMB.
-     MANDATORY- Honor SMB and NFS lock range.
+   - C(ADVISORY)- No lock checking for NFS and honor SMB lock range only for SMB.
+   - C(MANDATORY)- Honor SMB and NFS lock range.
    choices: [ADVISORY, MANDATORY]
    type: str
  folder_rename_policy:
    description:
    - File system folder rename policies for the file system with
      multi-protocol access enabled.
-   - ALL_ALLOWED - All protocols are allowed to rename directories without
+   - C(ALL_ALLOWED) - All protocols are allowed to rename directories without
      any restrictions.
-   - SMB_FORBIDDEN - A directory rename from the SMB protocol will be
+   - C(SMB_FORBIDDEN) - A directory rename from the SMB protocol will be
      denied if at least one file is opened in the directory or in one of its
      child directories.
-   - All_FORBIDDEN - Any directory rename request will be denied regardless
+   - C(All_FORBIDDEN) - Any directory rename request will be denied regardless
      of the protocol used, if at least one file is opened in the directory
      or in one of its child directories.
    choices: ['ALL_ALLOWED', 'SMB_FORBIDDEN', 'ALL_FORBIDDEN']
    type: str
  smb_properties:
    description:
-   - Advance settings for SMB. It contains below optional candidate variables.
+   - Advance settings for SMB. It contains optional candidate variables listed below.
    type: dict
    suboptions:
      is_smb_sync_writes_enabled:
        description:
        - Indicates whether the synchronous writes option is enabled on the
-        file system.
+         file system.
        type: bool
-       required: False
      is_smb_no_notify_enabled:
        description:
        - Indicates whether notifications of changes to directory file
-        structure are enabled.
+         structure are enabled.
        type: bool
-       required: False
      is_smb_op_locks_enabled:
        description:
        - Indicates whether opportunistic file locking is enabled on the file
-        system.
+         system.
        type: bool
-       required: False
      is_smb_notify_on_access_enabled:
        description:
        - Indicates whether file access notifications are enabled on the file
-        system.
+         system.
        type: bool
-       required: False
      is_smb_notify_on_write_enabled:
        description:
        - Indicates whether file write notifications are enabled on the file
-        system.
+         system.
        type: bool
-       required: False
      smb_notify_on_change_dir_depth:
        description:
-       - Integer variable , determines the lowest directory level to which the
-        enabled notifications apply. minimum value is 1.
+       - Determines the lowest directory level to which the
+         enabled notifications apply. minimum value is C(1).
        type: int
-       required: False
  protection_policy:
    description:
    - Name or ID of the protection policy applied to the file system.
@@ -134,39 +128,115 @@ options:
        description:
        - Grace period of soft limit.
        type: int
-       required: False
      grace_period_unit:
        description:
        - Unit of the grace period of soft limit.
        type: str
        choices: ['days', 'weeks', 'months']
-       required: False
      default_hard_limit:
        description:
        - Default hard limit of user quotas and tree quotas.
        type: int
-       required: False
      default_soft_limit:
        description:
        - Default soft limit of user quotas and tree quotas.
        type: int
-       required: False
      cap_unit:
        description:
        - Capacity unit for default hard & soft limit.
        type: str
        choices: ['GB', 'TB']
-       required: False
+ flr_attributes:
+   description:
+   - The attributes for file retention.
+   - Can only be provided when the I(config_type) is C(GENERAL).
+   type: dict
+   suboptions:
+     mode:
+       description:
+       - The FLR type of the file system.
+       - It can only be provided during creation of a filesystem.
+       type: str
+       choices: ['Enterprise', 'Compliance']
+     minimum_retention:
+       description:
+       - The shortest retention period for which files
+         on an FLR-enabled file system can be locked
+         and protected from deletion.
+       type: str
+     default_retention:
+       description:
+       - The default retention period that is used in an
+         FLR-enabled file system when a file is locked and
+         a retention period is not specified.
+       type: str
+     maximum_retention:
+       description:
+       - The longest retention period for which files on an
+         FLR-enabled file system can be locked and protected
+         from deletion.
+       type: str
+     auto_lock:
+       description:
+       - Indicates whether to automatically lock files
+         in an FLR-enabled file system.
+       type: bool
+     auto_delete:
+       description:
+       - Indicates whether locked files will be automatically
+         deleted from an FLR-enabled file system once their
+         retention periods have expired.
+       - This setting can only be applied to a mounted FLR
+         enabled file systems.
+       type: bool
+     policy_interval:
+       description:
+       - Indicates how long to wait (in seconds) after files
+         are modified before the files are automatically locked.
+       - This setting can only be applied to mounted FLR enabled
+         file systems.
+       type: int
+ config_type:
+   description:
+   - Indicates the file system type.
+   - Cannot be modified.
+   choices: ['GENERAL', 'VMWARE']
+   type: str
+ is_async_mtime_enabled:
+   description:
+   - Indicates whether asynchronous MTIME is
+     enabled on the file system or protocol
+     snaps that are mounted writeable.
+   type: bool
+ file_events_publishing_mode:
+   description:
+   - State of the event notification services
+     for all file systems of the NAS server.
+   - It can only be set to C(NFS_ONLY) when
+     I(config_typ) is set to C(VMWARE).
+   choices: ['DISABLE', 'SMB_ONLY', 'NFS_ONLY', 'ALL']
+   type: str
+ host_io_size:
+   description:
+   - Typical size of writes from the server or other
+     computer using the VMware file system to the
+     storage system.
+   - Can only be set when the I(config_type) is C(VMWARE).
+   - Cannot be modified.
+   choices: ['VMWARE_8K', 'VMWARE_16K', 'VMWARE_32K', 'VMWARE_64K']
+   type: str
  state:
    description:
    - Define whether the filesystem should exist or not.
    choices: ['absent', 'present']
-   required: True
+   required: true
    type: str
 notes:
 - It is recommended to remove the protection policy before deleting the
   filesystem.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
+- The pattern for I(minimum_retention), I(default_retention)
+  and I(maximum_retention) is (^\d+[DMY])|(^infinite$).
 '''
 
 EXAMPLES = r'''
@@ -194,6 +264,10 @@ EXAMPLES = r'''
        default_hard_limit: 3
        default_soft_limit: 2
      protection_policy: "{{protection_policy_id}}"
+     config_type: "VMWARE"
+     is_async_mtime_enabled: True
+     file_events_publishing_mode: "NFS_ONLY"
+     host_io_size: "VMWARE_16K"
      state: "present"
 
  - name: Modify File System by id
@@ -212,6 +286,13 @@ EXAMPLES = r'''
        grace_period_unit: 'weeks'
        default_hard_limit: 2
        default_soft_limit: 1
+     is_async_mtime_enabled: True
+     file_events_publishing_mode: "ALL"
+     flr_attributes:
+       mode: "Enterprise"
+       minimum_retention: "5D"
+       default_retention: "1M"
+       maximum_retention: "1Y"
      state: "present"
 
  - name: Get File System details by id
@@ -231,8 +312,6 @@ EXAMPLES = r'''
      password: "{{password}}"
      filesystem_id: "{{result_fs.filesystem_details.id}}"
      state: "absent"
-
-
 '''
 
 RETURN = r'''
@@ -241,7 +320,6 @@ changed:
     returned: always
     type: bool
     sample: "false"
-
 filesystem_details:
     description: Details of the filesystem.
     returned: When filesystem exists
@@ -307,6 +385,110 @@ filesystem_details:
         snapshots:
             description: Id and name of the snapshots of a filesystem.
             type: list
+        is_async_MTime_enabled:
+            description: Indicates whether asynchronous MTIME is enabled on the file system.
+            type: bool
+        file_events_publishing_mode:
+            description: State of the event notification services for all file systems of the NAS server.
+            type: str
+        config_type:
+            description: Indicates the file system type.
+            type: str
+        host_io_size:
+            description: Typical size of writes from the server or other
+                         computer using the VMware file system to the storage system.
+            type: str
+        flr_attributes:
+            description: The file retention attributes.
+            type: complex
+            contains:
+                mode:
+                    description: The FLR type of the file system.
+                    type: str
+                minimum_retention:
+                    description: The shortest retention period for which files on an
+                                 FLR-enabled file system can be locked and protected
+                                 from deletion.
+                    type: str
+                default_retention:
+                    description: The default retention period that is used in an FLR-enabled
+                                 file system when a file is locked and a retention period is
+                                 not specified.
+                    type: str
+                maximum_retention:
+                    description: The longest retention period for which files on an FLR-enabled
+                                 file system can be locked and protected from deletion.
+                    type: str
+                auto_lock:
+                    description: Indicates whether to automatically lock files in an FLR-enabled file system.
+                    type: bool
+                auto_delete:
+                    description: Indicates whether locked files will be automatically deleted from an
+                                 FLR-enabled file system once their retention periods have expired.
+                    type: bool
+                policy_interval:
+                    description: Indicates how long to wait (in seconds) after files are
+                                 modified before the files are automatically locked.
+                    type: int
+                has_protected_files:
+                    description: Indicates whether FLR file system has protected files.
+                    type: bool
+                clock_time:
+                    description: Per file system clock used to track the retention date.
+                    type: str
+                maximum_retention_date:
+                    description: Maximum date and time that has been set on any locked file
+                                 in an FLR-enabled file system, which means that the file
+                                 system itself will be protected until this date and time.
+                    type: str
+        access_type:
+            description: Indicates whether the snapshot directory or protocol
+                         access is granted to the file system snapshot.
+            type: str
+        creation_timestamp:
+            description: Time, in seconds, when the snapshot was created.
+            type: str
+        creator_type:
+            description: Snapshot creator type.
+            type: str
+        expiration_timestamp:
+            description: Time, in seconds, when the snapshot will expire.
+            type: str
+        filesystem_type:
+            description: Indicates the type of a file system.
+            type: str
+        folder_rename_policy:
+            description: File system folder rename policies for the file
+                         system with multiprotocol access enabled.
+            type: str
+        is_modified:
+            description: Indicates whether the snapshot may have
+                         changed since it was created.
+            type: bool
+        is_quota_enabled:
+            description: Indicates whether quota is enabled.
+            type: bool
+        is_smb_notify_on_write_enabled:
+            description: Indicates whether file writes notifications
+                         are enabled on the file system.
+            type: bool
+        is_smb_sync_writes_enabled:
+            description: Indicates whether the synchronous writes
+                         option is enabled on the file system.
+            type: bool
+        last_refresh_timestamp:
+            description: Time, in seconds, when the snapshot was last refreshed.
+            type: str
+        last_writable_timestamp:
+            description: If not mounted, and was previously mounted,
+                         the time (in seconds) of last mount.
+            type: str
+        parent_id:
+            description: Unique identifier of the object of the parent of this file system.
+            type: str
+        smb_notify_on_change_dir_depth:
+            description: Lowest directory level to which the enabled notifications apply, if any.
+            type: int
     sample: {
         "access_policy": "Native",
         "access_policy_l10n": "Native",
@@ -354,7 +536,7 @@ filesystem_details:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
+from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
 import logging
 
@@ -370,7 +552,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.8.0'
+APPLICATION_TYPE = 'Ansible/1.9.0'
 
 
 class PowerStoreFileSystem(object):
@@ -547,41 +729,47 @@ class PowerStoreFileSystem(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def create_filesystem_dict_params(self, adv_parameters):
+        """Create a filesystem."""
+        smb_properties = self.module.params['smb_properties']
+        if self.module.params['flr_attributes'] is not None:
+            adv_parameters['flr_attributes'] = {}
+            for key, value in self.module.params['flr_attributes'].items():
+                if value is not None:
+                    adv_parameters['flr_attributes'][key] = value
+
+        if self.protection_policy_id:
+            adv_parameters['protection_policy_id'] = \
+                self.protection_policy_id
+
+        if smb_properties:
+            for key, value in smb_properties.items():
+                if value is not None:
+                    adv_parameters[key] = value
+
+        return adv_parameters
+
     def create_filesystem(self, name, nas_server_id, size_total):
         """Create a filesystem."""
         try:
             LOG.info("Attempting to create filesystem name "
                      "%s", name)
             adv_parameters = dict()
-            description = self.module.params['description']
-            if description:
-                adv_parameters['description'] = description
+            adv_param_list_enum = ['access_policy', 'locking_policy',
+                                   'folder_rename_policy', 'config_type',
+                                   'host_io_size', 'file_events_publishing_mode']
 
-            access_policy = self.module.params['access_policy']
-            if access_policy:
-                adv_parameters['access_policy'] = \
-                    self.get_enum_keys(access_policy)
+            if self.module.params['description'] is not None:
+                adv_parameters['description'] = self.module.params['description']
 
-            locking_policy = self.module.params['locking_policy']
-            if locking_policy:
-                adv_parameters['locking_policy'] = \
-                    self.get_enum_keys(locking_policy)
+            if self.module.params['is_async_mtime_enabled'] is not None:
+                adv_parameters['is_async_MTime_enabled'] = self.module.params['is_async_mtime_enabled']
 
-            folder_rename_policy = self.module.params['folder_rename_policy']
-            if folder_rename_policy:
-                adv_parameters['folder_rename_policy'] = \
-                    self.get_enum_keys(folder_rename_policy)
+            for param in adv_param_list_enum:
+                if self.module.params[param] is not None:
+                    adv_parameters[param] = self.get_enum_keys(self.module.params[param])
 
-            if self.protection_policy_id:
-                adv_parameters['protection_policy_id'] = \
-                    self.protection_policy_id
-
-            smb_properties = self.module.params['smb_properties']
-            if smb_properties:
-                for key, value in smb_properties.items():
-                    if value is not None:
-                        adv_parameters[key] = value
-
+            adv_parameters = self.create_filesystem_dict_params(adv_parameters)
             resp = self.provisioning.create_filesystem(
                 name=name,
                 nas_server_id=nas_server_id,
@@ -613,124 +801,160 @@ class PowerStoreFileSystem(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def to_modify_quota_limits(self, quota_defaults, filesystem_details,
+                               modify_parameters, enable_quota):
+        """Check if modification of quota limits is needed"""
+        default_hard_limit = quota_defaults['default_hard_limit']
+        default_soft_limit = quota_defaults['default_soft_limit']
+        cap_unit = quota_defaults['cap_unit']
+
+        if (default_hard_limit is not None) or \
+                (default_soft_limit is not None):
+            if not cap_unit:
+                cap_unit = 'GB'
+            if default_hard_limit is not None:
+                param_hard_limit = utils.get_size_bytes(
+                    default_hard_limit, cap_unit)
+                if param_hard_limit != \
+                        filesystem_details['default_hard_limit']:
+                    modify_parameters['default_hard_limit'] = \
+                        param_hard_limit
+                    enable_quota = True
+            if default_soft_limit is not None:
+                param_soft_limit = utils.get_size_bytes(
+                    default_soft_limit, cap_unit)
+                if param_soft_limit != \
+                        filesystem_details['default_soft_limit']:
+                    modify_parameters['default_soft_limit'] = \
+                        param_soft_limit
+                    enable_quota = True
+        return enable_quota, modify_parameters
+
+    def to_modify_filesystem_quota(self, filesystem_details, modify_parameters, quota_defaults):
+        """Determines if any modification required on a specific
+        filesystem instance."""
+
+        LOG.info("Checking if modification is required for quota ")
+        grace_period = quota_defaults['grace_period']
+        grace_period_unit = quota_defaults['grace_period_unit']
+        enable_quota = False
+        is_quota_enabled = filesystem_details['is_quota_enabled']
+
+        if grace_period is not None:
+            if not grace_period_unit:
+                grace_period_unit = 'days'
+            param_grace_period = get_graceperiod_seconds(
+                grace_period, grace_period_unit)
+            if param_grace_period != \
+                    filesystem_details['grace_period']:
+                modify_parameters[
+                    'grace_period'] = param_grace_period
+                enable_quota = True
+
+        enable_quota, modify_parameters = self.to_modify_quota_limits(quota_defaults, filesystem_details,
+                                                                      modify_parameters, enable_quota)
+        if enable_quota and (not is_quota_enabled):
+            modify_parameters['is_quota_enabled'] = enable_quota
+
+        LOG.debug("Modify Dict %s", str(modify_parameters))
+        return modify_parameters
+
+    def to_modify_protection_policy(self, modify_parameters, filesystem_details):
+        """Check if modification of protection policy is needed"""
+
+        if self.protection_policy_id and (
+                (filesystem_details['protection_policy'] is None) or
+                (filesystem_details['protection_policy'] is not None and
+                 self.protection_policy_id !=
+                 filesystem_details['protection_policy']['id'])):
+            modify_parameters['protection_policy_id'] = \
+                self.protection_policy_id
+
+        # to handle the remove with "" case
+        if self.protection_policy_id == "" and (
+                filesystem_details['protection_policy'] is not None):
+            modify_parameters['protection_policy_id'] = \
+                self.protection_policy_id
+
+        return modify_parameters
+
+    def to_modify_flr_attributes(self, modify_parameters, filesystem_details):
+        """Check if modification of file retention attributes is needed"""
+        flr_attributes = self.module.params['flr_attributes']
+        if flr_attributes is not None:
+            modify_parameters['flr_attributes'] = {}
+            for key, value in flr_attributes.items():
+                if value is not None and \
+                        filesystem_details['flr_attributes'][key] != value:
+                    modify_parameters['flr_attributes'][key] = value
+            if modify_parameters['flr_attributes'] == {}:
+                del modify_parameters['flr_attributes']
+
+        return modify_parameters
+
+    def to_modify_smb_attributes(self, modify_parameters, filesystem_details):
+        """Check if modification of SMB properties is needed"""
+        smb_properties = self.module.params['smb_properties']
+        if smb_properties:
+            for key, value in smb_properties.items():
+                if value is not None and \
+                        filesystem_details[key] != value:
+                    modify_parameters[key] = value
+
+        return modify_parameters
+
+    def to_modify_flr_smb_quota(self, modify_parameters, filesystem_details):
+        """Check if modification of file retention, SMB or Quota attributes is needed"""
+        modify_parameters = self.to_modify_flr_attributes(modify_parameters,
+                                                          filesystem_details)
+
+        # advance smb attributes
+        modify_parameters = self.to_modify_smb_attributes(modify_parameters,
+                                                          filesystem_details)
+        quota_defaults = self.module.params['quota_defaults']
+        if quota_defaults:
+            modify_parameters = self.to_modify_filesystem_quota(filesystem_details,
+                                                                modify_parameters,
+                                                                quota_defaults)
+
+        return modify_parameters
+
     def to_modify_filesystem(self, filesystem_details):
         """Determines if any modification required on a specific
         filesystem instance."""
 
-        try:
-            LOG.info("Checking if Modify required for filesystem ")
-            modify_parameters = dict()
+        LOG.info("Checking if Modify required for filesystem ")
+        modify_parameters = dict()
 
-            description = self.module.params['description']
-            if (description is not None) and description != \
-                    filesystem_details['description']:
-                modify_parameters['description'] = description
+        description = self.module.params['description']
+        if (description is not None) and description != \
+                filesystem_details['description']:
+            modify_parameters['description'] = description
 
-            if (self.total_size > 0) and \
-                    (filesystem_details['size_total'] != self.total_size):
-                modify_parameters['size_total'] = self.total_size
+        is_async_mtime_enabled = self.module.params['is_async_mtime_enabled']
+        if (is_async_mtime_enabled is not None) and is_async_mtime_enabled != \
+                filesystem_details['is_async_MTime_enabled']:
+            modify_parameters['is_async_MTime_enabled'] = is_async_mtime_enabled
 
-            access_policy = self.module.params['access_policy']
-            if access_policy and access_policy !=\
-                    (filesystem_details['access_policy']).upper():
-                modify_parameters['access_policy'] = \
-                    self.get_enum_keys(access_policy)
+        if (self.total_size > 0) and \
+                (filesystem_details['size_total'] != self.total_size):
+            modify_parameters['size_total'] = self.total_size
 
-            locking_policy = self.module.params['locking_policy']
-            if locking_policy and locking_policy != (
-                    filesystem_details['locking_policy']).upper():
-                modify_parameters['locking_policy'] = \
-                    self.get_enum_keys(locking_policy)
+        adv_param_list_enum = ['access_policy', 'locking_policy',
+                               'folder_rename_policy', 'file_events_publishing_mode']
 
-            folder_rename_policy = self.module.params['folder_rename_policy']
-            if folder_rename_policy and folder_rename_policy != (
-                    filesystem_details['folder_rename_policy']).upper():
-                modify_parameters['folder_rename_policy'] = \
-                    self.get_enum_keys(folder_rename_policy)
+        for param in adv_param_list_enum:
+            if self.module.params[param] is not None and (filesystem_details[param] is None or
+                                                          self.module.params[param] !=
+                                                          (filesystem_details[param]).upper()):
+                modify_parameters[param] = \
+                    self.get_enum_keys(self.module.params[param])
 
-            if self.protection_policy_id and (
-                    (filesystem_details['protection_policy'] is None) or
-                    (filesystem_details['protection_policy'] is not None) and
-                    self.protection_policy_id !=
-                    filesystem_details['protection_policy']['id']):
-                modify_parameters['protection_policy_id'] = \
-                    self.protection_policy_id
+        modify_parameters = self.to_modify_protection_policy(modify_parameters, filesystem_details)
 
-            # to handle the remove with "" case
-            if self.protection_policy_id == "" and (
-                    filesystem_details['protection_policy'] is not None):
-                modify_parameters['protection_policy_id'] = \
-                    self.protection_policy_id
+        modify_parameters = self.to_modify_flr_smb_quota(modify_parameters, filesystem_details)
 
-            # advance smb attributes
-            smb_properties = self.module.params['smb_properties']
-            if smb_properties:
-                for key, value in smb_properties.items():
-                    if value is not None and \
-                            filesystem_details[key] != value:
-                        modify_parameters[key] = value
-
-            # quota defaults
-            quota_defaults = self.module.params['quota_defaults']
-            if quota_defaults:
-                grace_period = quota_defaults['grace_period']
-                grace_period_unit = quota_defaults['grace_period_unit']
-                default_hard_limit = quota_defaults['default_hard_limit']
-                default_soft_limit = quota_defaults['default_soft_limit']
-                cap_unit = quota_defaults['cap_unit']
-                enable_quota = False
-                is_quota_enabled = filesystem_details['is_quota_enabled']
-
-                if grace_period is not None:
-                    if not grace_period_unit:
-                        grace_period_unit = 'days'
-                    param_grace_period = get_graceperiod_seconds(
-                        grace_period, grace_period_unit)
-                    if param_grace_period !=\
-                            filesystem_details['grace_period']:
-                        modify_parameters[
-                            'grace_period'] = param_grace_period
-                        enable_quota = True
-
-                if default_hard_limit < 0 or default_soft_limit < 0:
-                    msg = "hard or soft limit cannot be less than '0'"
-                    LOG.error(msg)
-                    self.module.fail_json(msg=msg)
-
-                if (default_hard_limit is not None) or \
-                        (default_soft_limit is not None):
-                    if not cap_unit:
-                        cap_unit = 'GB'
-
-                    if default_hard_limit is not None:
-                        param_hard_limit = utils.get_size_bytes(
-                            default_hard_limit, cap_unit)
-                        if param_hard_limit != \
-                                filesystem_details['default_hard_limit']:
-                            modify_parameters['default_hard_limit'] = \
-                                param_hard_limit
-                            enable_quota = True
-
-                    if default_soft_limit is not None:
-                        param_soft_limit = utils.get_size_bytes(
-                            default_soft_limit, cap_unit)
-                        if param_soft_limit != \
-                                filesystem_details['default_soft_limit']:
-                            modify_parameters['default_soft_limit'] = \
-                                param_soft_limit
-                            enable_quota = True
-
-                if enable_quota and (not is_quota_enabled):
-                    modify_parameters['is_quota_enabled'] = enable_quota
-
-            LOG.info("Modify Dict %s", str(modify_parameters))
-            return modify_parameters
-
-        except Exception as e:
-            msg = 'Failed to determine if modify filesystem required with ' \
-                  'error {0}'.format(str(e))
-            LOG.error(msg)
-            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+        return modify_parameters
 
     def modify_filesystem(self, filesystem_id, modify_parameters):
         """Modify FileSystem attributes."""
@@ -801,7 +1025,17 @@ class PowerStoreFileSystem(object):
                 "MANDATORY": "Mandatory",
                 "ALL_ALLOWED": "All_Allowed",
                 "SMB_FORBIDDEN": "SMB_Forbidden",
-                "ALL_FORBIDDEN": "All_Forbidden"
+                "ALL_FORBIDDEN": "All_Forbidden",
+                "GENERAL": "General",
+                "VMWARE": "VMware",
+                "DISABLE": "None",
+                "SMB_ONLY": "SMB_Only",
+                "NFS_ONLY": "NFS_Only",
+                "ALL": "All",
+                "VMWARE_8K": "VMware_8K",
+                "VMWARE_16K": "VMware_16K",
+                "VMWARE_32K": "VMware_32K",
+                "VMWARE_64K": "VMware_64K"
             }
             return enum_dict[user_input]
 
@@ -810,6 +1044,54 @@ class PowerStoreFileSystem(object):
                   'error %s' % (user_input, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def set_params(self, size, cap_unit, nas_server, protection_policy,
+                   filesystem_name, filesystem_id):
+        fs_details = None
+        if size is not None:
+            if cap_unit:
+                self.total_size = utils.get_size_bytes(size, cap_unit)
+            else:
+                self.total_size = utils.get_size_bytes(size, 'GB')
+            min_size = utils.get_size_bytes(3, 'GB')
+            if self.total_size < min_size:
+                err_msg = "Size must be minimum of 3GB"
+                LOG.error(err_msg)
+                self.module.fail_json(msg=err_msg)
+
+        if (cap_unit is not None) and not size:
+            self.module.fail_json(msg="cap_unit can be specified along "
+                                      "with size")
+        if protection_policy is not None:
+            if protection_policy == "":
+                self.protection_policy_id = protection_policy
+            else:
+                self.protection_policy_id = self.get_protection_policy(
+                    protection_policy=protection_policy)
+        if filesystem_name and nas_server:
+            fs_details = self.get_filesystem_details(
+                filesystem_name=filesystem_name, nas_server_id=nas_server)
+        elif filesystem_id:
+            fs_details = self.get_filesystem_details(
+                filesystem_id=filesystem_id)
+        return size, protection_policy, fs_details
+
+    def validate_modify(self, fs_details):
+
+        non_modify = ['config_type', 'host_io_size']
+        for param in non_modify:
+            if fs_details and self.module.params[param] is not None and \
+                    fs_details[param] != self.get_enum_keys(self.module.params[param]):
+                self.module.fail_json(msg=param + " cannot be modified.")
+
+        if self.module.params['quota_defaults'] is not None:
+            limit_types = ['default_hard_limit', 'default_soft_limit']
+            for limit in limit_types:
+                if self.module.params['quota_defaults'][limit] is not None and \
+                        self.module.params['quota_defaults'][limit] < 0:
+                    msg = limit + " cannot be less than '0'"
+                    LOG.error(msg)
+                    self.module.fail_json(msg=msg)
 
     def perform_module_operation(self):
         clusters = self.get_clusters()
@@ -835,60 +1117,33 @@ class PowerStoreFileSystem(object):
             filesystem_details=None
         )
 
-        fs_details = None
         fs_id = None
         to_modify = False
         to_modify_dict = None
-
-        if size is not None:
-            if cap_unit:
-                self.total_size = utils.get_size_bytes(size, cap_unit)
-            else:
-                self.total_size = utils.get_size_bytes(size, 'GB')
-            min_size = utils.get_size_bytes(3, 'GB')
-            if self.total_size < min_size:
-                err_msg = "Size must be minimum of 3GB"
-                LOG.error(err_msg)
-                self.module.fail_json(msg=err_msg)
-
-        if (cap_unit is not None) and not size:
-            self.module.fail_json(msg="cap_unit can be specified along "
-                                      "with size")
-
         if nas_server:
             nas_server = self.get_nas_server(nas_server=nas_server)
-        if protection_policy is not None:
-            if protection_policy == "":
-                self.protection_policy_id = protection_policy
-            else:
-                self.protection_policy_id = self.get_protection_policy(
-                    protection_policy=protection_policy)
+        size, protection_policy, fs_details = \
+            self.set_params(size, cap_unit, nas_server, protection_policy,
+                            filesystem_name, filesystem_id)
 
-        if filesystem_name and nas_server:
-            fs_details = self.get_filesystem_details(
-                filesystem_name=filesystem_name, nas_server_id=nas_server)
-        elif filesystem_id:
-            fs_details = self.get_filesystem_details(
-                filesystem_id=filesystem_id)
-        if fs_details:
-            fs_id = fs_details['id']
-            to_modify_dict = self.to_modify_filesystem(fs_details)
-            if to_modify_dict:
-                to_modify = True
-        LOG.info("FileSystem Details: %s , To Modify %s", fs_details,
-                 to_modify)
+        self.validate_modify(fs_details)
 
         if not fs_details and state == 'present':
             fs_id = self.create_filesystem(
                 name=filesystem_name,
                 nas_server_id=nas_server,
                 size_total=self.total_size)
+            changed = True
             fs_details = self.get_filesystem_details(
                 filesystem_id=fs_id)
-            to_modify_dict = self.to_modify_filesystem(fs_details)
-            to_modify = True if to_modify_dict else to_modify
-            changed = True
 
+        if fs_details:
+            fs_id = fs_details['id']
+            to_modify_dict = self.to_modify_filesystem(fs_details)
+            if to_modify_dict:
+                to_modify = True
+            LOG.info("FileSystem Details: %s , To Modify %s", fs_details,
+                     to_modify)
         if to_modify and state == 'present':
             self.modify_filesystem(
                 filesystem_id=fs_id,
@@ -928,45 +1183,56 @@ def get_powerstore_filesystem_parameters():
     """This method provides the parameters required for the ansible
     filesystem modules on PowerStore"""
     return dict(
-        filesystem_name=dict(required=False, type='str'),
-        filesystem_id=dict(required=False, type='str'),
-        description=dict(required=False, type='str'),
-        nas_server=dict(required=False, type='str'),
-        size=dict(required=False, type='int'),
-        cap_unit=dict(required=False, type='str', choices=['GB', 'TB']),
-        access_policy=dict(required=False, type='str',
+        filesystem_name=dict(type='str'),
+        filesystem_id=dict(type='str'),
+        description=dict(type='str'),
+        nas_server=dict(type='str'),
+        size=dict(type='int'),
+        cap_unit=dict(type='str', choices=['GB', 'TB']),
+        access_policy=dict(type='str',
                            choices=['NATIVE', 'UNIX', 'WINDOWS']),
-        locking_policy=dict(required=False, type='str',
+        locking_policy=dict(type='str',
                             choices=['ADVISORY', 'MANDATORY']),
-        folder_rename_policy=dict(required=False, type='str',
+        folder_rename_policy=dict(type='str',
                                   choices=['ALL_ALLOWED', 'SMB_FORBIDDEN',
                                            'ALL_FORBIDDEN']),
+        config_type=dict(type='str', choices=['GENERAL', 'VMWARE']),
+        is_async_mtime_enabled=dict(type='bool'),
+        file_events_publishing_mode=dict(type='str',
+                                         choices=['DISABLE', 'SMB_ONLY', 'NFS_ONLY', 'ALL']),
+        host_io_size=dict(type='str',
+                          choices=['VMWARE_8K', 'VMWARE_16K', 'VMWARE_32K', 'VMWARE_64K']),
+        flr_attributes=dict(
+            type='dict', options=dict(
+                mode=dict(type='str', choices=['Enterprise', 'Compliance']),
+                minimum_retention=dict(type='str'),
+                default_retention=dict(type='str'),
+                maximum_retention=dict(type='str'),
+                auto_lock=dict(type='bool'),
+                auto_delete=dict(type='bool'),
+                policy_interval=dict(type='int')
+            )
+        ),
         smb_properties=dict(
             type='dict', options=dict(
-                is_smb_sync_writes_enabled=dict(type='bool', required=False),
-                is_smb_no_notify_enabled=dict(type='bool', required=False),
-                is_smb_op_locks_enabled=dict(type='bool', required=False),
-                is_smb_notify_on_access_enabled=dict(type='bool',
-                                                     required=False),
-                is_smb_notify_on_write_enabled=dict(type='bool',
-                                                    required=False),
-                smb_notify_on_change_dir_depth=dict(type='int',
-                                                    required=False)
-            ),
-            required=False
+                is_smb_sync_writes_enabled=dict(type='bool'),
+                is_smb_no_notify_enabled=dict(type='bool'),
+                is_smb_op_locks_enabled=dict(type='bool'),
+                is_smb_notify_on_access_enabled=dict(type='bool'),
+                is_smb_notify_on_write_enabled=dict(type='bool'),
+                smb_notify_on_change_dir_depth=dict(type='int')
+            )
         ),
-        protection_policy=dict(required=False, type='str'),
+        protection_policy=dict(type='str'),
         quota_defaults=dict(
             type='dict', options=dict(
-                grace_period=dict(type='int', required=False),
-                grace_period_unit=dict(type='str', required=False,
+                grace_period=dict(type='int'),
+                grace_period_unit=dict(type='str',
                                        choices=['days', 'weeks', 'months']),
-                default_hard_limit=dict(type='int', required=False),
-                default_soft_limit=dict(type='int', required=False),
-                cap_unit=dict(type='str', required=False,
-                              choices=['GB', 'TB'])
-            ),
-            required=False
+                default_hard_limit=dict(type='int'),
+                default_soft_limit=dict(type='int'),
+                cap_unit=dict(type='str', choices=['GB', 'TB'])
+            )
         ),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )

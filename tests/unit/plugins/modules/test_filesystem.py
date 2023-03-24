@@ -84,6 +84,23 @@ class TestPowerStoreFileSystem():
         filesystem_module_mock.perform_module_operation()
         filesystem_module_mock.provisioning.get_filesystem_by_name.assert_called()
 
+    def test_get_filesystem_no_nas_exception(self, filesystem_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "404"
+        self.get_module_args.update({
+            "filesystem_name": 'sample_filesystem',
+            "nas_server": MockFilesystemApi.NAS_ID,
+            "state": 'present'
+        })
+        filesystem_module_mock.module.params = self.get_module_args
+        filesystem_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=None)
+        filesystem_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            side_effect=MockApiException)
+        filesystem_module_mock.perform_module_operation()
+        filesystem_module_mock.provisioning.get_nas_server_details.assert_called()
+
     def test_get_nas_for_filesystem_with_exception(self, filesystem_module_mock):
         MockApiException.HTTP_ERR = "1"
         MockApiException.err_code = "1"
@@ -114,7 +131,11 @@ class TestPowerStoreFileSystem():
                                "is_smb_op_locks_enabled": True, "is_smb_no_notify_enabled": True,
                                "smb_notify_on_change_dir_depth": 1, "is_smb_sync_writes_enabled": True},
             "quota_defaults": {"grace_period": 1, "grace_period_unit": "months",
-                               "default_hard_limit": 10, "default_soft_limit": 8},
+                               "default_hard_limit": 10, "default_soft_limit": 8, "cap_unit": None},
+            "config_type": "General",
+            "is_async_mtime_enabled": True,
+            "flr_attributes": {"mode": "Enterprise", "minimum_retention": "5D", "maximum_retention": "10D", "default_retention": "7D"},
+            "file_events_publishing_mode": True,
             "state": 'present'
         })
         filesystem_module_mock.module.params = self.get_module_args
@@ -245,6 +266,9 @@ class TestPowerStoreFileSystem():
                                "smb_notify_on_change_dir_depth": 3, "is_smb_sync_writes_enabled": False},
             "quota_defaults": {"grace_period": 2, "grace_period_unit": "weeks",
                                "default_hard_limit": 3, "default_soft_limit": 2, "cap_unit": "TB"},
+            "is_async_mtime_enabled": True,
+            "flr_attributes": {"minimum_retention": "10D", "maximum_retention": "30D", "default_retention": "15D"},
+            "file_events_publishing_mode": True,
             "state": 'present'
         })
         filesystem_module_mock.module.params = self.get_module_args
@@ -303,6 +327,27 @@ class TestPowerStoreFileSystem():
         assert filesystem_module_mock.module.exit_json.call_args[1]['changed'] is True
         filesystem_module_mock.provisioning.modify_filesystem.assert_called()
 
+    def test_modify_filesystem_wo_grace_period_unit_wo_cap_unit(self, filesystem_module_mock):
+        self.get_module_args.update({
+            "filesystem_name": MockFilesystemApi.FS_NAME,
+            "nas_server": MockFilesystemApi.NAS_ID,
+            "quota_defaults": {"grace_period": 5, "grace_period_unit": None,
+                               "default_hard_limit": 3, "default_soft_limit": 2, "cap_unit": None},
+            "state": 'present'
+        })
+        filesystem_module_mock.module.params = self.get_module_args
+        filesystem_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockFilesystemApi.NAS_SERVER_DETAILS[0])
+        filesystem_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            return_value=MockFilesystemApi.MODIFY_FS_DETAILS)
+        filesystem_module_mock.provisioning.modify_filesystem = MagicMock(
+            return_value=None)
+        filesystem_module_mock.provisioning.get_filesystem_details = MagicMock(
+            return_value=MockFilesystemApi.FS_DETAILS_1[0])
+        filesystem_module_mock.perform_module_operation()
+        assert filesystem_module_mock.module.exit_json.call_args[1]['changed'] is True
+        filesystem_module_mock.provisioning.modify_filesystem.assert_called()
+
     def test_modify_filesystem_with_exception(self, filesystem_module_mock):
         MockApiException.HTTP_ERR = "1"
         MockApiException.err_code = "1"
@@ -313,6 +358,28 @@ class TestPowerStoreFileSystem():
             "size": 4,
             "quota_defaults": {"grace_period": 2, "grace_period_unit": "days",
                                "default_hard_limit": 3, "default_soft_limit": 2, "cap_unit": "GB"},
+            "state": 'present'
+        })
+        filesystem_module_mock.module.params = self.get_module_args
+        filesystem_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockFilesystemApi.NAS_SERVER_DETAILS[0])
+        filesystem_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            return_value=MockFilesystemApi.MODIFY_FS_DETAILS)
+        filesystem_module_mock.provisioning.modify_filesystem = MagicMock(
+            side_effect=MockApiException)
+        filesystem_module_mock.perform_module_operation()
+        filesystem_module_mock.provisioning.modify_filesystem.assert_called()
+
+    def test_modify_filesystem_with_invalid_default_hard_limit(self, filesystem_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "400"
+        self.get_module_args.update({
+            "filesystem_name": MockFilesystemApi.FS_NAME,
+            "nas_server": MockFilesystemApi.NAS_ID,
+            "size": 4,
+            "quota_defaults": {"grace_period": 2, "grace_period_unit": "days",
+                               "default_hard_limit": -1, "default_soft_limit": 2, "cap_unit": "GB"},
             "state": 'present'
         })
         filesystem_module_mock.module.params = self.get_module_args
