@@ -5,6 +5,21 @@ Dellemc.Powerstore Change Logs
 .. contents:: Topics
 
 
+v1.9.0
+======
+
+Minor Changes
+-------------
+
+- Added support for app_type, and app_type_other in volume module.
+- Added support for config_type, flr_attributes, host_io_size, file_events_publishing_mode and is_async_mtime_enabled in filesystem module.
+- Info module is enhanced to list vCenters and virtual volumes.
+
+New Modules
+-----------
+
+- dellemc.powerstore.vcenter - Manage vCenter on a PowerStore storage system
+
 v1.8.0
 ======
 

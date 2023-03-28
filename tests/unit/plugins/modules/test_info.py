@@ -37,7 +37,6 @@ class TestPowerstoreInfo():
         return info_module_mock
 
     def test_get_security_config_response(self, info_module_mock):
-        MockInfoApi.get_security_config_response('api')
         self.get_module_args.update({
             'gather_subset': ['security_config'],
             'filters': None,
@@ -48,7 +47,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_security_configs.assert_called()
 
     def test_get_certificate_response(self, info_module_mock):
-        MockInfoApi.get_certificate_response('api')
         self.get_module_args.update({
             'gather_subset': ['certificate'],
             'filters': None,
@@ -59,7 +57,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_certificates.assert_called()
 
     def test_get_ad_response(self, info_module_mock):
-        MockInfoApi.get_certificate_response('api')
         self.get_module_args.update({
             'gather_subset': ['ad'],
             'filters': None,
@@ -70,7 +67,6 @@ class TestPowerstoreInfo():
         info_module_mock.provisioning.get_file_ads.assert_called()
 
     def test_get_ldap_response(self, info_module_mock):
-        MockInfoApi.get_certificate_response('api')
         self.get_module_args.update({
             'gather_subset': ['ldap'],
             'filters': None,
@@ -92,7 +88,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_dns_list.assert_called()
 
     def test_get_ntp_response(self, info_module_mock):
-        MockInfoApi.get_ntp_response('api')
         self.get_module_args.update({
             'gather_subset': ['ntp'],
             'filters': None,
@@ -103,7 +98,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_ntp_list.assert_called()
 
     def test_get_smtp_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['smtp_config'],
             'filters': None,
@@ -114,7 +108,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_smtp_configs.assert_called()
 
     def test_get_email_destination_response(self, info_module_mock):
-        MockInfoApi.get_email_destination_response('api')
         self.get_module_args.update({
             'gather_subset': ['email_notification'],
             'filters': None,
@@ -125,7 +118,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_destination_emails.assert_called()
 
     def test_get_remote_support_contact_response(self, info_module_mock):
-        MockInfoApi.get_remote_support_contact_response('api')
         self.get_module_args.update({
             'gather_subset': ['remote_support_contact'],
             'filters': None,
@@ -136,7 +128,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_remote_support_contact_list.assert_called()
 
     def test_get_remote_support_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['remote_support'],
             'filters': None,
@@ -147,7 +138,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_remote_support_list.assert_called()
 
     def test_get_filesystem_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['file_system'],
             'filters': None,
@@ -158,7 +148,6 @@ class TestPowerstoreInfo():
         info_module_mock.conn.provisioning.get_file_systems.assert_called()
 
     def test_get_role_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['role'],
             'filters': None,
@@ -169,7 +158,6 @@ class TestPowerstoreInfo():
         info_module_mock.configuration.get_roles.assert_called()
 
     def test_get_response_invalid_gather_subset(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['roles'],
             'filters': None,
@@ -181,7 +169,6 @@ class TestPowerstoreInfo():
             info_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_role_multiple_cluster_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['role'],
             'filters': None,
@@ -224,7 +211,6 @@ class TestPowerstoreInfo():
             info_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_filesystem_snapshot_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['file_system'],
             'filters': [{
@@ -239,7 +225,6 @@ class TestPowerstoreInfo():
         info_module_mock.conn.provisioning.get_file_systems.assert_called()
 
     def test_get_filesystem_invalid_filter_key_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['file_system'],
             'filters': [{
@@ -256,7 +241,6 @@ class TestPowerstoreInfo():
             info_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_volume_multiple_filter_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['vol'],
             'filters': [
@@ -276,7 +260,6 @@ class TestPowerstoreInfo():
         info_module_mock.conn.provisioning.get_volumes.assert_called()
 
     def test_get_volume_invalid_valid_filter_response(self, info_module_mock):
-        MockInfoApi.get_one_id_response('api')
         self.get_module_args.update({
             'gather_subset': ['vol'],
             'filters': [
@@ -293,6 +276,25 @@ class TestPowerstoreInfo():
         })
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
-        print(info_module_mock.module.fail_json.call_args[1]['msg'])
         assert MockInfoApi.get_volumes_failed_msg() in \
             info_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_get_vcenter_response(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['vcenter'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_vcenters.assert_called()
+
+    def test_get_virtual_volume_response(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['virtual_volume'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_virtual_volume_list.assert_called()

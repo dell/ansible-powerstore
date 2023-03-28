@@ -27,8 +27,8 @@ releases:
   1.1.0:
     changes:
       minor_changes:
-      - Gather facts module is enhanced to list filesystems, NAS servers, NFS exports,
-        SMB shares, tree quotas, user quotas.
+      - Gather facts module is enhanced to list filesystems,
+        NAS servers, NFS exports, SMB shares, tree quotas, user quotas.
     modules:
     - description: Manage File System on Dell PowerStore
       name: filesystem
@@ -55,10 +55,10 @@ releases:
   1.2.0:
     changes:
       minor_changes:
-      - Gather facts module is enhanced to list remote systems, replication rules
-        and replication sessions.
-      - Protection policy module is enhanced to add/remove replication rule to/from
-        protection policy.
+      - Gather facts module is enhanced to list remote systems,
+        replication rules and replication sessions.
+      - Protection policy module is enhanced to add/remove replication rule
+        to/from protection policy.
     modules:
     - description: Manage Replication Rules on Dell PowerStore
       name: replicationrule
@@ -71,7 +71,8 @@ releases:
     changes:
       minor_changes:
       - Added dual licensing.
-      - Gather facts module is enhanced to list users, roles, networks and appliances.
+      - Gather facts module is enhanced to list users, roles,
+        networks and appliances.
     modules:
     - description: Manage Cluster on Dell PowerStore
       name: cluster
@@ -93,10 +94,10 @@ releases:
     changes:
       minor_changes:
       - Host module is enhanced to provide support for NVMe initiators.
-      - Info module is enhanced to list certificates, AD/LDAP providers and security
-        configuration.
-      - Names of previously released modules have been changed from dellemc_powerstore_\<module
-        name> to \<module name>.
+      - Info module is enhanced to list certificates, AD/LDAP providers and
+        security configuration.
+      - Names of previously released modules have been changed from 
+        dellemc_powerstore_\<module name> to \<module name>.
     modules:
     - description: Manage Certificates on Dell PowerStore
       name: certificate
@@ -111,11 +112,12 @@ releases:
   1.5.0:
     changes:
       minor_changes:
-      - Info module is enhanced to list dns servers, email notification destinations,
-        NTP servers, remote support configuration, remote support contacts and SMTP
-        configuration.
-      - Remote support module is added to get the details, modify the attributes,
-        verify the connection and send a test alert.
+      - Info module is enhanced to list dns servers, NTP servers,
+        email notification destinations, remote support configuration,
+        remote support contacts and SMTP configuration.
+      - Remote support module is added to get the details,
+        modify the attributes, verify the connection and
+        send a test alert.
     modules:
     - description: Manage DNS on Dell PowerStore
       name: dns
@@ -139,8 +141,8 @@ releases:
   1.6.0:
     changes:
       minor_changes:
-      - Added execution environment manifest file to support building an execution
-        environment with ansible-builder.
+      - Added execution environment manifest file to support building an
+        execution environment with ansible-builder.
       - Enabled the check_mode support for info module.
       - Info module is enhanced to list ldap domain, ldap accounts.
     modules:
@@ -154,8 +156,10 @@ releases:
   1.7.0:
     changes:
       minor_changes:
-      - Added support for cluster creation and validating cluster creation attributes.
-      - Added support to associate/disassociate protection policy to/from a NAS server.
+      - Added support for cluster creation and validating cluster creation
+        attributes.
+      - Added support to associate/disassociate protection policy to/from a
+        NAS server.
       - Added support to clone, refresh and restore a volume group.
       - Added support to handle filesystem and NAS server replication sessions.
     release_date: '2022-09-27'
@@ -169,3 +173,16 @@ releases:
       - Added support to modify the role of replication sessions.
       - Updated modules to adhere with ansible community guidelines.
     release_date: '2022-12-21'
+  1.9.0:
+    changes:
+      minor_changes:
+        - Added support for app_type, and app_type_other in volume module.
+        - Added support for config_type, flr_attributes, host_io_size,
+          file_events_publishing_mode and is_async_mtime_enabled in filesystem
+          module.
+        - Info module is enhanced to list vCenters and virtual volumes.
+      modules:
+        - description: Manage vCenter on Dell PowerStore
+          name: vcenter
+          namespace: ''
+    release_date: '2023-03-31'

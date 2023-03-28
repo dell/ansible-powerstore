@@ -10,9 +10,9 @@ You may obtain a copy of the License at
 
 # Maintainers
 
-* @ananthu-kuttattu
-* @bhavneet-sharma
-* @jennifer-john
-* @pavan-mudunuri
-* @trisha-datta
-* @Previnkumar_G
+* Ananthu Kuttattu (kuttattz)
+* Bhavneet Sharma (Bhavneet-Sharma)
+* Jennifer John (Jennifer-John)
+* Meenakshi Dembi (meenakshidembi691)
+* Pavan Mudunuri (Pavan-Mudunuri)
+* Trisha Datta (trisha-dell)

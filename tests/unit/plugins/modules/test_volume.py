@@ -99,7 +99,9 @@ class TestPowerstoreVolume():
             'performance_policy': 'medium',
             'vg_name': 'sample_VG',
             'protection_policy': 'sample_protection_policy',
-            'state': 'present'
+            'state': 'present',
+            'app_type': 'Relational_Databases_Other',
+            'app_type_other': 'Max_DB'
         })
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
@@ -185,7 +187,8 @@ class TestPowerstoreVolume():
             'protection_policy': '',
             'size': 2,
             'performance_policy': 'high',
-            'state': "present"
+            'state': "present",
+            'app_type': 'Business_Applications_CRM'
         })
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(

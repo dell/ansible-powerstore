@@ -37,7 +37,9 @@ class MockVolumeApi:
         'remote_appliance_id': None,
         'end_metro_config': None,
         'delete_remote_volume': None,
-        'state': None
+        'state': None,
+        'app_type': None,
+        'app_type_other': None
     }
 
     DESCRIPTION1 = 'Volume created'
@@ -126,6 +128,8 @@ class MockVolumeApi:
 
     VOL_DETAILS1 = [
         {
+            "app_type": "Relational_Databases_Other",
+            "app_type_other": "Max_DB",
             "appliance_id": "A1",
             "description": DESCRIPTION1,
             "hlu_details": [],
@@ -189,6 +193,8 @@ class MockVolumeApi:
 
     MODIFY_VOL_DETAILS1 = [
         {
+            "app_type": None,
+            "app_type_other": None,
             "appliance_id": "A1",
             "description": DESCRIPTION1,
             "hlu_details": [
@@ -267,6 +273,8 @@ class MockVolumeApi:
 
     VOL_DETAILS2 = [
         {
+            "app_type": "Business_Applications_CRM",
+            "app_type_other": None,
             "appliance_id": "A1",
             "description": "Volume 2 created",
             "hlu_details": [],
@@ -315,6 +323,8 @@ class MockVolumeApi:
 
     TWO_VOL_LIST = [
         {
+            "app_type": None,
+            "app_type_other": None,
             "appliance_id": "A1",
             "description": DESCRIPTION1,
             "hlu_details": [],
@@ -359,6 +369,8 @@ class MockVolumeApi:
             "wwn": WWN_1
         },
         {
+            "app_type": None,
+            "app_type_other": None,
             "appliance_id": "A1",
             "description": "Volume 2 created",
             "hlu_details": [],
