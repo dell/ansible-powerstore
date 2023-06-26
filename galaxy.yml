@@ -17,17 +17,17 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- Akash Shendge <ansible.team@dell.com>
-- Ambuj Dubey <ansible.team@dell.com>
-- Arindam Datta <ansible.team@dell.com>
-- Manisha Agrawal <ansible.team@dell.com>
-- P Srinivas Rao <ansible.team@dell.com>
-- Prashant Rakheja <ansible.team@dell.com>
-- Rajshree Khare <ansible.team@dell.com>
-- Bhavneet Sharma <ansible.team@dell.com>
-- Trisha Datta <ansible.team@dell.com>
-- Ananthu S Kuttattu <ansible.team@dell.com>
-- Pavan Mudunuri <ansible.team@dell.com>
+  - Akash Shendge <ansible.team@dell.com>
+  - Ambuj Dubey <ansible.team@dell.com>
+  - Arindam Datta <ansible.team@dell.com>
+  - Manisha Agrawal <ansible.team@dell.com>
+  - P Srinivas Rao <ansible.team@dell.com>
+  - Prashant Rakheja <ansible.team@dell.com>
+  - Rajshree Khare <ansible.team@dell.com>
+  - Bhavneet Sharma <ansible.team@dell.com>
+  - Trisha Datta <ansible.team@dell.com>
+  - Ananthu S Kuttattu <ansible.team@dell.com>
+  - Pavan Mudunuri <ansible.team@dell.com>
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
