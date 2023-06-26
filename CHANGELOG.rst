@@ -12,7 +12,8 @@ Minor Changes
 -------------
 
 - Added support for manual appliance selection in volume module.
-- Added support for replication group in replication session module.
+- Added support for replication group in replication session module to perform async vVOL replication.
+- Added support for PowerStore Medusa 3.5.x.
 - Info module is enhanced to list storage containers and replication groups.
 
 New Modules

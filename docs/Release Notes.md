@@ -40,7 +40,8 @@ Along with the previous release deliverables, this release supports these featur
 
 - Volume module is enhanced to support manual appliance selection.
 - Info module is enhanced to list storage containers and replication group.
-- Replication session module is enhanced to support replication group.
+- Added support for replication group in replication session module to perform async vVOL replication.
+- Added support for PowerStore Medusa 3.5.x.
 - Storage container module supports the following functionalities:
     -  Create storage container.
     -  Create storage container destination.

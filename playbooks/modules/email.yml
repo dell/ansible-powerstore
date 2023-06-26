@@ -86,7 +86,7 @@
         password: "{{ password }}"
         validate_certs: "{{ validate_certs }}"
         email_id: "xxx-xxxx-xxxx-xxx-xxxxxxx"
-        send_test_dellemc.powerstore.email: true
+        send_test_email: true
         state: "present"
 
     - name: Delete destination email

@@ -5,47 +5,47 @@
   connection: local
   vars:
     array_ip: 'ip_address_of_the_array'
-    verifycert: False
+    validate_certs: false
     user: 'your_username'
     password: 'your_password'
     filesystem_name: 'filesystem_name'
-  collections:
-  - dellemc.powerstore
+
   tasks:
     - name: Get given filesystem
-      info:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         gather_subset:
-            - file_system
-        all_pages: True
+          - file_system
+        all_pages: true
         filters:
           - filter_key: "name"
             filter_operator: "equal"
-            filter_value: "{{filesystem_name}}"
+            filter_value: "{{ filesystem_name }}"
       register: my_filesystem
 
     - name: Get all SMBShares
-      info:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         gather_subset:
-            - smb_share
-        all_pages: True
+          - smb_share
+        all_pages: true
         filters:
           - filter_key: "file_system_id"
             filter_operator: "equal"
-            filter_value: "{{my_filesystem['FileSystems'][0]['id']}}"
+            filter_value: "{{ my_filesystem['FileSystems'][0]['id'] }}"
       register: all_smbshares
 
 # The set_fact fetches all smbshare ids
-    - set_fact:
+    - name: Set fact
+      ansible.builtin.set_fact:
         all_smbshare_ids: "{{ all_smbshares['SMBShares'] | map(attribute='id') | list }}"
 
     - name: Print SMB share IDs created on given filesystem
-      debug:
+      ansible.builtin.debug:
         var: all_smbshare_ids

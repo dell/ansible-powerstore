@@ -190,8 +190,10 @@ releases:
     changes:
       minor_changes:
         - Added support for manual appliance selection in volume module.
-        - Added support for replication group in replication session module.
+        - Added support for replication group in replication session module 
+          to perform async vVOL replication.
         - Info module is enhanced to list storage containers and replication group.
+        - Added support for PowerStore Medusa 3.5.x.
       modules:
         - description: Manage Storage Containers on Dell PowerStore
           name: storage_container
