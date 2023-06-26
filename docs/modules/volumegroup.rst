@@ -22,18 +22,21 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
 Parameters
 ----------
 
-  vg_name (False, str, None)
+  vg_name (optional, str, None)
     The name of the volume group.
 
 
-  vg_id (False, str, None)
+  vg_id (optional, str, None)
     The id of the volume group.
 
     It can be used only for Modify, Add/Remove, or Delete operation.
@@ -44,13 +47,13 @@ Parameters
 
     Either the volume ID or name must be provided for adding/removing existing volumes from a volume group.
 
-    If volumes are given, then vol_state should also be specified.
+    If volumes are given, then *vol_state* should also be specified.
 
 
   vol_state (optional, str, None)
     String variable. Describes the state of volumes inside a volume group.
 
-    If volume is given, then vol_state should also be specified.
+    If volume is given, then *vol_state* should also be specified.
 
 
   new_vg_name (optional, str, None)
@@ -61,16 +64,16 @@ Parameters
     Description about the volume group.
 
 
-  protection_policy (False, str, None)
+  protection_policy (optional, str, None)
     String variable. Represents Protection policy id or name used for volume group.
 
     Specifying an empty string or "" removes the existing protection policy from volume group.
 
 
-  is_write_order_consistent (False, bool, None)
+  is_write_order_consistent (optional, bool, None)
     A boolean flag to indicate whether Snapshot sets of the volume group will be write-order consistent.
 
-    If this parameter is not specified, the array by default sets it to true.
+    If this parameter is not specified, the array by default sets it to ``true``.
 
 
   source_vg (optional, str, None)
@@ -84,7 +87,7 @@ Parameters
   create_backup_snap (optional, bool, None)
     Specifies whether a backup snapshot set of the target volume group needs to be created before attempting refresh or restore.
 
-    If not specified it will be set to True.
+    If not specified it will be set to ``true``.
 
 
   backup_snap_profile (optional, dict, None)
@@ -129,12 +132,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -164,11 +167,11 @@ Notes
 -----
 
 .. note::
-   - Parameter vol_state is mandatory if volumes are provided.
+   - Parameter *vol_state* is mandatory if volumes are provided.
    - A protection policy can be specified either for an volume group, or for the individual volumes inside the volume group.
    - A volume can be a member of at most one volume group.
-   - Specifying "protection_policy" as empty string or "" removes the existing protection policy from a volume group.
-   - The check_mode is not supported.
+   - Specifying *protection_policy* as empty string or "" removes the existing protection policy from a volume group.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -183,7 +186,7 @@ Examples
     - name: Create volume group without protection policy
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "{{vg_name}}"
@@ -193,7 +196,7 @@ Examples
     - name: Get details of volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "{{vg_name}}"
@@ -202,7 +205,7 @@ Examples
     - name: Add volumes to volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "{{vg_name}}"
@@ -216,7 +219,7 @@ Examples
     - name: Remove volumes from volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "{{vg_name}}"
@@ -229,18 +232,18 @@ Examples
     - name: Rename volume group and change is_write_order_consistent flag
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "{{vg_name}}"
         new_vg_name: "{{new_vg_name}}"
-        is_write_order_consistent: False
+        is_write_order_consistent: false
         state: "present"
 
     - name: Get details of volume group by ID
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_id: "{{vg_id}}"
@@ -249,7 +252,7 @@ Examples
     - name: Delete volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{new_vg_name}}"
@@ -258,12 +261,12 @@ Examples
     - name: Refresh a volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "ansible_vg"
         source_vg: "vg_source"
-        create_backup_snap: True
+        create_backup_snap: true
         backup_snap_profile:
             name: "test_snap"
         state: "present"
@@ -271,12 +274,12 @@ Examples
     - name: Restore a volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "ansible_vg"
         source_snap: "snap_source"
-        create_backup_snap: True
+        create_backup_snap: true
         backup_snap_profile:
             name: "test_snap_restore"
         state: "present"
@@ -284,7 +287,7 @@ Examples
     - name: Clone a volume group
       dellemc.powerstore.volumegroup:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vg_name: "ansible_vg"

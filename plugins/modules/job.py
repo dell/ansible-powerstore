@@ -27,14 +27,14 @@ options:
     required: true
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get Job Details
   dellemc.powerstore.job:
     array_ip: "{{mgmt_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     job_id: "a544981c-e94a-40ab-9eae-e578e182d2bb"
@@ -174,7 +174,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreJob(object):

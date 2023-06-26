@@ -22,48 +22,57 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
 Parameters
 ----------
 
-  filesystem (False, str, None)
+  filesystem (optional, str, None)
     Name/ID of the filesystem for which replication session exists.
 
-    Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
 
 
-  nas_server (False, str, None)
+  nas_server (optional, str, None)
     Name/ID of the NAS server for which replication session exists.
 
-    Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
 
 
-  volume_group (False, str, None)
+  volume_group (optional, str, None)
     Name/ID of the volume group for which a replication session exists.
 
-    Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
 
 
-  volume (False, str, None)
+  volume (optional, str, None)
     Name/ID of the volume for which replication session exists.
 
-    Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
 
 
-  session_id (False, str, None)
+  replication_group (optional, str, None)
+    Name or ID of the replication group for which replication session exists.
+
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+
+
+  session_id (optional, str, None)
     ID of the replication session.
 
-    Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
+    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
 
 
-  session_state (False, str, None)
+  session_state (optional, str, None)
     State in which the replication session is present after performing the task.
 
 
-  role (False, str, None)
+  role (optional, str, None)
     Role of the metro replication session.
 
 
@@ -71,12 +80,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -107,10 +116,10 @@ Notes
 
 .. note::
    - Manual synchronization for a replication session is not supported through the Ansible module.
-   - When the current state of the replication session is 'OK' and in the playbook task 'synchronizing', then it will return "changed" as False.
-   - The changed as False in above scenario is because of there is a scheduled synchronization in place with the associated replication rule's RPO in the protection policy.
-   - The check_mode is not supported.
-   - Parameter nas_server, filesystem, and role parameters are supported only for PowerStore version 3.0.0. and above.
+   - When the current state of the replication session is 'OK' and in the playbook task ``synchronizing``, then it will return "changed" as false.
+   - The changed as false in above scenario is because there is a scheduled synchronization in place with the associated replication rule's RPO in the protection policy.
+   - The *check_mode* is not supported.
+   - Parameter *nas_server*, *filesystem*, *replication_group*, and *role* parameters are supported only for PowerStore version 3.0.0. and above.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

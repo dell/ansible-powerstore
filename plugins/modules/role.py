@@ -34,8 +34,8 @@ options:
   state:
     description:
     - Define whether the role should exist or not.
-    - Value present, indicates that the role should exist on the system.
-    - Value absent, indicates that the role should not exist on the system.
+    - Value C(present), indicates that the role should exist on the system.
+    - Value C(absent), indicates that the role should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
@@ -44,14 +44,14 @@ notes:
 - Only getting the details of the role is supported by the ansible module.
 - Creation, modification and deletion of roles is not supported by the ansible
   modules.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
 
 - name: Get the details of role by name
   dellemc.powerstore.role:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verify_cert}}"
+    validate_certs: "{{verify_cert}}"
     user: "{{user}}"
     password: "{{password}}"
     role_name: "Administrator"
@@ -60,7 +60,7 @@ EXAMPLES = r'''
 - name: Get the details of role by id
   dellemc.powerstore.role:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verify_cert}}"
+    validate_certs: "{{verify_cert}}"
     user: "{{user}}"
     password: "{{password}}"
     role_id: "1"
@@ -71,7 +71,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
-    sample: True
+    sample: true
 
 role_details:
     description: The role details.
@@ -113,7 +113,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreRole(object):

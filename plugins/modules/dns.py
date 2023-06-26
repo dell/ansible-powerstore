@@ -23,33 +23,31 @@ options:
   dns_id:
     description:
     - Unique identifier of the DNS instance.
-    required: True
+    required: true
     type: str
   dns_addresses:
     description:
     - DNS server addresses in IPv4 format.
-    required: False
     type: list
     elements: str
   dns_address_state:
     description:
-    - State of the addresses mentioned in dns_addresses.
-    required: False
+    - State of the addresses mentioned in I(dns_addresses).
     choices: ['present-in-dns', 'absent-in-dns']
     type: str
   state:
     description:
     - The state of the DNS instance after the task is performed.
-    - For get and modify operations it should be set to "present".
-    required : True
+    - For get and modify operations it should be set to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Minimum 1 and maximum 3 addresses can be associated to a DNS instance.
-- Parameters dns_addresses and dns_address_state are required together.
+- Parameters I(dns_addresses) and I(dns_address_state) are required together.
 - Creation and deletion of DNS is not supported.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -58,7 +56,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        dns_id: "DNS1"
        state: "present"
 
@@ -67,7 +65,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        dns_id: "DNS1"
        dns_addresses:
         - "XX.XX.XX.XX"
@@ -80,7 +78,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        dns_id: "DNS1"
        dns_addresses:
         - "YY.YY.YY.YY"
@@ -129,7 +127,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreDns(object):

@@ -1,0 +1,231 @@
+---
+- name: File system operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    nas_server_id: "xxxx-xxxx-xxxx-xxxx-xxxxxx"
+    filesystem_name: "Ansible_test_fs"
+    filesystem_name_prime: "Ansible_test_fs_prime"
+    description: "Created through ansible"
+
+  tasks:
+    - name: Create Filesystem by Name for prime attributes
+      register: result_fs_prime
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name_prime }}"
+        nas_server: "{{ nas_server_id }}"
+        size: "5"
+        config_type: "GENERAL"
+        is_async_mtime_enabled: true
+        file_events_publishing_mode: "ALL"
+        flr_attributes:
+          mode: "Enterprise"
+          minimum_retention: "5D"
+          default_retention: "6D"
+          maximum_retention: "1M"
+        state: "present"
+
+    - name: Create Filesystem by Name for prime attributes - Idempotency
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name_prime }}"
+        nas_server: "{{ nas_server_id }}"
+        size: "5"
+        config_type: "GENERAL"
+        is_async_mtime_enabled: true
+        file_events_publishing_mode: "ALL"
+        flr_attributes:
+          mode: "Enterprise"
+          minimum_retention: "5D"
+          default_retention: "6D"
+          maximum_retention: "1M"
+        state: "present"
+
+    - name: Create FileSystem by Name
+      register: result_fs
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name }}"
+        description: "{{ description }}"
+        nas_server: "{{ nas_server_id }}"
+        size: "5"
+        access_policy: "UNIX"
+        locking_policy: "MANDATORY"
+        smb_properties:
+          is_smb_no_notify_enabled: true
+          is_smb_notify_on_access_enabled: true
+        protection_policy: "Test_Modify"
+        quota_defaults:
+          grace_period: 1
+          grace_period_unit: "weeks"
+          default_hard_limit: 3
+          default_soft_limit: 2
+        state: "present"
+
+    - name: Create FileSystem by Name - Idempotency
+      register: result_fs
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name }}"
+        description: "{{ description }}"
+        nas_server: "{{ nas_server_id }}"
+        size: "5"
+        access_policy: "UNIX"
+        locking_policy: "MANDATORY"
+        smb_properties:
+          is_smb_no_notify_enabled: true
+          is_smb_notify_on_access_enabled: true
+        protection_policy: "Test_Modify"
+        quota_defaults:
+          grace_period: 1
+          grace_period_unit: "weeks"
+          default_hard_limit: 3
+          default_soft_limit: 2
+        state: "present"
+
+    - name: Modify File System by id for prime
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id_prime }}"
+        is_async_mtime_enabled: false
+        file_events_publishing_mode: "SMB_ONLY"
+        flr_attributes:
+          minimum_retention: "10D"
+          default_retention: "16D"
+          maximum_retention: "20D"
+          auto_lock: false
+          auto_delete: true
+          policy_interval: 61
+        state: "present"
+
+    - name: Modify File System by id for prime - Idempotency
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id_prime }}"
+        is_async_mtime_enabled: false
+        file_events_publishing_mode: "SMB_ONLY"
+        flr_attributes:
+          minimum_retention: "10D"
+          default_retention: "16D"
+          maximum_retention: "20D"
+          auto_lock: false
+          auto_delete: true
+          policy_interval: 61
+        state: "present"
+
+    - name: Modify File System by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        folder_rename_policy: "ALL_ALLOWED"
+        smb_properties:
+          is_smb_op_locks_enabled: true
+          smb_notify_on_change_dir_depth: 3
+        quota_defaults:
+          grace_period: 2
+          grace_period_unit: "weeks"
+          default_hard_limit: 2
+          default_soft_limit: 1
+        state: "present"
+
+    - name: Modify File System by id - Idempotency
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        folder_rename_policy: "ALL_ALLOWED"
+        smb_properties:
+          is_smb_op_locks_enabled: true
+          smb_notify_on_change_dir_depth: 3
+        quota_defaults:
+          grace_period: 2
+          grace_period_unit: "weeks"
+          default_hard_limit: 2
+          default_soft_limit: 1
+        state: "present"
+
+    - name: Remove Protection Policy from a File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        protection_policy: ""
+        state: "present"
+
+    - name: Remove Protection Policy from a File System - Idempotency
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        protection_policy: ""
+        state: "present"
+
+
+    - name: Get File System details by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        state: "present"
+
+    - name: Delete File System details by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        state: "absent"
+
+    - name: Delete File System details by id -Idempotency
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ fs_id }}"
+        state: "absent"
+
+    - name: Delete File System details by name
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name_prime }}"
+        nas_server: "{{ nas_server_id }}"
+        state: "absent"

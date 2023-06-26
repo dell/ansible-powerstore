@@ -1,0 +1,182 @@
+---
+- name: Testing NFS export operations on Powerstore
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    export_name1: "sample_fs_export"
+    export_name2: "sample_snap_export"
+    filesystem: "ansible_export_fs"
+    snapshot: "ansible_export_snap"
+    path1: "/ansible_export_fs"
+    path2: "/ansible_export_snap"
+    nas_server: "ansible_nas_server_2"
+    host1: "abc.example.com"
+    host2: "10.XX.XX.XX"
+    host3: "10.XX.XX.XY/2x"
+    host4: "10.XX.XX.YX/255.xxx.xxx.x"
+    host5: "fdfe:XXX:XXX:XXX:XXX"
+
+  tasks:
+    - name: Create NFS export (filesystem)
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_name: "{{ export_name1 }}"
+        filesystem: "{{ filesystem }}"
+        nas_server: "{{ nas_server }}"
+        path: "{{ path1 }}"
+        description: "sample description"
+        default_access: "NO_ACCESS"
+        no_access_hosts:
+          - "{{ host5 }}"
+        read_only_hosts:
+          - "{{ host1 }}"
+        read_only_root_hosts:
+          - "{{ host2 }}"
+        read_write_hosts:
+          - "{{ host3 }}"
+        read_write_root_hosts:
+          - "{{ host4 }}"
+        min_security: "SYS"
+        anonymous_uid: 0
+        anonymous_gid: 0
+        is_no_suid: true
+        host_state: "present-in-export"
+        state: "present"
+
+    - name: Create NFS export (filesystem) - Idempotency
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_name: "{{ export_name1 }}"
+        filesystem: "{{ filesystem }}"
+        nas_server: "{{ nas_server }}"
+        path: "{{ path1 }}"
+        description: "sample description"
+        default_access: "NO_ACCESS"
+        no_access_hosts:
+          - "{{ host5 }}"
+        read_only_hosts:
+          - "{{ host1 }}"
+        read_only_root_hosts:
+          - "{{ host2 }}"
+        read_write_hosts:
+          - "{{ host3 }}"
+        read_write_root_hosts:
+          - "{{ host4 }}"
+        min_security: "SYS"
+        anonymous_uid: 0
+        anonymous_gid: 0
+        is_no_suid: true
+        host_state: "present-in-export"
+        state: "present"
+
+    - name: Create NFS export for filesystem snapshot with mandatory parameters
+      register: result
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_name: "{{ export_name2 }}"
+        snapshot: "{{ snapshot }}"
+        nas_server: "{{ nas_server }}"
+        path: "{{ path2 }}"
+        state: "present"
+
+    - name: Get NFS export details using ID
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        state: "present"
+
+    - name: Add Read-Only and Read-Write hosts to NFS export
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        read_only_hosts:
+          - "{{ host1 }}"
+        read_write_hosts:
+          - "{{ host3 }}"
+        host_state: "present-in-export"
+        state: "present"
+
+    - name: Remove Read-Only and Read-Write hosts from NFS export
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        read_only_hosts:
+          - "{{ host1 }}"
+        read_write_hosts:
+          - "{{ host3 }}"
+        host_state: "absent-in-export"
+        state: "present"
+
+    - name: Modify the attributes of NFS export
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        description: "modify description"
+        default_access: "ROOT"
+        state: "present"
+
+    - name: Modify the attributes of NFS export (Idempotency)
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        description: "modify description"
+        default_access: "ROOT"
+        state: "present"
+
+    - name: Delete NFS export using ID
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_id: "{{ export_id }}"
+        state: "absent"
+
+    - name: Delete NFS export using name
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_name: "{{ export_name1 }}"
+        nas_server: "{{ nas_server }}"
+        state: "absent"
+
+    - name: Delete NFS export using name (Idempotency)
+      dellemc.powerstore.nfs:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_export_name: "{{ export_name1 }}"
+        nas_server: "{{ nas_server }}"
+        state: "absent"

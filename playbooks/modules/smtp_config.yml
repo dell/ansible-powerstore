@@ -1,0 +1,51 @@
+---
+- name: SMTP Config Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of SMTP configuration
+      dellemc.powerstore.smtp_config:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        smtp_id: 0
+        state: "present"
+
+    - name: Modify SMTP config details
+      dellemc.powerstore.smtp_config:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        smtp_id: 0
+        smtp_address: "sample.smtp.com"
+        source_email: "xyz@example.com"
+        state: "present"
+
+    - name: Modify SMTP config details - Idempotency
+      dellemc.powerstore.smtp_config:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        smtp_id: 0
+        smtp_address: "sample.smtp.com"
+        source_email: "xyz@example.com"
+        state: "present"
+
+    - name: Send a test mail through the SMTP server
+      dellemc.powerstore.smtp_config:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        smtp_id: 0
+        destination_email: "abc@example.com"
+        state: "present"

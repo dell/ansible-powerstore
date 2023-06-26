@@ -1,0 +1,98 @@
+---
+- name: Replication session operations on Powerstore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    session_id: "dfcc63f6-xxx-xxx-xxx-xxx"
+    vg_1: "ansible_vg_1"
+
+  tasks:
+    - name: Get replication session details by session id
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        session_id: "{{ session_id }}"
+
+    - name: Get replication session details by volume group name
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume_group: "{{ vg_1 }}"
+
+    - name: Get replication session details by replication group name
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_group: "replication_group"
+
+    - name: Get replication session details by filesystem name
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem: "sample_filesystem"
+        nas_server: "sample_nas_server"
+
+    - name: Get replication session details by nas server name
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "sample_nas_server"
+
+    - name: Pause a replication session when in OK state
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume_group: "{{ vg_1 }}"
+        session_state: "paused"
+
+    - name: Failover a replication session when in paused state
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume_group: "{{ vg_1 }}"
+        session_state: "failed_over"
+
+    - name: Sync a session when in failed_over state
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume_group: "{{ vg_1 }}"
+        session_state: "synchronizing"
+
+    - name: Sync a replication session when in synchronizing state idempotency
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume_group: "{{ vg_1 }}"
+        session_state: "synchronizing"
+
+    - name: Modify the role of replication session
+      dellemc.powerstore.replicationsession:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        volume: "{{ vg_1 }}"
+        role: "Metro_Preferred"

@@ -22,7 +22,6 @@ check if pkg_resources can be imported or not
 '''
 try:
     from pkg_resources import parse_version
-    import pkg_resources
     PKG_RSRC_IMPORTED = True
 except ImportError:
     PKG_RSRC_IMPORTED = False
@@ -57,11 +56,11 @@ Check if required PyPowerStore version installed
 
 def py4ps_version_check():
     try:
-        supported_version = False,
+        supported_version = False
         if not PKG_RSRC_IMPORTED:
-            unsupported_version_message = "Unable to import " \
-                                          "'pkg_resources', please install" \
-                                          " the required package"
+            unsupported_version_message = "Unable to import 'pkg_resources'," \
+                                          " please install the required" \
+                                          " package"
         else:
             min_ver = '1.9.0'
             curr_version = PyPowerStore.__version__
@@ -98,18 +97,19 @@ def get_powerstore_management_host_parameters():
         array_ip=dict(type='str', required=True),
         port=dict(type='int', required=False),
         timeout=dict(type='int', required=False, default=120),
-        verifycert=dict(type='bool', required=True, choices=[True, False])
+        validate_certs=dict(type='bool', required=False,
+                            aliases=['verifycert'], default=True)
     )
 
 
 def get_powerstore_connection(module_params, application_type=None,
                               enable_log=False):
     if HAS_Py4PS:
-        conn = PyPowerStore.powerstore_conn.PowerStoreConn(
+        conn = powerstore_conn.PowerStoreConn(
             server_ip=module_params['array_ip'],
             username=module_params['user'],
             password=module_params['password'],
-            verify=module_params['verifycert'],
+            verify=module_params['validate_certs'],
             timeout=module_params['timeout'],
             application_type=application_type,
             port_no=module_params['port'],
@@ -147,6 +147,7 @@ KB_IN_BYTES = 1024
 MB_IN_BYTES = 1024 * 1024
 GB_IN_BYTES = 1024 * 1024 * 1024
 TB_IN_BYTES = 1024 * 1024 * 1024 * 1024
+PB_IN_BYTES = 1024 * 1024 * 1024 * 1024 * 1024
 
 
 def get_size_bytes(size, cap_units):
@@ -159,6 +160,8 @@ def get_size_bytes(size, cap_units):
             return size * GB_IN_BYTES
         elif cap_units in ('tb', 'TB'):
             return size * TB_IN_BYTES
+        elif cap_units in ('Pb', 'PB'):
+            return size * PB_IN_BYTES
         else:
             return size
     else:

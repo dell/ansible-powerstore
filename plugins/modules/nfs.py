@@ -28,7 +28,7 @@ options:
     description:
     - The name of the NFS export.
     - Mandatory for create operation.
-    - Specify either nfs_export_name or nfs_export_id(but not both) for any
+    - Specify either I(nfs_export_name) or I(nfs_export_id) but not both for any
       operation.
     type: str
   nfs_export_id:
@@ -40,18 +40,18 @@ options:
     - The ID/Name of the filesystem for which the NFS export will be created.
     - Either filesystem or snapshot is required for creation of the NFS
       Export.
-    - If filesystem name is specified, then nas_server is required to uniquely
+    - If filesystem name is specified, then I(nas_server) is required to uniquely
       identify the filesystem.
-    - If filesystem parameter is provided, then snapshot cannot be specified.
+    - If I(filesystem) parameter is provided, then I(snapshot) cannot be specified.
     type: str
   snapshot:
     description:
     - The ID/Name of the Snapshot for which NFS export will be created.
-    - Either filesystem or snapshot is required for creation of the NFS
+    - Either I(filesystem) or I(snapshot) is required for creation of the NFS
       Export.
-    - If snapshot name is specified, then nas_server is required to
+    - If snapshot name is specified, then I(nas_server) is required to
       uniquely identify the snapshot.
-    - If snapshot parameter is provided, then filesystem cannot be specified.
+    - If I(snapshot) parameter is provided, then I(filesystem) cannot be specified.
     - NFS export can be created only if access type of snapshot is "protocol".
     type: str
   nas_server:
@@ -74,8 +74,8 @@ options:
     - Default access level for all hosts that can access the Export.
     - For hosts that need different access than the default, they can be
       configured by adding to the list.
-    - If default_access is not mentioned during creation, then NFS export will
-      be created with No_Access.
+    - If I(default_access) is not mentioned during creation, then NFS export will
+      be created with C(No_Access).
     choices: ['NO_ACCESS', 'READ_ONLY', 'READ_WRITE', 'ROOT',
                 'READ_ONLY_ROOT']
     type: str
@@ -107,7 +107,7 @@ options:
   min_security:
     description:
     - NFS enforced security type for users accessing an NFS export.
-    - If not specified at the time of creation, it will be set to SYS.
+    - If not specified at the time of creation, it will be set to C(SYS).
     choices: ['SYS', 'KERBEROS', 'KERBEROS_WITH_INTEGRITY',
                 'KERBEROS_WITH_ENCRYPTION']
     type: str
@@ -124,7 +124,7 @@ options:
   is_no_suid:
     description:
     - If set, do not allow access to set SUID. Otherwise, allow access.
-    - If not specified at the time of creation, it will be set to False.
+    - If not specified at the time of creation, it will be set to C(false).
     type: bool
   host_state:
     description:
@@ -140,14 +140,14 @@ options:
     type: str
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 """
 
 EXAMPLES = r"""
 - name: Create NFS export (filesystem)
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_name: "{{export_name1}}"
@@ -169,14 +169,14 @@ EXAMPLES = r"""
     min_security: "SYS"
     anonymous_uid: 1000
     anonymous_gid: 1000
-    is_no_suid: True
+    is_no_suid: true
     host_state: "present-in-export"
     state: "present"
 
 - name: Create NFS export Create NFS export for filesystem snapshot with mandatory parameters
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_name: "{{export_name2}}"
@@ -188,7 +188,7 @@ EXAMPLES = r"""
 - name: Get NFS export details using ID
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_id: "{{export_id}}"
@@ -197,7 +197,7 @@ EXAMPLES = r"""
 - name: Add Read-Only and Read-Write hosts to NFS export
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_id: "{{export_id}}"
@@ -211,7 +211,7 @@ EXAMPLES = r"""
 - name: Remove Read-Only and Read-Write hosts from NFS export
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_id: "{{export_id}}"
@@ -225,7 +225,7 @@ EXAMPLES = r"""
 - name: Modify the attributes of NFS export
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_id: "{{export_id}}"
@@ -236,7 +236,7 @@ EXAMPLES = r"""
 - name: Delete NFS export using name
   dellemc.powerstore.nfs:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     nfs_export_name: "{{export_name}}"
@@ -361,7 +361,6 @@ nfs_export_details:
 import re
 import logging
 try:
-    import ipaddress
     from ipaddress import ip_network, IPv4Network, IPv6Network
     HAS_IPADDRESS = True
 except ImportError:
@@ -381,7 +380,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreNfsExport(object):

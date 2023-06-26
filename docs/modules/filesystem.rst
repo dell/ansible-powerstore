@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -210,12 +213,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -264,7 +267,7 @@ Examples
        register: result_fs
        dellemc.powerstore.filesystem:
          array_ip: "{{array_ip}}"
-         verifycert: "{{verifycert}}"
+         validate_certs: "{{validate_certs}}"
          user: "{{user}}"
          password: "{{password}}"
          filesystem_name: "{{filesystem_name}}"
@@ -275,8 +278,8 @@ Examples
          access_policy: "UNIX"
          locking_policy: "MANDATORY"
          smb_properties:
-           is_smb_no_notify_enabled: True
-           is_smb_notify_on_access_enabled: True
+           is_smb_no_notify_enabled: true
+           is_smb_notify_on_access_enabled: true
          quota_defaults:
            grace_period: 1
            grace_period_unit: 'days'
@@ -284,7 +287,7 @@ Examples
            default_soft_limit: 2
          protection_policy: "{{protection_policy_id}}"
          config_type: "VMWARE"
-         is_async_mtime_enabled: True
+         is_async_mtime_enabled: true
          file_events_publishing_mode: "NFS_ONLY"
          host_io_size: "VMWARE_16K"
          state: "present"
@@ -292,20 +295,20 @@ Examples
      - name: Modify File System by id
        dellemc.powerstore.filesystem:
          array_ip: "{{array_ip}}"
-         verifycert: "{{verifycert}}"
+         validate_certs: "{{validate_certs}}"
          user: "{{user}}"
          password: "{{password}}"
          filesystem_id: "{{fs_id}}"
          folder_rename_policy: "ALL_ALLOWED"
          smb_properties:
-           is_smb_op_locks_enabled: True
+           is_smb_op_locks_enabled: true
            smb_notify_on_change_dir_depth: 3
          quota_defaults:
            grace_period: 2
            grace_period_unit: 'weeks'
            default_hard_limit: 2
            default_soft_limit: 1
-         is_async_mtime_enabled: True
+         is_async_mtime_enabled: true
          file_events_publishing_mode: "ALL"
          flr_attributes:
            mode: "Enterprise"
@@ -317,7 +320,7 @@ Examples
      - name: Get File System details by id
        dellemc.powerstore.filesystem:
          array_ip: "{{array_ip}}"
-         verifycert: "{{verifycert}}"
+         validate_certs: "{{validate_certs}}"
          user: "{{user}}"
          password: "{{password}}"
          filesystem_id: "{{result_fs.filesystem_details.id}}"
@@ -326,7 +329,7 @@ Examples
      - name: Delete File System by id
        dellemc.powerstore.filesystem:
          array_ip: "{{array_ip}}"
-         verifycert: "{{verifycert}}"
+         validate_certs: "{{validate_certs}}"
          user: "{{user}}"
          password: "{{password}}"
          filesystem_id: "{{result_fs.filesystem_details.id}}"

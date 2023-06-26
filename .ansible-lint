@@ -1,0 +1,5 @@
+exclude_paths:
+  - changelogs/
+  - .github/
+  - meta/
+  - roles/powerflex_sdc/molecule/

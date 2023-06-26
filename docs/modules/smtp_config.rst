@@ -22,7 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -33,40 +36,40 @@ Parameters
     Unique identifier of the SMTP configuration.
 
 
-  smtp_address (False, str, None)
+  smtp_address (optional, str, None)
     IP address of the SMTP server.
 
 
-  smtp_port (False, int, None)
+  smtp_port (optional, int, None)
     Port used for sending SMTP messages.
 
 
-  source_email (False, str, None)
+  source_email (optional, str, None)
     Source email address used for sending SMTP messages.
 
 
-  destination_email (False, str, None)
+  destination_email (optional, str, None)
     Destination email address for the test.
 
 
   state (True, str, None)
     The state of the SMTP configuration after the task is performed.
 
-    For Delete operation only, it should be set to "absent".
+    For Delete operation only, it should be set to ``absent``
 
-    For all operations it should be set to "present".
+    For all operations it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -98,7 +101,7 @@ Notes
 .. note::
    - Idempotency is not supported for test operation for smtp_config module.
    - Creation and deletion of SMTP configuration is not supported.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -116,7 +119,7 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           smtp_id: "0"
           state: "present"
 
@@ -125,7 +128,7 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           smtp_id: "0"
           smtp_address: "sample.smtp.com"
           source_email: "def@dell.com"
@@ -136,7 +139,7 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           smtp_id: "0"
           destination_email: "abc@dell.com"
           state: "present"

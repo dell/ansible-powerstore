@@ -27,26 +27,24 @@ options:
   vg_name:
     description:
     - The name of the volume group.
-    required: False
     type: str
   vg_id:
     description:
     - The id of the volume group.
     - It can be used only for Modify, Add/Remove, or Delete operation.
-    required: False
     type: str
   volumes:
     description:
     - This is a list of volumes.
     - Either the volume ID or name must be provided for adding/removing
       existing volumes from a volume group.
-    - If volumes are given, then vol_state should also be specified.
+    - If volumes are given, then I(vol_state) should also be specified.
     type: list
     elements: str
   vol_state:
     description:
     - String variable. Describes the state of volumes inside a volume group.
-    - If volume is given, then vol_state should also be specified.
+    - If volume is given, then I(vol_state) should also be specified.
     choices: [present-in-group , absent-in-group]
     type: str
   new_vg_name:
@@ -63,15 +61,13 @@ options:
       used for volume group.
     - Specifying an empty string or "" removes the existing
       protection policy from volume group.
-    required: false
     type: str
   is_write_order_consistent:
     description:
     - A boolean flag to indicate whether Snapshot sets of the volume group
      will be write-order consistent.
     - If this parameter is not specified, the array by default sets it to
-     true.
-    required: false
+     C(true).
     type: bool
   source_vg:
     description:
@@ -85,7 +81,7 @@ options:
     description:
     - Specifies whether a backup snapshot set of the target volume group needs
       to be created before attempting refresh or restore.
-    - If not specified it will be set to True.
+    - If not specified it will be set to C(true).
     type: bool
   backup_snap_profile:
     description:
@@ -113,7 +109,7 @@ options:
         description:
         - Name for the clone volume group.
         type: str
-        required: True
+        required: true
       description:
         description:
         - Description for the clone volume group.
@@ -129,20 +125,20 @@ options:
     required: true
     type: str
 notes:
-- Parameter vol_state is mandatory if volumes are provided.
+- Parameter I(vol_state) is mandatory if volumes are provided.
 - A protection policy can be specified either for an volume group, or
   for the individual volumes inside the volume group.
 - A volume can be a member of at most one volume group.
-- Specifying "protection_policy" as empty string or "" removes the existing
+- Specifying I(protection_policy) as empty string or "" removes the existing
   protection policy from a volume group.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Create volume group without protection policy
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "{{vg_name}}"
@@ -152,7 +148,7 @@ EXAMPLES = r'''
 - name: Get details of volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "{{vg_name}}"
@@ -161,7 +157,7 @@ EXAMPLES = r'''
 - name: Add volumes to volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "{{vg_name}}"
@@ -175,7 +171,7 @@ EXAMPLES = r'''
 - name: Remove volumes from volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "{{vg_name}}"
@@ -188,18 +184,18 @@ EXAMPLES = r'''
 - name: Rename volume group and change is_write_order_consistent flag
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "{{vg_name}}"
     new_vg_name: "{{new_vg_name}}"
-    is_write_order_consistent: False
+    is_write_order_consistent: false
     state: "present"
 
 - name: Get details of volume group by ID
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_id: "{{vg_id}}"
@@ -208,7 +204,7 @@ EXAMPLES = r'''
 - name: Delete volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{new_vg_name}}"
@@ -217,12 +213,12 @@ EXAMPLES = r'''
 - name: Refresh a volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "ansible_vg"
     source_vg: "vg_source"
-    create_backup_snap: True
+    create_backup_snap: true
     backup_snap_profile:
         name: "test_snap"
     state: "present"
@@ -230,12 +226,12 @@ EXAMPLES = r'''
 - name: Restore a volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "ansible_vg"
     source_snap: "snap_source"
-    create_backup_snap: True
+    create_backup_snap: true
     backup_snap_profile:
         name: "test_snap_restore"
     state: "present"
@@ -243,7 +239,7 @@ EXAMPLES = r'''
 - name: Clone a volume group
   dellemc.powerstore.volumegroup:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vg_name: "ansible_vg"
@@ -402,7 +398,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreVolumeGroup(object):

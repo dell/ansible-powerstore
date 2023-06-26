@@ -15,10 +15,17 @@ class MockReplicationSessionApi:
     local_time = "2022-01-06T06:55:01.870946+00:00"
     vg = "Volume Group"
     ID = "b05b5108-26b6-4567-a1d8-1c7795b2e6bc"
+    VOL_NAME = "sample_volume"
+    REP_GROUP = "sample_repl_group"
+    FS_NAME = "sample_filesystem"
+    FAIL_OVER = "failed_over"
+    SYNCING_STATE = "synchronizing"
+    PAUSE_STATE = "paused"
 
     REPLICATION_SESSION_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'volume_group': None,
+        'replication_group': None,
         'volume': None,
         'nas_server': None,
         'filesystem': None,
@@ -33,7 +40,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -81,12 +88,12 @@ class MockReplicationSessionApi:
                 "name": "sample_replication_rule"
             },
             "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
-            "resource_type": vg,
+            "resource_type": "volume_group",
             "resource_type_l10n": vg,
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "Paused",
-            "state_l10n": "Paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -104,7 +111,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -152,12 +159,12 @@ class MockReplicationSessionApi:
                 "name": "sample_replication_rule"
             },
             "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
-            "resource_type": vg,
+            "resource_type": "volume_group",
             "resource_type_l10n": vg,
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "Paused",
-            "state_l10n": "Paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -223,12 +230,12 @@ class MockReplicationSessionApi:
                 "name": "sample_replication_rule"
             },
             "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
-            "resource_type": vg,
+            "resource_type": "volume_group",
             "resource_type_l10n": vg,
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "Paused",
-            "state_l10n": "Paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -277,7 +284,7 @@ class MockReplicationSessionApi:
             "id": "62a72cbf-36a0-c57a-04f0-da3630264434",
             "state": "OK",
             "role": "Source",
-            "resource_type": "file_system",
+            "resource_type": "filesystem",
             "data_transfer_state": None,
             "type": "Asynchronous",
             "last_sync_timestamp": "2022-07-06T10:25:40+00:00",
@@ -302,6 +309,59 @@ class MockReplicationSessionApi:
             "type_l10n": "Asynchronous",
             "data_connection_state_l10n": "OK",
             "local_resource_state_l10n": None}
+    ]
+
+    REPLICATION_SESSION_DETAILS_REP_GROUP = [
+        {
+            "estimated_completion_timestamp": None,
+            "id": ID,
+            "last_sync_timestamp": local_time,
+            "data_transfer_state": "Asynchronous",
+            "data_transfer_state_l10n": "Asynchronous",
+            "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+            "local_resource_name": REP_GROUP,
+            "migration_session": None,
+            "progress_percentage": None,
+            "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+            "remote_system": {
+                "id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+                "name": "WN-D8989"
+            },
+            "remote_system_id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+            "replication_rule": {
+                "id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+                "name": "sample_replication_rule"
+            },
+            "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+            "resource_type": "replication_group",
+            "resource_type_l10n": "Replication Group",
+            "role": "Source",
+            "role_l10n": "Source",
+            "state": "ok",
+            "state_l10n": "ok",
+            "storage_element_pairs": [
+                {
+                    "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
+                    "remote_storage_element_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+                    "replication_shadow_id": None,
+                    "storage_element_type": "virtual_volume"
+                }
+            ]
+        }]
+
+    REP_GROUP_DETAILS = [{
+        "id": "c4ba4ad3-2200-47d4-8f61-ddf51d83aac2",
+        "storage_container_id": "0b460d65-b8b6-40bf-8578-aa2e2fd3d02a",
+        "name": REP_GROUP,
+        "description": REP_GROUP,
+        "creator_type": "User",
+        "creation_timestamp": "2023-05-16T13:58:09.348368+00:00",
+        "is_replication_destination": False,
+        "creator_type_l10n": "User"
+    }]
+
+    SESSION_IDS_REP_GROUP = [
+        {'id': "c4ba4ad3-2200-47d4-8f61-ddf51d83aac2"}
     ]
 
     SESSION_IDS_VOLUME = [
@@ -332,7 +392,7 @@ class MockReplicationSessionApi:
         "location_history": None,
         "mapped_volumes": [],
         "migration_session_id": None,
-        "name": "sample_volume",
+        "name": VOL_NAME,
         "nguid": "nguid.ac8ab0e2506d99be8ccf096800e29e40",
         "node_affinity": "System_Select_At_Attach",
         "node_affinity_l10n": "System Select At Attach",
@@ -499,7 +559,41 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
+            "migration_session": None,
+            "progress_percentage": None,
+            "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+            "remote_system": {
+                "id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+                "name": "WN-D8989"
+            },
+            "remote_system_id": "b5f62edd-f7aa-483a-afaa-4364ab6fcd3a",
+            "replication_rule": {
+                "id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+                "name": "sample_replication_rule"
+            },
+            "replication_rule_id": "05777d33-b2fb-4e65-8202-208ff4fe5878",
+            "resource_type": "Volume",
+            "resource_type_l10n": "Volume",
+            "role": "Source",
+            "role_l10n": "Source",
+            "state": SYNCING_STATE,
+            "state_l10n": SYNCING_STATE,
+            "storage_element_pairs": [
+                {
+                    "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
+                    "remote_storage_element_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
+                    "replication_shadow_id": None,
+                    "storage_element_type": "volume"
+                }
+            ]
+        },
+        {
+            "estimated_completion_timestamp": None,
+            "id": ID,
+            "last_sync_timestamp": local_time,
+            "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -517,8 +611,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "synchronizing",
-            "state_l10n": "synchronizing",
+            "state": SYNCING_STATE,
+            "state_l10n": SYNCING_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -536,7 +630,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -554,8 +648,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Source",
             "role_l10n": "Source",
-            "state": "synchronizing",
-            "state_l10n": "synchronizing",
+            "state": SYNCING_STATE,
+            "state_l10n": SYNCING_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -573,7 +667,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -591,8 +685,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Source",
             "role_l10n": "Source",
-            "state": "paused",
-            "state_l10n": "paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -611,7 +705,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -629,8 +723,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Source",
             "role_l10n": "Source",
-            "state": "paused",
-            "state_l10n": "paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -649,7 +743,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -667,8 +761,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "paused",
-            "state_l10n": "paused",
+            "state": PAUSE_STATE,
+            "state_l10n": PAUSE_STATE,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -687,7 +781,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -724,7 +818,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -742,8 +836,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Source",
             "role_l10n": "Source",
-            "state": "failed_over",
-            "state_l10n": "failed_over",
+            "state": FAIL_OVER,
+            "state_l10n": FAIL_OVER,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -761,7 +855,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -779,8 +873,8 @@ class MockReplicationSessionApi:
             "resource_type_l10n": "Volume",
             "role": "Destination",
             "role_l10n": "Destination",
-            "state": "failed_over",
-            "state_l10n": "failed_over",
+            "state": FAIL_OVER,
+            "state_l10n": FAIL_OVER,
             "storage_element_pairs": [
                 {
                     "local_storage_element_id": "b0acb8de-446b-48e4-82ae-89ed05a35d01",
@@ -798,7 +892,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -835,7 +929,7 @@ class MockReplicationSessionApi:
             "id": ID,
             "last_sync_timestamp": local_time,
             "local_resource_id": "634e4b95-e7bd-49e7-957b-6dc932642464",
-            "local_resource_name": "sample_volume",
+            "local_resource_name": VOL_NAME,
             "migration_session": None,
             "progress_percentage": None,
             "remote_resource_id": "c1535ab7-e874-42eb-8692-7aa12aa4346e",
@@ -876,33 +970,45 @@ class MockReplicationSessionApi:
     ]
 
     @staticmethod
-    def failed_over_to_paused_failed_msg():
-        return "replication session is in failed_over state, invalid transition to paused state."
+    def get_rep_session_exception_response(response_type):
+        if response_type == "get_rep_session_exception":
+            return "Modifying the role Metro_Preferred of replication session" \
+                   " b05b5108-26b6-4567-a1d8-1c7795b2e6bc failed with error"
+        elif response_type == "pause_to_sync_dest_error":
+            return "Synchronization at destination is not supported. Please synchronize at source"
+        elif response_type == "failover_to_sync_destination_error":
+            return "Sync call can not be made at the destination when the session is in failed_over state"
+        elif response_type == "failOver_to_paused_error":
+            return "replication session is in failed_over state, invalid transition to paused state"
+        elif response_type == "any_to_remaining_state":
+            return "Replication Session is in system_paused state. Any state" \
+                   " change from this state is not supported by ansible module."
+        elif response_type == "state_from_transition_state":
+            return "Replication Session is in resuming state. Please perform" \
+                   " paused operation once this transition is completed"
+        elif response_type == "get_rep_session_error":
+            return "Get details of replication session with ID: " \
+                   "b05b5108-26b6-4567-a1d8-1c7795b2e6bc or vol: None, vol_grp None, " \
+                   "filesystemNone or nas_server None or replication group None failed with error"
 
     @staticmethod
-    def failing_over_to_paused_failed_msg():
-        return "replication session is in failing_over state, invalid transition to paused state."
-
-    @staticmethod
-    def change_state_from_transitioning_states_failed_msg():
-        return "Replication Session is in resuming state. Please perform paused operation once this transition is completed."
-
-    @staticmethod
-    def failed_over_to_sync_destination_failed_msg():
-        return "Sync call can not be made at the destination when the session is in failed_over state"
-
-    @staticmethod
-    def change_state_from_remaining_states_failed_msg():
-        return "Any state change from this state is not supported by ansible module"
-
-    @staticmethod
-    def paused_to_sync_dest_error_failed_msg():
-        return "Synchronization at destination is not supported."
-
-    @staticmethod
-    def volume_not_found_failed_msg():
-        return "not found"
-
-    @staticmethod
-    def modify_role_failed_msg():
-        return "Modifying the role Metro_Preferred of replication session b05b5108-26b6-4567-a1d8-1c7795b2e6bc failed with error"
+    def get_rep_session_error(response_type):
+        if response_type == "get_rep_group_error":
+            return "Get local resource id for replication group: sample_repl_group failed with error"
+        elif response_type == "get_cluster_error":
+            return "Failed to get the clusters with error"
+        elif response_type == "nas_error":
+            return "Get local resource id for nas server: sample_nas_server failed with error"
+        elif response_type == "fs_error":
+            return "Get local resource id for filesystem: sample_filesystem failed with error"
+        elif response_type == "vg_error":
+            return "Get local resource id for volume group: sample_vg failed with error"
+        elif response_type == "vol_error":
+            return "Get local resource id for volume: sample_vol failed with error"
+        elif response_type == "fs_nas_error":
+            return "Get NAS Server 6299d83a-37dc-340b-788f-4ad525462806 " \
+                   "for powerstore array name : WN-ABCD , global id : 0 failed with error"
+        elif response_type == "empty_cluster":
+            return "Unable to find any active cluster on this array"
+        elif response_type == "non_existing_session":
+            return "No replication session found with id"

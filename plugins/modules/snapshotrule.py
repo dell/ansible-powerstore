@@ -24,28 +24,24 @@ options:
   name:
     description:
     - String variable. Indicates the name of the Snapshot rule.
-    required: False
     type: str
   snapshotrule_id:
     description:
     - String variable. Indicates the ID of the Snapshot rule.
-    required: False
     type: str
   new_name:
     description:
     - String variable. Indicates the new name of the Snapshot rule.
     - Used for renaming operation.
-    required: False
     type: str
   days_of_week:
     description:
     - List of strings to specify days of the week on which the Snapshot rule
       should be applied. Must be applied for Snapshot rules where the
-      'time_of_day' parameter is set.
+      I(time_of_day) parameter is set.
     - Optional for the Snapshot rule created with an interval. When
-      'days_of_week' is not specified for a new Snapshot rule, the rule is
+      I(days_of_week) is not specified for a new Snapshot rule, the rule is
       applied on every day of the week.
-    required: False
     choices: [ Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,
      Sunday ]
     type: list
@@ -53,9 +49,9 @@ options:
   interval:
     description :
     - String variable. Indicates the interval between Snapshots.
-    - When creating a Snapshot rule, specify either "interval" or
-      "time_of_day", but not both.
-    required : False
+    - When creating a Snapshot rule, specify either I(interval) or
+      I(time_of_day), but not both.
+    required : false
     choices: [ Five_Minutes, Fifteen_Minutes, Thirty_Minutes, One_Hour,
     Two_Hours, Three_Hours, Four_Hours, Six_Hours, Eight_Hours, Twelve_Hours,
     One_Day ]
@@ -64,38 +60,38 @@ options:
     description:
     - Integer variable. Indicates the desired Snapshot retention period.
     - It is required when creating a new Snapshot rule.
-    required : False
+    required : false
     type: int
   time_of_day:
     description:
     - String variable. Indicates the time of the day to take a daily
       Snapshot, with the format "hh:mm" in 24 hour time format.
-    - When creating a Snapshot rule, specify either "interval"or
-      "time_of_day" but not both.
-    required : False
+    - When creating a Snapshot rule, specify either I(interval) or
+      I(time_of_day) but not both.
+    required : false
     type: str
   delete_snaps:
     description:
     - Boolean variable to specify whether all Snapshots previously created by
       this rule should also be deleted when this rule is removed.
-    - True specifies to delete all previously created Snapshots by this rule
+    - C(true) specifies to delete all previously created Snapshots by this rule
       while deleting this rule.
-    - False specifies to retain all previously created Snapshots while
+    - C(false) specifies to retain all previously created Snapshots while
       deleting this rule.
     type: bool
-    default: False
+    default: false
   state:
     description:
     - String variable indicates the state of Snapshot rule.
-    - For "Delete" operation only, it should be set to "absent".
+    - For "Delete" operation only, it should be set to C(absent).
     - For all Create, Modify or Get details operation it should be set to
-      "present".
-    required : True
+      C(present).
+    required : true
     choices: [ present, absent]
     type: str
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -103,7 +99,7 @@ EXAMPLES = r'''
 - name: Get details of an existing snapshot rule by name
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -112,7 +108,7 @@ EXAMPLES = r'''
 - name: Get details of an existing snapshot rule by id
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     snapshotrule_id: "{{snapshotrule_id}}"
@@ -121,7 +117,7 @@ EXAMPLES = r'''
 - name: Create new snapshot rule by interval
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -135,7 +131,7 @@ EXAMPLES = r'''
 - name: Create new snapshot rule by time_of_day and days_of_week
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -150,7 +146,7 @@ EXAMPLES = r'''
 - name: Modify existing snapshot rule to time_of_day and days_of_week
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -165,7 +161,7 @@ EXAMPLES = r'''
 - name: Modify existing snapshot rule to interval
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -175,7 +171,7 @@ EXAMPLES = r'''
 - name: Delete an existing snapshot rule by name
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -258,7 +254,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreSnapshotrule(object):

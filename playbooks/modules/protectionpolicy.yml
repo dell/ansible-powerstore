@@ -1,0 +1,165 @@
+---
+- name: Protection policy operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    protection_policy_name: "sample_protection_policy"
+    protectionpolicy_id: ""
+    new_name: "new_sample_protection_policy"
+    description: "protection policy through ansible"
+    new_description: "Modified DevCon Ansible protectionpolicy Test"
+    state: "present"
+    snapshotrules: ""
+    snapshot_rule_1: "ansible_snap_rule_1"
+    snapshot_rule_2: "ansible_snap_rule_2"
+    replication_rule: "ansible_rep_rule_1"
+    new_replication_rule: "ansible_rep_rule_2"
+    snapshotrule_state: "present-in-policy"
+
+  tasks:
+    - name: Create new protection policy
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ protection_policy_name }}"
+        description: "{{ description }}"
+        snapshotrules:
+          - "{{ snapshot_rule_1 }}"
+        snapshotrule_state: "present-in-policy"
+        replicationrule: "{{ replication_rule }}"
+        state: "present"
+      register: protectionpolicy
+
+    - name: Create new protection policy Idempotency test
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ protection_policy_name }}"
+        description: "{{ description }}"
+        snapshotrules:
+          - "{{ snapshot_rule_1 }}"
+        snapshotrule_state: "present-in-policy"
+        replicationrule: "{{ replication_rule }}"
+        state: "present"
+      register: protectionpolicy
+
+    - name: Get details of existing snapshot rule by name
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snapshot_rule_2 }}"
+        state: "present"
+      register: snaprule_result
+
+    - name: Modify protection policy . modify name,description, add snapshotrule and replace replication rule
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        protectionpolicy_id: "{{ protectionpolicy_id }}"
+        new_name: "{{ new_name }}"
+        description: "{{ new_description }}"
+        snapshotrules:
+          - "{{ snap_rule_id_2 }}"
+        snapshotrule_state: "present-in-policy"
+        replicationrule: "{{ new_replication_rule }}"
+        state: "present"
+      register: protectionpolicy
+
+    - name: Modify protection policy . modify name,description, add snapshotrule and replace replication rule Idempotency
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        protectionpolicy_id: "{{ protectionpolicy_id }}"
+        new_name: "{{ new_name }}"
+        description: "{{ new_description }}"
+        snapshotrules:
+          - "{{ snap_rule_id_2 }}"
+        snapshotrule_state: "present-in-policy"
+        replicationrule: "{{ new_replication_rule }}"
+        state: "present"
+      register: protectionpolicy
+
+    - name: Modify protection policy modify name, remove snapshotrule and remove replication rule
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        protectionpolicy_id: "{{ protectionpolicy_id }}"
+        new_name: "{{ protection_policy_name }}"
+        snapshotrules:
+          - "{{ snap_rule_id_2 }}"
+        snapshotrule_state: "absent-in-policy"
+        replicationrule: ""
+        state: "present"
+      register: protectionpolicy
+
+    - name: Modify protection policy modify name, remove snapshotrule and remove replication rule Idempotency
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        protectionpolicy_id: "{{ protectionpolicy_id }}"
+        new_name: "{{ protection_policy_name }}"
+        snapshotrules:
+          - "{{ snap_rule_id_2 }}"
+        snapshotrule_state: "absent-in-policy"
+        replicationrule: ""
+        state: "present"
+      register: protectionpolicy
+
+    - name: Get details of protection policy by name
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ protection_policy_name }}"
+        state: "present"
+      register: protectionpolicy
+
+    - name: Get details of protection policy by ID
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        protectionpolicy_id: "{{ protectionpolicy_id }}"
+        state: "present"
+      register: protectionpolicy
+
+
+    - name: Delete protection policy
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ protection_policy_name }}"
+        state: "absent"
+      register: protectionpolicy
+
+    - name: Delete protection policy Idempotency
+      dellemc.powerstore.protectionpolicy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ protection_policy_name }}"
+        state: "absent"
+      register: protectionpolicy

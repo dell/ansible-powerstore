@@ -25,12 +25,10 @@ options:
   name:
     description:
     - String variable. Indicates the name of the protection policy.
-    required: False
     type: str
   protectionpolicy_id:
     description:
     - String variable. Indicates the id of the protection policy.
-    required: False
     type: str
   new_name:
     description:
@@ -41,7 +39,6 @@ options:
     description:
     - List of strings to specify the name or ids of snapshot rules
       which are to be added or removed, to or from, the protection policy.
-    required: False
     type: list
     elements: str
   replicationrule:
@@ -49,20 +46,18 @@ options:
     - The name or ids of the replcation rule which is to be added to the
       protection policy.
     - To remove the replication rule, an empty string has to be passed.
-    required: False
     type: str
   description:
     description:
     - String variable. Indicates the description of the protection policy.
-    required : False
     type: str
   state:
     description:
     - String variable. Indicates the state of protection policy.
-    - For Delete operation only, it should be set to "absent".
+    - For Delete operation only, it should be set to C(absent).
     - For all other operations like Create, Modify or Get details,
-      it should be set to "present".
-    required : True
+      it should be set to C(present).
+    required: true
     choices: [ present, absent]
     type: str
   snapshotrule_state:
@@ -70,9 +65,9 @@ options:
     - String variable. Indicates the state of a snapshotrule in a
       protection policy.
     - When snapshot rules are specified, this variable is required.
-    - Value present-in-policy indicates to add to protection policy.
-    - Value absent-in-policy indicates to remove from protection policy.
-    required : False
+    - Value C(present-in-policy) indicates to add to protection policy.
+    - Value C(absent-in-policy) indicates to remove from protection policy.
+    required : false
     choices: [ present-in-policy, absent-in-policy]
     type: str
 notes:
@@ -80,7 +75,7 @@ notes:
   from the protection policy.
 - In PowerStore version 3.0.0.0, protection policy without snapshot rule/replication rule
   is not allowed.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -88,7 +83,7 @@ EXAMPLES = r'''
 - name: Create a protection policy with snapshot rule and replication rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -103,7 +98,7 @@ EXAMPLES = r'''
 - name : Modify protection policy, change name
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -114,7 +109,7 @@ EXAMPLES = r'''
 - name : Modify protection policy, add snapshot rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -126,7 +121,7 @@ EXAMPLES = r'''
 - name : Modify protection policy, remove snapshot rule, replication rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -139,7 +134,7 @@ EXAMPLES = r'''
 - name : Get details of protection policy by name
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -148,7 +143,7 @@ EXAMPLES = r'''
 - name : Get details of protection policy by ID
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     protectionpolicy_id: "{{protectionpolicy_id}}"
@@ -157,7 +152,7 @@ EXAMPLES = r'''
 - name : Delete protection policy
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     name: "{{name}}"
@@ -246,7 +241,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreProtectionpolicy(object):

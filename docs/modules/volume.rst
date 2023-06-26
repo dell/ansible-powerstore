@@ -22,7 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -58,7 +61,7 @@ Parameters
 
     Used to signify unit of the size provided for creation and expansion of volume.
 
-    It defaults to 'GB', if not specified.
+    It defaults to ``GB``, if not specified.
 
 
   new_name (optional, str, None)
@@ -81,8 +84,20 @@ Parameters
     Application type for volume when *app_type* is set to ``*Other`` types.
 
 
+  appliance_id (optional, str, None)
+    ID of the appliance on which the volume is provisioned.
+
+    *appliance_id* and *appliance_name* are mutually exclusive.
+
+
+  appliance_name (optional, str, None)
+    Name of the appliance on which the volume is provisioned.
+
+    *appliance_id* and *appliance_name* are mutually exclusive.
+
+
   protection_policy (optional, str, None)
-    The protection_policy of the volume.
+    The *protection_policy* of the volume.
 
     To represent policy, both name or ID can be used interchangably. The module will detect both.
 
@@ -96,7 +111,7 @@ Parameters
 
 
   performance_policy (optional, str, None)
-    The performance_policy for the volume.
+    The *performance_policy* for the volume.
 
     A volume can be assigned a performance policy at the time of creation of the volume, or later.
 
@@ -104,7 +119,7 @@ Parameters
 
     Check examples for more clarity.
 
-    If not given, performance policy will be 'medium'.
+    If not given, performance policy will be ``medium``.
 
 
   host (optional, str, None)
@@ -124,14 +139,14 @@ Parameters
   mapping_state (optional, str, None)
     Define whether the volume should be mapped to a host or hostgroup.
 
-    Value mapped - indicates that the volume should be mapped to the host or host group.
+    Value ``mapped`` - indicates that the volume should be mapped to the host or host group.
 
-    Value unmapped - indicates that the volume should not be mapped to the host or host group.
+    Value ``unmapped`` - indicates that the volume should not be mapped to the host or host group.
 
     Only one of a host or host group can be supplied in one call.
 
 
-  hlu (False, int, None)
+  hlu (optional, int, None)
     Logical unit number for the host/host group volume access.
 
     Optional parameter when mapping a volume to host/host group.
@@ -160,9 +175,9 @@ Parameters
 
 
     logical_unit_number (optional, int, None)
-      logical unit number when creating a mapped volume.
+      logical unit number when creating a ``mapped`` volume.
 
-      If no host_id or host_group_id is specified, logical_unit_number is ignored.
+      If no ``host_id`` or ``host_group_id`` is specified, ``logical_unit_number`` is ignored.
 
 
     protection_policy (optional, str, None)
@@ -212,12 +227,12 @@ Parameters
   state (True, str, None)
     Define whether the volume should exist or not.
 
-    Value present - indicates that the volume should exist on the system.
+    Value ``present`` - indicates that the volume should exist on the system.
 
-    Value absent - indicates that the volume should not exist on the system.
+    Value ``absent`` - indicates that the volume should not exist on the system.
 
 
-  remote_system (False, str, None)
+  remote_system (optional, str, None)
     The remote system to which metro relationship will be established.
 
     The remote system must support metro volume.
@@ -229,19 +244,19 @@ Parameters
     This parameter is added in PowerStore version 3.0.0.0.
 
 
-  remote_appliance_id (False, str, None)
+  remote_appliance_id (optional, str, None)
     A remote system appliance ID to which volume will be assigned.
 
     This parameter is added in PowerStore version 3.0.0.0.
 
 
-  end_metro_config (False, bool, False)
+  end_metro_config (optional, bool, False)
     Whether to end the metro session from a volume.
 
     This is mandatory for end metro configuration operation.
 
 
-  delete_remote_volume (False, bool, None)
+  delete_remote_volume (optional, bool, None)
     Whether to delete the remote volume during removal of metro session.
 
     This is parameter is added in the PowerStore version 3.0.0.0.
@@ -251,12 +266,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -286,13 +301,13 @@ Notes
 -----
 
 .. note::
-   - To create a new volume, vol_name and size is required. cap_unit, description, vg_name, performance_policy, and protection_policy are optional.
-   - Parameter new_name should not be provided when creating a new volume.
-   - The size is a required parameter for expand volume.
+   - To create a new volume, *vol_name* and *size* is required. *cap_unit*, *description*, *vg_name*, *performance_policy*, and *protection_policy* are optional.
+   - Parameter *new_name* should not be provided when creating a new volume.
+   - The *size*is a required parameter for expand volume.
    - Clones or Snapshots of a deleted production volume or a clone are not deleted.
    - A volume that is attached to a host/host group, or that is part of a volume group cannot be deleted.
    - If volume in metro session, volume can only be modified, refreshed and restored when session is in the pause state.
-   - The Check_mode is not supported.
+   - The *Check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -307,7 +322,7 @@ Examples
     - name: Create volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -322,11 +337,12 @@ Examples
         host: "{{host_name}}"
         app_type: "Relational_Databases_Other"
         app_type_other: "MaxDB"
+        appliance_name: "Appliance_Name"
 
     - name: Get volume details using ID
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_id: "{{result.volume_details.id}}"
@@ -335,7 +351,7 @@ Examples
     - name: Modify volume size, name, description, protection,  performance policy and app_type
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         new_name: "{{new_name}}"
@@ -350,7 +366,7 @@ Examples
     - name: Map volume to a host with HLU
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -362,7 +378,7 @@ Examples
     - name: Clone a volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -379,7 +395,7 @@ Examples
     - name: Refresh a volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -395,7 +411,7 @@ Examples
     - name: Restore a volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -411,7 +427,7 @@ Examples
     - name: Configure a metro volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
@@ -421,18 +437,18 @@ Examples
     - name: End a metro volume configuration
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_name: "{{vol_name}}"
-        end_metro_config: True
-        delete_remote_volume: True
+        end_metro_config: true
+        delete_remote_volume: true
         state: "present"
 
     - name: Delete volume
       dellemc.powerstore.volume:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         vol_id: "{{result.volume_details.id}}"
@@ -493,6 +509,14 @@ volume_details (When volume exists, complex, {'appliance_id': 'A1', 'creation_ti
 
   protection_policy_id (, str, )
     The protection policy of the volume.
+
+
+  appliance_id (, str, )
+    ID of appliance on which the volume is provisioned.
+
+
+  appliance_name (, str, )
+    Name of appliance on which the volume is provisioned.
 
 
   snapshots (, complex, )
@@ -619,4 +643,5 @@ Authors
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 - Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
 - Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
+- Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
 

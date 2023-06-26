@@ -1,0 +1,28 @@
+---
+- name: Role module operations on PowerStore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of a role by id
+      dellemc.powerstore.role:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        role_id: "1"
+        state: "present"
+
+    - name: Get details of a role by name
+      dellemc.powerstore.role:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        role_name: "Storage Administrator"
+        state: "present"

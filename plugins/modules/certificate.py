@@ -13,7 +13,7 @@ module: certificate
 version_added: '1.4.0'
 short_description: Certificate operations for PowerStore Storage System
 description:
-- Supports the provisioning operations on a Certificate such as add/import, modify,
+- Supports the provisioning operations on a certificate such as add/import, modify,
   reset, exchange and get the details of a certificate.
 
 extends_documentation_fragment:
@@ -41,7 +41,7 @@ options:
     type: str
   scope:
     description:
-    - Defines a subset of certificates belonging to one Service.
+    - Defines a subset of certificates belonging to one service.
     type: str
   certificate:
     description:
@@ -73,15 +73,15 @@ options:
     description:
     - Define whether the certificate should exist or not.
     choices: ['absent', 'present']
-    required: True
+    required: true
     type: str
 
 notes:
 - Idempotency is not supported for adding/importing certificates, exchange of certificates and the reset of certificates.
-- Only is_current parameter is supported for modification of certificate.
+- Only I(is_current) parameter is supported for modification of certificate.
 - Reset operation can reset more than one certificate at a time.
 - Add/import, modify and reset are supported for PowerStore versions 2.0 and above only.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -90,7 +90,7 @@ EXAMPLES = r'''
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     certificate_id: "e940144f-393f-4e9c-8f54-9a4d57b38c48"
     state: "present"
 
@@ -99,7 +99,7 @@ EXAMPLES = r'''
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     service: "VASA_HTTP"
     state: "present"
 
@@ -108,7 +108,7 @@ EXAMPLES = r'''
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     service: "Replication_HTTP"
     remote_address: "{{remote_array_ip}}"
     remote_port: 443
@@ -121,11 +121,11 @@ EXAMPLES = r'''
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     certificate_type: "CA_Client_Validation"
     service: "VASA_HTTP"
     certificate: "{{certificate_string}}"
-    is_current: True
+    is_current: true
     state: "present"
 
 - name: Modify certificate
@@ -133,9 +133,9 @@ EXAMPLES = r'''
     array_ip: "{{array_ip}}"
     user: "{{user}}"
     password: "{{password}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     certificate_id: "37b76535-612b-456a-a694-1389f17632c7"
-    is_current: True
+    is_current: true
     state: "present"
 '''
 
@@ -262,7 +262,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreCertificate(object):

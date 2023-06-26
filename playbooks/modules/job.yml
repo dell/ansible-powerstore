@@ -1,0 +1,18 @@
+---
+- name: Perform Job operations for a given PowerStore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get Job Details
+      dellemc.powerstore.job:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        job_id: "XX.XX.XX.XX"

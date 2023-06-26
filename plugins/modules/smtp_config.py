@@ -25,41 +25,37 @@ options:
   smtp_id:
     description:
     - Unique identifier of the SMTP configuration.
-    required: True
+    required: true
     type: int
   smtp_address:
     description:
     - IP address of the SMTP server.
-    required: False
     type: str
   smtp_port:
     description:
     - Port used for sending SMTP messages.
-    required: False
     type: int
   source_email:
     description:
     - Source email address used for sending SMTP messages.
-    required: False
     type: str
   destination_email:
     description:
     - Destination email address for the test.
-    required: False
     type: str
   state:
     description:
     - The state of the SMTP configuration after the task is performed.
-    - For Delete operation only, it should be set to "absent".
-    - For all operations it should be set to "present".
-    required : True
+    - For Delete operation only, it should be set to C(absent)
+    - For all operations it should be set to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Idempotency is not supported for test operation for smtp_config module.
 - Creation and deletion of SMTP configuration is not supported.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
 
@@ -68,7 +64,7 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       smtp_id: "0"
       state: "present"
 
@@ -77,7 +73,7 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       smtp_id: "0"
       smtp_address: "sample.smtp.com"
       source_email: "def@dell.com"
@@ -88,7 +84,7 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       smtp_id: "0"
       destination_email: "abc@dell.com"
       state: "present"
@@ -143,7 +139,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreSmtpConfig(object):

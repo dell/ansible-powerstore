@@ -11,8 +11,6 @@ __metaclass__ = type
 import pytest
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_info_api import MockInfoApi
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_sdk_response \
-    import MockSDKResponse
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
@@ -298,3 +296,23 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.configuration.get_virtual_volume_list.assert_called()
+
+    def test_get_storage_container_response(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['storage_container'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_storage_container_list.assert_called()
+
+    def test_get_replication_groups(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['replication_group'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.protection.get_replication_groups.assert_called()

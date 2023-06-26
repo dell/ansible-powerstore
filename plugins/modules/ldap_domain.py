@@ -39,7 +39,7 @@ options:
   ldap_server_state:
     description:
     - State of the LDAP server.
-    - The ldap_servers and ldap_server_state are required together.
+    - The I(ldap_servers) and I(ldap_server_state) are required together.
     choices: ['present-in-domain', 'absent-in-domain']
     type: str
   ldap_server_port:
@@ -83,12 +83,12 @@ options:
       user_id_attribute:
         description:
         - Name of the LDAP attribute whose value indicates the unique identifier of the user.
-        - Default value is sAMAccountName.
+        - Default value is C(sAMAccountName).
         type: str
       user_object_class:
         description:
         - LDAP object class for users.
-        - Default value is user.
+        - Default value is C(user).
         type: str
       user_search_path:
         description:
@@ -103,17 +103,17 @@ options:
       group_name_attribute:
         description:
         - Name of the LDAP attribute whose value indicates the group name.
-        - Default value is cn.
+        - Default value is C(cn).
         type: str
       group_member_attribute:
         description:
         - Name of the LDAP attribute whose value contains the names of group members within a group.
-        - Default value is member.
+        - Default value is C(member).
         type: str
       group_object_class:
         description:
         - LDAP object class for groups.
-        - Default value is group.
+        - Default value is C(group).
         type: str
       group_search_path:
         description:
@@ -129,29 +129,29 @@ options:
     description:
     - Indicates whether to perform the verify LDAP domain configuration or not.
     type: bool
-    default: False
+    default: false
   state:
     description:
     - Define whether the LDAP domain configuration should exist or not.
-    - For Delete operation only, it should be set to "absent".
-    - For all other operations except delete, it should be set to "present".
+    - For Delete operation only, it should be set to C(absent).
+    - For all other operations except delete, it should be set to C(present).
     required: true
     choices: ['absent', 'present']
     type: str
 
 notes:
-- The 'is_global_catalog' option can be enabled only for AD server type.
+- The I(is_global_catalog) option can be enabled only for AD server type.
 - To use LDAPS protocol, the pre-requisite is to upload the certificate of
   LDAP server on PowerStore array.
 - Verify operation does not support idempotency.
-- The check_mode is supported.
+- The I(check_mode) is supported.
 '''
 
 EXAMPLES = r'''
 - name: Create LDAP domain
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     domain_name: "{{domain_name}}"
@@ -170,7 +170,7 @@ EXAMPLES = r'''
 - name: Get LDAP domain details using ID
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_id: 4
@@ -179,7 +179,7 @@ EXAMPLES = r'''
 - name: Get LDAP domain details using name
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_name: "{{ldap_domain_name}}"
@@ -188,17 +188,17 @@ EXAMPLES = r'''
 - name: Verify LDAP domain configuration
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_id: 4
-    verify_configuration: True
+    verify_configuration: true
     state: "present"
 
 - name: Delete LDAP domain configuration
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_id: 4
@@ -207,7 +207,7 @@ EXAMPLES = r'''
 - name: Create LDAP domain with AD server type
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_name: "{{domain_name}}"
@@ -217,7 +217,7 @@ EXAMPLES = r'''
     ldap_server_type: "AD"
     bind_user: "{{bind_user}}"
     bind_password: "{{bind_password}}"
-    is_global_catalog: True
+    is_global_catalog: true
     ldap_server_port: 3268
     protocol: "LDAP"
     ldap_domain_user_settings:
@@ -229,7 +229,7 @@ EXAMPLES = r'''
 - name: Get LDAP domain details using domain name
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_name: "{{domain_name}}"
@@ -238,7 +238,7 @@ EXAMPLES = r'''
 - name: Delete LDAP domain using domain name
   dellemc.powerstore.ldap_domain:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_domain_name: "{{domain_name}}"
@@ -354,7 +354,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreLDAPDomain(object):

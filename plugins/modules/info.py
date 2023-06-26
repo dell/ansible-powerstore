@@ -19,8 +19,8 @@ description:
   host groups, snapshot rules, and protection policies.
 - File provisioning module includes NAS servers, NFS exports, SMB shares,
   tree quotas, user quotas, and file systems.
-- Replication module includes replication rules, replication sessions, and
-  remote system.
+- Replication module includes replication rules, replication sessions,
+  replication groups, and remote system.
 - Virtualization module includes vCenters and virtual volumes.
 - Configuration module includes cluster nodes, networks, roles, local users,
   appliances, security configs, certificates, AD/LDAP servers, LDAP accounts,
@@ -40,41 +40,43 @@ options:
     description:
     - A list of string variables which specify the PowerStore system entities
       requiring information.
-    - Volumes - vol.
-    - All the nodes - node.
-    - Volume groups - vg.
-    - Protection policies - protection_policy.
-    - Hosts - host.
-    - Host groups - hg.
-    - Snapshot rules - snapshot_rule.
-    - NAS servers - nas_server.
-    - NFS exports - nfs_export.
-    - SMB shares - smb_share.
-    - Tree quotas - tree_quota.
-    - User quotas - user_quota.
-    - File systems - file_system.
-    - Replication rules - replication_rule.
-    - Replication sessions - replication_session.
-    - Remote systems - remote_system.
-    - Various networks - network.
-    - Roles - role.
-    - Local users - user.
-    - Appliances - appliance.
-    - Security configurations - security_config.
-    - Certificates - certificate.
-    - Active directories - ad.
-    - LDAPs - ldap.
-    - DNS servers - dns.
-    - NTP servers - ntp.
-    - Email notification destinations - email_notification.
-    - SMTP configurations - smtp_config.
-    - Remote Support - remote_support.
-    - Remote support contacts - remote_support_contact.
-    - LDAP accounts - ldap_account.
-    - LDAP domain - ldap_domain.
-    - All vCenters - vcenter.
-    - Virtual volumes - virtual_volume.
-    required: True
+    - Volumes - C(vol).
+    - All the nodes - C(node).
+    - Volume groups - C(vg).
+    - Protection policies - C(protection_policy).
+    - Hosts - C(host).
+    - Host groups - C(hg).
+    - Snapshot rules - C(snapshot_rule).
+    - NAS servers - C(nas_server).
+    - NFS exports - C(nfs_export).
+    - SMB shares - C(smb_share).
+    - Tree quotas - C(tree_quota).
+    - User quotas - C(user_quota).
+    - File systems - C(file_system).
+    - Replication rules - C(replication_rule).
+    - Replication sessions - C(replication_session).
+    - Remote systems - C(remote_system).
+    - Various networks - C(network).
+    - Roles - C(role).
+    - Local users - C(user).
+    - Appliances - C(appliance).
+    - Security configurations - C(security_config).
+    - Certificates - C(certificate).
+    - Active directories - C(ad).
+    - LDAPs - C(ldap).
+    - DNS servers - C(dns).
+    - NTP servers - C(ntp).
+    - Email notification destinations - C(email_notification).
+    - SMTP configurations - C(smtp_config).
+    - Remote Support - C(remote_support).
+    - Remote support contacts - C(remote_support_contact).
+    - LDAP accounts - C(ldap_account).
+    - LDAP domain - C(ldap_domain).
+    - All vCenters - C(vcenter).
+    - Virtual volumes - C(virtual_volume).
+    - Storage containers - C(storage_container).
+    - Replication groups - C(replication_group).
+    required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
               nas_server, nfs_export, smb_share, tree_quota, user_quota,
@@ -82,14 +84,14 @@ options:
               remote_system, network, role, ldap_account, user, appliance, ad,
               ldap, security_config, certificate, dns, ntp, smtp_config,
               email_notification, remote_support, remote_support_contact,
-              ldap_domain, vcenter, virtual_volume]
+              ldap_domain, vcenter, virtual_volume, storage_container,
+              replication_group]
     type: list
   filters:
     description:
     - A list of filters to support filtered output for storage entities.
-    - Each filter is a list of filter_key, filter_operator, filter_value.
+    - Each filter is a list of I(filter_key), I(filter_operator), I(filter_value).
     - Supports passing of multiple filters.
-    required: False
     type: list
     elements: dict
     suboptions:
@@ -97,31 +99,31 @@ options:
         description:
         - Name identifier of the filter.
         type: str
-        required: True
+        required: true
       filter_operator:
         description:
         - Operation to be performed on the filter key.
         type: str
         choices: [equal, greater, lesser, like, notequal]
-        required: True
+        required: true
       filter_value:
         description:
         - Value of the filter key.
         type: str
-        required: True
+        required: true
   all_pages:
     description:
     - Indicates whether to return all available entities on the storage
       system.
-    - If set to True, the Info module will implement pagination and
+    - If set to C(true), the Info module will implement pagination and
       return all entities. Otherwise, a maximum of the first 100 entities of
       any type will be returned.
     type: bool
-    default: False
+    default: false
 notes:
 - Pagination is not supported for role, local user, security configs, LDAP
-  accounts and LDAP domain. If all_pages is passed, it will be ignored.
-- The check_mode is supported.
+  accounts and LDAP domain. If I(all_pages) is passed, it will be ignored.
+- The I(check_mode) is supported.
 '''
 
 EXAMPLES = r'''
@@ -129,7 +131,7 @@ EXAMPLES = r'''
 - name: Get list of volumes, volume groups, hosts, host groups and node
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -142,7 +144,7 @@ EXAMPLES = r'''
 - name: Get list of replication related entities
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -153,7 +155,7 @@ EXAMPLES = r'''
 - name: Get list of volumes whose state notequal to ready
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -166,7 +168,7 @@ EXAMPLES = r'''
 - name: Get list of protection policies and snapshot rules
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -176,7 +178,7 @@ EXAMPLES = r'''
 - name: Get list of snapshot rules whose desired_retention between 101-499
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -192,7 +194,7 @@ EXAMPLES = r'''
 - name: Get list of nas server, nfs_export and smb share
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -203,7 +205,7 @@ EXAMPLES = r'''
 - name: Get list of tree quota, user quota and file system
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -214,7 +216,7 @@ EXAMPLES = r'''
 - name: Get list of nas server whose name equal to 'nas_server'
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -227,7 +229,7 @@ EXAMPLES = r'''
 - name: Get list of smb share whose name contains 'share'
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -240,7 +242,7 @@ EXAMPLES = r'''
 - name: Get list of user, role, network and appliances
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -252,7 +254,7 @@ EXAMPLES = r'''
 - name: Get list of ad, certificate, security config and ldaps
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -264,7 +266,7 @@ EXAMPLES = r'''
 - name: Get list of networks whose name contains 'Management'
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -277,7 +279,7 @@ EXAMPLES = r'''
 - name: Get list of dns, email notification, ntp, remote support, remote support contact and smtp config
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -291,7 +293,7 @@ EXAMPLES = r'''
 - name: Get list of emails which receives minor notifications
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -299,12 +301,12 @@ EXAMPLES = r'''
     filters:
         - filter_key: 'notify_minor'
           filter_operator: 'equal'
-          filter_value: 'False'
+          filter_value: 'false'
 
 - name: Get list of LDAP accounts
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -313,7 +315,7 @@ EXAMPLES = r'''
 - name: Get list of LDAP accounts with type as "User"
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -326,7 +328,7 @@ EXAMPLES = r'''
 - name: Get list of LDAP domain
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -335,7 +337,7 @@ EXAMPLES = r'''
 - name: Get list of LDAP domain with protocol as "LDAPS"
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -348,7 +350,7 @@ EXAMPLES = r'''
 - name: Get list of vCenters
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
@@ -357,11 +359,21 @@ EXAMPLES = r'''
 - name: Get list of virtual volumes
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
       - virtual_volume
+      - replication_group
+
+- name: Get list of storage containers
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - storage_container
 
 '''
 
@@ -380,7 +392,7 @@ Array_Software_Version:
 ActiveDirectory:
     description: Provides details of all active directories.
     type: list
-    returned: When ad is in a given gather_subset
+    returned: When C(ad) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the active directory.
@@ -393,7 +405,7 @@ ActiveDirectory:
 Appliance:
     description: Provides details of all appliances.
     type: list
-    returned: When appliance is in a given gather_subset
+    returned: When C(appliance) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the appliance.
@@ -414,7 +426,7 @@ Appliance:
 Certificate:
     description: Provides details of all certificates.
     type: list
-    returned: When certificates is in a given gather_subset
+    returned: When C(certificates) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the certificate.
@@ -446,7 +458,7 @@ Cluster:
 DNS:
     description: Provides details of all DNS servers.
     type: list
-    returned: When dns is in a given gather_subset
+    returned: When C(dns) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the DNS server.
@@ -460,7 +472,7 @@ DNS:
 EmailNotification:
     description: Provides details of all emails to which notifications will be sent.
     type: list
-    returned: When email_notification is in a given gather_subset
+    returned: When C(email_notification) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the email.
@@ -479,7 +491,7 @@ EmailNotification:
 FileSystems:
     description: Provides details of all filesystems.
     type: list
-    returned: When file_system is in a given gather_subset
+    returned: When C(file_system) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the filesystem.
@@ -496,7 +508,7 @@ FileSystems:
 HostGroups:
     description: Provides details of all host groups.
     type: list
-    returned: When hg is in a given gather_subset
+    returned: When C(hg) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the host group.
@@ -513,7 +525,7 @@ HostGroups:
 Hosts:
     description: Provides details of all hosts.
     type: list
-    returned: When host is in a given gather_subset
+    returned: When C(host) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the host.
@@ -530,7 +542,7 @@ Hosts:
 LDAP:
     description: Provides details of all LDAPs.
     type: list
-    returned: When ldap is in a given gather_subset
+    returned: When C(ldap) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the LDAP.
@@ -543,7 +555,7 @@ LDAP:
 LDAPAccounts:
     description: Provides details of all LDAP accounts.
     type: list
-    returned: When LDAP account is in a given gather_subset
+    returned: When C(ldap_account) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the LDAP account.
@@ -577,7 +589,7 @@ LDAPAccounts:
 LDAPDomain:
     description: Provides details of the LDAP domain configurations.
     type: list
-    returned: When LDAP domain configuration is in a given gather_subset
+    returned: When C(ldap_domain) configuration is in a given I(gather_subset)
     contains:
         id:
             description: Unique identifier of the new LDAP server configuration.
@@ -604,7 +616,7 @@ LDAPDomain:
             description: Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
             type: int
         is_global_catalog:
-            description: Whether or not the catalog is global. Default value is false.
+            description: Whether or not the catalog is global. Default value is C(false).
             type: bool
         user_id_attribute:
             description: Name of the LDAP attribute whose value indicates the unique identifier of the user.
@@ -664,7 +676,7 @@ LDAPDomain:
 LocalUsers:
     description: Provides details of all local users.
     type: list
-    returned: When user is in a given gather_subset
+    returned: When C(user) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the user.
@@ -681,7 +693,7 @@ LocalUsers:
 NASServers:
     description: Provides details of all nas servers.
     type: list
-    returned: When nas_server is in a given gather_subset
+    returned: When C(nas_server) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the nas server.
@@ -698,7 +710,7 @@ NASServers:
 Networks:
     description: Provides details of all networks.
     type: list
-    returned: When network is in a given gather_subset
+    returned: When C(network) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the network.
@@ -715,7 +727,7 @@ Networks:
 NFSExports:
     description: Provides details of all nfs exports.
     type: list
-    returned: When nfs_export is in a given gather_subset
+    returned: When C(nfs_export) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the nfs export.
@@ -732,7 +744,7 @@ NFSExports:
 Nodes:
     description: Provides details of all nodes.
     type: list
-    returned: When a node is in a given gather_subset
+    returned: When a C(node) is in a given I(gather_subset)
     contains:
         id:
             description: ID of the node.
@@ -749,7 +761,7 @@ Nodes:
 NTP:
     description: Provides details of all NTP servers.
     type: list
-    returned: When ntp is in a given gather_subset
+    returned: When C(ntp) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the NTP server.
@@ -763,7 +775,7 @@ NTP:
 ProtectionPolicies:
     description: Provides details of all protection policies.
     type: list
-    returned: When protection_policy is in a given gather_subset
+    returned: When C(protection_policy) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the protection policy.
@@ -780,7 +792,7 @@ ProtectionPolicies:
 RemoteSupport:
     description: Provides details of all remote support config.
     type: list
-    returned: When remote_support is in a given gather_subset
+    returned: When C(remote_support) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the remote support.
@@ -793,7 +805,7 @@ RemoteSupport:
 RemoteSupportContact:
     description: Provides details of all remote support contacts.
     type: list
-    returned: When remote_support_contact is in a given gather_subset
+    returned: When C(remote_support_contact) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the remote support contact.
@@ -806,10 +818,53 @@ RemoteSupportContact:
             "id": "1"
           }
     ]
+ReplicationGroups:
+    description: Provide details of all replication group.
+    type: list
+    returned: when C(replication_group) is in a given I(gather_subset).
+    contains:
+        id:
+            description: ID of the replication group.
+            type: str
+        name:
+            description: Name of the replication group.
+            type: str
+        storage_container_id:
+            description: ID of the storage container.
+            type: str
+        description:
+            description: Description of the replication group.
+            type: str
+        creator_type:
+            description: Creator type of the storage resource.
+            type: str
+        creation_timestamp:
+            description: Timestamp when given replication group was created.
+            type: str
+        is_replication_destination:
+            description: Indicates whether replication group is replication
+                         destination or not.
+            type: bool
+        creator_type_l10n:
+            description: Localized message string corresponding to
+                         creator_type.
+            type: str
+    sample: [
+        {
+            "id": "c4ba4ad3-2200-47d4-8f61-ddf51d83aac2",
+            "storage_container_id": "0b460d65-b8b6-40bf-8578-aa2e2fd3d02a",
+            "name": "Ansible_RTD8337_VM",
+            "description": "Ansible_RTD8337_VM",
+            "creator_type": "User",
+            "creation_timestamp": "2023-05-16T13:58:09.348368+00:00",
+            "is_replication_destination": false,
+            "creator_type_l10n": "User"
+        }
+    ]
 ReplicationRules:
     description: Provides details of all replication rules.
     type: list
-    returned: When replication_rule is in a given gather_subset
+    returned: When C(replication_rule) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the replication rule.
@@ -826,7 +881,7 @@ ReplicationRules:
 ReplicationSession:
     description: Details of all replication sessions.
     type: list
-    returned: when replication_session given in gather_subset
+    returned: when C(replication_session) given in I(gather_subset)
     contains:
           id:
             description: ID of the replication session.
@@ -839,7 +894,7 @@ ReplicationSession:
 RemoteSystems:
     description: Provides details of all remote systems.
     type: list
-    returned: When remote_system is in a given gather_subset
+    returned: When C(remote_system) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the remote system.
@@ -856,7 +911,7 @@ RemoteSystems:
 Roles:
     description: Provides details of all roles.
     type: list
-    returned: When role is in a given gather_subset
+    returned: When C(role is in a given I(gather_subset
     contains:
           id:
             description: ID of the role.
@@ -893,7 +948,7 @@ Roles:
 SecurityConfig:
     description: Provides details of all security configs.
     type: list
-    returned: When security_config is in a given gather_subset
+    returned: When C(security_config) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the security config.
@@ -906,7 +961,7 @@ SecurityConfig:
 SMBShares:
     description: Provides details of all smb shares.
     type: list
-    returned: When smb_share is in a given gather_subset
+    returned: When C(smb_share) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the smb share.
@@ -923,7 +978,7 @@ SMBShares:
 SMTPConfig:
     description: Provides details of all smtp config.
     type: list
-    returned: When smtp_config is in a given gather_subset
+    returned: When C(smtp_config) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the smtp config.
@@ -936,7 +991,7 @@ SMTPConfig:
 SnapshotRules:
     description: Provides details of all snapshot rules.
     type: list
-    returned: When snapshot_rule is in a given gather_subset
+    returned: When C(snapshot_rule) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the snapshot rule.
@@ -950,10 +1005,92 @@ SnapshotRules:
             "name": "Snapshot Rule Test"
           }
     ]
+StorageContainers:
+    description: Provide details of all storage containers.
+    type: list
+    returned: When C(storage_container) is in a given I(gather_subset)
+    contains:
+        id:
+            description: ID of the storage container.
+            type: str
+        name:
+            description: Name of the storage container.
+            type: str
+        storage_protocol:
+            description: The type of storage container.
+            type: str
+        quota:
+            description: The total number of bytes that can be
+                         provisioned/reserved against this storage container.
+            type: int
+        replication_groups:
+            description: Properties of a Replication Group.
+            type: list
+            contains:
+                id:
+                    description: Unique identifier of the Replication Group
+                                 instance.
+                    type: str
+                name:
+                    description: Name of the Replication Group.
+                    type: str
+        virtual_volumes:
+            description: The virtual volumes associated to the storage container.
+            type: list
+            contains:
+                id:
+                    description: The unique identifier of the virtual volume.
+                    type: str
+                name:
+                    description: The name of the virtual volume.
+                    type: str
+        destinations:
+            description: A storage container destination defines replication
+                         destination for a local storage container on a remote
+                         system.
+            type: list
+            contains:
+                id:
+                    description: The unique id of the storage container
+                                 destination.
+                    type: str
+                remote_system_id:
+                    description: The unique id of the remote system.
+                    type: str
+                remote_system_name:
+                    description: The name of the remote system.
+                    type: str
+                remote_storage_container_id:
+                    description: The unique id of the destination storage
+                                 container on the remote system.
+                    type: str
+        datastores:
+            description: List of associated datastores.
+            type: list
+            contains:
+                id:
+                    description: Unique identifier of the datastore instance.
+                    type: str
+                name:
+                    description: User-assigned name of the datastore in vCenter.
+                    type: str
+    sample: [
+        {
+            "datastores": [],
+            "destinations": [],
+            "id": "e0ccd953-5650-41d8-9bce-f36d876d6a2a",
+            "name": "Ansible_storage_container_1",
+            "quota": 21474836480,
+            "replication_groups": [],
+            "storage_protocol": "NVMe",
+            "storage_protocol_l10n": "NVMe",
+            "virtual_volumes": []
+        }
+    ]
 VolumeGroups:
     description: Provides details of all volume groups.
     type: list
-    returned: When vg is in a given gather_subset
+    returned: When C(vg) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the volume group.
@@ -970,7 +1107,7 @@ VolumeGroups:
 Volumes:
     description: Provides details of all volumes.
     type: list
-    returned: When vol is in a given gather_subset
+    returned: When C(vol) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the volume.
@@ -987,7 +1124,7 @@ Volumes:
 TreeQuotas:
     description: Provides details of all tree quotas.
     type: list
-    returned: When tree_quota is in a given gather_subset
+    returned: When C(tree_quota) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the tree quota.
@@ -1003,7 +1140,7 @@ TreeQuotas:
 UserQuotas:
     description: Provides details of all user quotas.
     type: list
-    returned: When user_quota is in a given gather_subset
+    returned: When C(user_quota) is in a given I(gather_subset)
     contains:
           id:
             description: ID of the user quota.
@@ -1016,7 +1153,7 @@ UserQuotas:
 vCenter:
     description: Provide details of all vCenters.
     type: list
-    returned: When vCenter is in a given gather_subset
+    returned: When C(vCenter) is in a given I(gather_subset)
     contains:
         id:
             description: Unique identifier of vCenter.
@@ -1070,7 +1207,7 @@ vCenter:
 VirtualVolume:
     description: Provides details of all virtual volumes.
     type: list
-    returned: When virtual_volume is in a given gather_subset
+    returned: When C(virtual_volume) is in a given I(gather_subset)
     contains:
         id:
             description: The unique identifier of the virtual volume.
@@ -1239,7 +1376,6 @@ VirtualVolume:
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import utils
-import logging
 
 LOG = utils.get_logger('info')
 
@@ -1252,7 +1388,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreInfo(object):
@@ -1322,6 +1458,10 @@ class PowerstoreInfo(object):
             'snapshot_rule': {
                 'func': self.protection.get_snapshot_rules,
                 'display_as': 'SnapshotRules'
+            },
+            'replication_group': {
+                'func': self.protection.get_replication_groups,
+                'display_as': 'ReplicationGroups'
             },
             'replication_rule': {
                 'func': self.protection.get_replication_rules,
@@ -1431,6 +1571,10 @@ class PowerstoreInfo(object):
                 'func': self.configuration.get_virtual_volume_list,
                 'display_as': 'VirtualVolume'
             },
+            'storage_container': {
+                'func': self.configuration.get_storage_container_list,
+                'display_as': 'StorageContainers'
+            }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
 
@@ -1576,18 +1720,19 @@ def get_powerstore_info_parameters():
        PowerStore"""
     return dict(
         all_pages=dict(type='bool', required=False, default=False),
-        gather_subset=dict(type='list', required=True, elements='str',
-                           choices=['vol', 'vg', 'host', 'hg', 'node',
-                                    'protection_policy', 'snapshot_rule',
-                                    'nas_server', 'nfs_export', 'smb_share',
-                                    'tree_quota', 'user_quota', 'file_system',
-                                    'replication_rule', 'replication_session',
-                                    'remote_system', 'network', 'role',
-                                    'user', 'appliance', 'ad', 'ldap',
-                                    'security_config', 'certificate', 'dns', 'ntp',
-                                    'smtp_config', 'email_notification',
-                                    'remote_support', 'remote_support_contact',
-                                    'ldap_account', 'ldap_domain', 'vcenter', 'virtual_volume']),
+        gather_subset=dict(
+            type='list', required=True, elements='str',
+            choices=['vol', 'vg', 'host', 'hg', 'node', 'protection_policy',
+                     'snapshot_rule', 'nas_server', 'nfs_export', 'smb_share',
+                     'tree_quota', 'user_quota', 'file_system',
+                     'replication_rule', 'replication_session',
+                     'remote_system', 'network', 'role', 'user', 'appliance',
+                     'ad', 'ldap', 'security_config', 'certificate', 'dns',
+                     'ntp', 'smtp_config', 'email_notification',
+                     'remote_support', 'remote_support_contact',
+                     'ldap_account', 'ldap_domain', 'vcenter',
+                     'virtual_volume', 'storage_container',
+                     'replication_group']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

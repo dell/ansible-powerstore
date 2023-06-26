@@ -1,0 +1,238 @@
+---
+- name: LDAP Domain Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Create LDAP domain with check mode
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "ansildap.com"
+        ldap_servers: ["XX.XX.XX.XX"]
+        ldap_server_state: "present-in-domain"
+        protocol: "LDAP"
+        ldap_server_type: "OpenLDAP"
+        bind_user: "cn=cn_user,dc=exampleldap,dc=com"
+        bind_password: "Password"
+        ldap_domain_user_settings:
+          user_search_path: "cn=Users"
+        ldap_domain_group_settings:
+          group_search_path: "cn=Users"
+        state: "present"
+      check_mode: true
+
+    - name: Create LDAP domain
+      register: result
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "ansildap.com"
+        ldap_servers: ["XX.XX.XX.XX"]
+        ldap_server_state: "present-in-domain"
+        protocol: "LDAP"
+        ldap_server_type: "OpenLDAP"
+        bind_user: "cn=cn_user,dc=exampleldap,dc=com"
+        bind_password: "Password"
+        ldap_domain_user_settings:
+          user_search_path: "cn=Users"
+        ldap_domain_group_settings:
+          group_search_path: "cn=Users"
+        state: "present"
+
+    - name: Create LDAP domain idempotency
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "ansildap.com"
+        ldap_servers: ["XX.XX.XX.XX"]
+        ldap_server_state: "present-in-domain"
+        protocol: "LDAP"
+        ldap_server_type: "OpenLDAP"
+        bind_user: "cn=cn_user,dc=exampleldap,dc=com"
+        bind_password: "Password"
+        ldap_domain_user_settings:
+          user_search_path: "cn=Users"
+        ldap_domain_group_settings:
+          group_search_path: "cn=Users"
+        state: "present"
+
+    - name: Get LDAP domain details using ID
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        state: "present"
+
+    - name: Verify LDAP domain configuration
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        verify_configuration: true
+        state: "present"
+
+    - name: Modify LDAP domain configuration with check mode
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        ldap_domain_user_settings:
+          user_search_path: "cn=admin"
+          user_object_class: "posixAccount"
+        state: "present"
+      check_mode: true
+
+    - name: Modify LDAP domain configuration
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        ldap_domain_user_settings:
+          user_search_path: "cn=admin"
+          user_object_class: "posixAccount"
+        state: "present"
+
+    - name: Modify LDAP domain configuration idempotency
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        ldap_domain_user_settings:
+          user_search_path: "cn=admin"
+          user_object_class: "posixAccount"
+        state: "present"
+
+    - name: Delete LDAP domain configuration with check mode
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        state: "absent"
+      check_mode: true
+
+    - name: Delete LDAP domain configuration
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        state: "absent"
+
+    - name: Delete LDAP domain configuration idempotency
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_id: "{{ result.ldap_domain_details.id }}"
+        state: "absent"
+
+    - name: Create LDAP domain with AD server type
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        ldap_servers:
+          - "XX.XX.XX.XX"
+        ldap_server_state: "present-in-domain"
+        ldap_server_type: "AD"
+        bind_user: "cn=user,dc=example,dc=com"
+        bind_password: "Password"
+        is_global_catalog: true
+        ldap_server_port: 3268
+        protocol: "LDAP"
+        ldap_domain_user_settings:
+          user_search_path: ""
+        ldap_domain_group_settings:
+          group_search_path: ""
+        state: "present"
+
+    - name: Create LDAP domain with AD server type - idempotency
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        ldap_servers:
+          - "XX.XX.XX.XX"
+        ldap_server_state: "present-in-domain"
+        ldap_server_type: "AD"
+        bind_user: "cn=user,dc=example,dc=com"
+        bind_password: "Password"
+        is_global_catalog: true
+        ldap_server_port: 3268
+        protocol: "LDAP"
+        ldap_domain_user_settings:
+          user_search_path: ""
+        state: "present"
+
+    - name: Get LDAP domain details
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        state: "present"
+
+    - name: Modify LDAP domain details
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        is_global_catalog: false
+        ldap_server_port: 389
+        ldap_domain_user_settings:
+          user_search_path: "cn=Users,dc=example,dc=com"
+        ldap_domain_group_settings:
+          group_search_path: "cn=Users,dc=example,dc=com"
+        state: "present"
+
+    - name: Delete LDAP domain
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        state: "absent"
+
+    - name: Delete LDAP domain idempotency
+      dellemc.powerstore.ldap_domain:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_domain_name: "example.com"
+        state: "absent"

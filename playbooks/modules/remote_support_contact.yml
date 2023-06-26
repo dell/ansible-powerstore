@@ -1,0 +1,43 @@
+---
+- name: Email Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xx.xx.xx'
+    validate_certs: false
+    user: 'user'
+    password: 'Password'
+
+  tasks:
+    - name: Get details of remote support contact
+      dellemc.powerstore.remote_support_contact:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        contact_id: 0
+        state: "present"
+
+    - name: Modify remote support contact
+      dellemc.powerstore.remote_support_contact:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        contact_id: 0
+        first_name: "abc"
+        last_name: "xyz"
+        email: "abc_xy@dell.com"
+        state: "present"
+
+    - name: Modify remote support contact - Idempotency
+      dellemc.powerstore.remote_support_contact:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        contact_id: 0
+        first_name: "abc"
+        last_name: "xyz"
+        email: "abc_xy@dell.com"
+        state: "present"

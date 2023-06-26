@@ -1,0 +1,91 @@
+---
+- name: Filesystem Snapshot Operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Create filesystem snapshot
+      register: result_fs_snapshot
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "sample_filesystem_snapshot"
+        nas_server: "ansible_nas_server"
+        filesystem: "sample_filesystem"
+        description: "sample description"
+        desired_retention: 20
+        retention_unit: "days"
+        state: "present"
+
+    - name: Create filesystem snapshot - Idempotency
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "sample_filesystem_snapshot"
+        nas_server: "ansible_nas_server"
+        filesystem: "sample_filesystem"
+        description: "sample description"
+        desired_retention: 20
+        retention_unit: "days"
+        state: "present"
+
+    - name: Get the details of filesystem snapshot
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_id: "{{ fs_snapshot_id }}"
+        state: "present"
+
+    - name: Modify the filesystem snapshot
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "sample_filesystem_snapshot"
+        nas_server: "ansible_nas_server"
+        description: "modify description"
+        expiration_timestamp: ""
+        state: "present"
+
+    - name: Modify the filesystem snapshot - Idempotency
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "sample_filesystem_snapshot"
+        nas_server: "ansible_nas_server"
+        description: "modify description"
+        expiration_timestamp: ""
+        state: "present"
+
+    - name: Delete filesystem snapshot
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_id: "{{ fs_snapshot_id }}"
+        state: "absent"
+
+    - name: Delete filesystem snapshot - Idempotency
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "sample_filesystem_snapshot"
+        nas_server: "ansible_nas_server"
+        state: "absent"

@@ -69,7 +69,7 @@ options:
   state:
     description:
     - The state of the vCenter instance after the task is performed.
-    - For get, create, and modify operations it should be set to "present".
+    - For get, create, and modify operations it should be set to C(present).
     choices: [ 'present', 'absent']
     default: present
     type: str
@@ -100,7 +100,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        vcenter_id: "24d333-59f-423c-205-c6181ea81b"
 
   - name: Add a vcenter
@@ -108,7 +108,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        address: "XX.XX.XX.XX"
        vcenter_username: "user-name"
        vcenter_password: "password"
@@ -122,7 +122,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        vcenter_id: "24d333-59f-423c-205-c6181ea81b"
        address: "XX.XX.XX.YY"
        vcenter_username: "user-name"
@@ -134,7 +134,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        vcenter_id: "24d333-59f-423c-205-c6181ea81b"
        delete_vasa_provider: true
        state: "absent"
@@ -215,7 +215,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreVCenter(object):

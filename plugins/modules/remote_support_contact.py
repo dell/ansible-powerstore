@@ -24,42 +24,38 @@ options:
   contact_id:
     description:
     - Unique identifier of the remote support contact.
-    required: True
+    required: true
     type: int
   first_name:
     description:
     - The first name of the support contact for this system.
-    required: False
     type: str
   last_name:
     description:
     - The last name of the support contact for this system.
-    required: False
     type: str
   phone:
     description:
     - The phone number of this support contact for this system.
-    required: False
     type: str
   email:
     description:
     - The email address of the support contact for this system.
-    required: False
     type: str
   state:
     description:
     - The state of the remote support contact after the task is performed.
-    - For Delete operation only, it should be set to "absent".
-    - For get/modify operation it should be set to "present".
-    required : True
+    - For Delete operation only, it should be set to C(absent).
+    - For get/modify operation it should be set to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Creation and deletion of remote support contact is not supported.
-- Parameters first_name, last_name, email and phone can be removed by passing
+- Parameters I(first_name), I(last_name), I(email) and I(phone) can be removed by passing
   empty string.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
 
@@ -68,7 +64,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        contact_id: 0
        state: "present"
 
@@ -77,7 +73,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        contact_id: 0
        first_name: "abc"
        last_name: "xyz"
@@ -141,7 +137,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreRemoteSupportContact(object):

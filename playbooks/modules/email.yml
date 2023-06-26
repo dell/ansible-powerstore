@@ -1,0 +1,99 @@
+---
+- name: Email Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of destination email with email_id
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_id: "xxx-xxxx-xxxx-xxx-xxxxxxx"
+        state: "present"
+
+    - name: Get details of destination email with email_address
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "abc@example.com"
+        state: "present"
+
+    - name: Create destination email
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "abc@example.com"
+        notify:
+          info: true
+          critical: true
+          major: false
+        state: "present"
+
+    - name: Create destination email - Idempotency
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "abc@example.com"
+        notify:
+          info: true
+          critical: true
+          major: false
+        state: "present"
+
+    - name: Modify destination email
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "abc@example.com"
+        new_address: "xyz@example.com"
+        notify:
+          info: false
+          major: false
+        state: "present"
+
+    - name: Modify destination email - Idempotency
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "abc@example.com"
+        new_address: "xyz@example.com"
+        notify:
+          info: false
+          major: false
+        state: "present"
+
+    - name: Send a test mail to the destination email with email_id
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_id: "xxx-xxxx-xxxx-xxx-xxxxxxx"
+        send_test_dellemc.powerstore.email: true
+        state: "present"
+
+    - name: Delete destination email
+      dellemc.powerstore.email:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        email_address: "xyz@example.com"
+        state: "absent"

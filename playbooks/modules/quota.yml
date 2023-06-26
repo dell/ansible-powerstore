@@ -1,0 +1,306 @@
+---
+- name: Quota Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xx.xx.xx'
+    validate_certs: false
+    user: 'user'
+    password: 'Password'
+    path: "/sample_path"
+    filesystem: "ansible_quota_fs"
+    nas_server: "ansible_nas_server_2"
+    description: "Added description during Creation of Quota."
+    mod_description: "Updated the description of the quota."
+    cap_unit: "GB"
+
+  tasks:
+    - name: Create a Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        description: "{{ description }}"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        dellemc.powerstore.quota:
+          hard_limit: 2
+          soft_limit: 1
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Create a Tree Quota for a filesystem Idempotency
+      register: result
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        description: "{{ description }}"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        dellemc.powerstore.quota:
+          hard_limit: 2
+          soft_limit: 1
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Fetch Tree Quota ID, Filesystem ID and NAS Server ID
+      ansible.builtin.set_fact:
+        tree_quota_id: "{{ result['quota_details']['id'] }}"
+        fs_id: "{{ result['quota_details']['file_system']['id'] }}"
+        nas_id: "{{ result['quota_details']['file_system']['nas_server']['id'] }}"
+
+    - name: Create a User Quota on a Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        uid: 100
+        path: "{{ path }}"
+        filesystem: "{{ fs_id }}"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 3
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Create a User Quota on a Tree Quota for a filesystem Idempotency
+      register: result
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        uid: 100
+        path: "{{ path }}"
+        filesystem: "{{ fs_id }}"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 3
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Fetch User Quota ID, Filesystem ID and NAS Server ID
+      ansible.builtin.set_fact:
+        user_quota_id_1: "{{ result['quota_details']['id'] }}"
+
+    - name: Create a User Quota on filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        uid: 100
+        filesystem: "ansible_quota_fs"
+        nas_server: "{{ nas_id }}"
+        dellemc.powerstore.quota:
+          hard_limit: 6
+          soft_limit: 5
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Create a User Quota on filesystem Idempotency
+      register: result
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        uid: 100
+        filesystem: "ansible_quota_fs"
+        nas_server: "{{ nas_id }}"
+        dellemc.powerstore.quota:
+          hard_limit: 6
+          soft_limit: 5
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Fetch User Quota ID, Filesystem ID and NAS Server ID
+      ansible.builtin.set_fact:
+        user_quota_id_2: "{{ result['quota_details']['id'] }}"
+
+    - name: Get details of a User Quota on a Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_1 }}"
+        state: 'present'
+
+    - name: Get details of a User Quota on filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_2 }}"
+        state: 'present'
+
+    - name: Get details of a Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ tree_quota_id }}"
+        state: 'present'
+
+    - name: Update attributes of Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        description: "{{ mod_description }}"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 2
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Update attributes of Tree Quota for a filesystem Idempotency
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        description: "{{ mod_description }}"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 2
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Update limits for a User Quota on Tree Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_2 }}"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 2
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Update limits for a User Quota on Tree Quota for a filesystem Idempotency
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_2 }}"
+        dellemc.powerstore.quota:
+          hard_limit: 4
+          soft_limit: 2
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Update limits for a User Quota for a filesystem
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_1 }}"
+        dellemc.powerstore.quota:
+          hard_limit: 6
+          soft_limit: 5
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Update limits for a User Quota for a filesystem Idempotency
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_id: "{{ user_quota_id_1 }}"
+        dellemc.powerstore.quota:
+          hard_limit: 6
+          soft_limit: 5
+          cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+
+    - name: Delete a Tree Quota
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        state: 'absent'
+
+    - name: Delete a Tree Quota Idempotency
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "tree"
+        path: "{{ path }}"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        state: 'absent'
+
+    - name: Get details of a User Quota with Windows SID
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        windows_sid: "S-xxx-xxx-xxx-xxx"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        state: 'present'
+
+    - name: Get details of a User Quota with Unix Name
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        unix_name: "ldap_test_user_1"
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        state: 'present'
+
+    - name: Get details of a User Quota with Windows Name
+      dellemc.powerstore.quota:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        quota_type: "user"
+        # Windows Name can also be mentioned as "DEVCONAD\\ad_user_3"
+        windows_name: 'DEVCONAD\ad_user_3'
+        filesystem: "ansible_quota_fs"
+        nas_server: "ansible_nas_server_2"
+        state: 'present'

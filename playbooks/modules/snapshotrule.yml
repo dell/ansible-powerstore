@@ -1,0 +1,218 @@
+---
+- name: Snapshot rule operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    snap_rule_name: "DevCon_Ansible_SnapRule_Test"
+    snapshotrule_id: ""
+    new_name: "Modified_DevCon_Ansible_SnapRule_Test"
+    days_of_week: ""
+    interval: "Five_Minutes"
+    new_interval: "One_Hour"
+    time_of_day: "12:00"
+    new_time_of_day: "00:45"
+    desired_retention: 24
+    new_desired_retention: 72
+    delete_snaps: true
+    state: "present"
+
+  tasks:
+    - name: Create new snapshot rule by interval
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        interval: "{{ interval }}"
+        days_of_week:
+          - Monday
+        desired_retention: "{{ desired_retention }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Create new snapshot rule by interval Idempotency
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        interval: "{{ interval }}"
+        days_of_week:
+          - Monday
+        desired_retention: "{{ desired_retention }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Modify existing snapshot rule by interval
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        new_name: "{{ new_name }}"
+        interval: "{{ new_interval }}"
+        days_of_week:
+          - Sunday
+        desired_retention: "{{ new_desired_retention }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Modify existing snapshot rule by interval Idempotency
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ new_name }}"
+        interval: "{{ new_interval }}"
+        days_of_week:
+          - Sunday
+        desired_retention: "{{ new_desired_retention }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Delete an existing snapshot rule
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ new_name }}"
+        delete_snaps: true
+        state: "absent"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Create new snapshot rule by time_of_day and days_of_week
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        desired_retention: "{{ desired_retention }}"
+        days_of_week:
+          - Monday
+          - Wednesday
+          - Friday
+        time_of_day: "{{ time_of_day }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Create new snapshot rule by time_of_day and days_of_week Idempotency
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        desired_retention: "{{ desired_retention }}"
+        days_of_week:
+          - Monday
+          - Wednesday
+          - Friday
+        time_of_day: "{{ time_of_day }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Modify existing snapshot rule by time_of_day and days_of_week
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ snap_rule_name }}"
+        new_name: "{{ new_name }}"
+        desired_retention: "{{ desired_retention }}"
+        days_of_week:
+          - Monday
+          - Wednesday
+          - Friday
+          - Sunday
+        time_of_day: "{{ new_time_of_day }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Get details of existing snapshot rule by name
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ new_name }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Get details of existing snapshot rule by snapshotrule_id
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshotrule_id: "{{ snapshotrule_id }}"
+        state: "present"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Delete an existing snapshot rule
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ new_name }}"
+        delete_snaps: true
+        state: "absent"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Delete an existing snapshot rule Idempotency
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "{{ new_name }}"
+        delete_snaps: true
+        state: "absent"
+      register: snaprule_result
+    - name: Store snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result

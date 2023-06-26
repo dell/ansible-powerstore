@@ -22,6 +22,7 @@ author:
 - Manisha Agrawal (@agrawm3) <ansible.team@dell.com>
 - Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
 - Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
+- Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 options:
@@ -56,7 +57,7 @@ options:
     - Volume size unit.
     - Used to signify unit of the size provided for creation and expansion of
       volume.
-    - It defaults to 'GB', if not specified.
+    - It defaults to C(GB), if not specified.
     choices: [MB, GB, TB]
     type: str
   new_name:
@@ -91,9 +92,19 @@ options:
     description:
     - Application type for volume when I(app_type) is set to C(*Other) types.
     type: str
+  appliance_id:
+    description:
+    - ID of the appliance on which the volume is provisioned.
+    - I(appliance_id) and I(appliance_name) are mutually exclusive.
+    type: str
+  appliance_name:
+    description:
+    - Name of the appliance on which the volume is provisioned.
+    - I(appliance_id) and I(appliance_name) are mutually exclusive.
+    type: str
   protection_policy:
     description:
-    - The protection_policy of the volume.
+    - The I(protection_policy) of the volume.
     - To represent policy, both name or ID can be used interchangably.
       The module will detect both.
     - A volume can be assigned a protection policy at the time of creation of the
@@ -105,13 +116,13 @@ options:
     type: str
   performance_policy:
     description:
-    - The performance_policy for the volume.
+    - The I(performance_policy) for the volume.
     - A volume can be assigned a performance policy at the time of creation of
       the volume, or later.
     - The policy can also be changed for a given volume, by simply passing the
       new value.
     - Check examples for more clarity.
-    - If not given, performance policy will be 'medium'.
+    - If not given, performance policy will be C(medium).
     choices: [high, medium, low]
     type: str
   host:
@@ -133,9 +144,9 @@ options:
   mapping_state:
     description:
     - Define whether the volume should be mapped to a host or hostgroup.
-    - Value mapped - indicates that the volume should be mapped to the host
+    - Value C(mapped) - indicates that the volume should be mapped to the host
       or host group.
-    - Value unmapped - indicates that the volume should not be mapped to the
+    - Value C(unmapped) - indicates that the volume should not be mapped to the
       host or host group.
     - Only one of a host or host group can be supplied in one call.
     choices: [mapped, unmapped]
@@ -145,7 +156,6 @@ options:
     - Logical unit number for the host/host group volume access.
     - Optional parameter when mapping a volume to host/host group.
     - HLU modification is not supported.
-    required: False
     type: int
   clone_volume:
     description:
@@ -170,8 +180,8 @@ options:
         type: str
       logical_unit_number:
         description:
-        - logical unit number when creating a mapped volume.
-        - If no host_id or host_group_id is specified, logical_unit_number is ignored.
+        - logical unit number when creating a C(mapped) volume.
+        - If no C(host_id) or C(host_group_id) is specified, C(logical_unit_number) is ignored.
         type: int
       protection_policy:
         description:
@@ -220,8 +230,8 @@ options:
   state:
     description:
     - Define whether the volume should exist or not.
-    - Value present - indicates that the volume should exist on the system.
-    - Value absent - indicates that the volume should not exist on the system.
+    - Value C(present) - indicates that the volume should exist on the system.
+    - Value C(absent) - indicates that the volume should not exist on the system.
     required: true
     choices: [absent, present]
     type: str
@@ -232,48 +242,44 @@ options:
     - This is mandatory while configuring a metro volume.
     - To represent remote system, both name and ID are interchangeable.
     - This parameter is added in PowerStore version 3.0.0.0.
-    required: False
     type: str
   remote_appliance_id:
     description:
     - A remote system appliance ID to which volume will be assigned.
     - This parameter is added in PowerStore version 3.0.0.0.
-    required: False
     type: str
   end_metro_config:
     description:
     - Whether to end the metro session from a volume.
     - This is mandatory for end metro configuration operation.
-    required: False
     type: bool
-    default: False
+    default: false
   delete_remote_volume:
     description:
     - Whether to delete the remote volume during removal of metro session.
     - This is parameter is added in the PowerStore version 3.0.0.0.
-    required: False
     type: bool
 
 notes:
-- To create a new volume, vol_name and size is required. cap_unit,
-  description, vg_name, performance_policy, and protection_policy are
+- To create a new volume, I(vol_name) and I(size) is required. I(cap_unit),
+  I(description), I(vg_name), I(performance_policy), and I(protection_policy) are
   optional.
-- Parameter new_name should not be provided when creating a new volume.
-- The size is a required parameter for expand volume.
+- Parameter I(new_name) should not be provided when creating a new volume.
+- The I(size)is a required parameter for expand volume.
 - Clones or Snapshots of a deleted production volume or a clone are not
   deleted.
 - A volume that is attached to a host/host group, or that is part of a volume
   group cannot be deleted.
 - If volume in metro session, volume can only be modified, refreshed and
   restored when session is in the pause state.
-- The Check_mode is not supported.
+- The I(Check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Create volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -288,11 +294,12 @@ EXAMPLES = r'''
     host: "{{host_name}}"
     app_type: "Relational_Databases_Other"
     app_type_other: "MaxDB"
+    appliance_name: "Appliance_Name"
 
 - name: Get volume details using ID
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_id: "{{result.volume_details.id}}"
@@ -301,7 +308,7 @@ EXAMPLES = r'''
 - name: Modify volume size, name, description, protection,  performance policy and app_type
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     new_name: "{{new_name}}"
@@ -316,7 +323,7 @@ EXAMPLES = r'''
 - name: Map volume to a host with HLU
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -328,7 +335,7 @@ EXAMPLES = r'''
 - name: Clone a volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -345,7 +352,7 @@ EXAMPLES = r'''
 - name: Refresh a volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -361,7 +368,7 @@ EXAMPLES = r'''
 - name: Restore a volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -377,7 +384,7 @@ EXAMPLES = r'''
 - name: Configure a metro volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
@@ -387,18 +394,18 @@ EXAMPLES = r'''
 - name: End a metro volume configuration
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_name: "{{vol_name}}"
-    end_metro_config: True
-    delete_remote_volume: True
+    end_metro_config: true
+    delete_remote_volume: true
     state: "present"
 
 - name: Delete volume
   dellemc.powerstore.volume:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     vol_id: "{{result.volume_details.id}}"
@@ -455,6 +462,12 @@ volume_details:
             type: str
         protection_policy_id:
             description: The protection policy of the volume.
+            type: str
+        appliance_id:
+            description: ID of appliance on which the volume is provisioned.
+            type: str
+        appliance_name:
+            description: Name of appliance on which the volume is provisioned.
             type: str
         snapshots:
             description: List of snapshot associated with the volume.
@@ -618,7 +631,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreVolume(object):
@@ -629,7 +642,7 @@ class PowerStoreVolume(object):
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(get_powerstore_volume_parameters())
 
-        mutually_exclusive = [['vol_name', 'vol_id']]
+        mutually_exclusive = [['vol_name', 'vol_id'], ['appliance_name', 'appliance_id']]
         required_one_of = [['vol_name', 'vol_id']]
         required_by = {
             'app_type_other': 'app_type',
@@ -660,6 +673,7 @@ class PowerStoreVolume(object):
             self.module.params, application_type=APPLICATION_TYPE)
         self.provisioning = self.conn.provisioning
         self.protection = self.conn.protection
+        self.configuration = self.conn.config_mgmt
         self.performance_policy_dict = {
             'low': 'default_low',
             'medium': 'default_medium',
@@ -693,6 +707,17 @@ class PowerStoreVolume(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
+    def update_volume_details(self, volume_info):
+        try:
+            appliance_id = volume_info['appliance_id']
+            volume_info['appliance_name'] = self.configuration.get_appliance_details(appliance_id)['name']
+            return volume_info['appliance_name']
+
+        except Exception as e:
+            error_msg = f"Failed to update volume details with appliance name {e}"
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
     def create_volume(self, vol_name,
                       size,
                       volume_group_id,
@@ -700,7 +725,8 @@ class PowerStoreVolume(object):
                       performance_policy,
                       description,
                       app_type,
-                      app_type_other):
+                      app_type_other,
+                      appliance_id):
         """Create PowerStore volume"""
 
         try:
@@ -719,7 +745,8 @@ class PowerStoreVolume(object):
                 protection_policy_id=protection_policy_id,
                 volume_group_id=volume_group_id,
                 app_type=app_type,
-                app_type_other=app_type_other)
+                app_type_other=app_type_other,
+                appliance_id=appliance_id)
             return True
         except Exception as e:
             msg = 'Create volume {0} failed with error {1}'.format(
@@ -1176,6 +1203,10 @@ class PowerStoreVolume(object):
         delete_remote_volume = self.module.params['delete_remote_volume']
         app_type = self.module.params['app_type']
         app_type_other = self.module.params['app_type_other']
+        appliance_id = self.module.params['appliance_id']
+        if self.module.params['appliance_name']:
+            appliance_id = self.get_appliance_id_by_name(
+                self.module.params['appliance_name'])
 
         changed = False
         is_volume_refreshed = False
@@ -1224,7 +1255,8 @@ class PowerStoreVolume(object):
                 performance_policy=performance_policy,
                 description=description,
                 app_type=app_type,
-                app_type_other=app_type_other)
+                app_type_other=app_type_other,
+                appliance_id=appliance_id)
             if changed:
                 vol_id = self.get_volume_id_by_name(vol_name)
                 volume = self.get_volume(vol_id=vol_id)
@@ -1236,6 +1268,10 @@ class PowerStoreVolume(object):
                 LOG.info(msg)
                 self.module.fail_json(msg=msg)
             hlu_mod_flag = True
+            if appliance_id != volume['appliance_id'] and appliance_id:
+                error_msg = f"Modifying the appliance of a volume to {appliance_id} is not allowed."
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
             if host and hlu:
                 hlu_mod_flag, error = check_for_hlu_modification(
                     volume, host=host, hlu=hlu)
@@ -1290,7 +1326,8 @@ class PowerStoreVolume(object):
                 'performance_policy_id': performance_policy,
                 'size': size,
                 'app_type': app_type,
-                'app_type_other': app_type_other
+                'app_type_other': app_type_other,
+                'appliance_id': appliance_id
             }
 
             # In update_dict parameters which are to be updated will have
@@ -1397,6 +1434,7 @@ class PowerStoreVolume(object):
             if self.result["volume_details"]:
                 self.result["volume_details"].update(
                     snapshots=self.get_volume_snapshots(self.result["volume_details"]['id'], all_snapshots=True)[1])
+                self.result["volume_details"].update(appliance_name=self.update_volume_details(self.result["volume_details"]))
         self.module.exit_json(**self.result)
 
     def is_metro_configured(self, session_id, remote_system):
@@ -1461,6 +1499,22 @@ class PowerStoreVolume(object):
         except Exception as e:
             error_msg = "Get volume group: {0} failed with " \
                         "error: {1}".format(volume_group_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
+    def get_appliance_id_by_name(self, appliance_name):
+        try:
+
+            # Get the appliance details using name
+            appliance_info = self.configuration.get_appliance_by_name(appliance_name)
+            if appliance_info:
+                return appliance_info[0]['id']
+
+            error_msg = f"Appliance {appliance_name} not found"
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
+        except Exception as e:
+            error_msg = f"Get appliance: {appliance_name} failed with error: {e}"
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
@@ -1698,7 +1752,7 @@ def get_backupsnap_profile_details(data):
     """
     Get backupsnap profile details
     :param data: Refresh details or Restore details.
-    :return: backupsnap profil edetails.
+    :return: backupsnap profile details.
     """
     backup_snap_profile = {}
     if data['backup_snap_profile']:
@@ -1778,7 +1832,9 @@ def get_powerstore_volume_parameters():
                      "Virtualization_Virtual_Servers_VSI",
                      "Virtualization_Containers_Kubernetes",
                      "Virtualization_Virtual_Desktops_VDI", "Other"]),
-        app_type_other=dict(type='str')
+        app_type_other=dict(type='str'),
+        appliance_name=dict(type='str'),
+        appliance_id=dict(type='str')
     )
 
 

@@ -23,33 +23,31 @@ options:
   ntp_id:
     description:
     - Unique identifier of the NTP instance.
-    required: True
+    required: true
     type: str
   ntp_addresses:
     description:
     - NTP server addresses, may contain host names or IPv4 addresses.
-    required: False
     type: list
     elements: str
   ntp_address_state:
     description:
-    - State of the addresses mentioned in ntp_addresses.
-    required: False
+    - State of the addresses mentioned in I(ntp_addresses).
     choices: ['present-in-ntp', 'absent-in-ntp']
     type: str
   state:
     description:
     - The state of the NTP instance after the task is performed.
-    - For get and modify operations it should be set to "present".
-    required : True
+    - For get and modify operations it should be set to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Minimum 1 and maximum 3 addresses can be associated to a NTP instance.
-- Parameters ntp_addresses and ntp_address_state are required together.
+- Parameters I(ntp_addresses) and I(ntp_address_state) are required together.
 - Creation and deletion of NTP is not supported.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -58,7 +56,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        ntp_id: "NTP1"
        state: "present"
 
@@ -67,7 +65,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        ntp_id: "NTP1"
        ntp_addresses:
         - "XX.XX.XX.XX"
@@ -80,7 +78,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        ntp_id: "NTP1"
        ntp_addresses:
         - "YY.YY.YY.YY"
@@ -130,7 +128,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreNtp(object):

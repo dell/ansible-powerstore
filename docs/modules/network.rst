@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -32,7 +35,7 @@ Parameters
 
     This parameter is added in 2.0.0.0.
 
-    Specify either network_name or network_id for any operation.
+    Specify either *network_name* or *network_id* for any operation.
 
 
   network_id (optional, str, None)
@@ -125,7 +128,7 @@ Parameters
 
 
   wait_for_completion (optional, bool, False)
-    Flag to indicate if the operation should be run synchronously or asynchronously. True signifies synchronous execution. By default, modify operation will run asynchronously.
+    Flag to indicate if the operation should be run synchronously or asynchronously. ``true`` signifies synchronous execution. By default, modify operation will run ``asynchronously``.
 
 
   state (True, str, None)
@@ -136,12 +139,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -172,9 +175,9 @@ Notes
 
 .. note::
    - It is recommended to perform task asynchronously while changing cluster management address.
-   - Idempotency is not supported for vasa_provider_credentials and esxi_credentials.
-   - For PowerStore X model, vasa_provider_credentials has to be specified along with new_cluster_mgmt_address.
-   - The check_mode is not supported.
+   - Idempotency is not supported for *vasa_provider_credentials* and *esxi_credentials*.
+   - For PowerStore X model, *vasa_provider_credentials* has to be specified along with *new_cluster_mgmt_address*.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -189,7 +192,7 @@ Examples
     - name: Get network details using ID
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_id: "NW1"
@@ -198,7 +201,7 @@ Examples
     - name: Get network details using name
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_name: "Default Management Network"
@@ -207,18 +210,18 @@ Examples
     - name: Rename the storage network
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_name: "Default Storage Network"
         new_name: "iSCSI Network"
-        wait_for_completion: True
+        wait_for_completion: true
         state: "present"
 
     - name: Replace the IP's in the management network and re-register VASA vendor provider
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_id: "NW1"
@@ -238,7 +241,7 @@ Examples
     - name: Map port to the storage network
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_id: "NW6"
@@ -250,7 +253,7 @@ Examples
     - name: Unmap port from the storage network
       dellemc.powerstore.network:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_id: "NW6"
@@ -263,7 +266,7 @@ Examples
             provider for X model
       dellemc.powerstore.network:
         array_ip: "{{array_ip1}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         network_id: "NW1"

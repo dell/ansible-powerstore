@@ -1,0 +1,478 @@
+---
+- name: Collect set of facts for a given Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get the facts for a given Powerstore Storage System
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - vol
+          - vg
+          - host
+          - hg
+          - snapshot_rule
+          - node
+          - nas_server
+          - nfs_export
+          - smb_share
+          - tree_quota
+          - user_quota
+          - file_system
+          - protection_policy
+          - replication_rule
+          - replication_session
+          - remote_system
+          - network
+          - role
+          - user
+          - appliance
+          - storage_container
+        all_pages: true
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Volumes whose state not equal to ready
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - vol
+        filters:
+          - filter_key: state
+            filter_operator: notequal
+            filter_value: ready
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Volume Groups whose name contains the word "test"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - vg
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: "*test*"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get protection policies of type replication
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - protection_policy
+        filters:
+          - filter_key: is_replica
+            filter_operator: equal
+            filter_value: "true"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get all non-Linux hosts
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - host
+        filters:
+          - filter_key: os_type
+            filter_operator: notequal
+            filter_value: Linux
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Host Groups whose name endswith word "iscsi"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - hg
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: "*iscsi"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Snapshot Rules whose desired_retention is between 101-499
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - snapshot_rule
+        filters:
+          - filter_key: desired_retention
+            filter_operator: greater
+            filter_value: "100"
+          - filter_key: desired_retention
+            filter_operator: lesser
+            filter_value: "500"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Nodes whose slot is greater than 0
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - node
+        filters:
+          - filter_key: slot
+            filter_operator: greater
+            filter_value: "0"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get NAS Servers whose name & description equal to "ansible_nas_server"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - nas_server
+        filters:
+          - filter_key: name
+            filter_operator: equal
+            filter_value: ansible_nas_server
+          - filter_key: description
+            filter_operator: equal
+            filter_value: ansible_nas_server
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get NFS Exports whose name equal to "ansible_export"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - nfs_export
+        filters:
+          - filter_key: name
+            filter_operator: equal
+            filter_value: ansible_export
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get SMB Shares whose name startswith "smb_share"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - smb_share
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: smb_share*
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Tree Quotas whose hard_limit is greater than 20971520
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - tree_quota
+        filters:
+          - filter_key: hard_limit
+            filter_operator: greater
+            filter_value: "20971520"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Tree Quotas whose hard_limit is between 20971521-100971519
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - tree_quota
+        filters:
+          - filter_key: hard_limit
+            filter_operator: greater
+            filter_value: "20971520"
+          - filter_key: hard_limit
+            filter_operator: lesser
+            filter_value: "100971520"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Tree Quotas whose hard_limit is lesser than 100971520
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - tree_quota
+        filters:
+          - filter_key: hard_limit
+            filter_operator: lesser
+            filter_value: "100971520"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get User Quotas whose uid equal to 1
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - user_quota
+        filters:
+          - filter_key: uid
+            filter_operator: equal
+            filter_value: "1"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get User Quotas whose uid not equal to 1
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - user_quota
+        filters:
+          - filter_key: uid
+            filter_operator: notequal
+            filter_value: "1"
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get File Systems whose name startswith "ansible"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - file_system
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: ansible*
+      register: subset_result
+    - name: Store the subset result
+      ansible.builtin.debug:
+        var: subset_result
+
+    - name: Get Networks whose name contains the word "Management"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - network
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: "*Management*"
+
+    - name: Get Local users whose name is admin
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - user
+        filters:
+          - filter_key: name
+            filter_operator: equal
+            filter_value: admin
+
+    - name: Get Roles whose name contains the word "Admin"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - role
+        filters:
+          - filter_key: name
+            filter_operator: like
+            filter_value: "*Admin*"
+
+    - name: Get list of ad, certificate, security config and ldaps
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - ad
+          - ldap
+          - security_config
+          - certificate
+
+    - name: Get LDAP where the nas server id is "XX.XX.XX.XX"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - ldap
+        filters:
+          - filter_key: nas_server_id
+            filter_operator: equal
+            filter_value: XX.XX.XX.XX
+
+    - name: Get list of dns, email notification, ntp, remote support, remote support
+        contact and smtp config
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - dns
+          - email_notification
+          - ntp
+          - remote_support
+          - remote_support_contact
+          - smtp_config
+
+    - name: Get list of LDAP accounts
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - ldap_account
+
+    - name: Get list of LDAP domain configurations
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - ldap_domain
+
+    - name: Get list of vCenter
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - vcenter
+
+    - name: Get list of virtual volumes
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - virtual_volume
+
+    - name: Get list of virtual volumes with nsid between 14440-14460
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - virtual_volume
+        filters:
+          - filter_key: nsid
+            filter_operator: greater
+            filter_value: "14440"
+          - filter_key: nsid
+            filter_operator: lesser
+            filter_value: "14460"
+
+    - name: Get list of storage containers
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - storage_container
+
+    - name: Get list of storage containers with filter
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - storage_container
+        filters:
+          - filter_key: storage_protocol
+            filter_operator: equal
+            filter_value: SCSI

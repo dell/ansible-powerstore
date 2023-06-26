@@ -1,0 +1,98 @@
+---
+- name: Local User Operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Create local user
+      register: result
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "sample_user"
+        user_password: "samplepassword"
+        role_name: "Operator"
+        is_locked: false
+        state: "present"
+
+    - name: Create local user Idempotency
+      register: result
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "sample_user"
+        user_password: "samplepassword"
+        role_name: "Operator"
+        is_locked: false
+        state: "present"
+
+    - name: Get local user details using ID
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_id: "{{ result.local_user_details.id }}"
+        state: "present"
+
+    - name: Get local user details using name
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "{{ result.local_user_details.name }}"
+        state: "present"
+
+    - name: Modify attributes of local user
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "{{ result.local_user_details.name }}"
+        user_password: "samplepassword"
+        new_password: "samplenewpassword"
+        role_id: 4
+        is_locked: true
+        state: "present"
+
+    - name: Modify local user attributes Idempotency
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "{{ result.local_user_details.name }}"
+        user_password: "samplepassword"
+        new_password: "samplenewpassword"
+        role_id: 4
+        is_locked: true
+        state: "present"
+
+    - name: Delete local user
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "sample_user"
+        state: "absent"
+
+    - name: Delete local user Idempotency
+      dellemc.powerstore.local_user:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        user_name: "sample_user"
+        state: "absent"

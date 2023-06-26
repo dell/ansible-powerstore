@@ -1,0 +1,43 @@
+---
+- name: DNS Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of DNS instance
+      dellemc.powerstore.dns:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        dns_id: "DNS1"
+        state: "present"
+
+    - name: Add addresses to DNS instance
+      dellemc.powerstore.dns:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        dns_id: "DNS1"
+        dns_addresses:
+          - "XX.XX.XX.XX"
+        dns_address_state: "present-in-dns"
+        state: "present"
+
+    - name: Remove addresses from DNS instance
+      dellemc.powerstore.dns:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        dns_id: "DNS1"
+        dns_addresses:
+          - "XX.XX.XX.XX"
+        dns_address_state: "absent-in-dns"
+        state: "present"

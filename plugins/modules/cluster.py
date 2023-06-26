@@ -51,20 +51,20 @@ options:
   appliance_id:
     description:
     - ID of the appliance.
-    - Parameters appliance_id and appliance_name are mutually exclusive.
-    - Parameter is_ssh_enabled has to be passed along with appliance_id.
+    - Parameters I(appliance_id) and I(appliance_name) are mutually exclusive.
+    - Parameter I(is_ssh_enabled) has to be passed along with I(appliance_id).
     type: str
   appliance_name:
     description:
     - Name of the appliance.
-    - Parameters appliance_id and appliance_name are mutually exclusive.
-    - Parameter is_ssh_enabled has to be passed along with appliance_name.
+    - Parameters I(appliance_id) and I(appliance_name) are mutually exclusive.
+    - Parameter I(is_ssh_enabled) has to be passed along with I(appliance_name).
     type: str
   is_ssh_enabled:
     description:
     - Whether SSH access is enabled for the cluster.
-    - Either appliance_id or appliance_name is to be passed along with
-      is_ssh_enabled.
+    - Either I(appliance_id) or I(appliance_name) is to be passed along with
+      I(is_ssh_enabled).
     type: bool
   physical_mtu:
     description:
@@ -75,7 +75,6 @@ options:
     description:
     - Whether to ignore the network warning about unreachable external network.
     type: bool
-    required: false
   appliances:
     description:
     - Appliance configuration setting during cluster creation.
@@ -87,7 +86,7 @@ options:
         description:
         - The unique IPv4 address of the appliance and is set by zeroconf.
         type: str
-        required: True
+        required: true
       name:
         description:
         - Name of new appliance.
@@ -121,18 +120,18 @@ options:
         description:
         - Name of the physical switch.
         type: str
-        required: True
+        required: true
       purpose:
         description:
         - Specifies the purpose of the physical switch.
         type: str
-        required: True
+        required: true
         choices: ['Data_and_Management', 'Management_Only']
       connections:
         description:
         - specifies the supported connection for the physical switch.
         type: list
-        required: True
+        required: true
         elements: dict
         suboptions:
           address:
@@ -140,7 +139,7 @@ options:
             - Specifies the physical switch address in IPv4 or DNS hostname
               format.
             type: str
-            required: True
+            required: true
           port:
             description:
             - Specifies the port used for connection to switch.
@@ -149,7 +148,7 @@ options:
             description:
             - Specifies the connection method type for the physical Switch.
             type: str
-            required: True
+            required: true
             choices: ['SSH', 'SNMPv2c']
           username:
             description:
@@ -162,7 +161,7 @@ options:
             type: str
           snmp_community_string:
             description:
-            - Specifies SNMPv2 community string, if SNMPv2 connect method is
+            - Specifies C(SNMPv2) community string, if C(SNMPv2) connect method is
               selected.
             type: str
   networks:
@@ -176,7 +175,7 @@ options:
         description:
         - Specifies the type of the network.
         type: str
-        required: True
+        required: true
         choices: ['Management', 'Intra_Cluster_Management',
           'Intra_Cluster_Data', 'Storage', 'VMotion', 'File_Mobility']
       vlan_id:
@@ -187,7 +186,7 @@ options:
         description:
         - Network prefix length.
         type: int
-        required: True
+        required: true
       gateway:
         description:
         - Network gateway in IPv4 format.
@@ -206,7 +205,7 @@ options:
         - IP addresses in IPv4 format.
         type: list
         elements: str
-        required: True
+        required: true
       purposes:
         description:
         - Purpose of the network.
@@ -227,36 +226,36 @@ options:
         description:
         - IP address of vCenter in IPv4 or hostname format.
         type: str
-        required: True
+        required: true
       username:
         description:
         - User name to login to vCenter.
         type: str
-        required: True
+        required: true
       password:
         description:
         - Password to login to vCenter.
         type: str
-        required: True
+        required: true
       is_verify_server_cert:
         description:
         - Whether or not the connection will be secured with the vcenter SSL
           certificate.
         type: bool
-        required: True
+        required: true
       data_center_name:
         description:
         - Name of the data center.
         - This is used to join an existing datacenter in vcenter.
         - This should be specified when creating PowerStore X cluster.
-        - Mutually exclusive with data_center_id.
+        - Mutually exclusive with I(data_center_id).
         type: str
       data_center_id:
         description:
         - The VMWare ID of datacenter.
         - This is used to join an existing datacenter in vcenter.
         - This should be specified when creating PowerStore X cluster.
-        - Mutually exclusive with data_center_name.
+        - Mutually exclusive with I(data_center_name).
         type: str
       esx_cluster_name:
         description:
@@ -268,20 +267,20 @@ options:
         - Storage system credentials for vCenter to use for communicating with
           the storage system using VASA.
         type: dict
-        required: True
+        required: true
         suboptions:
           username:
             description:
             - Username of the local user account which will be used by vSphere
               to register VASA provider.
             type: str
-            required: True
+            required: true
           password:
             description:
             - Password of the local user account which will be used by vSphere
               to register VASA provider.
             type: str
-            required: True
+            required: true
   is_http_redirect_enabled:
     description:
     - Whether to redirect the HTTP requests to HTTPS.
@@ -289,37 +288,37 @@ options:
   validate_create:
     description:
     - Whether to perform create cluster validate call.
-    default: True
+    default: true
     type: bool
   wait_for_completion:
     description:
     - Flag to indicate if the operation should be run synchronously or
       asynchronously.
-    - True signifies synchronous execution. By default, create cluster
+    - C(true) signifies synchronous execution. By default, create cluster
       operation will run asynchronously.
-    default: False
+    default: false
     type: bool
   state:
     description:
     - Define whether the cluster should exist or not.
-    - Value present indicates that the cluster should exist on the system.
-    - Value absent indicates that the cluster should not exist on the system.
+    - Value C(present) indicates that the cluster should exist on the system.
+    - Value C(absent) indicates that the cluster should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
 
 notes:
 - Deletion of a cluster is not supported by ansible module.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 - Before performing create operation, the default password for admin user and
   service user should be changed.
 - For management type network during cluster creation,
-  storage_discovery_address and purposes should not be passed.
-- The vcenters parameter is mandatory for PowerStore X cluster creation.
+  I(storage_discovery_address) and purposes should not be passed.
+- The I(vcenters) parameter is mandatory for PowerStore X cluster creation.
 - Minimum 3 and 5 addresses are required for management network for PowerStore
   T and X model respectively.
-- The File_Mobility purpose is supported only in FootHills Prime and above.
-- Parameter is_http_redirect_enabled is supported only in PowerStore FootHills
+- The C(File_Mobility) purpose is supported only in FootHills Prime and above.
+- Parameter I(is_http_redirect_enabled) is supported only in PowerStore FootHills
   Prime and above.
 '''
 
@@ -327,7 +326,7 @@ EXAMPLES = r'''
 - name: Get the details of cluster using id
   dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     cluster_id: "0"
@@ -336,12 +335,12 @@ EXAMPLES = r'''
 - name: Modify details of cluster using the name
   dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     cluster_name: "RT-D1320"
     appliance_id: "A1"
-    is_ssh_enabled: True
+    is_ssh_enabled: true
     service_password: "S@mple_password"
     chap_mode: "Disabled"
     new_name: "new_RT-D1320"
@@ -350,11 +349,11 @@ EXAMPLES = r'''
 - name: Validate create cluster
   dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     cluster_name: "RT-D1320"
-    ignore_network_warnings: True
+    ignore_network_warnings: true
     appliances:
       - link_local_address: "1.2.x.x"
         name: "Ansible_cluster"
@@ -382,18 +381,18 @@ EXAMPLES = r'''
           - "3.x.x.x"
         purpose:
           - "ISCSI"
-    is_http_redirect_enabled: True
-    validate_create: True
+    is_http_redirect_enabled: true
+    validate_create: true
     state: "present"
 
 - name: Create cluster
   dellemc.powerstore.cluster:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     cluster_name: "RT-D1320"
-    ignore_network_warnings: True
+    ignore_network_warnings: true
     appliances:
       - link_local_address: "1.2.x.x"
         name: "Ansible_cluster"
@@ -434,12 +433,12 @@ EXAMPLES = r'''
       - address: "1.x.x.x"
         username: "user"
         password: "password"
-        is_verify_server_cert: True
+        is_verify_server_cert: true
         vasa_provider_credentials:
           username: "user"
           password: "password"
-    is_http_redirect_enabled: True
-    wait_for_completion: False
+    is_http_redirect_enabled: true
+    wait_for_completion: false
     state: "present"
 '''
 
@@ -581,7 +580,7 @@ cluster_details:
                     description: Whether the service user is built in or not.
                     type: bool
         appliance_details:
-            description: Name and Id of the appliance for which is_ssh_enabled
+            description: Name and Id of the appliance for which I(is_ssh_enabled)
                          parameter is used.
             type: complex
             returned: When appliance name or id is passed in the playbook
@@ -628,7 +627,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreCluster(object):
@@ -1142,7 +1141,7 @@ class PowerStoreCluster(object):
 
         if clusters is not None and clusters[0]['name'] is not None:
             cluster_details = self.get_cluster_details(cluster_name, cluster_id)
-        if cluster_details and cluster_name:
+        if cluster_details and 'id' in cluster_details and cluster_name:
             cluster_id = cluster_details['id']
 
         # Validate create cluster operation

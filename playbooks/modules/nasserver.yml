@@ -1,0 +1,133 @@
+---
+- name: Nas Server operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    nas_server_name: "ansible_nas_server"
+    nas_server_new_name: "ansible_new_nas_server"
+    description: "Modifying through ansible"
+    cur_node_n1: "XX.XX.XX.XX"
+    prefered_node: "N2"
+
+  tasks:
+    - name: Get details of NAS Server by name
+      register: result_nas
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        state: "present"
+
+    - name: Set nas_server_id
+      ansible.builtin.set_fact:
+        nas_id: "{{ result_nas.nasserver_details.id }}"
+
+    - name: Rename NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        nas_server_new_name: "{{ nas_server_new_name }}"
+        state: "present"
+
+    - name: Rename NAS Server - Idempotency
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_new_name }}"
+        nas_server_new_name: "{{ nas_server_new_name }}"
+        state: "present"
+
+    - name: Modify NAS Server attributes by ID
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_id: "{{ nas_id }}"
+        current_unix_directory_service: "LOCAL_FILES"
+        current_node: "{{ cur_node_n1 }}"
+        preferred_node: "{{ prefered_node }}"
+        state: "present"
+
+    - name: Modify NAS Server attributes by ID - Idempotency
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_id: "{{ nas_id }}"
+        current_unix_directory_service: "LOCAL_FILES"
+        current_node: "{{ cur_node_n1 }}"
+        preferred_node: "{{ prefered_node }}"
+        state: "present"
+
+    - name: Rename NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_new_name }}"
+        nas_server_new_name: "{{ nas_server_name }}"
+        state: "present"
+
+
+    - name: Get Deatails NAS Server by ID
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_id: "{{ nas_id }}"
+        state: "present"
+
+    - name: Associate protection policy to a NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: "sra-nas-pp"
+        state: "present"
+
+    - name: Associate protection policy to a NAS Server - Idempotency
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: "sra-nas-pp"
+        state: "present"
+
+    - name: Disassociate protection policy from a NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: ""
+        state: "present"
+
+    - name: Disassociate protection policy from a NAS Server - Idempotency
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: ""
+        state: "present"

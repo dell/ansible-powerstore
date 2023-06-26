@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -44,7 +47,7 @@ Parameters
   ldap_server_state (optional, str, None)
     State of the LDAP server.
 
-    The ldap_servers and ldap_server_state are required together.
+    The *ldap_servers* and *ldap_server_state* are required together.
 
 
   ldap_server_port (optional, int, None)
@@ -86,13 +89,13 @@ Parameters
     user_id_attribute (optional, str, None)
       Name of the LDAP attribute whose value indicates the unique identifier of the user.
 
-      Default value is sAMAccountName.
+      Default value is ``sAMAccountName``.
 
 
     user_object_class (optional, str, None)
       LDAP object class for users.
 
-      Default value is user.
+      Default value is ``user``.
 
 
     user_search_path (optional, str, None)
@@ -109,19 +112,19 @@ Parameters
     group_name_attribute (optional, str, None)
       Name of the LDAP attribute whose value indicates the group name.
 
-      Default value is cn.
+      Default value is ``cn``.
 
 
     group_member_attribute (optional, str, None)
       Name of the LDAP attribute whose value contains the names of group members within a group.
 
-      Default value is member.
+      Default value is ``member``.
 
 
     group_object_class (optional, str, None)
       LDAP object class for groups.
 
-      Default value is group.
+      Default value is ``group``.
 
 
     group_search_path (optional, str, None)
@@ -144,21 +147,21 @@ Parameters
   state (True, str, None)
     Define whether the LDAP domain configuration should exist or not.
 
-    For Delete operation only, it should be set to "absent".
+    For Delete operation only, it should be set to ``absent``.
 
-    For all other operations except delete, it should be set to "present".
+    For all other operations except delete, it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -188,10 +191,10 @@ Notes
 -----
 
 .. note::
-   - The 'is_global_catalog' option can be enabled only for AD server type.
+   - The *is_global_catalog* option can be enabled only for AD server type.
    - To use LDAPS protocol, the pre-requisite is to upload the certificate of LDAP server on PowerStore array.
    - Verify operation does not support idempotency.
-   - The check_mode is supported.
+   - The *check_mode* is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -206,7 +209,7 @@ Examples
     - name: Create LDAP domain
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         domain_name: "{{domain_name}}"
@@ -225,7 +228,7 @@ Examples
     - name: Get LDAP domain details using ID
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_id: 4
@@ -234,7 +237,7 @@ Examples
     - name: Get LDAP domain details using name
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_name: "{{ldap_domain_name}}"
@@ -243,17 +246,17 @@ Examples
     - name: Verify LDAP domain configuration
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_id: 4
-        verify_configuration: True
+        verify_configuration: true
         state: "present"
 
     - name: Delete LDAP domain configuration
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_id: 4
@@ -262,7 +265,7 @@ Examples
     - name: Create LDAP domain with AD server type
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_name: "{{domain_name}}"
@@ -272,7 +275,7 @@ Examples
         ldap_server_type: "AD"
         bind_user: "{{bind_user}}"
         bind_password: "{{bind_password}}"
-        is_global_catalog: True
+        is_global_catalog: true
         ldap_server_port: 3268
         protocol: "LDAP"
         ldap_domain_user_settings:
@@ -284,7 +287,7 @@ Examples
     - name: Get LDAP domain details using domain name
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_name: "{{domain_name}}"
@@ -293,7 +296,7 @@ Examples
     - name: Delete LDAP domain using domain name
       dellemc.powerstore.ldap_domain:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         ldap_domain_name: "{{domain_name}}"

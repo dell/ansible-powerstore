@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -35,12 +38,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -70,7 +73,7 @@ Notes
 -----
 
 .. note::
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -85,7 +88,7 @@ Examples
     - name: Get Job Details
       dellemc.powerstore.job:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         job_id: "a544981c-e94a-40ab-9eae-e578e182d2bb"
