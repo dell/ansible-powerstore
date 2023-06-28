@@ -5,43 +5,44 @@
   connection: local
   vars:
     array_ip: 'ip_address_of_the_array'
-    verifycert: False
+    validate_certs: false
     user: 'your_username'
     password: 'your_password'
-  collections:
-  - dellemc.powerstore
+
   tasks:
     - name: Get filesystem
-      info:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         gather_subset:
-            - file_system
-        all_pages: True
+          - file_system
+        all_pages: true
       register: all_filesystem
 
-    - set_fact:
+    - name: Set fact
+      ansible.builtin.set_fact:
         all_filesystem_ids: "{{ all_filesystem['FileSystems'] | map(attribute='id') | list }}"
 
     - name: Get filesystem detail by id
-      filesystem:
-        array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        filesystem_id: "{{item}}"
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_id: "{{ item }}"
         state: "present"
       register: all_fs_details
       loop: "{{ all_filesystem_ids }}"
 
-    - set_fact:
+    - name: Set fact
+      ansible.builtin.set_fact:
         all_fs_id: "{{ all_fs_details['results'] | map(attribute='filesystem_details.id') | list }}"
         all_size_used: "{{ all_fs_details['results'] | map(attribute='filesystem_details.size_used') | list }}"
 
     - name: Loop
-      debug:
+      ansible.builtin.debug:
         msg: "{{item.0}}"
       loop: "{{ all_fs_id | zip(all_size_used) | list }}"
       when:

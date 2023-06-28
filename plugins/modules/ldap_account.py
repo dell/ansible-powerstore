@@ -56,21 +56,21 @@ options:
   state:
     description:
     - Define whether the LDAP account should exist or not.
-    - For Delete operation only, it should be set to "absent".
-    - For all other operations except delete, it should be set to "present".
+    - For Delete operation only, it should be set to C(absent).
+    - For all other operations except delete, it should be set to C(present).
     required: true
     choices: ['absent', 'present']
     type: str
 
 notes:
-- The check_mode is supported.
+- The I(check_mode) is supported.
 '''
 
 EXAMPLES = r'''
 - name: Create an LDAP account
   dellemc.powerstore.ldap_account:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_name: "ldap_user_account_1"
@@ -82,7 +82,7 @@ EXAMPLES = r'''
 - name: Get the details of the LDAP account by name
   dellemc.powerstore.ldap_account:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_name: "ldap_user_account_1"
@@ -91,7 +91,7 @@ EXAMPLES = r'''
 - name: Get the details of the LDAP account by id
   dellemc.powerstore.ldap_account:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_id: "3"
@@ -100,7 +100,7 @@ EXAMPLES = r'''
 - name: Modify an LDAP account
   dellemc.powerstore.ldap_account:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_name: "ldap_user_account_1"
@@ -110,7 +110,7 @@ EXAMPLES = r'''
 - name: Delete an LDAP account
   dellemc.powerstore.ldap_account:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     ldap_account_id: "3"
@@ -173,7 +173,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreLDAPAccount(object):

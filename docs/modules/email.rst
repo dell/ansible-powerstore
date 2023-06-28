@@ -26,30 +26,33 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
 Parameters
 ----------
 
-  email_id (False, str, None)
+  email_id (optional, str, None)
     Unique identifier of the destination email address.
 
-    Mutually exclusive with email_address.
+    Mutually exclusive with *email_address*.
 
 
-  email_address (False, str, None)
+  email_address (optional, str, None)
     Email address to receive notifications.
 
-    Mutually exclusive with email_id.
+    Mutually exclusive with *email_id*.
 
 
-  new_address (False, str, None)
+  new_address (optional, str, None)
     New email address to receive notifications.
 
 
-  send_test_email (False, bool, False)
+  send_test_email (optional, bool, False)
     Whether to send the test email to the destination email address.
 
 
@@ -57,19 +60,19 @@ Parameters
     Whether to send different types of notifications. It contains below optional candidate variables.
 
 
-    critical (False, bool, None)
+    critical (optional, bool, None)
       Whether to send notifications for critical alerts.
 
 
-    major (False, bool, None)
+    major (optional, bool, None)
       Whether to send notifications for major alerts.
 
 
-    minor (False, bool, None)
+    minor (optional, bool, None)
       Whether to send notifications for minor alerts.
 
 
-    info (False, bool, None)
+    info (optional, bool, None)
       Whether to send notifications for informational alerts.
 
 
@@ -77,21 +80,21 @@ Parameters
   state (True, str, None)
     The state of the destination email address after the task is performed.
 
-    For Delete operation only, it should be set to "absent".
+    For Delete operation only, it should be set to ``absent``.
 
-    For all Create, Modify, Test or Get details operations it should be set to "present".
+    For all Create, Modify, Test or Get details operations it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -122,7 +125,7 @@ Notes
 
 .. note::
    - Idempotency is not supported for Test operation of Email module.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -139,7 +142,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
            state: "present"
 
@@ -148,7 +151,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_address: "abc@dell.com"
            state: "present"
 
@@ -157,12 +160,12 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_address: "abc_xyz@dell.com"
            notify:
-             info: True
-             critical: True
-             major: False
+             info: true
+             critical: true
+             major: false
            state: "present"
 
       - name: Modify destination email
@@ -170,12 +173,12 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_address: "abc_xyz@dell.com"
            new_address: "def_pqr@dell.com"
            notify:
-             info: False
-             major: False
+             info: false
+             major: false
            state: "present"
 
       - name: Send a test mail to the destination email with email_id
@@ -183,9 +186,9 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
-           send_test_email: True
+           send_test_email: true
            state: "present"
 
       - name: Delete destination email
@@ -193,7 +196,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            email_address: "def_pqr@dell.com"
            state: "absent"
 

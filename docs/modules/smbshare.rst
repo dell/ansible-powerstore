@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -32,7 +35,7 @@ Parameters
 
     Required during creation of the SMB share.
 
-    For all other operations either share_name or share_id is required.
+    For all other operations either *share_name* or *share_id* is required.
 
 
   share_id (optional, str, None)
@@ -40,9 +43,9 @@ Parameters
 
     Should not be specified during creation. ID is auto generated.
 
-    For all other operations either share_name or share_id is required.
+    For all other operations either *share_name* or *share_id* is required.
 
-    If share_id is used then no need to pass nas_server/filesystem/snapshot/ path.
+    If *share_id* is used then no need to pass *nas_server*/*filesystem*/*snapshot*/ *path*.
 
 
   path (optional, str, None)
@@ -58,7 +61,7 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the SMB share.
 
-    If filesystem name is specified, then nas_server is required to uniquely identify the filesystem.
+    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
 
     If filesystem parameter is provided, then snapshot cannot be specified.
 
@@ -68,7 +71,7 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the SMB share.
 
-    If snapshot name is specified, then nas_server is required to uniquely identify the snapshot.
+    If snapshot name is specified, then *nas_server* is required to uniquely identify the snapshot.
 
     If snapshot parameter is provided, then filesystem cannot be specified.
 
@@ -78,7 +81,7 @@ Parameters
   nas_server (optional, str, None)
     The ID/Name of the NAS Server.
 
-    It is not required if share_id is used.
+    It is not required if *share_id* is used.
 
 
   description (optional, str, None)
@@ -92,43 +95,43 @@ Parameters
   is_abe_enabled (optional, bool, None)
     Indicates whether Access-based Enumeration (ABE) for SMB share is enabled.
 
-    During creation, if not mentioned, then the default is False.
+    During creation, if not mentioned, then the default is ``false``.
 
 
   is_branch_cache_enabled (optional, bool, None)
     Indicates whether Branch Cache optimization for SMB share is enabled.
 
-    During creation, if not mentioned then default is False.
+    During creation, if not mentioned then default is ``false``.
 
 
   is_continuous_availability_enabled (optional, bool, None)
     Indicates whether continuous availability for SMB 3.0 is enabled.
 
-    During creation, if not mentioned, then the default is False.
+    During creation, if not mentioned, then the default is ``false``.
 
 
   is_encryption_enabled (optional, bool, None)
     Indicates whether encryption for SMB 3.0 is enabled at the shared folder level.
 
-    During creation, if not mentioned then default is False.
+    During creation, if not mentioned then default is ``false``.
 
 
   offline_availability (optional, str, None)
     Defines valid states of Offline Availability.
 
-    MANUAL- Only specified files will be available offline.
+    ``MANUAL``- Only specified files will be available offline.
 
-    DOCUMENTS- All files that users open will be available offline.
+    ``DOCUMENTS``- All files that users open will be available offline.
 
-    PROGRAMS- Program will preferably run from the offline cache even when connected to the network. All files that users open will be available offline.
+    ``PROGRAMS``- Program will preferably run from the offline cache even when connected to the network. All files that users open will be available offline.
 
-    NONE- Prevents clients from storing documents and programs in offline cache.
+    ``NONE``- Prevents clients from storing documents and programs in offline cache.
 
 
   umask (optional, str, None)
     The default UNIX umask for new files created on the SMB Share.
 
-    During creation, if not mentioned, then the default is "022".
+    During creation, if not mentioned, then the default is 022.
 
     For all other operations, the default is None.
 
@@ -136,21 +139,21 @@ Parameters
   state (True, str, None)
     Define whether the SMB share should exist or not.
 
-    Value present indicates that the share should exist on the system.
+    Value ``present`` indicates that the share should exist on the system.
 
-    Value absent indicates that the share should not exist on the system.
+    Value ``absent`` indicates that the share should not exist on the system.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -180,9 +183,9 @@ Notes
 -----
 
 .. note::
-   - When the ID of the filesystem/snapshot is passed then nas_server is not required. If passed, then the filesystem/snapshot should exist for the nas_server, else the task will fail.
+   - When the ID of the filesystem/snapshot is passed then *nas_server* is not required. If passed, then the filesystem/snapshot should exist for the *nas_server*, else the task will fail.
    - Multiple SMB shares can be created for the same local path.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -198,7 +201,7 @@ Examples
     - name: Create SMB share for a filesystem
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_name: "sample_smb_share"
@@ -206,34 +209,34 @@ Examples
         nas_server: "{{nas_server_id}}"
         path: "{{path}}"
         description: "Sample SMB share created"
-        is_abe_enabled: True
-        is_branch_cache_enabled: True
+        is_abe_enabled: true
+        is_branch_cache_enabled: true
         offline_availability: "DOCUMENTS"
-        is_continuous_availability_enabled: True
-        is_encryption_enabled: True
+        is_continuous_availability_enabled: true
+        is_encryption_enabled: true
         state: "present"
 
     - name: Modify Attributes of SMB share for a filesystem
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_name: "sample_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated"
-        is_abe_enabled: False
-        is_branch_cache_enabled: False
+        is_abe_enabled: false
+        is_branch_cache_enabled: false
         offline_availability: "MANUAL"
-        is_continuous_availability_enabled: False
-        is_encryption_enabled: False
+        is_continuous_availability_enabled: false
+        is_encryption_enabled: false
         umask: "022"
         state: "present"
 
     - name: Create SMB share for a snapshot
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_name: "sample_snap_smb_share"
@@ -241,31 +244,31 @@ Examples
         nas_server: "{{nas_server_id}}"
         path: "{{path}}"
         description: "Sample SMB share created for snapshot"
-        is_abe_enabled: True
-        is_branch_cache_enabled: True
-        is_continuous_availability_enabled: True
+        is_abe_enabled: true
+        is_branch_cache_enabled: true
+        is_continuous_availability_enabled: true
         state: "present"
 
     - name: Modify Attributes of SMB share for a snapshot
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_name: "sample_snap_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated for snapshot"
-        is_abe_enabled: False
-        is_branch_cache_enabled: False
+        is_abe_enabled: false
+        is_branch_cache_enabled: false
         offline_availability: "MANUAL"
-        is_continuous_availability_enabled: False
+        is_continuous_availability_enabled: false
         umask: "022"
         state: "present"
 
     - name: Get details of SMB share
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_id: "{{smb_share_id}}"
@@ -274,7 +277,7 @@ Examples
     - name: Delete SMB share
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         share_id: "{{smb_share_id}}"

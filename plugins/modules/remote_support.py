@@ -26,20 +26,18 @@ options:
   remote_support_id:
     description:
     - Unique identifier of the remote support configuration.
-    required: True
+    required: true
     type: int
   support_type:
     description:
     - The type of remote support that is configured.
     - Mandatory for modify and verify operation.
-    - SRS_Gateway support_type is only supported for verify operation.
-    required: False
+    - C(SRS_Gateway), I(support_type) is only supported for verify operation.
     type: str
     choices: ['SRS_Gateway', 'SRS_Gateway_Tier2', 'SRS_Gateway_Tier3', 'SRS_Integrated_Tier2', 'SRS_Integrated_Tier3', 'Disabled']
   remote_support_servers:
     description:
     - One or two remote support servers.
-    required: False
     type: list
     elements: dict
     suboptions:
@@ -56,93 +54,81 @@ options:
         is_primary:
           description:
           - Indicates whether the server is acting as the primary.
-          - One server must be set to false when two servers are configured.
+          - One server must be set to C(false) when two servers are configured.
           type: bool
   server_state:
     description:
-    - Indicates the state of the remote-support_servers.
-    - Required with remote_support_servers.
-    required: False
+    - Indicates the state of the remote_support_servers.
+    - Required with I(remote_support_servers).
     type: str
     choices: ['present-in-server', 'absent-in-server']
   is_support_assist_license_accepted:
     description:
     - Indicates whether user has accepted remote support license agreement
       before enabling the Support Assist on the system for the first time.
-    required: False
     type: bool
   is_cloudiq_enabled:
     description:
     - Indicates whether support for CloudIQ is enabled.
-    required: False
     type: bool
   is_rsc_enabled:
     description:
     - Indicates whether support for Remote Service Credentials is enabled.
-    required: False
     type: bool
   proxy_address:
     description:
     - Proxy server IP address (IPv4).
-    required: False
     type: str
   proxy_port:
     description:
     - Proxy server port number.
-    required: False
     type: int
   proxy_username:
     description:
     - User name for proxy server access.
-    required: False
     type: str
   proxy_password:
     description:
     - Password for proxy server access.
-    required: False
     type: str
   is_icw_configured:
     description:
     - Client already configured ICW.
-    required: False
     type: bool
   verify_connection:
     description:
     - Indicates whether to perform the verify call or not.
-    required: False
     type: bool
-    default: False
+    default: false
   send_test_alert:
     description:
     - Indicates whether to send a test alert or not.
-    required: False
     type: bool
-    default: False
+    default: false
   wait_for_completion:
     description:
     - Flag to indicate if the operation should be run synchronously or
-      asynchronously. True signifies synchronous execution. By default,
+      asynchronously. C(true) signifies synchronous execution. By default,
       modify operation will run asynchronously.
-    default: False
+    default: false
     type: bool
   return_support_license_text:
     description:
     - Indicates whether to return support license agreement text or not.
-    required: False
     type: bool
-    default: False
+    default: false
   state:
     description:
     - The state of the remote support configuration after the task is performed.
-    - For Delete operation only, it should be set to "absent".
-    - For get/modify operation it should be set to "present".
-    required : True
+    - For Delete operation only, it should be set to C(absent).
+    - For get/modify operation it should be set to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Creation and deletion of remote support configuration is not supported.
-- Support for check_mode is not available for this module.
+- Support for I(check_mode) is not available for this module.
 - Verify and send test alert operations do not support idempotency.
 '''
 
@@ -153,7 +139,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        remote_support_id: 0
        state: "present"
 
@@ -162,19 +148,19 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       remote_support_id: 0
       support_type: "SRS_Gateway_Tier2"
       remote_support_servers:
       - address: "10.XX.XX.XX"
         port: 9443
-        is_primary: True
+        is_primary: true
       - address: "10.XX.XX.YY"
         port: 9443
-        is_primary: False
+        is_primary: false
       server_state: "present-in-server"
-      is_rsc_enabled: True
-      is_cloudiq_enabled: False
+      is_rsc_enabled: true
+      is_cloudiq_enabled: false
       timeout: 300
       state: "present"
 
@@ -183,7 +169,7 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       remote_support_id: 0
       support_type: "SRS_Integrated_Tier2"
       proxy_address: "10.XX.XX.ZZ"
@@ -198,11 +184,11 @@ EXAMPLES = r'''
       array_ip: "{{array_ip}}"
       user: "{{user}}"
       password: "{{password}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       remote_support_id: 0
       support_type: "SRS_Integrated_Tier3"
       timeout: 300
-      verify_connection: True
+      verify_connection: true
       state: "present"
 
   - name: Send a test alert
@@ -210,9 +196,9 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        remote_support_id: 0
-       send_test_alert: True
+       send_test_alert: true
        state: "present"
 '''
 
@@ -371,7 +357,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreRemoteSupport(object):

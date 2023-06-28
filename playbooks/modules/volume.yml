@@ -1,0 +1,308 @@
+---
+- name: Testing Volume operations on Powerstore
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xx.xx.xx'
+    validate_certs: false
+    user: 'user'
+    password: 'Password'
+    vg_name: "Volume_Module_Test"
+    vol_name: 'test_volume'
+    vol_name2: 'Volume_Module_Test2'
+    cap_unit: 'GB'
+
+  tasks:
+    - name: Create stand-alone volume
+      register: result_vol
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        size: 1
+        cap_unit: "{{ cap_unit }}"
+        state: 'present'
+        description: '{{ vol_name }}'
+        protection_policy: 'pro_policy1'
+        performance_policy: 'medium'
+        appliance_name: "Appliance_name"
+
+    - name: Create volume in volume group
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name2 }}"
+        vg_name: "{{ vg_name }}"
+        size: 1
+        cap_unit: "{{ cap_unit }}"
+        state: "present"
+
+    - name: Get volume details using ID
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_id: "{{ result_vol.volume_details.id }}"
+        state: "present"
+
+    - name: Get volume details using name
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name2 }}"
+        state: "present"
+
+    - name: Modify volume size, name, description and performance policy
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        new_name: "Volume_Module_Test3"
+        vol_name: "{{ vol_name2 }}"
+        state: "present"
+        size: 2
+        performance_policy: 'high'
+        description: 'new description'
+
+    - name: Expand volume using ID
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_id: "{{ result_vol.volume_details.id }}"
+        size: 2
+        cap_unit: "{{ cap_unit }}"
+        state: 'present'
+
+    - name: Rename volume using ID
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_id: "{{ result_vol.volume_details.id }}"
+        new_name: "Ansible_Volume_Renamed"
+        state: "present"
+
+    - name: Rename volume using name
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "Ansible_Volume_Renamed"
+        new_name: "{{ vol_name }}"
+        state: "present"
+
+    - name: Modify description of the volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        description: "new description"
+        state: "present"
+
+    - name: Modify protection policy of the volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        protection_policy: "pro_policy2"
+        state: "present"
+
+    - name: Modify performance policy of the volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        performance_policy: "high"
+        state: "present"
+
+    - name: Map volume to host with HLU
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        host: "{{ result_host2.host_details.id }}"
+        mapping_state: "mapped"
+        state: "present"
+        hlu: 234
+
+    - name: Map volume to volume using host name, without HLU
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        host: "host1_Ansible_Test"
+        mapping_state: "mapped"
+        state: "present"
+
+    - name: Map volume to hostgroup
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_id: "{{ result_vol.volume_details.id }}"
+        hostgroup: "hostgroup1_Ansible_test"
+        mapping_state: "mapped"
+        state: "present"
+
+    - name: Unmap volume from host
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        host: "{{ result_host2.host_details.id }}"
+        mapping_state: "unmapped"
+        state: "present"
+
+    - name: Unmap volume from host
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        host: "host1_Ansible_Test"
+        mapping_state: "unmapped"
+        state: "present"
+
+    - name: Unmap volume from host group
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        hostgroup: "hostgroup1_Ansible_test"
+        mapping_state: "unmapped"
+        state: "present"
+
+    - name: Remove protection_policy from volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        protection_policy: ''
+        state: "present"
+
+    - name: Delete volume using volume name
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        state: "absent"
+
+    - name: Remove protection_policy from volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        vol_name: "Volume_Module_Test3"
+        protection_policy: ''
+        state: "present"
+
+    - name: Delete volume using volume name
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "Volume_Module_Test3"
+        state: "absent"
+
+    - name: Clone a volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        clone_dellemc.powerstore.volume:
+          name: 'test_1'
+          description: 'test demo'
+          host: '1234-xxx-xxx-xxx'
+          logical_unit_number: 19
+          protection_policy: 'PP1'
+          performance_policy: 'low'
+        state: "present"
+
+    - name: Refresh a volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        source_dellemc.powerstore.volume: 'test_1'
+        create_backup_snap: true
+        backup_snap_profile:
+          name: 'refresh_test_1'
+          description: 'test refresh demo backup snap'
+          expiration_timestamp: '2022-12-23T01:20:00Z'
+          performance_policy: 'low'
+        state: "present"
+
+    - name: Restore a volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        source_snap: 'refresh_test_1'
+        create_backup_snap: true
+        backup_snap_profile:
+          name: 'restore_test_snap_1'
+          description: 'test backup snap'
+          expiration_timestamp: '2022-12-23T01:20:00Z'
+          performance_policy: 'low'
+        state: "present"
+
+    - name: Configure a metro volume
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        remote_system: "RS-123"
+        state: 'present'
+
+    - name: End metro volume configuration
+      dellemc.powerstore.volume:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vol_name: "{{ vol_name }}"
+        end_metro_config: true
+        delete_remote_volume: false
+        state: 'present'

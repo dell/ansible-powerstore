@@ -25,13 +25,13 @@ author:
 options:
   user_name:
     description:
-    - Name of the local user account. Mutually exclusive with user_id.
+    - Name of the local user account. Mutually exclusive with I(user_id).
     - Mandatory only for create operation.
     type: str
   user_id:
     description:
     - Unique identifier of the local user account.
-    - Mutually exclusive with user_name.
+    - Mutually exclusive with I(user_name).
     type: str
   user_password:
     description:
@@ -45,47 +45,47 @@ options:
   role_name:
     description:
     - The name of the role to which the local user account will be mapped.
-    - It is mutually exclusive with role_id.
+    - It is mutually exclusive with I(role_id).
     type: str
   role_id:
     description:
     - The unique identifier of the role to which the local user account will
       be mapped.
-    - It is mutually exclusive with role_name.
+    - It is mutually exclusive with I(role_name).
     type: int
   is_locked:
     description:
     - Whether the user account is locked or not.
-    - Defaults to false at creation time.
+    - Defaults to C(false) at creation time.
     type: bool
   state:
     description:
     - Define whether the local user should exist or not.
     choices: ['absent', 'present']
-    required: True
+    required: true
     type: str
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Create local user
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     user_name: "ansible_user_1"
     user_password: "Password123#"
     role_name: "role_1"
-    is_locked: False
+    is_locked: false
     state: "present"
 
 - name: Get the details local user with user id
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     user_id: "{{user_id}}"
@@ -94,7 +94,7 @@ EXAMPLES = r'''
 - name: Get the details local user with user name
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     user_name: "ansible_user_1"
@@ -103,20 +103,20 @@ EXAMPLES = r'''
 - name: Modify attributes of local user
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     user_name: "ansible_user_1"
     user_password: "Password123#"
     new_password: "Ansible123#"
     role_id: 4
-    is_locked: True
+    is_locked: true
     state: "present"
 
 - name: Delete local user
   dellemc.powerstore.local_user:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     user_name: "ansible_user_1"
@@ -185,7 +185,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreLocalUser(object):

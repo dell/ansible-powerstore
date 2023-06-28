@@ -36,7 +36,7 @@ options:
   filesystem:
     description:
     - The ID/Name of the filesystem for which snapshot will be taken.
-    - If filesystem name is specified, then nas_server is required to uniquely
+    - If filesystem name is specified, then I(nas_server) is required to uniquely
       identify the filesystem.
     - Mandatory for create operation.
     type: str
@@ -51,7 +51,7 @@ options:
   desired_retention:
     description:
     - The retention value for the Snapshot.
-    - If the desired_retention/expiration_timestamp is not mentioned during
+    - If the I(desired_retention)/I(expiration_timestamp) is not mentioned during
       creation, snapshot will be created with unlimited retention.
     - Maximum supported desired retention is 31 days.
     type: int
@@ -71,8 +71,8 @@ options:
     description:
     - Specifies whether the snapshot directory or protocol access is granted
       to the filesystem snapshot.
-    - For create operation, if access_type is not specified, snapshot will be
-      created with 'SNAPSHOT' access type.
+    - For create operation, if I(access_type) is not specified, snapshot will be
+      created with C(SNAPSHOT) access type.
     choices: ['SNAPSHOT', 'PROTOCOL']
     type: str
   state:
@@ -82,14 +82,14 @@ options:
     choices: ['absent', 'present']
     type: str
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 """
 
 EXAMPLES = r"""
 - name: Create filesystem snapshot
   dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       user: "{{user}}"
       password: "{{password}}"
       snapshot_name: "sample_filesystem_snapshot"
@@ -102,7 +102,7 @@ EXAMPLES = r"""
 - name: Get the details of filesystem snapshot
   dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       user: "{{user}}"
       password: "{{password}}"
       snapshot_id: "{{fs_snapshot_id}}"
@@ -111,7 +111,7 @@ EXAMPLES = r"""
 - name: Modify the filesystem snapshot
   dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       user: "{{user}}"
       password: "{{password}}"
       snapshot_name: "sample_filesystem_snapshot"
@@ -123,7 +123,7 @@ EXAMPLES = r"""
 - name: Delete filesystem snapshot
   dellemc.powerstore.filesystem_snapshot:
       array_ip: "{{array_ip}}"
-      verifycert: "{{verifycert}}"
+      validate_certs: "{{validate_certs}}"
       user: "{{user}}"
       password: "{{password}}"
       snapshot_id: "{{fs_snapshot_id}}"
@@ -253,7 +253,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreFilesystemSnapshot(object):

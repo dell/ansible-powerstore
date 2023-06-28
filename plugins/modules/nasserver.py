@@ -21,11 +21,11 @@ author:
 options:
  nas_server_name:
    description:
-   - Name of the NAS server. Mutually exclusive with nas_server_id.
+   - Name of the NAS server. Mutually exclusive with I(nas_server_id).
    type: str
  nas_server_id:
    description:
-   - Unique id of the NAS server. Mutually exclusive with nas_server_name.
+   - Unique id of the NAS server. Mutually exclusive with I(nas_server_name).
    type: str
  description:
    description:
@@ -65,17 +65,17 @@ options:
  protection_policy:
    description:
    - Name/ID of the protection policy applied to the nas server.
-   - Policy can be removed by passing an empty string in the protection_policy parameter.
+   - Policy can be removed by passing an empty string in the I(protection_policy) parameter.
    type: str
  state:
    description:
    - Define whether the nas server should exist or not.
    choices: ['absent', 'present']
-   required: True
+   required: true
    type: str
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 - Adding/Removing protection policy to/from a NAS server
   is supported for PowerStore version 3.0.0 and above.
 '''
@@ -85,7 +85,7 @@ EXAMPLES = r'''
  - name: Get details of NAS Server by name
    dellemc.powerstore.nasserver:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      nas_server_name: "{{nas_server_name}}"
@@ -94,7 +94,7 @@ EXAMPLES = r'''
  - name: Get Details of NAS Server by ID
    dellemc.powerstore.nasserver:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      nas_server_id: "{{nas_id}}"
@@ -103,7 +103,7 @@ EXAMPLES = r'''
  - name: Rename NAS Server by Name
    dellemc.powerstore.nasserver:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      nas_server_name: "{{nas_server_name}}"
@@ -113,7 +113,7 @@ EXAMPLES = r'''
  - name: Modify NAS Server attributes by ID
    dellemc.powerstore.nasserver:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      nas_server_id: "{{nas_id}}"
@@ -126,7 +126,7 @@ EXAMPLES = r'''
  - name: Remove protection policy
    dellemc.powerstore.nasserver:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      nas_server_id: "{{nas_id}}"
@@ -299,7 +299,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreNasServer(object):

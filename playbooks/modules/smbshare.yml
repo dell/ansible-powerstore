@@ -1,0 +1,164 @@
+---
+- name: SMB Share Module Operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    share_name: "sample_smb_share"
+    filesystem: "ansible_share_fs"
+    nas_server: "ansible_nas_server_2"
+    snapshot: "sample_snapshot_1"
+    share_name_1: "sample_share_1"
+    share_name_2: "sample_share_2"
+
+  tasks:
+    - name: Create a SMB share for a filesystem
+      register: result
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_1 }}"
+        filesystem: "{{ filesystem }}"
+        path: "/ansible_share_fs/"
+        nas_server: "{{ nas_server }}"
+        state: "present"
+
+    - name: Create a SMB share for a filesystem Idempotency
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_1 }}"
+        filesystem: "{{ filesystem }}"
+        path: "/ansible_share_fs/"
+        nas_server: "{{ nas_server }}"
+        state: "present"
+
+    - name: Create a SMB share for filesystem Snapshot
+      register: result
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_2 }}"
+        snapshot: "{{ snapshot }}"
+        path: "/sample_snapshot_1"
+        nas_server: "{{ nas_server }}"
+        description: "Share for Snapshot created"
+        offline_availability: "PROGRAMS"
+        is_continuous_availability_enabled: true
+        umask: "027"
+        is_branch_cache_enabled: true
+        is_abe_enabled: true
+        state: "present"
+
+    - name: Create a SMB share for filesystem Snapshot Idempotency
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_2 }}"
+        snapshot: "{{ snapshot }}"
+        path: "/sample_snapshot_1"
+        nas_server: "{{ nas_server }}"
+        description: "Share for Snapshot created"
+        offline_availability: "PROGRAMS"
+        is_continuous_availability_enabled: true
+        umask: "027"
+        is_branch_cache_enabled: true
+        is_abe_enabled: true
+        state: "present"
+
+    - name: Get details of SMB share
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_1 }}"
+        filesystem: "{{ filesystem }}"
+        nas_server: "{{ nas_server }}"
+        state: "present"
+
+    - name: Get details of Snapshot"s SMB share
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ snap_share_id }}"
+        state: "present"
+
+    - name: Update a SMB share for filesystem
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_1 }}"
+        filesystem: "{{ fs_id }}"
+        is_continuous_availability_enabled: true
+        is_encryption_enabled: true
+        umask: "027"
+        is_branch_cache_enabled: true
+        is_abe_enabled: true
+        state: "present"
+
+    - name: Update a SMB share for a filesystem Idempotency
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "{{ share_name_1 }}"
+        filesystem: "{{ fs_id }}"
+        is_continuous_availability_enabled: true
+        is_encryption_enabled: true
+        umask: "027"
+        is_branch_cache_enabled: true
+        is_abe_enabled: true
+        state: "present"
+
+    - name: Delete SMB share (filesystem)
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ fs_share_id }}"
+        state: "absent"
+
+    - name: Delete SMB share (filesystem) Idempotency
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ fs_share_id }}"
+        state: "absent"
+
+    - name: Delete SMB share (snapshot)
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ snap_share_id }}"
+        state: "absent"
+
+    - name: Delete SMB share (snapshot) Idempotency
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ snap_share_id }}"
+        state: "absent"

@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -31,30 +34,30 @@ Parameters
     Unique identifier of the DNS instance.
 
 
-  dns_addresses (False, list, None)
+  dns_addresses (optional, list, None)
     DNS server addresses in IPv4 format.
 
 
-  dns_address_state (False, str, None)
-    State of the addresses mentioned in dns_addresses.
+  dns_address_state (optional, str, None)
+    State of the addresses mentioned in *dns_addresses*.
 
 
   state (True, str, None)
     The state of the DNS instance after the task is performed.
 
-    For get and modify operations it should be set to "present".
+    For get and modify operations it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -85,9 +88,9 @@ Notes
 
 .. note::
    - Minimum 1 and maximum 3 addresses can be associated to a DNS instance.
-   - Parameters dns_addresses and dns_address_state are required together.
+   - Parameters *dns_addresses* and *dns_address_state* are required together.
    - Creation and deletion of DNS is not supported.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -104,7 +107,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            dns_id: "DNS1"
            state: "present"
 
@@ -113,7 +116,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            dns_id: "DNS1"
            dns_addresses:
             - "XX.XX.XX.XX"
@@ -126,7 +129,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            dns_id: "DNS1"
            dns_addresses:
             - "YY.YY.YY.YY"

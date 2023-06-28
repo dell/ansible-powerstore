@@ -39,7 +39,9 @@ class MockVolumeApi:
         'delete_remote_volume': None,
         'state': None,
         'app_type': None,
-        'app_type_other': None
+        'app_type_other': None,
+        'appliance_name': None,
+        'appliance_id': None
     }
 
     DESCRIPTION1 = 'Volume created'

@@ -31,7 +31,9 @@ class MockInfoApi:
         'NTP': [],
         'RemoteSupport': [],
         'RemoteSupportContact': [],
-        'SMTPConfig': []
+        'SMTPConfig': [],
+        'StorageContainers': [],
+        'ReplicationGroups': []
     }
 
     CLUSTER_DETAILS_TWO = [

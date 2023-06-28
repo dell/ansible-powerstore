@@ -55,9 +55,9 @@ options:
   retention_unit:
     description:
     - The unit for retention.
-    - If this unit is not specified, 'hours' is taken as default
-      retention_unit.
-    - If desired_retention is specified, expiration_timestamp cannot be
+    - If this unit is not specified, C(hours) is taken as default
+      I(retention_unit).
+    - If I(desired_retention) is specified, I(expiration_timestamp) cannot be
       specified.
     choices: [hours, days]
     type: str
@@ -78,14 +78,14 @@ options:
     type: str
 
 notes:
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
     - name: Create a volume snapshot on PowerStore
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -98,7 +98,7 @@ EXAMPLES = r'''
     - name: Get details of a volume snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -108,7 +108,7 @@ EXAMPLES = r'''
     - name: Rename volume snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -119,7 +119,7 @@ EXAMPLES = r'''
     - name: Delete volume snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{new_snapshot_name}}"
@@ -129,7 +129,7 @@ EXAMPLES = r'''
     - name: Create a volume group snapshot on PowerStore
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -141,7 +141,7 @@ EXAMPLES = r'''
     - name: Get details of a volume group snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -151,7 +151,7 @@ EXAMPLES = r'''
     - name: Modify volume group snapshot expiration timestamp
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -163,7 +163,7 @@ EXAMPLES = r'''
     - name: Rename volume group snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{snapshot_name}}"
@@ -174,7 +174,7 @@ EXAMPLES = r'''
     - name: Delete volume group snapshot
       dellemc.powerstore.snapshot:
         array_ip: "{{mgmt_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshot_name: "{{new_snapshot_name}}"
@@ -344,7 +344,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreSnapshot(object):

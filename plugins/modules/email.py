@@ -25,26 +25,22 @@ options:
   email_id:
     description:
     - Unique identifier of the destination email address.
-    - Mutually exclusive with email_address.
-    required: False
+    - Mutually exclusive with I(email_address).
     type: str
   email_address:
     description:
     - Email address to receive notifications.
-    - Mutually exclusive with email_id.
-    required: False
+    - Mutually exclusive with I(email_id).
     type: str
   new_address:
     description:
     - New email address to receive notifications.
-    required: False
     type: str
   send_test_email:
     description:
     - Whether to send the test email to the destination email address.
-    required: False
     type: bool
-    default: False
+    default: false
   notify:
     description:
     - Whether to send different types of notifications. It contains below
@@ -55,35 +51,31 @@ options:
         description:
         - Whether to send notifications for critical alerts.
         type: bool
-        required: False
       major:
         description:
         - Whether to send notifications for major alerts.
         type: bool
-        required: False
       minor:
         description:
         - Whether to send notifications for minor alerts.
         type: bool
-        required: False
       info:
         description:
         - Whether to send notifications for informational alerts.
         type: bool
-        required: False
   state:
     description:
     - The state of the destination email address after the task is performed.
-    - For Delete operation only, it should be set to "absent".
+    - For Delete operation only, it should be set to C(absent).
     - For all Create, Modify, Test or Get details operations it should be set
-      to "present".
-    required : True
+      to C(present).
+    required : true
     choices: [ 'present', 'absent']
     type: str
 
 notes:
 - Idempotency is not supported for Test operation of Email module.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -92,7 +84,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
        state: "present"
 
@@ -101,7 +93,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_address: "abc@dell.com"
        state: "present"
 
@@ -110,12 +102,12 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_address: "abc_xyz@dell.com"
        notify:
-         info: True
-         critical: True
-         major: False
+         info: true
+         critical: true
+         major: false
        state: "present"
 
   - name: Modify destination email
@@ -123,12 +115,12 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_address: "abc_xyz@dell.com"
        new_address: "def_pqr@dell.com"
        notify:
-         info: False
-         major: False
+         info: false
+         major: false
        state: "present"
 
   - name: Send a test mail to the destination email with email_id
@@ -136,9 +128,9 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
-       send_test_email: True
+       send_test_email: true
        state: "present"
 
   - name: Delete destination email
@@ -146,7 +138,7 @@ EXAMPLES = r'''
        array_ip: "{{array_ip}}"
        user: "{{user}}"
        password: "{{password}}"
-       verifycert: "{{verifycert}}"
+       validate_certs: "{{validate_certs}}"
        email_address: "def_pqr@dell.com"
        state: "absent"
 '''
@@ -213,7 +205,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerstoreEmail(object):

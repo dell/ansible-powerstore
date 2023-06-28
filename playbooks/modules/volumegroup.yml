@@ -1,0 +1,187 @@
+---
+- name: Volume Group Operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    vg_name: "Ansible_VG_Testing"
+    new_vg_name: "Ansible_PowerStore_VG_Renamed"
+    protection_policy: "ansible_prot_pol_1"
+    vg_id: ""
+    vol_1: "ansible_vol_1"
+    vol_2: "ansible_vol_2"
+
+  tasks:
+    - name: Create VolumeGroup with Protection Policy
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        protection_policy: "{{ protection_policy }}"
+        state: "present"
+
+    - name: Create VolumeGroup with Protection Policy Idempotency Test
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        protection_policy: "{{ protection_policy }}"
+        state: "present"
+
+    - name: Modify Volume Group to change Name
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        new_vg_name: "{{ new_vg_name }}"
+        protection_policy: "{{ protection_policy }}"
+        is_write_order_consistent: false
+        state: "present"
+
+    - name: Modify Volume Group to change Name and remove Protection Policy
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ new_vg_name }}"
+        new_vg_name: "{{ vg_name }}"
+        protection_policy: ""
+        is_write_order_consistent: false
+        state: "present"
+
+    - name: Add volumes to Volume Group
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        volumes:
+          - "{{ vol_id_1 }}"
+          - "{{ vol_2 }}"
+        vol_state: "present-in-group"
+        state: "present"
+
+    - name: Add volumes to Volume Group Idempotency
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        volumes:
+          - "{{ vol_id_1 }}"
+          - "{{ vol_2 }}"
+        vol_state: "present-in-group"
+        state: "present"
+
+    - name: Remove volumes from Volume Group
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        volumes:
+          - "{{ vol_id_1 }}"
+          - "{{ vol_2 }}"
+        vol_state: "absent-in-group"
+        state: "present"
+
+    - name: Remove volumes from Volume Group Idempotency
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        volumes:
+          - "{{ vol_id_1 }}"
+          - "{{ vol_2 }}"
+        vol_state: "absent-in-group"
+        state: "present"
+
+    - name: Get Volume Group Details by Name
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        state: "present"
+      register: vg_result
+
+    - name: Get Volume Group Details by id
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_id: "{{ vg_id }}"
+        state: "present"
+
+    - name: Delete Volume Group
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        state: "absent"
+
+    - name: Delete Volume Group Idempotency test
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "{{ vg_name }}"
+        state: "absent"
+
+    - name: Clone a VolumeGroup
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "ansible_vg"
+        vg_clone:
+          name: "ansible_vg_clone1"
+        state: "present"
+
+    - name: Restore a VolumeGroup
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "ansible_vg"
+        source_snap: "test1"
+        create_backup_snap: true
+        backup_snap_profile:
+          name: "test13"
+          expiration_timestamp: '2022-08-13T11:50:20Z'
+        state: "present"
+
+    - name: Refresh a VolumeGroup
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        vg_name: "ansible_vg"
+        source_vg: "ansible_vg_clone"
+        create_backup_snap: true
+        backup_snap_profile:
+          name: "test"
+        state: "present"

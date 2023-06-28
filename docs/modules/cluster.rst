@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -50,23 +53,23 @@ Parameters
   appliance_id (optional, str, None)
     ID of the appliance.
 
-    Parameters appliance_id and appliance_name are mutually exclusive.
+    Parameters *appliance_id* and *appliance_name* are mutually exclusive.
 
-    Parameter is_ssh_enabled has to be passed along with appliance_id.
+    Parameter *is_ssh_enabled* has to be passed along with *appliance_id*.
 
 
   appliance_name (optional, str, None)
     Name of the appliance.
 
-    Parameters appliance_id and appliance_name are mutually exclusive.
+    Parameters *appliance_id* and *appliance_name* are mutually exclusive.
 
-    Parameter is_ssh_enabled has to be passed along with appliance_name.
+    Parameter *is_ssh_enabled* has to be passed along with *appliance_name*.
 
 
   is_ssh_enabled (optional, bool, None)
     Whether SSH access is enabled for the cluster.
 
-    Either appliance_id or appliance_name is to be passed along with is_ssh_enabled.
+    Either *appliance_id* or *appliance_name* is to be passed along with *is_ssh_enabled*.
 
 
   physical_mtu (optional, int, None)
@@ -75,7 +78,7 @@ Parameters
     The MTU can be set between 1500 to 9000.
 
 
-  ignore_network_warnings (False, bool, None)
+  ignore_network_warnings (optional, bool, None)
     Whether to ignore the network warning about unreachable external network.
 
 
@@ -147,7 +150,7 @@ Parameters
 
 
       snmp_community_string (optional, str, None)
-        Specifies SNMPv2 community string, if SNMPv2 connect method is selected.
+        Specifies ``SNMPv2`` community string, if ``SNMPv2`` connect method is selected.
 
 
 
@@ -226,7 +229,7 @@ Parameters
 
       This should be specified when creating PowerStore X cluster.
 
-      Mutually exclusive with data_center_id.
+      Mutually exclusive with *data_center_id*.
 
 
     data_center_id (optional, str, None)
@@ -236,7 +239,7 @@ Parameters
 
       This should be specified when creating PowerStore X cluster.
 
-      Mutually exclusive with data_center_name.
+      Mutually exclusive with *data_center_name*.
 
 
     esx_cluster_name (optional, str, None)
@@ -270,27 +273,27 @@ Parameters
   wait_for_completion (optional, bool, False)
     Flag to indicate if the operation should be run synchronously or asynchronously.
 
-    True signifies synchronous execution. By default, create cluster operation will run asynchronously.
+    ``true`` signifies synchronous execution. By default, create cluster operation will run asynchronously.
 
 
   state (True, str, None)
     Define whether the cluster should exist or not.
 
-    Value present indicates that the cluster should exist on the system.
+    Value ``present`` indicates that the cluster should exist on the system.
 
-    Value absent indicates that the cluster should not exist on the system.
+    Value ``absent`` indicates that the cluster should not exist on the system.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -321,13 +324,13 @@ Notes
 
 .. note::
    - Deletion of a cluster is not supported by ansible module.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - Before performing create operation, the default password for admin user and service user should be changed.
-   - For management type network during cluster creation, storage_discovery_address and purposes should not be passed.
-   - The vcenters parameter is mandatory for PowerStore X cluster creation.
+   - For management type network during cluster creation, *storage_discovery_address* and purposes should not be passed.
+   - The *vcenters* parameter is mandatory for PowerStore X cluster creation.
    - Minimum 3 and 5 addresses are required for management network for PowerStore T and X model respectively.
-   - The File_Mobility purpose is supported only in FootHills Prime and above.
-   - Parameter is_http_redirect_enabled is supported only in PowerStore FootHills Prime and above.
+   - The ``File_Mobility`` purpose is supported only in FootHills Prime and above.
+   - Parameter *is_http_redirect_enabled* is supported only in PowerStore FootHills Prime and above.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -342,7 +345,7 @@ Examples
     - name: Get the details of cluster using id
       dellemc.powerstore.cluster:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         cluster_id: "0"
@@ -351,12 +354,12 @@ Examples
     - name: Modify details of cluster using the name
       dellemc.powerstore.cluster:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         cluster_name: "RT-D1320"
         appliance_id: "A1"
-        is_ssh_enabled: True
+        is_ssh_enabled: true
         service_password: "S@mple_password"
         chap_mode: "Disabled"
         new_name: "new_RT-D1320"
@@ -365,11 +368,11 @@ Examples
     - name: Validate create cluster
       dellemc.powerstore.cluster:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         cluster_name: "RT-D1320"
-        ignore_network_warnings: True
+        ignore_network_warnings: true
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible_cluster"
@@ -397,18 +400,18 @@ Examples
               - "3.x.x.x"
             purpose:
               - "ISCSI"
-        is_http_redirect_enabled: True
-        validate_create: True
+        is_http_redirect_enabled: true
+        validate_create: true
         state: "present"
 
     - name: Create cluster
       dellemc.powerstore.cluster:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         cluster_name: "RT-D1320"
-        ignore_network_warnings: True
+        ignore_network_warnings: true
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible_cluster"
@@ -449,12 +452,12 @@ Examples
           - address: "1.x.x.x"
             username: "user"
             password: "password"
-            is_verify_server_cert: True
+            is_verify_server_cert: true
             vasa_provider_credentials:
               username: "user"
               password: "password"
-        is_http_redirect_enabled: True
-        wait_for_completion: False
+        is_http_redirect_enabled: true
+        wait_for_completion: false
         state: "present"
 
 
@@ -574,7 +577,7 @@ cluster_details (When Cluster exists., complex, {'appliance_count': 1, 'chap_mod
 
 
   appliance_details (When appliance name or id is passed in the playbook task., complex, )
-    Name and Id of the appliance for which is_ssh_enabled parameter is used.
+    Name and Id of the appliance for which *is_ssh_enabled* parameter is used.
 
 
     id (, str, )

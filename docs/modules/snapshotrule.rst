@@ -22,37 +22,40 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
 Parameters
 ----------
 
-  name (False, str, None)
+  name (optional, str, None)
     String variable. Indicates the name of the Snapshot rule.
 
 
-  snapshotrule_id (False, str, None)
+  snapshotrule_id (optional, str, None)
     String variable. Indicates the ID of the Snapshot rule.
 
 
-  new_name (False, str, None)
+  new_name (optional, str, None)
     String variable. Indicates the new name of the Snapshot rule.
 
     Used for renaming operation.
 
 
-  days_of_week (False, list, None)
-    List of strings to specify days of the week on which the Snapshot rule should be applied. Must be applied for Snapshot rules where the 'time_of_day' parameter is set.
+  days_of_week (optional, list, None)
+    List of strings to specify days of the week on which the Snapshot rule should be applied. Must be applied for Snapshot rules where the *time_of_day* parameter is set.
 
-    Optional for the Snapshot rule created with an interval. When 'days_of_week' is not specified for a new Snapshot rule, the rule is applied on every day of the week.
+    Optional for the Snapshot rule created with an interval. When *days_of_week* is not specified for a new Snapshot rule, the rule is applied on every day of the week.
 
 
   interval (False, str, None)
     String variable. Indicates the interval between Snapshots.
 
-    When creating a Snapshot rule, specify either "interval" or "time_of_day", but not both.
+    When creating a Snapshot rule, specify either *interval* or *time_of_day*, but not both.
 
 
   desired_retention (False, int, None)
@@ -64,35 +67,35 @@ Parameters
   time_of_day (False, str, None)
     String variable. Indicates the time of the day to take a daily Snapshot, with the format "hh:mm" in 24 hour time format.
 
-    When creating a Snapshot rule, specify either "interval"or "time_of_day" but not both.
+    When creating a Snapshot rule, specify either *interval* or *time_of_day* but not both.
 
 
   delete_snaps (optional, bool, False)
     Boolean variable to specify whether all Snapshots previously created by this rule should also be deleted when this rule is removed.
 
-    True specifies to delete all previously created Snapshots by this rule while deleting this rule.
+    ``true`` specifies to delete all previously created Snapshots by this rule while deleting this rule.
 
-    False specifies to retain all previously created Snapshots while deleting this rule.
+    ``false`` specifies to retain all previously created Snapshots while deleting this rule.
 
 
   state (True, str, None)
     String variable indicates the state of Snapshot rule.
 
-    For "Delete" operation only, it should be set to "absent".
+    For "Delete" operation only, it should be set to ``absent``.
 
-    For all Create, Modify or Get details operation it should be set to "present".
+    For all Create, Modify or Get details operation it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -122,7 +125,7 @@ Notes
 -----
 
 .. note::
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -138,7 +141,7 @@ Examples
     - name: Get details of an existing snapshot rule by name
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -147,7 +150,7 @@ Examples
     - name: Get details of an existing snapshot rule by id
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         snapshotrule_id: "{{snapshotrule_id}}"
@@ -156,7 +159,7 @@ Examples
     - name: Create new snapshot rule by interval
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -170,7 +173,7 @@ Examples
     - name: Create new snapshot rule by time_of_day and days_of_week
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -185,7 +188,7 @@ Examples
     - name: Modify existing snapshot rule to time_of_day and days_of_week
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -200,7 +203,7 @@ Examples
     - name: Modify existing snapshot rule to interval
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -210,7 +213,7 @@ Examples
     - name: Delete an existing snapshot rule by name
       dellemc.powerstore.snapshotrule:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"

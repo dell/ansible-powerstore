@@ -22,7 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -33,15 +36,15 @@ Parameters
     Unique identifier of the remote support configuration.
 
 
-  support_type (False, str, None)
+  support_type (optional, str, None)
     The type of remote support that is configured.
 
     Mandatory for modify and verify operation.
 
-    SRS_Gateway support_type is only supported for verify operation.
+    ``SRS_Gateway``, *support_type* is only supported for verify operation.
 
 
-  remote_support_servers (False, list, None)
+  remote_support_servers (optional, list, None)
     One or two remote support servers.
 
 
@@ -58,82 +61,82 @@ Parameters
     is_primary (optional, bool, None)
       Indicates whether the server is acting as the primary.
 
-      One server must be set to false when two servers are configured.
+      One server must be set to ``false`` when two servers are configured.
 
 
 
-  server_state (False, str, None)
-    Indicates the state of the remote-support_servers.
+  server_state (optional, str, None)
+    Indicates the state of the remote_support_servers.
 
-    Required with remote_support_servers.
+    Required with *remote_support_servers*.
 
 
-  is_support_assist_license_accepted (False, bool, None)
+  is_support_assist_license_accepted (optional, bool, None)
     Indicates whether user has accepted remote support license agreement before enabling the Support Assist on the system for the first time.
 
 
-  is_cloudiq_enabled (False, bool, None)
+  is_cloudiq_enabled (optional, bool, None)
     Indicates whether support for CloudIQ is enabled.
 
 
-  is_rsc_enabled (False, bool, None)
+  is_rsc_enabled (optional, bool, None)
     Indicates whether support for Remote Service Credentials is enabled.
 
 
-  proxy_address (False, str, None)
+  proxy_address (optional, str, None)
     Proxy server IP address (IPv4).
 
 
-  proxy_port (False, int, None)
+  proxy_port (optional, int, None)
     Proxy server port number.
 
 
-  proxy_username (False, str, None)
+  proxy_username (optional, str, None)
     User name for proxy server access.
 
 
-  proxy_password (False, str, None)
+  proxy_password (optional, str, None)
     Password for proxy server access.
 
 
-  is_icw_configured (False, bool, None)
+  is_icw_configured (optional, bool, None)
     Client already configured ICW.
 
 
-  verify_connection (False, bool, False)
+  verify_connection (optional, bool, False)
     Indicates whether to perform the verify call or not.
 
 
-  send_test_alert (False, bool, False)
+  send_test_alert (optional, bool, False)
     Indicates whether to send a test alert or not.
 
 
   wait_for_completion (optional, bool, False)
-    Flag to indicate if the operation should be run synchronously or asynchronously. True signifies synchronous execution. By default, modify operation will run asynchronously.
+    Flag to indicate if the operation should be run synchronously or asynchronously. ``true`` signifies synchronous execution. By default, modify operation will run asynchronously.
 
 
-  return_support_license_text (False, bool, False)
+  return_support_license_text (optional, bool, False)
     Indicates whether to return support license agreement text or not.
 
 
   state (True, str, None)
     The state of the remote support configuration after the task is performed.
 
-    For Delete operation only, it should be set to "absent".
+    For Delete operation only, it should be set to ``absent``.
 
-    For get/modify operation it should be set to "present".
+    For get/modify operation it should be set to ``present``.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -164,7 +167,7 @@ Notes
 
 .. note::
    - Creation and deletion of remote support configuration is not supported.
-   - Support for check_mode is not available for this module.
+   - Support for *check_mode* is not available for this module.
    - Verify and send test alert operations do not support idempotency.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
@@ -183,7 +186,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            remote_support_id: 0
            state: "present"
 
@@ -192,19 +195,19 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           remote_support_id: 0
           support_type: "SRS_Gateway_Tier2"
           remote_support_servers:
           - address: "10.XX.XX.XX"
             port: 9443
-            is_primary: True
+            is_primary: true
           - address: "10.XX.XX.YY"
             port: 9443
-            is_primary: False
+            is_primary: false
           server_state: "present-in-server"
-          is_rsc_enabled: True
-          is_cloudiq_enabled: False
+          is_rsc_enabled: true
+          is_cloudiq_enabled: false
           timeout: 300
           state: "present"
 
@@ -213,7 +216,7 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           remote_support_id: 0
           support_type: "SRS_Integrated_Tier2"
           proxy_address: "10.XX.XX.ZZ"
@@ -228,11 +231,11 @@ Examples
           array_ip: "{{array_ip}}"
           user: "{{user}}"
           password: "{{password}}"
-          verifycert: "{{verifycert}}"
+          validate_certs: "{{validate_certs}}"
           remote_support_id: 0
           support_type: "SRS_Integrated_Tier3"
           timeout: 300
-          verify_connection: True
+          verify_connection: true
           state: "present"
 
       - name: Send a test alert
@@ -240,9 +243,9 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            remote_support_id: 0
-           send_test_alert: True
+           send_test_alert: true
            state: "present"
 
 

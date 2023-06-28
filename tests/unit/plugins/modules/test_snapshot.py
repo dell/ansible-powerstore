@@ -13,8 +13,6 @@ from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
     mock_snapshot_api import MockSnapshotApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
-    mock_sdk_response import MockSDKResponse
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
     mock_api_exception import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell import utils
 

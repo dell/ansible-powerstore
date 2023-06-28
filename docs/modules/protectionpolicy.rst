@@ -20,18 +20,21 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
 Parameters
 ----------
 
-  name (False, str, None)
+  name (optional, str, None)
     String variable. Indicates the name of the protection policy.
 
 
-  protectionpolicy_id (False, str, None)
+  protectionpolicy_id (optional, str, None)
     String variable. Indicates the id of the protection policy.
 
 
@@ -41,26 +44,26 @@ Parameters
     Used for renaming operation.
 
 
-  snapshotrules (False, list, None)
+  snapshotrules (optional, list, None)
     List of strings to specify the name or ids of snapshot rules which are to be added or removed, to or from, the protection policy.
 
 
-  replicationrule (False, str, None)
+  replicationrule (optional, str, None)
     The name or ids of the replcation rule which is to be added to the protection policy.
 
     To remove the replication rule, an empty string has to be passed.
 
 
-  description (False, str, None)
+  description (optional, str, None)
     String variable. Indicates the description of the protection policy.
 
 
   state (True, str, None)
     String variable. Indicates the state of protection policy.
 
-    For Delete operation only, it should be set to "absent".
+    For Delete operation only, it should be set to ``absent``.
 
-    For all other operations like Create, Modify or Get details, it should be set to "present".
+    For all other operations like Create, Modify or Get details, it should be set to ``present``.
 
 
   snapshotrule_state (False, str, None)
@@ -68,21 +71,21 @@ Parameters
 
     When snapshot rules are specified, this variable is required.
 
-    Value present-in-policy indicates to add to protection policy.
+    Value ``present-in-policy`` indicates to add to protection policy.
 
-    Value absent-in-policy indicates to remove from protection policy.
+    Value ``absent-in-policy`` indicates to remove from protection policy.
 
 
   array_ip (True, str, None)
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -114,7 +117,7 @@ Notes
 .. note::
    - Before deleting a protection policy, the replication rule has to be removed from the protection policy.
    - In PowerStore version 3.0.0.0, protection policy without snapshot rule/replication rule is not allowed.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -130,7 +133,7 @@ Examples
     - name: Create a protection policy with snapshot rule and replication rule
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -145,7 +148,7 @@ Examples
     - name : Modify protection policy, change name
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -156,7 +159,7 @@ Examples
     - name : Modify protection policy, add snapshot rule
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -168,7 +171,7 @@ Examples
     - name : Modify protection policy, remove snapshot rule, replication rule
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -181,7 +184,7 @@ Examples
     - name : Get details of protection policy by name
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"
@@ -190,7 +193,7 @@ Examples
     - name : Get details of protection policy by ID
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         protectionpolicy_id: "{{protectionpolicy_id}}"
@@ -199,7 +202,7 @@ Examples
     - name : Delete protection policy
       dellemc.powerstore.protectionpolicy:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         name: "{{name}}"

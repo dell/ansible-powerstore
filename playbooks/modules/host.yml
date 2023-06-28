@@ -1,0 +1,232 @@
+---
+- name: Testing host operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    host_name_fc: "Ansible_Testing_host_FC"
+    host_name_iscsi: "Ansible_Testing_host_ISCSI"
+    host_name_iscsi_2: "Ansible_Testing_host_ISCSI_2"
+    host_name_nvme: "Ansible_Testing_host_NVMe"
+    new_host_name: "Ansible_Testing_host2"
+
+  tasks:
+    - name: Create host with FC type initiators
+      register: fc_host
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_fc }}"
+        os_type: "Windows"
+        initiators:
+          - XX.XX.XX.XX
+        state: "present"
+        host_connectivity: "Metro_Optimize_Both"
+        initiator_state: "present-in-host"
+
+    - name: Create host with ISCSI type initiators
+      register: iscsi_host
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_iscsi }}"
+        os_type: "ESXi"
+        initiators:
+          - XX.XX.XX.XX
+        state: "present"
+        initiator_state: "present-in-host"
+
+    - name: Create host with NVMe type initiators
+      register: nvme_host
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_nvme }}"
+        os_type: "ESXi"
+        initiators:
+          - XX.XX.XX.XX
+        state: "present"
+        initiator_state: "present-in-host"
+
+    - name: Create host with ISCSI type initiators and its details
+      register: iscsi_host_2
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_iscsi_2 }}"
+        os_type: "ESXi"
+        detailed_initiators:
+          - port_name: "XX.XX.XX.XX"
+            port_type: "iSCSI"
+            chap_single_username: "chapuser"
+            chap_single_password: "chappasswd"
+        state: "present"
+        initiator_state: "present-in-host"
+
+    - name: Get host details with name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ fc_host.host_details.name }}"
+        state: "present"
+
+    - name: Get host details with ID
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ fc_host.host_details.id }}"
+        state: "present"
+
+    - name: Adding initiator to host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_fc }}"
+        initiators:
+          - XX.XX.XX.XX
+        initiator_state: "present-in-host"
+        state: "present"
+
+    - name: Adding initiator to host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_iscsi_2 }}"
+        detailed_initiators:
+          - port_name: "XX.XX.XX.XX"
+            port_type: "iSCSI"
+            chap_single_username: "chapuser"
+            chap_single_password: "chappasswd"
+          - port_name: "XX.XX.XX.XX"
+            port_type: "iSCSI"
+            chap_mutual_username: "chapuserMutual"
+            chap_mutual_password: "chappasswd"
+        initiator_state: present-in-host
+        state: present
+
+    - name: Adding initiator to host using host_id
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ iscsi_host.host_details.id }}"
+        initiators:
+          - XX.XX.XX.XX
+        initiator_state: "present-in-host"
+        state: "present"
+
+    - name: Removing initiator from host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_fc }}"
+        initiators:
+          - XX.XX.XX.XX
+        initiator_state: "absent-in-host"
+        state: "present"
+
+    - name: Removing initiator from host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_iscsi_2 }}"
+        detailed_initiators:
+          - port_name: "XX.XX.XX.XX"
+            port_type: "iSCSI"
+            chap_single_username: "chapuser"
+            chap_single_password: "chappasswd"
+        initiator_state: "absent-in-host"
+        state: "present"
+
+    - name: Removing initiator from host using host_id
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ iscsi_host.host_details.id }}"
+        initiators:
+          - XX.XX.XX.XX
+        initiator_state: "absent-in-host"
+        state: "present"
+
+    - name: Modify Host connectivity of host
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_fc }}"
+        host_connectivity: "Metro_Optimize_Local"
+        state: "present"
+
+    - name: Rename host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "{{ host_name_fc }}"
+        new_name: "{{ new_host_name }}"
+        state: "present"
+
+    - name: Rename host using host_id
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ fc_host.host_details.id }}"
+        new_name: "new_host_name2"
+        state: "present"
+
+    - name: Delete host using host_name
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_name: "new_host_name2"
+        state: "absent"
+
+    - name: Delete host using host_id
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ iscsi_host.host_details.id }}"
+        state: "absent"
+
+    - name: Delete host using host_id
+      dellemc.powerstore.host:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        host_id: "{{ nvme_host.host_details.id }}"
+        state: "absent"

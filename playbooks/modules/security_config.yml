@@ -1,0 +1,39 @@
+---
+- name: Security Config module operations on PowerStore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of a security config
+      dellemc.powerstore.security_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        security_config_id: 1
+        state: "present"
+
+    - name: Modify the protocol_mode of security config
+      dellemc.powerstore.security_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        security_config_id: 1
+        protocol_mode: "TLSv1_1"
+        state: "present"
+
+    - name: Modify the protocol_mode of security config - Idempotency
+      dellemc.powerstore.security_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        security_config_id: 1
+        protocol_mode: "TLSv1_1"
+        state: "present"

@@ -1,0 +1,132 @@
+---
+- name: Testing host group operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    hostgroup_name1: "Ansible_Test_host_group1"
+    hostgroup_name2: "Ansible_Test_host_group2"
+    new_name1: "Ansible_Test_host_group_New1"
+    new_name2: "Ansible_Test_host_group_New2"
+    host_name_iscsi1: "host1"
+    host_name_iscsi2: "host2"
+
+  tasks:
+    - name: Create host group with hosts using host name
+      register: hostgroup1
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name1 }}"
+        hosts: "{{ host1.host_details.name }}"
+        host_state: present-in-group
+        state: present
+
+    - name: Create host group with hosts using host ID
+      register: hostgroup2
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name2 }}"
+        hosts:
+          - "{{ host2.host_details.id }}"
+          - "{{ host3.host_details.id }}"
+        host_state: present-in-group
+        state: present
+
+    - name: Get host group details
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name1 }}"
+        state: "present"
+
+    - name: Get host group details using hostgroup ID
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_id: "{{ hostgroup1.hostgroup_details.id }}"
+        state: "present"
+
+    - name: Adding host to host group
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name2 }}"
+        hosts:
+          - "{{ host4.host_details.id }}"
+        host_state: "present-in-group"
+        state: "present"
+
+    - name: Removing host from host group
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_id: "{{ hostgroup2.hostgroup_details.id }}"
+        hosts:
+          - host_name_ISCSI4
+        host_state: "absent-in-group"
+        state: "present"
+
+    - name: Modify host group
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name1 }}"
+        host_connectivity: "Metro_Optimize_Local"
+        state: "present"
+
+    - name: Rename host group
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ hostgroup_name1 }}"
+        new_name: "{{ new_name1 }}"
+        state: "present"
+
+    - name: Rename host group using hostgroup ID
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_id: "{{ hostgroup2.hostgroup_details.id }}"
+        new_name: "{{ new_name2 }}"
+        state: "present"
+
+    - name: Delete host group
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_name: "{{ new_name1 }}"
+        state: "absent"
+
+    - name: Delete host group using hostgroup ID
+      dellemc.powerstore.hostgroup:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        hostgroup_id: "{{ hostgroup2.hostgroup_details.id }}"
+        state: "absent"

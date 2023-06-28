@@ -30,7 +30,7 @@ options:
     description:
     - The path on which the quota will be imposed.
     - Path is relative to the root of the filesystem.
-    - For user quota, if path is not specified, quota will be created at the
+    - For user quota, if I(path) is not specified, quota will be created at the
       root of the filesystem.
     type: str
   quota_type:
@@ -41,14 +41,14 @@ options:
   quota_id:
     description:
     - Id of the user/tree quota.
-    - If quota_id is mentioned, then path/nas_server/file_system/quota_type is
+    - If I(quota_id) is mentioned, then I(path)/I(nas_server)/I(file_system)/I(quota_type) is
       not required.
     type: str
   filesystem:
     description:
     - The ID/Name of the filesystem for which the Tree/User Quota  will be
       created.
-    - If filesystem name is specified, then nas_server is required to uniquely
+    - If filesystem name is specified, then I(nas_server) is required to uniquely
       identify the filesystem.
     type: str
   nas_server:
@@ -58,14 +58,14 @@ options:
   description:
     description:
     - Additional information that can be mentioned for a Tree Quota.
-    - Description parameter can only be used when quota_type is 'tree'.
+    - Description parameter can only be used when I(quota_type) is C(tree).
     type: str
   unix_name:
     description:
     - The name of the unix user account for which
       quota operations will be performed.
-    - Any one among uid/unix_name/windows_name/windows_sid is required when
-      quota_type is 'user'.
+    - Any one among C(uid)/C(unix_name)/C(windows_name)/C(windows_sid) is required when
+      I(quota_type) is C(user).
     type: str
   windows_name:
     description:
@@ -73,22 +73,22 @@ options:
       performed.
     - The name should be mentioned along with Domain Name as
       'DOMAIN_NAME\user_name' or as "DOMAIN_NAME\\user_name".
-    - Any one among uid/unix_name/windows_name/windows_sid is required when
-      quota_type is 'user'.
+    - Any one among C(uid)/C(unix_name)/C(windows_name)/C(windows_sid) is required when
+      I(quota_type) is C(user).
     type: str
   uid:
     description:
     - The ID of the unix user account for which quota operations will be
       performed.
-    - Any one among uid/unix_name/windows_name/windows_sid is required when
-      quota_type is 'user'.
+    - Any one among C(uid)/C(unix_name)/C(windows_name)/C(windows_sid) is required when
+      I(quota_type) is C(user).
     type: int
   windows_sid:
     description:
     - The SID of the Windows User account for which quota operations will be
       performed.
-    - Any one among uid/unix_name/windows_name/windows_sid is required when
-      quota_type is 'user'.
+    - Any one among C(uid)/C(unix_name)/C(windows_name)/C(windows_sid) is required when
+      I(quota_type) is C(user).
     type: str
   quota:
     description:
@@ -98,12 +98,12 @@ options:
       soft_limit:
         description:
         - Soft limit of the User/Tree quota.
-        - No Soft limit when set to 0.
+        - No Soft limit when set to C(0).
         type: int
       hard_limit:
         description:
         - Hard limit of the user quota.
-        - No hard limit when set to 0.
+        - No hard limit when set to C(0).
         type: int
       cap_unit:
         description:
@@ -115,16 +115,16 @@ options:
   state:
     description:
     - Define whether the Quota should exist or not.
-    - Value present  indicates that the Quota should exist on the system.
-    - Value absent  indicates that the Quota should not exist on the system.
+    - Value C(present)  indicates that the Quota should exist on the system.
+    - Value C(absent)  indicates that the Quota should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
 
 notes:
 - Tree quota cannot be created at the root of the filesystem.
-- When the ID of the filesystem is passed then nas_server is not required.
-  If passed, then filesystem should exist for the nas_server, else the task
+- When the ID of the filesystem is passed then I(nas_server) is not required.
+  If passed, then filesystem should exist for the I(nas_server), else the task
   will fail.
 - If a primary directory of the current directory or a subordinate directory
   of the path is having a Tree Quota configured, then the quota for that path
@@ -134,15 +134,15 @@ notes:
   the quotas will be enabled for that filesystem automatically.
 - If a user quota is to be created on a tree quota, then the user quotas will
   be enabled automatically in a tree quota.
-- Delete User Quota operation is not supported.
-- The check_mode is not supported.
+- C(Delete) User Quota operation is not supported.
+- The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
 
     - name: Create a Quota for a User using unix name
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_type: "user"
@@ -158,7 +158,7 @@ EXAMPLES = r'''
     - name: Create a Tree Quota
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_type: "tree"
@@ -174,7 +174,7 @@ EXAMPLES = r'''
     - name: Modify attributes for Tree Quota
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_id: "{{quota_id}}"
@@ -187,7 +187,7 @@ EXAMPLES = r'''
     - name: Get details of User Quota
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_type: "user"
@@ -199,7 +199,7 @@ EXAMPLES = r'''
     - name: Get details of Tree Quota
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_id: "{{quota_id}}"
@@ -208,7 +208,7 @@ EXAMPLES = r'''
     - name: Delete a Tree Quota
       dellemc.powerstore.quota:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verify_cert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         quota_type: "tree"
@@ -223,7 +223,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
-    sample: "True"
+    sample: "true"
 
 quota_details:
     description: The quota details.
@@ -364,7 +364,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreQuota(object):
@@ -883,7 +883,8 @@ class PowerStoreQuota(object):
                 windows_name, windows_sid)
 
         if state == "present" and quota_type == "user" and \
-                quota_details and quota_details['tree_quota']:
+                quota_details and 'tree_quota' in quota_details and \
+                quota_details['tree_quota']:
             tree_quota = add_limits_with_unit(quota_details['tree_quota'])
             quota_details['tree_quota_for_user_quota'] = tree_quota
             quota_details.pop('tree_quota')

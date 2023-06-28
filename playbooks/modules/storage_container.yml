@@ -1,0 +1,236 @@
+---
+- name: Storage container Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.**.**.**'
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    storage_con_name_1: "Ansible_storage_container_1"
+    storage_con_new_name: "Ansible_storage_container_1_new_name"
+
+  tasks:
+    - name: Create a storage_container - check mode
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 0
+        storage_protocol: "SCSI"
+        high_water_mark: 60
+      check_mode: true
+
+    - name: Create a storage_container
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 0
+        storage_protocol: "SCSI"
+        high_water_mark: 60
+
+    - name: Create a storage container - Idempotency
+      register: result
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 0
+        storage_protocol: "SCSI"
+        high_water_mark: 60
+        state: "present"
+
+    - name: Get the details of the storage container
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_id: "{{ result.storage_container_details.id }}"
+        state: "present"
+
+    - name: Get the details of the storage container by name
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        state: "present"
+
+    - name: Modify a storage container - check mode
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 20
+        quota_unit: "GB"
+        storage_protocol: "NVMe"
+      check_mode: true
+
+    - name: Modify a storage container
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 20
+        quota_unit: "GB"
+        storage_protocol: "NVMe"
+        state: "present"
+
+    - name: Modify a storage container - Idempotency
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        quota: 20
+        quota_unit: "GB"
+        storage_protocol: "NVMe"
+
+    - name: Rename a storage container
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        new_name: "{{ storage_con_new_name }}"
+
+    - name: Delete a storage container - check mode
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_new_name }}"
+        state: "absent"
+      check_mode: true
+
+    - name: Delete a storage container
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_id: "{{ result.storage_container_details.id }}"
+        state: "absent"
+
+    - name: Delete a storage container - Idempotency
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_new_name }}"
+        state: "absent"
+
+    - name: Create storage container destination - check_mode
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"
+      check_mode: true
+
+    - name: Create storage container destination
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"
+
+    - name: Create storage container destination - Idempotency
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"
+
+    - name: Delete storage container destination - check_mode
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        state: "present"
+        storge_container_destination_state: "absent"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"
+      check_mode: true
+
+    - name: Delete storage container destination
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        state: "present"
+        storge_container_destination_state: "absent"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"
+
+    - name: Delete storage container destination - Idempotency
+      dellemc.powerstore.storage_container:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        storage_container_name: "{{ storage_con_name_1 }}"
+        state: "present"
+        storge_container_destination_state: "absent"
+        storage_container_destination:
+          remote_address: "10.x.x.y"
+          user: "{{ user }}"
+          password: "{{ password }}"
+          validate_certs: false
+          remote_system: "AA-D902"
+          remote_storage_container: "{{ remote_storage_container_name }}"

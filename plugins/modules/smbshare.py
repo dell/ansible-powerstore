@@ -21,15 +21,15 @@ options:
     description:
     - Name of the SMB share.
     - Required during creation of the SMB share.
-    - For all other operations either share_name or share_id is required.
+    - For all other operations either I(share_name) or I(share_id) is required.
     type: str
   share_id:
     description:
     - ID of the SMB share.
     - Should not be specified during creation. ID is auto generated.
-    - For all other operations either share_name or share_id is required.
-    - If share_id is used then no need to pass nas_server/filesystem/snapshot/
-      path.
+    - For all other operations either I(share_name) or I(share_id) is required.
+    - If I(share_id) is used then no need to pass I(nas_server)/I(filesystem)/I(snapshot)/
+      I(path).
     type: str
   path:
     description:
@@ -43,7 +43,7 @@ options:
     description:
     - The ID/Name of the File System.
     - Either filesystem or snapshot is required for creation of the SMB share.
-    - If filesystem name is specified, then nas_server is required to
+    - If filesystem name is specified, then I(nas_server) is required to
       uniquely identify the filesystem.
     - If filesystem parameter is provided, then snapshot cannot be specified.
     type: str
@@ -51,7 +51,7 @@ options:
     description:
     - The ID/Name of the Snapshot.
     - Either filesystem or snapshot is required for creation of the SMB share.
-    - If snapshot name is specified, then nas_server is required to
+    - If snapshot name is specified, then I(nas_server) is required to
       uniquely identify the snapshot.
     - If snapshot parameter is provided, then filesystem cannot be specified.
     - SMB share can be created only if access type of snapshot is "protocol".
@@ -59,7 +59,7 @@ options:
   nas_server:
     description:
     - The ID/Name of the NAS Server.
-    - It is not required if share_id is used.
+    - It is not required if I(share_id) is used.
     type: str
   description:
     description:
@@ -71,57 +71,57 @@ options:
     description:
     - Indicates whether Access-based Enumeration (ABE) for SMB share is
       enabled.
-    - During creation, if not mentioned, then the default is False.
+    - During creation, if not mentioned, then the default is C(false).
     type: bool
   is_branch_cache_enabled:
     description:
     - Indicates whether Branch Cache optimization for SMB share is enabled.
-    - During creation, if not mentioned then default is False.
+    - During creation, if not mentioned then default is C(false).
     type: bool
   is_continuous_availability_enabled:
     description:
     - Indicates whether continuous availability for SMB 3.0 is enabled.
-    - During creation, if not mentioned, then the default is False.
+    - During creation, if not mentioned, then the default is C(false).
     type: bool
   is_encryption_enabled:
     description:
     - Indicates whether encryption for SMB 3.0 is enabled at the shared folder
       level.
-    - During creation, if not mentioned then default is False.
+    - During creation, if not mentioned then default is C(false).
     type: bool
   offline_availability:
     description:
     - Defines valid states of Offline Availability.
-    - MANUAL- Only specified files will be available offline.
-    - DOCUMENTS- All files that users open will be available offline.
-    - PROGRAMS- Program will preferably run from the offline cache even when
+    - C(MANUAL)- Only specified files will be available offline.
+    - C(DOCUMENTS)- All files that users open will be available offline.
+    - C(PROGRAMS)- Program will preferably run from the offline cache even when
       connected to the network. All files that users open will be available
       offline.
-    - NONE- Prevents clients from storing documents and programs in offline
+    - C(NONE)- Prevents clients from storing documents and programs in offline
       cache.
     type: str
     choices: ["MANUAL","DOCUMENTS","PROGRAMS","NONE"]
   umask:
     description:
     - The default UNIX umask for new files created on the SMB Share.
-    - During creation, if not mentioned, then the default is "022".
+    - During creation, if not mentioned, then the default is 022.
     - For all other operations, the default is None.
     type: str
   state:
     description:
     - Define whether the SMB share should exist or not.
-    - Value present indicates that the share should exist on the system.
-    - Value absent indicates that the share should not exist on the system.
+    - Value C(present) indicates that the share should exist on the system.
+    - Value C(absent) indicates that the share should not exist on the system.
     type: str
     required: true
     choices: ['absent', 'present']
 
 notes:
-- When the ID of the filesystem/snapshot is passed then nas_server is not
+- When the ID of the filesystem/snapshot is passed then I(nas_server) is not
   required. If passed, then the filesystem/snapshot should exist for the
-  nas_server, else the task will fail.
+  I(nas_server), else the task will fail.
 - Multiple SMB shares can be created for the same local path.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -129,7 +129,7 @@ EXAMPLES = r'''
 - name: Create SMB share for a filesystem
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_name: "sample_smb_share"
@@ -137,34 +137,34 @@ EXAMPLES = r'''
     nas_server: "{{nas_server_id}}"
     path: "{{path}}"
     description: "Sample SMB share created"
-    is_abe_enabled: True
-    is_branch_cache_enabled: True
+    is_abe_enabled: true
+    is_branch_cache_enabled: true
     offline_availability: "DOCUMENTS"
-    is_continuous_availability_enabled: True
-    is_encryption_enabled: True
+    is_continuous_availability_enabled: true
+    is_encryption_enabled: true
     state: "present"
 
 - name: Modify Attributes of SMB share for a filesystem
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_name: "sample_smb_share"
     nas_server: "sample_nas_server"
     description: "Sample SMB share attributes updated"
-    is_abe_enabled: False
-    is_branch_cache_enabled: False
+    is_abe_enabled: false
+    is_branch_cache_enabled: false
     offline_availability: "MANUAL"
-    is_continuous_availability_enabled: False
-    is_encryption_enabled: False
+    is_continuous_availability_enabled: false
+    is_encryption_enabled: false
     umask: "022"
     state: "present"
 
 - name: Create SMB share for a snapshot
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_name: "sample_snap_smb_share"
@@ -172,31 +172,31 @@ EXAMPLES = r'''
     nas_server: "{{nas_server_id}}"
     path: "{{path}}"
     description: "Sample SMB share created for snapshot"
-    is_abe_enabled: True
-    is_branch_cache_enabled: True
-    is_continuous_availability_enabled: True
+    is_abe_enabled: true
+    is_branch_cache_enabled: true
+    is_continuous_availability_enabled: true
     state: "present"
 
 - name: Modify Attributes of SMB share for a snapshot
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_name: "sample_snap_smb_share"
     nas_server: "sample_nas_server"
     description: "Sample SMB share attributes updated for snapshot"
-    is_abe_enabled: False
-    is_branch_cache_enabled: False
+    is_abe_enabled: false
+    is_branch_cache_enabled: false
     offline_availability: "MANUAL"
-    is_continuous_availability_enabled: False
+    is_continuous_availability_enabled: false
     umask: "022"
     state: "present"
 
 - name: Get details of SMB share
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_id: "{{smb_share_id}}"
@@ -205,7 +205,7 @@ EXAMPLES = r'''
 - name: Delete SMB share
   dellemc.powerstore.smbshare:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     share_id: "{{smb_share_id}}"
@@ -217,7 +217,7 @@ changed:
     description: Whether or not the resource has changed.
     returned: always
     type: bool
-    sample: True
+    sample: true
 
 smb_share_details:
     description: The SMB share details.
@@ -311,7 +311,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreSMBShare(object):

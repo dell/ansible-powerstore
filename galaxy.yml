@@ -9,7 +9,7 @@ namespace: dellemc
 name: powerstore
 
 # The version of the collection. Must be compatible with semantic versioning
-version: 1.9.0
+version: 2.0.0
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: README.md
@@ -17,17 +17,17 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- Akash Shendge <ansible.team@dell.com>
-- Ambuj Dubey <ansible.team@dell.com>
-- Arindam Datta <ansible.team@dell.com>
-- Manisha Agrawal <ansible.team@dell.com>
-- P Srinivas Rao <ansible.team@dell.com>
-- Prashant Rakheja <ansible.team@dell.com>
-- Rajshree Khare <ansible.team@dell.com>
-- Bhavneet Sharma <ansible.team@dell.com>
-- Trisha Datta <ansible.team@dell.com>
-- Ananthu S Kuttattu <ansible.team@dell.com>
-- Pavan Mudunuri <ansible.team@dell.com>
+  - Akash Shendge <ansible.team@dell.com>
+  - Ambuj Dubey <ansible.team@dell.com>
+  - Arindam Datta <ansible.team@dell.com>
+  - Manisha Agrawal <ansible.team@dell.com>
+  - P Srinivas Rao <ansible.team@dell.com>
+  - Prashant Rakheja <ansible.team@dell.com>
+  - Rajshree Khare <ansible.team@dell.com>
+  - Bhavneet Sharma <ansible.team@dell.com>
+  - Trisha Datta <ansible.team@dell.com>
+  - Ananthu S Kuttattu <ansible.team@dell.com>
+  - Pavan Mudunuri <ansible.team@dell.com>
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
@@ -36,12 +36,8 @@ description: Ansible modules for Powerstore
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'
 license:
-- GPL-3.0-or-later
-- Apache-2.0
-
-# The path to the license file for the collection. This path is relative to the root of the collection. This key is
-# mutually exclusive with 'license'
-license_file:
+  - GPL-3.0-or-later
+  - Apache-2.0
 
 # A list of tags you want to associate with the collection for indexing/searching. A tag name has the same character
 # requirements as 'namespace' and 'name'
@@ -54,13 +50,13 @@ tags: [storage]
 dependencies: {}
 
 # The URL of the originating SCM repository
-repository: https://github.com/dell/ansible-powerstore/tree/1.9.0
+repository: https://github.com/dell/ansible-powerstore/tree/2.0.0
 
 # The URL to any online docs
-documentation: https://github.com/dell/ansible-powerstore/tree/1.9.0/docs
+documentation: https://github.com/dell/ansible-powerstore/tree/2.0.0/docs
 
 # The URL to the homepage of the collection/project
-homepage: https://github.com/dell/ansible-powerstore/tree/1.9.0
+homepage: https://github.com/dell/ansible-powerstore/tree/2.0.0
 
 # The URL to the collection issue tracker
 issues: https://www.dell.com/community/Automation/bd-p/Automation

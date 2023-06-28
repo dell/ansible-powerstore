@@ -1,0 +1,90 @@
+---
+- name: Remote system operations on Powerstore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    remote_name: "RT-D1005"
+    remote_address: "10.XX.XX.XY"
+    remote_user_1: "admin"
+
+  tasks:
+    - name: Create a remote system
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_address: "10.XX.XX.XX"
+        remote_user: "{{ remote_user_1 }}"
+        remote_password: "Password"
+        remote_port: 443
+        port: 443
+        description: "created via ansible playbook"
+        network_latency: "Low"
+        state: "present"
+      register: create_remote_system_result
+
+    - name: Create a remote system idemoptency case
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_address: "10.XX.XX.XX"
+        remote_user: "{{ remote_user_1 }}"
+        remote_password: "Password"
+        remote_port: 443
+        port: 443
+        description: "created via ansible playbook"
+        network_latency: "Low"
+        state: "present"
+      register: create_remote_system_result
+
+    - name: Get the details of remote system using remote name and address
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_name: "{{ remote_name }}"
+        remote_address: "{{ remote_address }}"
+        state: "present"
+      register: remote_system_dict
+
+    - name: Get the details of remote system using remote id
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_id: "{{ remote_id }}"
+        state: "present"
+      register: remote_system_dict
+
+    - name: Update remote system attributes
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_address: "10.XX.XX.XX"
+        description: "updated via ansible playbook"
+        state: "present"
+        network_latency: "High"
+        wait_for_completion: true
+        conn_timeout: 300
+      register: update_remote_system_result
+
+    - name: Delete remote system using remote id
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_id: "{{ remote_id }}"
+        state: "absent"
+      register: delete_output

@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -81,7 +84,7 @@ Parameters
   state (optional, str, present)
     The state of the vCenter instance after the task is performed.
 
-    For get, create, and modify operations it should be set to "present".
+    For get, create, and modify operations it should be set to ``present``.
 
 
   update_password (optional, str, always)
@@ -98,12 +101,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -152,7 +155,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            vcenter_id: "24d333-59f-423c-205-c6181ea81b"
 
       - name: Add a vcenter
@@ -160,7 +163,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            address: "XX.XX.XX.XX"
            vcenter_username: "user-name"
            vcenter_password: "password"
@@ -174,7 +177,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            vcenter_id: "24d333-59f-423c-205-c6181ea81b"
            address: "XX.XX.XX.YY"
            vcenter_username: "user-name"
@@ -186,7 +189,7 @@ Examples
            array_ip: "{{array_ip}}"
            user: "{{user}}"
            password: "{{password}}"
-           verifycert: "{{verifycert}}"
+           validate_certs: "{{validate_certs}}"
            vcenter_id: "24d333-59f-423c-205-c6181ea81b"
            delete_vasa_provider: true
            state: "absent"

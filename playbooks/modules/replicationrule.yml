@@ -1,0 +1,108 @@
+---
+- name: Replication rule operations on Powerstore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    name_1: "sample_replication_rule_2"
+    new_name: "new_sample_replication_rule_2"
+    rpo: "Five_Minutes"
+    new_rpo: "One_Hour"
+    alert_threshold: 24
+    new_alert_threshold: 72
+    remote_system: "WN-D8978"
+    new_remote_system: "WN-D0517"
+    state: "present"
+
+  tasks:
+    - name: Create new replication rule
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ name_1 }}"
+        rpo: "{{ rpo }}"
+        alert_threshold: "{{ alert_threshold }}"
+        remote_system: "{{ remote_system }}"
+        state: "present"
+      register: reprule_result
+    - name: Store replication rule details
+      ansible.builtin.debug:
+        var: reprule_result
+
+    - name: Create new replication rule Idempotency
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ name_1 }}"
+        rpo: "{{ rpo }}"
+        alert_threshold: "{{ alert_threshold }}"
+        remote_system: "{{ remote_system }}"
+        state: "present"
+      register: reprule_result
+    - name: Store replication rule details
+      ansible.builtin.debug:
+        var: reprule_result
+
+    - name: Modify existing replication rule
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ name_1 }}"
+        new_name: "{{ new_name }}"
+        rpo: "{{ new_rpo }}"
+        alert_threshold: "{{ new_alert_threshold }}"
+        remote_system: "{{ new_remote_system }}"
+        state: "present"
+      register: reprule_result
+    - name: Store replication rule details
+      ansible.builtin.debug:
+        var: reprule_result
+
+    - name: Modify existing replication rule Idempotency
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ new_name }}"
+        new_name: "{{ new_name }}"
+        rpo: "{{ new_rpo }}"
+        alert_threshold: "{{ new_alert_threshold }}"
+        remote_system: "{{ new_remote_system }}"
+        state: "present"
+      register: reprule_result
+    - name: Store replication rule details
+      ansible.builtin.debug:
+        var: reprule_result
+
+    - name: Delete an existing replication rule
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ new_name }}"
+        state: "absent"
+      register: reprule_result
+
+    - name: Delete an existing replication rule Idempotency
+      dellemc.powerstore.replicationrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        replication_rule_name: "{{ new_name }}"
+        state: "absent"
+      register: reprule_result
+    - name: Store replication rule details
+      ansible.builtin.debug:
+        var: reprule_result

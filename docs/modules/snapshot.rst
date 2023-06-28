@@ -22,7 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -62,9 +65,9 @@ Parameters
   retention_unit (optional, str, None)
     The unit for retention.
 
-    If this unit is not specified, 'hours' is taken as default retention_unit.
+    If this unit is not specified, ``hours`` is taken as default *retention_unit*.
 
-    If desired_retention is specified, expiration_timestamp cannot be specified.
+    If *desired_retention* is specified, *expiration_timestamp* cannot be specified.
 
 
   expiration_timestamp (optional, str, None)
@@ -83,12 +86,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -118,7 +121,7 @@ Notes
 -----
 
 .. note::
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -133,7 +136,7 @@ Examples
         - name: Create a volume snapshot on PowerStore
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -146,7 +149,7 @@ Examples
         - name: Get details of a volume snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -156,7 +159,7 @@ Examples
         - name: Rename volume snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -167,7 +170,7 @@ Examples
         - name: Delete volume snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{new_snapshot_name}}"
@@ -177,7 +180,7 @@ Examples
         - name: Create a volume group snapshot on PowerStore
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -189,7 +192,7 @@ Examples
         - name: Get details of a volume group snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -199,7 +202,7 @@ Examples
         - name: Modify volume group snapshot expiration timestamp
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -211,7 +214,7 @@ Examples
         - name: Rename volume group snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{snapshot_name}}"
@@ -222,7 +225,7 @@ Examples
         - name: Delete volume group snapshot
           dellemc.powerstore.snapshot:
             array_ip: "{{mgmt_ip}}"
-            verifycert: "{{verifycert}}"
+            validate_certs: "{{validate_certs}}"
             user: "{{user}}"
             password: "{{password}}"
             snapshot_name: "{{new_snapshot_name}}"

@@ -6,6 +6,7 @@ plugins:
   callback: {}
   cliconf: {}
   connection: {}
+  filter: {}
   httpapi: {}
   inventory: {}
   lookup: {}
@@ -160,16 +161,21 @@ plugins:
       name: snapshotrule
       namespace: ''
       version_added: 1.0.0
+    storage_container:
+      description: Manage storage container for PowerStore
+      name: storage_container
+      namespace: ''
+      version_added: 2.0.0
+    vcenter:
+      description: Manage vCenter on a PowerStore storage system
+      name: vcenter
+      namespace: ''
+      version_added: 1.9.0
     volume:
       description: Manage volumes on a PowerStore storage system
       name: volume
       namespace: ''
       version_added: 1.0.0
-    vcenter:
-      description: Manage vCenter on a PowerStore Storage System
-      name: volume
-      namespace: ''
-      version_added: 1.9.0
     volumegroup:
       description: Manage volume groups on a PowerStore Storage System
       name: volumegroup
@@ -178,5 +184,6 @@ plugins:
   netconf: {}
   shell: {}
   strategy: {}
+  test: {}
   vars: {}
-version: 1.9.0
+version: 2.0.0

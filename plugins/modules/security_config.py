@@ -29,7 +29,7 @@ options:
     - ID of the security configuration.
     - Mandatory for all operations.
     type: int
-    required: True
+    required: true
   protocol_mode:
     description:
     - Protocol mode of the security configuration.
@@ -40,21 +40,21 @@ options:
     description:
     - Define whether the security config should exist or not.
     choices: ['absent', 'present']
-    required: True
+    required: true
     type: str
 notes:
 - Creation and deletion of security configs is not supported by Ansible
   modules.
 - Modification of protocol mode is only supported for PowerStore v2.0.0.0 and
   above.
-- The check_mode is not supported.
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get security config
   dellemc.powerstore.security_config:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     security_config_id: 1
@@ -63,7 +63,7 @@ EXAMPLES = r'''
 - name: Modify attribute of security config
   dellemc.powerstore.security_config:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     security_config_id: 1
@@ -116,7 +116,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreSecurityConfig(object):

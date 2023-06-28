@@ -1,0 +1,49 @@
+#  This playbook finds the empty Volume groups for a given array.
+---
+- name: Finding all the empty Volume Groups
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: 'ip_address_of_the_array'
+    user: 'your_username'
+    password: 'your_password'
+    validate_certs: false
+
+  tasks:
+    - name: Get the list of all the Volume Groups
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        gather_subset:
+          - vg
+      register: subset_result
+
+    # The set_fact fetches the names of the volume groups from the subset_result(output of the previous task)
+    - name: Set fact
+      ansible.builtin.set_fact:
+        all_volume_group_names: "{{ subset_result['VolumeGroups'] | map(attribute='name') | list }}"
+
+    - name: Get the details of all Volume Groups
+      dellemc.powerstore.volumegroup:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        vg_name: "{{ item }}"
+        state: "present"
+      register: all_volume_groups_details
+      loop: "{{ all_volume_group_names }}"
+
+    # The set_fact fetches the number of volumes present in the volume group.
+    - name: Set fact
+      ansible.builtin.set_fact:
+        all_volumes_in_volume_groups: "{{ all_volume_groups_details['results'] | map(attribute='volume_group_details.volumes') | list }}"
+
+    # This task returns the names of the storage groups which have the zero number of volumes.
+    - name: List of all the Volume Groups which are empty
+      ansible.builtin.debug:
+        msg: "{{ item.1 }}"
+      loop: "{{ all_volumes_in_volumeGroups | zip(all_volume_group_names) | list }}"
+      when: item.0|length == 0

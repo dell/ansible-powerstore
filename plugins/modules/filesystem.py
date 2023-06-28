@@ -245,7 +245,7 @@ EXAMPLES = r'''
    register: result_fs
    dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      filesystem_name: "{{filesystem_name}}"
@@ -256,8 +256,8 @@ EXAMPLES = r'''
      access_policy: "UNIX"
      locking_policy: "MANDATORY"
      smb_properties:
-       is_smb_no_notify_enabled: True
-       is_smb_notify_on_access_enabled: True
+       is_smb_no_notify_enabled: true
+       is_smb_notify_on_access_enabled: true
      quota_defaults:
        grace_period: 1
        grace_period_unit: 'days'
@@ -265,7 +265,7 @@ EXAMPLES = r'''
        default_soft_limit: 2
      protection_policy: "{{protection_policy_id}}"
      config_type: "VMWARE"
-     is_async_mtime_enabled: True
+     is_async_mtime_enabled: true
      file_events_publishing_mode: "NFS_ONLY"
      host_io_size: "VMWARE_16K"
      state: "present"
@@ -273,20 +273,20 @@ EXAMPLES = r'''
  - name: Modify File System by id
    dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      filesystem_id: "{{fs_id}}"
      folder_rename_policy: "ALL_ALLOWED"
      smb_properties:
-       is_smb_op_locks_enabled: True
+       is_smb_op_locks_enabled: true
        smb_notify_on_change_dir_depth: 3
      quota_defaults:
        grace_period: 2
        grace_period_unit: 'weeks'
        default_hard_limit: 2
        default_soft_limit: 1
-     is_async_mtime_enabled: True
+     is_async_mtime_enabled: true
      file_events_publishing_mode: "ALL"
      flr_attributes:
        mode: "Enterprise"
@@ -298,7 +298,7 @@ EXAMPLES = r'''
  - name: Get File System details by id
    dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      filesystem_id: "{{result_fs.filesystem_details.id}}"
@@ -307,7 +307,7 @@ EXAMPLES = r'''
  - name: Delete File System by id
    dellemc.powerstore.filesystem:
      array_ip: "{{array_ip}}"
-     verifycert: "{{verifycert}}"
+     validate_certs: "{{validate_certs}}"
      user: "{{user}}"
      password: "{{password}}"
      filesystem_id: "{{result_fs.filesystem_details.id}}"
@@ -552,7 +552,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreFileSystem(object):

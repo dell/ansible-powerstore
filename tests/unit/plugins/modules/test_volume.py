@@ -10,8 +10,6 @@ __metaclass__ = type
 import pytest
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_volume_api import MockVolumeApi
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_sdk_response \
-    import MockSDKResponse
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
@@ -101,7 +99,8 @@ class TestPowerstoreVolume():
             'protection_policy': 'sample_protection_policy',
             'state': 'present',
             'app_type': 'Relational_Databases_Other',
-            'app_type_other': 'Max_DB'
+            'app_type_other': 'Max_DB',
+            'appliance_id': 'A1'
         })
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(

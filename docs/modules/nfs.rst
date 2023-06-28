@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -32,7 +35,7 @@ Parameters
 
     Mandatory for create operation.
 
-    Specify either nfs_export_name or nfs_export_id(but not both) for any operation.
+    Specify either *nfs_export_name* or *nfs_export_id* but not both for any operation.
 
 
   nfs_export_id (optional, str, None)
@@ -44,19 +47,19 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the NFS Export.
 
-    If filesystem name is specified, then nas_server is required to uniquely identify the filesystem.
+    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
 
-    If filesystem parameter is provided, then snapshot cannot be specified.
+    If *filesystem* parameter is provided, then *snapshot* cannot be specified.
 
 
   snapshot (optional, str, None)
     The ID/Name of the Snapshot for which NFS export will be created.
 
-    Either filesystem or snapshot is required for creation of the NFS Export.
+    Either *filesystem* or *snapshot* is required for creation of the NFS Export.
 
-    If snapshot name is specified, then nas_server is required to uniquely identify the snapshot.
+    If snapshot name is specified, then *nas_server* is required to uniquely identify the snapshot.
 
-    If snapshot parameter is provided, then filesystem cannot be specified.
+    If *snapshot* parameter is provided, then *filesystem* cannot be specified.
 
     NFS export can be created only if access type of snapshot is "protocol".
 
@@ -82,7 +85,7 @@ Parameters
 
     For hosts that need different access than the default, they can be configured by adding to the list.
 
-    If default_access is not mentioned during creation, then NFS export will be created with No_Access.
+    If *default_access* is not mentioned during creation, then NFS export will be created with ``No_Access``.
 
 
   no_access_hosts (optional, list, None)
@@ -108,7 +111,7 @@ Parameters
   min_security (optional, str, None)
     NFS enforced security type for users accessing an NFS export.
 
-    If not specified at the time of creation, it will be set to SYS.
+    If not specified at the time of creation, it will be set to ``SYS``.
 
 
   anonymous_uid (optional, int, None)
@@ -126,7 +129,7 @@ Parameters
   is_no_suid (optional, bool, None)
     If set, do not allow access to set SUID. Otherwise, allow access.
 
-    If not specified at the time of creation, it will be set to False.
+    If not specified at the time of creation, it will be set to ``false``.
 
 
   host_state (optional, str, None)
@@ -143,12 +146,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -178,7 +181,7 @@ Notes
 -----
 
 .. note::
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -193,7 +196,7 @@ Examples
     - name: Create NFS export (filesystem)
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_name: "{{export_name1}}"
@@ -215,14 +218,14 @@ Examples
         min_security: "SYS"
         anonymous_uid: 1000
         anonymous_gid: 1000
-        is_no_suid: True
+        is_no_suid: true
         host_state: "present-in-export"
         state: "present"
 
     - name: Create NFS export Create NFS export for filesystem snapshot with mandatory parameters
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_name: "{{export_name2}}"
@@ -234,7 +237,7 @@ Examples
     - name: Get NFS export details using ID
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_id: "{{export_id}}"
@@ -243,7 +246,7 @@ Examples
     - name: Add Read-Only and Read-Write hosts to NFS export
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_id: "{{export_id}}"
@@ -257,7 +260,7 @@ Examples
     - name: Remove Read-Only and Read-Write hosts from NFS export
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_id: "{{export_id}}"
@@ -271,7 +274,7 @@ Examples
     - name: Modify the attributes of NFS export
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_id: "{{export_id}}"
@@ -282,7 +285,7 @@ Examples
     - name: Delete NFS export using name
       dellemc.powerstore.nfs:
         array_ip: "{{array_ip}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         user: "{{user}}"
         password: "{{password}}"
         nfs_export_name: "{{export_name}}"

@@ -1,0 +1,127 @@
+---
+- name: LDAP Account Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Create an LDAP account - check mode
+      register: result
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        ldap_domain_id: "2"
+        role_name: "Administrator"
+        ldap_account_type: "User"
+        state: "present"
+      check_mode: true
+
+    - name: Create an LDAP account
+      register: result
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        ldap_domain_id: "2"
+        role_name: "Administrator"
+        ldap_account_type: "User"
+        state: "present"
+
+    - name: Create an LDAP account - Idempotency
+      register: result
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        ldap_domain_id: "2"
+        role_id: "1"
+        ldap_account_type: "User"
+        state: "present"
+
+    - name: Get the details of the LDAP account
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_id: "{{ result.ldap_account_details.id }}"
+        state: "present"
+
+    - name: Get the details of the LDAP account by name
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        state: "present"
+
+    - name: Modify an LDAP account - check mode
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        role_id: "5"
+        state: "present"
+      check_mode: true
+
+    - name: Modify an LDAP account
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        role_id: "5"
+        state: "present"
+
+    - name: Modify an LDAP account - Idempotency
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        role_id: "5"
+        state: "present"
+
+    - name: Delete an LDAP account - check mode
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        state: "absent"
+      check_mode: true
+
+    - name: Delete an LDAP account
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        state: "absent"
+
+    - name: Delete an LDAP account - Idempotency
+      dellemc.powerstore.ldap_account:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ldap_account_name: "ldap_test_user_1"
+        state: "absent"

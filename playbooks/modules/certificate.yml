@@ -1,0 +1,78 @@
+---
+- name: Certificate Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    remote_address: "10.**.**.**"
+    remote_port: 443
+    remote_user_sample: "user"
+    remote_password: "Password"
+    certificate_id: "xxx-xxx-xxx"
+
+  tasks:
+    - name: Get details of certificate with certificate_id
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        certificate_id: "{{ certificate_id }}"
+        state: "present"
+
+    - name: Reset certificates
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        service: "VASA_HTTP"
+        state: "present"
+
+    - name: Exchange certificates
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        service: "Replication_HTTP"
+        remote_address: "{{ remote_address }}"
+        remote_port: "{{ remote_port }}"
+        remote_user: "{{ remote_user_sample }}"
+        remote_password: "{{ remote_password }}"
+        state: "present"
+
+    - name: Add/import a certificate
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        certificate_type: "CA_Client_Validation"
+        service: "VASA_HTTP"
+        dellemc.powerstore.certificate: "-----BEGIN CERTIFICATE-----\nSAMPLEKEY\n-----END CERTIFICATE-----\n"
+        is_current: true
+        state: "present"
+
+    - name: Modify certificate
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        certificate_id: "{{ certificate_id }}"
+        is_current: true
+        state: "present"
+
+    - name: Modify certificate - Idempotency
+      dellemc.powerstore.certificate:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        certificate_id: "{{ certificate_id }}"
+        is_current: true
+        state: "present"

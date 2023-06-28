@@ -1,0 +1,122 @@
+---
+- name: Network Operations
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get Management Network Details using network ID
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW1"
+        state: "present"
+
+    - name: Get Storage Network Details using network name
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: "Storage Network"
+        state: "present"
+
+    - name: Add ports to storage network
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        ports:
+          - "IP_PORT"
+        port_state: "present-in-network"
+        state: "present"
+
+    - name: Add ports to storage network - Idempotency
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        ports:
+          - "IP_PORT"
+        port_state: "present-in-network"
+        state: "present"
+
+    - name: Remove ports from storage network
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        ports:
+          - "IP_PORT"
+        port_state: "absent-in-network"
+        state: "present"
+
+    - name: Remove ports from storage network - Idempotency
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        ports:
+          - "IP_PORT"
+        port_state: "absent-in-network"
+        state: "present"
+
+    - name: Modify Storage Network attributes
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        mtu: 1400
+        new_name: "storage network renamed"
+        storage_discovery_address: "XX.XX.XX.XX"
+        wait_for_completion: true
+        state: "present"
+
+    - name: Modify Storage Network attributes - Idempotency
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW6"
+        mtu: 1400
+        new_name: "storage network renamed"
+        storage_discovery_address: "XX.XX.XX.XX"
+        wait_for_completion: true
+        state: "present"
+
+    - name: Modify Management Network attributes and re-register VASA provider
+      dellemc.powerstore.network:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_id: "NW1"
+        new_cluster_mgmt_address: "XX.XX.XX.XY"
+        addresses:
+          - "new_address": "XX.XX.XX.YX"
+            "current_address": "XX.XX.XX.XX"
+          - "new_address": "XX.XX.XX.YY"
+            "current_address": "XX.XX.XX.XX"
+          - "new_address": "XX.XX.XY.XX"
+            "current_address": "XX.XX.XX.XX"
+        vasa_provider_credentials:
+          username: "vasa_user"
+          password: "vasa_password"
+        state: "present"

@@ -1,0 +1,67 @@
+---
+- name: NTP Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get details of NTP instance
+      dellemc.powerstore.ntp:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        ntp_id: "NTP1"
+        state: "present"
+
+    - name: Add address to NTP addresses list
+      dellemc.powerstore.ntp:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "10.XX.XX.XX"
+        ntp_address_state: "present-in-ntp"
+        state: "present"
+
+    - name: Add address to NTP addresses list - Idempotency
+      dellemc.powerstore.ntp:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "10.XX.XX.XX"
+        ntp_address_state: "present-in-ntp"
+        state: "present"
+
+    - name: Remove address from NTP addresses list
+      dellemc.powerstore.ntp:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "10.XX.XX.XX"
+        ntp_address_state: "absent-in-ntp"
+        state: "present"
+
+    - name: Remove address from NTP addresses list - Idempotency
+      dellemc.powerstore.ntp:
+        array_ip: "{{ array_ip }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        validate_certs: "{{ validate_certs }}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "10.XX.XX.XX"
+        ntp_address_state: "absent-in-ntp"
+        state: "present"

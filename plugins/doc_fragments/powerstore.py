@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright: (c) 2019, Dell Technologies.
+# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -13,29 +13,30 @@ class ModuleDocFragment(object):
           description:
               - IP or FQDN of the PowerStore management system.
           type: str
-          required: True
-      verifycert:
+          required: true
+      validate_certs:
           description:
               - Boolean variable to specify whether to validate SSL
                 certificate or not.
-              - True - indicates that the SSL certificate should be
+              - C(true) - indicates that the SSL certificate should be
                        verified. Set the environment variable REQUESTS_CA_BUNDLE
                        to the path of the SSL certificate.
-              - False - indicates that the SSL certificate should not be
+              - C(false) - indicates that the SSL certificate should not be
                         verified.
           type: bool
-          required: True
-          choices: [True, False]
+          default: true
+          aliases:
+              - verifycert
       user:
           description:
               - The username of the PowerStore host.
           type: str
-          required: True
+          required: true
       password:
           description:
               - The password of the PowerStore host.
           type: str
-          required: True
+          required: true
       timeout:
           description:
               - Time after which the connection will get terminated.
@@ -47,9 +48,11 @@ class ModuleDocFragment(object):
               - Port number for the PowerStore array.
               - If not passed, it will take 443 as default.
           type: int
-
     requirements:
-      - A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+      - A Dell PowerStore storage system version 3.0.0.0 or later.
+      - Ansible-core 2.13 or later.
+      - PyPowerStore 2.0.0.
+      - Python 3.9, 3.10 or 3.11.
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
         are built to support the Dell PowerStore storage platform.

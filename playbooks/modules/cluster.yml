@@ -1,0 +1,190 @@
+---
+- name: Cluster Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    cluster_id: "0"
+    cluster_name: "RT-xxx"
+    ssh_enable: true
+
+  tasks:
+    - name: Get details of a cluster by id
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_id: "{{ cluster_id }}"
+        state: "present"
+
+    - name: Get details of a cluster by name
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_name: "{{ cluster_name }}"
+        state: "present"
+
+    - name: Rename a cluster and update mtu
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_name: "{{ cluster_name }}"
+        new_name: "RT-Dxxx"
+        physical_mtu: 1700
+        state: "present"
+
+    - name: Rename a cluster back to the original name and update mtu
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        new_name: "{{ cluster_name }}"
+        cluster_id: "{{ cluster_id }}"
+        physical_mtu: 1500
+        state: "present"
+
+    - name: Update chap mode
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        chap_mode: "Single"
+        cluster_name: "{{ cluster_name }}"
+        state: "present"
+
+    - name: Disable chap mode
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        chap_mode: "Disabled"
+        cluster_id: "{{ cluster_id }}"
+        state: "present"
+
+    - name: Enable ssh
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_name: "{{ cluster_name }}"
+        appliance_id: "A1"
+        is_ssh_enabled: true
+        state: "present"
+
+    - name: Disable ssh
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_id: "{{ cluster_id }}"
+        appliance_id: "A1"
+        is_ssh_enabled: false
+        state: "present"
+
+    - name: Validate create cluster
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_name: "{{ cluster_name }}"
+        ignore_network_warnings: true
+        appliances:
+          - link_local_address: "1.2.x.x"
+            name: "Ansible-cluster"
+            derive_failure_tolerance_level: "Double"
+        dns_servers:
+          - "1.1.x.x"
+        ntp_servers:
+          - "1.3.x.x"
+        networks:
+          - type: "Management"
+            vlan_id: 0
+            prefix_length: 24
+            gateway: "1.x.x.x"
+            cluster_mgmt_address: "1.x.x.x"
+            addresses:
+              - "2.x.x.x"
+              - "3.x.x.x"
+          - type: "Storage"
+            vlan_id: 0
+            prefix_length: 42
+            gateway: "1.x.x.x"
+            storage_discovery_address: "1.x.x.x"
+            addresses:
+              - "2.x.x.x"
+              - "3.x.x.x"
+            purpose:
+              - "ISCSI"
+        is_http_redirect_enabled: true
+        validate_create: true
+        state: "present"
+
+    - name: Create cluster
+      dellemc.powerstore.cluster:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        cluster_name: "{{ cluster_name }}"
+        ignore_network_warnings: true
+        appliances:
+          - link_local_address: "1.2.x.x"
+            name: "Ansible-cluster"
+            derive_failure_tolerance_level: "Double"
+        dns_servers:
+          - "1.1.x.x"
+        ntp_servers:
+          - "1.3.x.x"
+        physical_switch:
+          - name: "Ansible-switch"
+            purpose: "Management_Only"
+            connections:
+              - address: "1.x.x.x"
+                port: 20
+                connect_method: "SSH"
+                username: "user"
+                ssh_password: "password"
+        networks:
+          - type: "Management"
+            vlan_id: 0
+            prefix_length: 24
+            gateway: "1.x.x.x"
+            cluster_mgmt_address: "1.x.x.x"
+            addresses:
+              - "2.x.x.x"
+              - "3.x.x.x"
+          - type: "Storage"
+            vlan_id: 0
+            prefix_length: 42
+            gateway: "1.x.x.x"
+            storage_discovery_address: "1.x.x.x"
+            addresses:
+              - "2.x.x.x"
+              - "3.x.x.x"
+            purpose:
+              - "ISCSI"
+        vcenters:
+          - address: "1.x.x.x"
+            username: "user"
+            password: "password"
+            is_verify_server_cert: true
+            vasa_provider_credentials:
+              username: "user"
+              password: "password"
+        is_http_redirect_enabled: true
+        wait_for_completion: false
+        state: "present"

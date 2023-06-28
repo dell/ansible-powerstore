@@ -26,7 +26,7 @@ options:
     description:
     - The name of the network.
     - This parameter is added in 2.0.0.0.
-    - Specify either network_name or network_id for any operation.
+    - Specify either I(network_name) or I(network_id) for any operation.
     type: str
   network_id:
     description:
@@ -98,12 +98,12 @@ options:
         description:
         - VASA vendor provider user name.
         type: str
-        required: True
+        required: true
       password:
         description:
         - VASA vendor provider password.
         type: str
-        required: True
+        required: true
   esxi_credentials:
     description:
     - Credentials required for re-registering the ESXi hosts in the vCenter.
@@ -119,18 +119,18 @@ options:
         description:
         - Node identifier corresponding to the ESXi host.
         type: str
-        required: True
+        required: true
       password:
         description:
         - ESXi host root password.
         type: str
-        required: True
+        required: true
   wait_for_completion:
     description:
     - Flag to indicate if the operation should be run synchronously or
-      asynchronously. True signifies synchronous execution. By default,
-      modify operation will run asynchronously.
-    default: False
+      asynchronously. C(true) signifies synchronous execution. By default,
+      modify operation will run C(asynchronously).
+    default: false
     type: bool
   state:
     description:
@@ -142,18 +142,18 @@ options:
 notes:
 - It is recommended to perform task asynchronously while changing cluster
   management address.
-- Idempotency is not supported for vasa_provider_credentials and
-  esxi_credentials.
-- For PowerStore X model, vasa_provider_credentials has to be specified
-  along with new_cluster_mgmt_address.
-- The check_mode is not supported.
+- Idempotency is not supported for I(vasa_provider_credentials) and
+  I(esxi_credentials).
+- For PowerStore X model, I(vasa_provider_credentials) has to be specified
+  along with I(new_cluster_mgmt_address).
+- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
 - name: Get network details using ID
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_id: "NW1"
@@ -162,7 +162,7 @@ EXAMPLES = r'''
 - name: Get network details using name
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_name: "Default Management Network"
@@ -171,18 +171,18 @@ EXAMPLES = r'''
 - name: Rename the storage network
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_name: "Default Storage Network"
     new_name: "iSCSI Network"
-    wait_for_completion: True
+    wait_for_completion: true
     state: "present"
 
 - name: Replace the IP's in the management network and re-register VASA vendor provider
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_id: "NW1"
@@ -202,7 +202,7 @@ EXAMPLES = r'''
 - name: Map port to the storage network
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_id: "NW6"
@@ -214,7 +214,7 @@ EXAMPLES = r'''
 - name: Unmap port from the storage network
   dellemc.powerstore.network:
     array_ip: "{{array_ip}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_id: "NW6"
@@ -227,7 +227,7 @@ EXAMPLES = r'''
         provider for X model
   dellemc.powerstore.network:
     array_ip: "{{array_ip1}}"
-    verifycert: "{{verifycert}}"
+    validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     network_id: "NW1"
@@ -498,7 +498,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 
 
 class PowerStoreNetwork(object):

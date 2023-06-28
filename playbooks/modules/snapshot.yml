@@ -1,0 +1,205 @@
+---
+- name: Sample playbook for managing Snapshots on Dell EMC PowerStore.
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+    snapshot_name: "ansible_snapshot"
+    new_snapshot_name: "ansible_rename"
+    volume: "ansible_snap_test_volume"
+    volume_group: "ansible_snap_test_volume_group"
+    description: "Snap created using Ansible"
+    desired_retention: "2"
+    desired_retention_new: "3"
+    retention_unit_days: "days"
+    retention_unit_hours: "hours"
+    expiration_timestamp: "2050-07-24T11:50:20Z"
+    expiration_timestamp_new: "2050-08-24T11:50:20Z"
+    state_present: "present"
+    state_absent: "absent"
+
+  tasks:
+    - name: Create a vol snap on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume: "{{ volume }}"
+        description: "{{ description }}"
+        desired_retention: "{{ desired_retention }}"
+        retention_unit: "{{ retention_unit_days }}"
+        state: "{{ state_present }}"
+
+    - name: Create a vol snap on PowerStore - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume: "{{ volume }}"
+        description: "{{ description }}"
+        desired_retention: "{{ desired_retention }}"
+        retention_unit: "{{ retention_unit_days }}"
+        state: "{{ state_present }}"
+
+    - name: Get details of a volume snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume: "{{ volume }}"
+        state: "{{ state_present }}"
+
+    - name: Modify vol snapshot desired retention
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume: "{{ volume }}"
+        description: "{{ description }}"
+        desired_retention: "{{ desired_retention_new }}"
+        retention_unit: "{{ retention_unit_days }}"
+        state: "{{ state_present }}"
+
+    - name: Modify vol snapshot desired retention - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume: "{{ volume }}"
+        description: "{{ description }}"
+        desired_retention: "{{ desired_retention_new }}"
+        retention_unit: "{{ retention_unit_days }}"
+        state: "{{ state_present }}"
+
+    - name: Rename vol snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        new_snapshot_name: "{{ new_snapshot_name }}"
+        volume: "{{ volume }}"
+        state: "{{ state_present }}"
+
+    - name: Delete vol snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ new_snapshot_name }}"
+        volume: "{{ volume }}"
+        state: "{{ state_absent }}"
+
+    - name: Delete vol snapshot - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ new_snapshot_name }}"
+        volume: "{{ volume }}"
+        state: "{{ state_absent }}"
+
+    - name: Create a vol group snap on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        description: "{{ description }}"
+        expiration_timestamp: "{{ expiration_timestamp }}"
+        state: "{{ state_present }}"
+
+    - name: Create a vol group snap on PowerStore - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        description: "{{ description }}"
+        expiration_timestamp: "{{ expiration_timestamp }}"
+        state: "{{ state_present }}"
+
+    - name: Get details of a volume group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        state: "{{ state_present }}"
+
+    - name: Modify vol group snapshot expiration timestamp
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        description: "{{ description }}"
+        expiration_timestamp: "{{ expiration_timestamp_new }}"
+        state: "{{ state_present }}"
+
+    - name: Modify vol group snapshot desired retention - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        description: "{{ description }}"
+        expiration_timestamp: "{{ expiration_timestamp_new }}"
+        state: "{{ state_present }}"
+
+    - name: Rename vol group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ snapshot_name }}"
+        new_snapshot_name: "{{ new_snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        state: "{{ state_present }}"
+
+    - name: Delete vol group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ new_snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        state: "{{ state_absent }}"
+
+    - name: Delete vol snapshot - Idempotency
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "{{ new_snapshot_name }}"
+        volume_group: "{{ volume_group }}"
+        state: "{{ state_absent }}"

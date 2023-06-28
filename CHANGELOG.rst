@@ -5,6 +5,22 @@ Dellemc.Powerstore Change Logs
 .. contents:: Topics
 
 
+v2.0.0
+======
+
+Minor Changes
+-------------
+
+- Added support for manual appliance selection in volume module.
+- Added support for replication group in replication session module to perform async vVOL replication.
+- Added support for PowerStore Medusa 3.5.x.
+- Info module is enhanced to list storage containers and replication groups.
+
+New Modules
+-----------
+
+- dellemc.powerstore.storage_container - Manage storage container for PowerStore
+
 v1.9.0
 ======
 

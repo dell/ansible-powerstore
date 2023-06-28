@@ -12,7 +12,7 @@ certificate -- Certificate operations for PowerStore Storage System
 Synopsis
 --------
 
-Supports the provisioning operations on a Certificate such as add/import, modify, reset, exchange and get the details of a certificate.
+Supports the provisioning operations on a certificate such as add/import, modify, reset, exchange and get the details of a certificate.
 
 
 
@@ -20,7 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore Storage System. Ansible 2.12, 2.13 or 2.14
+- A Dell PowerStore storage system version 3.0.0.0 or later.
+- Ansible-core 2.13 or later.
+- PyPowerStore 2.0.0.
+- Python 3.9, 3.10 or 3.11.
 
 
 
@@ -44,7 +47,7 @@ Parameters
 
 
   scope (optional, str, None)
-    Defines a subset of certificates belonging to one Service.
+    Defines a subset of certificates belonging to one service.
 
 
   certificate (optional, str, None)
@@ -79,12 +82,12 @@ Parameters
     IP or FQDN of the PowerStore management system.
 
 
-  verifycert (True, bool, None)
+  validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    True - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    False - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -115,10 +118,10 @@ Notes
 
 .. note::
    - Idempotency is not supported for adding/importing certificates, exchange of certificates and the reset of certificates.
-   - Only is_current parameter is supported for modification of certificate.
+   - Only *is_current* parameter is supported for modification of certificate.
    - Reset operation can reset more than one certificate at a time.
    - Add/import, modify and reset are supported for PowerStore versions 2.0 and above only.
-   - The check_mode is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -135,7 +138,7 @@ Examples
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         certificate_id: "e940144f-393f-4e9c-8f54-9a4d57b38c48"
         state: "present"
 
@@ -144,7 +147,7 @@ Examples
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         service: "VASA_HTTP"
         state: "present"
 
@@ -153,7 +156,7 @@ Examples
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         service: "Replication_HTTP"
         remote_address: "{{remote_array_ip}}"
         remote_port: 443
@@ -166,11 +169,11 @@ Examples
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         certificate_type: "CA_Client_Validation"
         service: "VASA_HTTP"
         certificate: "{{certificate_string}}"
-        is_current: True
+        is_current: true
         state: "present"
 
     - name: Modify certificate
@@ -178,9 +181,9 @@ Examples
         array_ip: "{{array_ip}}"
         user: "{{user}}"
         password: "{{password}}"
-        verifycert: "{{verifycert}}"
+        validate_certs: "{{validate_certs}}"
         certificate_id: "37b76535-612b-456a-a694-1389f17632c7"
-        is_current: True
+        is_current: true
         state: "present"
 
 

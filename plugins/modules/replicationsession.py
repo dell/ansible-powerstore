@@ -25,57 +25,61 @@ options:
   filesystem:
     description:
     - Name/ID of the filesystem for which replication session exists.
-    - Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
-    required: False
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
     type: str
   nas_server:
     description:
     - Name/ID of the NAS server for which replication session exists.
-    - Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
-    required: False
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
     type: str
   volume_group:
     description:
     - Name/ID of the volume group for which a replication session exists.
-    - Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
-    required: False
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
     type: str
   volume:
     description:
     - Name/ID of the volume for which replication session exists.
-    - Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
-    required: False
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
+    type: str
+  replication_group:
+    description:
+    - Name or ID of the replication group for which replication session exists.
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
     type: str
   session_id:
     description:
     - ID of the replication session.
-    - Parameter filesystem, nas_server, volume_group, volume, and session_id are mutually exclusive.
-    required: False
+    - Parameter I(filesystem), I(nas_server), I(volume_group), I(volume),
+      I(replication_group), and I(session_id) are mutually exclusive.
     type: str
   session_state:
     description:
     - State in which the replication session is present after performing
       the task.
-    required: False
     choices: [ 'failed_over', 'paused', 'synchronizing']
     type: str
   role:
     description:
     - Role of the metro replication session.
-    required: False
     choices: ['Metro_Preferred', 'Metro_Non_Preferred']
     type: str
 notes:
 - Manual synchronization for a replication session is not supported through
   the Ansible module.
 - When the current state of the replication session is 'OK' and in the
-  playbook task 'synchronizing', then it will return "changed" as False.
-- The changed as False in above scenario is because of there is a scheduled
+  playbook task C(synchronizing), then it will return "changed" as false.
+- The changed as false in above scenario is because there is a scheduled
   synchronization in place with the associated replication rule's RPO in the
   protection policy.
-- The check_mode is not supported.
-- Parameter nas_server, filesystem, and role parameters are supported only for
-  PowerStore version 3.0.0. and above.
+- The I(check_mode) is not supported.
+- Parameter I(nas_server), I(filesystem), I(replication_group), and I(role)
+  parameters are supported only for PowerStore version 3.0.0. and above.
 '''
 
 EXAMPLES = r'''
@@ -226,7 +230,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/1.9.0'
+APPLICATION_TYPE = 'Ansible/2.0.0'
 """
 ===============================================================================
 Idempotency table for the replication session ansible module on the basis of
@@ -283,8 +287,11 @@ class PowerstoreReplicationSession(object):
         self.module_params.update(get_powerstore_rep_session_parameters())
 
         # initialize the Ansible module
-        mut_ex_args = [['volume', 'volume_group', 'session_id', 'nas_server'], ['volume', 'volume_group', 'session_id', 'filesystem']]
-        required_one_of = [['volume', 'volume_group', 'session_id', 'filesystem', 'nas_server']]
+        mut_ex_args = [['volume', 'volume_group', 'session_id', 'nas_server'],
+                       ['volume', 'volume_group', 'session_id', 'filesystem',
+                        'replication_group']]
+        required_one_of = [['volume', 'volume_group', 'session_id',
+                            'filesystem', 'nas_server', 'replication_group']]
         self.module = AnsibleModule(
             argument_spec=self.module_params,
             supports_check_mode=False,
@@ -311,12 +318,14 @@ class PowerstoreReplicationSession(object):
 
     def get_replication_session_details(self, session_id=None,
                                         vol=None, vol_grp=None,
-                                        filesystem=None, nas_server=None):
+                                        filesystem=None, nas_server=None,
+                                        replication_group=None):
         """Get replication session details"""
         msg = 'Getting the details of replication session, with ' \
-              'session_id:{0} or vol: ' \
-              '{1}, vol_grp: {2}, filesystem: {3}' \
-              ' or nas_server: {4}'.format(session_id, vol, vol_grp, filesystem, nas_server)
+              'session_id:{0} or vol: {1}, vol_grp: {2}, filesystem: {3} or' \
+              ' nas_server: {4} or replication group {5}'.\
+            format(session_id, vol, vol_grp, filesystem, nas_server,
+                   replication_group)
         LOG.info(msg)
         try:
             if session_id:
@@ -333,7 +342,8 @@ class PowerstoreReplicationSession(object):
                 LOG.info(msg)
 
             else:
-                local_resource_id = self.get_resource_id(vol, vol_grp, filesystem, nas_server)
+                local_resource_id = self.get_resource_id(
+                    vol, vol_grp, filesystem, nas_server, replication_group)
                 filter_dict = {'local_resource_id': "eq." + local_resource_id}
                 # Get replication session returns the list of replication
                 # session ids
@@ -357,8 +367,10 @@ class PowerstoreReplicationSession(object):
 
         except Exception as e:
             msg = 'Get details of replication session with ID: {0} or ' \
-                  'vol: {1}, vol_grp {2}, filesystem{3} or nas_server {4} on failed with error : ' \
-                  '{5} '.format(session_id, vol, vol_grp, filesystem, nas_server, str(e))
+                  'vol: {1}, vol_grp {2}, filesystem{3} or nas_server {4} or' \
+                  ' replication group {5} failed with error : {6} '.\
+                format(session_id, vol, vol_grp, filesystem, nas_server,
+                       replication_group, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -403,104 +415,198 @@ class PowerstoreReplicationSession(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def get_resource_id(self, vol=None, vol_grp=None, filesystem=None, nas_server=None):
+    def get_resource_id(self, vol=None, vol_grp=None, filesystem=None,
+                        nas_server=None, replication_group=None):
         """
         Get the local resource id from the input playbook task parameters.
         This ID is of either the volume or the volume group which has the
         replication session associated with it.
         """
+        if vol:
+            # when name of the volume is entered in vol parameter, then,
+            # fetching the id of the volume by name.
+            vol_id = self.get_volume_id(vol)
+            if vol_id:
+                return vol_id
+
+        elif vol_grp:
+            # when name of the volume group is entered in vol_grp parameter
+            # ,then fetching the id of the volume group by name.
+            vg_id = self.get_volume_group_id(vol_grp)
+            if vg_id:
+                return vg_id
+
+        elif filesystem:
+            # when name of the filesystem is entered in filesystem
+            # parameter,then fetching the id of the filesystem by name.
+            fs_id = self.get_filesystem_id(filesystem, nas_server)
+            if fs_id:
+                return fs_id
+
+        elif replication_group:
+            # when name of the replication group is entered in
+            # replication_group parameter, then fetching the id of the
+            # replication group by name.
+            rep_grp_id = self.get_replication_group_id(replication_group)
+            if rep_grp_id:
+                return rep_grp_id
+
+        else:
+            # when name of the NAS server is entered in nas_server
+            # parameter, then fetching the id of the NAS server by name.
+            nas_id = self.get_nas_server_id(nas_server)
+            if nas_id:
+                return nas_id
+
+    def get_volume_id(self, vol):
+        """Get volume ID."""
         try:
-            if vol:
-                # when name of the volume is entered in vol parameter, then,
-                # fetching the id of the volume by name.
-                if utils.name_or_id(vol) == "NAME":
-                    vol_details = self.provisioning.get_volume_by_name(vol)
-                    msg = "Volume details {0} fetched by volume name" \
-                          " {1}".format(str(vol_details), vol)
-                    LOG.info(msg)
+            if utils.name_or_id(vol) == "NAME":
+                vol_details = self.provisioning.get_volume_by_name(vol)
+                msg = f"Volume details {vol_details} fetched by volume" \
+                      f" name {vol}"
+                LOG.info(msg)
 
-                    if not vol_details:
-                        err_msg = "Volume with name: {0} not found. Please " \
-                                  "enter a valid name of the " \
-                                  "volume.".format(vol)
-                        self.module.fail_json(msg=err_msg)
-                    return vol_details[0]['id']
+                if not vol_details:
+                    err_msg = f"Volume with name: {vol} not found. Please " \
+                              f"enter a valid name of the volume."
+                    self.module.fail_json(msg=err_msg)
+                return vol_details[0]['id']
 
-                # if ID is passed in vol parameter
-                return vol
-
-            if vol_grp:
-                # when name of the volume group is entered in vol_grp parameter
-                # ,then fetching the id of the volume group by name.
-                if utils.name_or_id(vol_grp) == "NAME":
-                    vol_grp_details = \
-                        self.provisioning.get_volume_group_by_name(vol_grp)
-                    msg = "Volume group details {0} fetched by volume group" \
-                          " name {1}".format(str(vol_grp_details), vol_grp)
-                    LOG.info(msg)
-
-                    if not vol_grp_details:
-                        err_msg = "Volume group with name: {0} not found. " \
-                                  "Please enter a valid name of the volume" \
-                                  " group.".format(vol_grp)
-                        self.module.fail_json(msg=err_msg)
-                    return vol_grp_details[0]['id']
-
-                # if ID is passed in vol parameter
-                return vol_grp
-
-            elif filesystem:
-                # when name of the filesystem is entered in filesystem parameter
-                # ,then fetching the id of the filesystem by name.
-                if utils.name_or_id(filesystem) == "NAME":
-                    nas_server = self.get_nas_server(nas_server)
-                    filesystem_details = \
-                        self.provisioning.get_filesystem_by_name(filesystem, nas_server)
-                    msg = "Filesystem details {0} fetched by Filesystem" \
-                          " name {1}".format(str(filesystem_details), filesystem)
-                    LOG.info(msg)
-
-                    if not filesystem_details:
-                        err_msg = "Filesystem with name: {0} not found. " \
-                                  "Please enter a valid name of the " \
-                                  "filesystem.".format(filesystem)
-                        self.module.fail_json(msg=err_msg)
-                    return filesystem_details[0]['id']
-
-                # if ID is passed in filesystem parameter
-                return filesystem
-
-            else:
-                # when name of the NAS server is entered in nas_server parameter
-                # ,then fetching the id of the NAS server by name.
-                if utils.name_or_id(nas_server) == "NAME":
-                    nas_server_details = \
-                        self.provisioning.get_nas_server_by_name(nas_server)
-                    msg = "NAS server details {0} fetched by NAS server" \
-                          " name {1}".format(str(nas_server_details), nas_server)
-                    LOG.info(msg)
-
-                    if not nas_server_details:
-                        err_msg = "NAS server with name: {0} not found. " \
-                                  "Please enter a valid name of the NAS" \
-                                  " server.".format(nas_server)
-                        self.module.fail_json(msg=err_msg)
-                    return nas_server_details[0]['id']
-
-                # if ID is passed in nas_server parameter
-                return nas_server
-
+            # if ID is passed in vol parameter
+            return vol
         except Exception as e:
-            msg = 'Get local resource id for volume: {0}, volume group {1}, ' \
-                  ' filesystem{2} or nas_server: {3} on failed with error : ' \
-                  '{4} '.format(vol, vol_grp, filesystem, nas_server, str(e))
+            msg = f'Get local resource id for volume: {vol} failed with' \
+                  f' error {str(e)} : '
 
             if isinstance(e, utils.PowerStoreException) and \
                     e.err_code == utils.PowerStoreException.HTTP_ERR and \
                     e.status_code == "404":
                 LOG.info(msg)
                 return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def get_volume_group_id(self, vol_grp):
+        """Get Volume group ID"""
+        try:
+            if utils.name_or_id(vol_grp) == "NAME":
+                vol_grp_details = \
+                    self.provisioning.get_volume_group_by_name(vol_grp)
+                msg = f"Volume group details {vol_grp_details} fetched by" \
+                      f" volume group name {vol_grp}"
+                LOG.info(msg)
+
+                if not vol_grp_details:
+                    err_msg = f"Volume group with name: {vol_grp} not found." \
+                              f" Please enter a valid name of the volume" \
+                              f" group."
+                    self.module.fail_json(msg=err_msg)
+                return vol_grp_details[0]['id']
+            # if ID is passed in vol parameter
+            return vol_grp
+
+        except Exception as e:
+            msg = f'Get local resource id for volume group: {vol_grp} ' \
+                  f'failed with error {str(e)} : '
+
+            if isinstance(e, utils.PowerStoreException) and \
+                    e.err_code == utils.PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_filesystem_id(self, filesystem, nas_server):
+        """Get file system ID"""
+        try:
+            if utils.name_or_id(filesystem) == "NAME":
+                nas_server = self.get_nas_server(nas_server)
+                filesystem_details = \
+                    self.provisioning.get_filesystem_by_name(filesystem,
+                                                             nas_server)
+                msg = f"Filesystem details {filesystem_details} fetched by" \
+                      f" Filesystem name {filesystem}."
+                LOG.info(msg)
+
+                if not filesystem_details:
+                    err_msg = f"Filesystem with name: {filesystem} not found" \
+                              f". Please enter a valid name of the filesystem."
+                    self.module.fail_json(msg=err_msg)
+                return filesystem_details[0]['id']
+            # if ID is passed in filesystem parameter
+            return filesystem
+
+        except Exception as e:
+            msg = f'Get local resource id for filesystem: {filesystem}' \
+                  f' failed with error {str(e)} : '
+
+            if isinstance(e, utils.PowerStoreException) and \
+                    e.err_code == utils.PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_nas_server_id(self, nas_server):
+        """Get the NAS Server ID"""
+        try:
+            if utils.name_or_id(nas_server) == "NAME":
+                nas_server_details = \
+                    self.provisioning.get_nas_server_by_name(nas_server)
+                msg = f"NAS server details {nas_server_details} fetched by" \
+                      f" NAS server name {nas_server}"
+                LOG.info(msg)
+
+                if not nas_server_details:
+                    err_msg = f"NAS server with name: {nas_server} not found" \
+                              f". Please enter a valid name of the NAS server."
+                    self.module.fail_json(msg=err_msg)
+                return nas_server_details[0]['id']
+            # if ID is passed in nas_server parameter
+            return nas_server
+
+        except Exception as e:
+            msg = f'Get local resource id for nas server: {nas_server}' \
+                  f' failed with error {str(e)} : '
+
+            if isinstance(e, utils.PowerStoreException) and \
+                    e.err_code == utils.PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_replication_group_id(self, replication_group):
+        """Get the ID of the replication group."""
+        try:
+            if utils.name_or_id(replication_group) == "NAME":
+                rpl_grp_details = self.protection.\
+                    get_replication_group_details_by_name(replication_group)
+                msg = f"Replication group details {rpl_grp_details} fetched" \
+                      f" by replication group name {replication_group}"
+                LOG.info(msg)
+
+                if not rpl_grp_details:
+                    err_msg = f"Replication group with name:" \
+                              f" {replication_group} not found. Please enter" \
+                              f" a valid name of the Replication group."
+                    self.module.fail_json(msg=err_msg)
+                return rpl_grp_details[0]['id']
+            # if ID is passed in replication group parameter
+            return replication_group
+
+        except Exception as e:
+            msg = f'Get local resource id for replication group:' \
+                  f' {replication_group} failed with error {str(e)} : '
+            if isinstance(e, utils.PowerStoreException) and \
+                    e.err_code == utils.PowerStoreException.HTTP_ERR and \
+                    e.status_code == "404":
+                LOG.info(msg)
+                return None
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -786,6 +892,7 @@ class PowerstoreReplicationSession(object):
         vol_grp = self.module.params['volume_group']
         filesystem = self.module.params['filesystem']
         nas_server = self.module.params['nas_server']
+        replication_group = self.module.params['replication_group']
         session_id = self.module.params['session_id']
         session_state = self.module.params['session_state']
         role = self.module.params['role']
@@ -804,11 +911,15 @@ class PowerstoreReplicationSession(object):
 
         # Get the replication session details.
         rep_session_details = self.get_replication_session_details(
-            session_id, vol, vol_grp, filesystem, nas_server)
+            session_id, vol, vol_grp, filesystem, nas_server,
+            replication_group)
 
         if not rep_session_details:
             err_msg = "No replication session found with id {0}/ volume {1}/" \
-                      " volume group{2}/ filesystem{3}/ NAS server{4}.".format(session_id, vol, vol_grp, filesystem, nas_server)
+                      " volume group{2}/ filesystem{3}/ NAS server{4} / " \
+                      "Replication Group {5}.".format(session_id, vol, vol_grp,
+                                                      filesystem, nas_server,
+                                                      replication_group)
             self.module.fail_json(msg=err_msg)
         if not session_id:
             session_id = rep_session_details['id']
@@ -890,20 +1001,28 @@ class PowerstoreReplicationSession(object):
                 rep_session_details['local_resource_name'] = \
                     vg_details['name']
 
-            if rep_session_details["resource_type"] == "volume":
+            elif rep_session_details["resource_type"] == "volume":
                 vol_details = self.provisioning.get_volume_details(res_id)
                 rep_session_details['local_resource_name'] = \
                     vol_details['name']
 
-            if rep_session_details["resource_type"] == "filesystem":
-                filesystem_details = self.provisioning.get_filesystem_details(res_id)
+            elif rep_session_details["resource_type"] == "filesystem":
+                filesystem_details = self.provisioning.\
+                    get_filesystem_details(res_id)
                 rep_session_details['local_resource_name'] = \
                     filesystem_details['name']
 
-            if rep_session_details["resource_type"] == "nas_server":
-                nas_server_details = self.provisioning.get_nas_server_details(res_id)
+            elif rep_session_details["resource_type"] == "nas_server":
+                nas_server_details = self.provisioning.\
+                    get_nas_server_details(res_id)
                 rep_session_details['local_resource_name'] = \
                     nas_server_details['name']
+
+            elif rep_session_details["resource_type"] == "replication_group":
+                rep_group_details = self.protection.\
+                    get_replication_group_details(res_id)
+                rep_session_details['local_resource_name'] = \
+                    rep_group_details['name']
 
             return rep_session_details
 
@@ -925,7 +1044,7 @@ def get_powerstore_rep_session_parameters():
      operations for PowerStore"""
 
     return dict(
-        volume_group=dict(), volume=dict(),
+        volume_group=dict(), volume=dict(), replication_group=dict(),
         filesystem=dict(), nas_server=dict(), session_id=dict(),
         session_state=dict(type='str', choices=['synchronizing', 'paused',
                                                 'failed_over']),
