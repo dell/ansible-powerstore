@@ -311,7 +311,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.0.0'
+APPLICATION_TYPE = 'Ansible/2.1.0'
 
 
 class PowerStoreSMBShare(object):

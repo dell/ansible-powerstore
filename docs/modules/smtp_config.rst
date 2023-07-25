@@ -32,8 +32,8 @@ The below requirements are needed on the host that executes this module.
 Parameters
 ----------
 
-  smtp_id (True, int, None)
-    Unique identifier of the SMTP configuration.
+  smtp_id (optional, int, 0)
+    Unique identifier of the SMTP configuration. This value is always '0'.
 
 
   smtp_address (optional, str, None)
