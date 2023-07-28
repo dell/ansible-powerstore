@@ -199,3 +199,8 @@ releases:
           name: storage_container
           namespace: ''
     release_date: '2023-06-30'
+  2.1.0:
+    changes:
+      minor_changes:
+        - Bug fix for initial SMTP configuration in smtp_config module.
+    release_date: '2023-07-31'

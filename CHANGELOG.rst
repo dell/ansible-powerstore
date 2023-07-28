@@ -5,6 +5,15 @@ Dellemc.Powerstore Change Logs
 .. contents:: Topics
 
 
+
+v2.1.0
+======
+
+Minor Changes
+-------------
+
+- Bug fix for initial SMTP configuration in smtp_config module.
+
 v2.0.0
 ======
 

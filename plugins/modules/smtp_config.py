@@ -24,8 +24,8 @@ extends_documentation_fragment:
 options:
   smtp_id:
     description:
-    - Unique identifier of the SMTP configuration.
-    required: true
+    - Unique identifier of the SMTP configuration. This value is always '0'.
+    default: 0
     type: int
   smtp_address:
     description:
@@ -139,7 +139,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.0.0'
+APPLICATION_TYPE = 'Ansible/2.1.0'
 
 
 class PowerstoreSmtpConfig(object):
@@ -185,7 +185,7 @@ class PowerstoreSmtpConfig(object):
             resp = self.configuration.get_smtp_config_details(smtp_id)
             LOG.info('Successfully got the details of SMTP configuration '
                      'with id: %s', smtp_id)
-            return resp
+            return resp if resp else []
 
         except Exception as e:
             msg = 'Get details of SMTP configuration: {0}' \
@@ -232,7 +232,8 @@ class PowerstoreSmtpConfig(object):
             err_msg = "Invalid source email address: {0}".format(source_address)
             LOG.error(err_msg)
             self.module.fail_json(msg=err_msg)
-
+        if not smtp_details:
+            return modify_smtp_config_dict
         for key in keys:
             if modify_smtp_config_dict[key] is not None and\
                     smtp_details[key] != modify_smtp_config_dict[key]:
@@ -269,27 +270,28 @@ class PowerstoreSmtpConfig(object):
         state = self.module.params['state']
 
         result = dict(
-            smtp_config_details=None
+            smtp_config_details=[]
         )
         changed = False
         modify_params = None
 
-        smtp_details = self.get_smtp_config_details(smtp_id=smtp_id)
-        LOG.info(smtp_details)
-        if smtp_details:
-            modify_params = self.modify_smtp_required(smtp_details=smtp_details)
-
-        if not smtp_details and state == 'present':
+        if smtp_id != 0:
             msg = "SMTP configuration with ID: {0} does not exist".format(smtp_id)
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        elif state == 'absent' and smtp_details:
+        smtp_details = self.get_smtp_config_details(smtp_id=smtp_id)
+        if smtp_details or (smtp_details is None and (self.module.params['source_email'] or
+                                                      self.module.params['smtp_port'] or
+                                                      self.module.params['smtp_address'])):
+            modify_params = self.modify_smtp_required(smtp_details=smtp_details)
+
+        if state == 'absent' and smtp_details:
             msg = " Deletion of SMTP configuration is not supported"
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        elif state == 'present' and smtp_details and modify_params:
+        elif state == 'present' and modify_params:
             changed = self.modify_smtp_config_details(
                 smtp_id=smtp_id,
                 modify_params=modify_params)
@@ -308,7 +310,7 @@ def get_powerstore_smtp_config_parameters():
       smtp_config operations for PowerStore"""
 
     return dict(
-        smtp_id=dict(required=True, type='int'), smtp_address=dict(required=False, type='str'),
+        smtp_id=dict(type='int', default=0), smtp_address=dict(required=False, type='str'),
         smtp_port=dict(required=False, type='int'),
         source_email=dict(required=False, type='str'),
         destination_email=dict(required=False, type='str'),
