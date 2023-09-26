@@ -105,7 +105,7 @@
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible-cluster"
-            derive_failure_tolerance_level: "Double"
+            drive_failure_tolerance_level: "Double"
         dns_servers:
           - "1.1.x.x"
         ntp_servers:
@@ -144,7 +144,7 @@
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible-cluster"
-            derive_failure_tolerance_level: "Double"
+            drive_failure_tolerance_level: "Double"
         dns_servers:
           - "1.1.x.x"
         ntp_servers:

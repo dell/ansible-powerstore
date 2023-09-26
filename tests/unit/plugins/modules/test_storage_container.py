@@ -10,6 +10,8 @@ __metaclass__ = type
 
 
 import pytest
+# pylint: disable=unused-import
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_storage_container_api import MockStorageContainerApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
@@ -17,18 +19,15 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
 
-utils.get_logger = MagicMock()
 remote_config = MagicMock()
 remote_config.config_mgmt.get_storage_container_details = MagicMock(return_value=MockStorageContainerApi.REMOTE_STORAGE_CONTAINER_1)
 utils.get_powerstore_connection = MagicMock(side_effect=[
     MagicMock(),
     remote_config
 ])
-utils.PowerStoreException = MagicMock()
-from ansible.module_utils import basic
-basic.AnsibleModule = MagicMock()
 from ansible_collections.dellemc.powerstore.plugins.modules.storage_container import PowerStoreStorageContainer, StorageContainerHandler
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_fail_json import FailJsonException, fail_json
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library.\
+    fail_json import FailJsonException, fail_json
 
 
 class TestPowerStoreStorageContainer():

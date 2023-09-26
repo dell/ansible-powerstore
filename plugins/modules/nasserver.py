@@ -13,11 +13,13 @@ module: nasserver
 version_added: '1.1.0'
 short_description: NAS Server operations for PowerStore Storage system
 description:
-- Supports getting the details and modifying the attributes of a NAS server.
+- Supports getting the details, creating, modifying the attributes of a NAS server
+  and deleting a NAS server.
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
+- Jennifer John (@johnj9) <ansible.team@dell.com>
 options:
  nas_server_name:
    description:
@@ -67,6 +69,18 @@ options:
    - Name/ID of the protection policy applied to the nas server.
    - Policy can be removed by passing an empty string in the I(protection_policy) parameter.
    type: str
+ is_username_translation_enabled:
+   description:
+   - Enable the possibility to match a Windows account with an Unix account with different names.
+   type: bool
+   version_added: '2.2.0'
+ is_auto_user_mapping_enabled:
+   description:
+   - To automatically generate the unix user (uid), if the windows user does
+     not have any in the configured Unix Directory Service (UDS).
+   - In a pure SMB or non multi-protocol environment, this should be set to true.
+   type: bool
+   version_added: '2.2.0'
  state:
    description:
    - Define whether the nas server should exist or not.
@@ -82,56 +96,81 @@ notes:
 
 EXAMPLES = r'''
 
+ - name: Create a NAS Server
+   dellemc.powerstore.nasserver:
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_name: "test-nas-server"
+     description: "NAS Server test"
+     current_unix_directory_service: "LDAP"
+     default_unix_user: "user1"
+     default_windows_user: "user2"
+     is_username_translation_enabled: true
+     is_auto_user_mapping_enabled: true
+     protection_policy: "ansible_policy"
+     state: "present"
+
  - name: Get details of NAS Server by name
    dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_name: "{{nas_server_name}}"
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_name: "{{ nas_server_name }}"
      state: "present"
 
  - name: Get Details of NAS Server by ID
    dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_id: "{{nas_id}}"
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_id: "{{ nas_id }}"
      state: "present"
 
  - name: Rename NAS Server by Name
    dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_name: "{{nas_server_name}}"
-     nas_server_new_name : "{{nas_server_new_name}}"
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_name: "{{ nas_server_name }}"
+     nas_server_new_name : "{{ nas_server_new_name }}"
      state: "present"
 
  - name: Modify NAS Server attributes by ID
    dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_id: "{{nas_id}}"
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_id: "{{ nas_id }}"
      current_unix_directory_service: "LOCAL_FILES"
-     current_node: "{{cur_node_n1}}"
-     preferred_node: "{{prefered_node}}"
+     current_node: "{{ cur_node_n1 }}"
+     preferred_node: "{{ prefered_node }}"
      protection_policy: "protection_policy_1"
      state: "present"
 
  - name: Remove protection policy
    dellemc.powerstore.nasserver:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     nas_server_id: "{{nas_id}}"
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_id: "{{ nas_id }}"
      protection_policy: ""
      state: "present"
+
+ - name: Delete NAS Server
+   dellemc.powerstore.nasserver:
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     nas_server_id: "{{ nas_id }}"
+     state: "absent"
 
 '''
 
@@ -299,7 +338,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.1.0'
+APPLICATION_TYPE = 'Ansible/2.2.0'
 
 
 class PowerStoreNasServer(object):
@@ -470,13 +509,30 @@ class PowerStoreNasServer(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def create_nas_server(self, payload):
+        """Create a NAS Server.
+
+        :param payload: The payload to create the NAS Server
+        :type: dict
+        :return: NAS server ID on success else raise exception
+        :rtype: str
+        """
+        try:
+            msg = f'Creating NAS server {payload.get("name")}'
+            LOG.info(msg)
+            return self.provisioning.create_nasserver(payload).get('id')
+        except Exception as e:
+            msg = f'Creating NAS server {payload.get("name")} failed with error {str(e)}'
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
     def to_modify_nasserver(self, nasserver_details):
         """Determines if any modification required on a specific
         nas server instance."""
 
         try:
             LOG.info("Checking if Modify required for nas server ")
-            modify_parameters = dict()
+            modify_parameters = get_modify_dict(self.module.params, nasserver_details)
 
             description = self.module.params['description']
 
@@ -559,6 +615,23 @@ class PowerStoreNasServer(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def delete_nas_server(self, nas_server_id):
+        """Delete a NAS Server.
+
+        :param nas_server_id: The ID of the NAS Server to delete
+        :type nas_server_id: str
+        :return: None on success else raise exception
+        :rtype: None
+        """
+        try:
+            msg = f'Deleting nas server {nas_server_id}'
+            LOG.info(msg)
+            return self.provisioning.delete_nasserver(nas_server_id)
+        except Exception as e:
+            msg = f'Deleting NAS server {nas_server_id} failed with error {str(e)}'
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
     def get_enum_keys(self, user_input):
         """Get the ENUM Keys for user input string"""
         try:
@@ -576,6 +649,20 @@ class PowerStoreNasServer(object):
                   'error {1}'.format(user_input, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def perform_module_exit(self, state, changed, result, nasserver_details, nas_id):
+        if changed:
+            nasserver_details = self.get_nas_server(
+                nas_server_id=nas_id)
+        if state == 'present':
+            nasserver_details['current_node'] = self.get_node_id(
+                nasserver_details.get('current_node_id'))
+            nasserver_details['preferred_node'] = self.get_node_id(
+                nasserver_details.get('preferred_node_id'))
+
+        result['changed'] = changed
+        result['nasserver_details'] = nasserver_details
+        self.module.exit_json(**result)
 
     def perform_module_operation(self):
         clusters = self.get_clusters()
@@ -635,11 +722,10 @@ class PowerStoreNasServer(object):
         LOG.debug(log_msg)
 
         if not nasserver_details and state == 'present':
-            msg = "Creation of NAS Server is not currently supported " \
-                  "through Ansible Module "
-
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            nas_id = self.create_nas_server(
+                payload=create_nas_server_payload(self.module.params,
+                                                  self.protection_policy_id))
+            changed = True
 
         if to_modify and state == 'present':
             self.modify_nasserver(nasserver_id=nas_id,
@@ -647,22 +733,10 @@ class PowerStoreNasServer(object):
             changed = True
 
         if state == 'absent' and nasserver_details:
-            msg = "Deletion of NAS Server is not currently supported " \
-                  "through Ansible Module"
-            LOG.error(msg)
-            self.module.fail_json(msg=msg)
+            self.delete_nas_server(nas_server_id=nas_id)
+            changed = True
 
-        if state == 'present' and nasserver_details:
-            nasserver_details = self.get_nas_server(
-                nas_server_id=nas_id)
-            nasserver_details['current_node'] = self.get_node_id(
-                nasserver_details['current_node_id'])
-            nasserver_details['preferred_node'] = self.get_node_id(
-                nasserver_details['preferred_node_id'])
-
-        result['changed'] = changed
-        result['nasserver_details'] = nasserver_details
-        self.module.exit_json(**result)
+        self.perform_module_exit(state, changed, result, nasserver_details, nas_id)
 
 
 def get_powerstore_nasserver_parameters():
@@ -676,6 +750,8 @@ def get_powerstore_nasserver_parameters():
         current_node=dict(required=False, type='str'),
         preferred_node=dict(required=False, type='str'),
         protection_policy=dict(required=False, type='str'),
+        is_username_translation_enabled=dict(required=False, type='bool'),
+        is_auto_user_mapping_enabled=dict(required=False, type='bool'),
         current_unix_directory_service=dict(required=False, type='str',
                                             choices=['NIS',
                                                      'LDAP',
@@ -686,6 +762,38 @@ def get_powerstore_nasserver_parameters():
         default_windows_user=dict(required=False, type='str'),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
+
+
+def create_nas_server_payload(params, protection_policy_id):
+    """Create a payload for creating a NAS Server.
+
+    :param params: The input params
+    :type params: dict
+    :param protection_policy_id: The ID of the protection policy for the NAS Server
+    :type protection_policy_id: str
+    :return: The payload for creating the NAS Server
+    :rtype: dict
+    """
+    payload = {
+        "name": params.get('nas_server_name'),
+        "description": params.get('description'),
+        "current_unix_directory_service": params.get('current_unix_directory_service'),
+        "default_unix_user": params.get('default_unix_user'),
+        "default_windows_user": params.get('default_windows_user'),
+        "is_username_translation_enabled": params.get('is_username_translation_enabled'),
+        "is_auto_user_mapping_enabled": params.get('is_auto_user_mapping_enabled'),
+        "protection_policy_id": protection_policy_id
+    }
+    return payload
+
+
+def get_modify_dict(params, nasserver_details):
+    modify_dict = dict()
+    keys = ['is_username_translation_enabled', 'is_auto_user_mapping_enabled']
+    for key in keys:
+        if params.get(key) is not None and nasserver_details.get(key) != params.get(key):
+            modify_dict[key] = params.get(key)
+    return modify_dict
 
 
 def main():

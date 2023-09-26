@@ -39,11 +39,14 @@ class MockInfoApi:
     CLUSTER_DETAILS_TWO = [
         {
             "id": "0",
-            "name": "WN-ABCD"},
+            "name": "WN-ABCD",
+            "state": "Configured"
+        },
         {
             "id": "1",
-            "name": "WN-WXYZ"}
-
+            "name": "WN-WXYZ",
+            "state": "Configured"
+        }
     ]
 
     @staticmethod
@@ -143,3 +146,7 @@ class MockInfoApi:
     @staticmethod
     def get_subset_invalid_filter():
         return "Filter should have all keys: 'filter_key, filter_operator, filter_value'"
+
+    @staticmethod
+    def get_invalid_filter_key():
+        return "Filter keys: '['filter_key', 'filter_operator', 'filter_value']' cannot be None"

@@ -23,8 +23,8 @@ description:
   replication groups, and remote system.
 - Virtualization module includes vCenters and virtual volumes.
 - Configuration module includes cluster nodes, networks, roles, local users,
-  appliances, security configs, certificates, AD/LDAP servers, LDAP accounts,
-  and LDAP domain.
+  appliances, discovered appliances, security configs, certificates,
+  AD/LDAP servers, LDAP accounts, and LDAP domain.
 - It also includes DNS/NTP servers, smtp configs, email destinations,
   remote support, and remote support contacts.
 author:
@@ -76,6 +76,7 @@ options:
     - Virtual volumes - C(virtual_volume).
     - Storage containers - C(storage_container).
     - Replication groups - C(replication_group).
+    - Discovered appliances - C(discovered_appliance).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -85,7 +86,7 @@ options:
               ldap, security_config, certificate, dns, ntp, smtp_config,
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
-              replication_group]
+              replication_group, discovered_appliance]
     type: list
   filters:
     description:
@@ -122,7 +123,8 @@ options:
     default: false
 notes:
 - Pagination is not supported for role, local user, security configs, LDAP
-  accounts and LDAP domain. If I(all_pages) is passed, it will be ignored.
+  accounts, discovered appliances and LDAP domain. If I(all_pages) is passed,
+  it will be ignored.
 - The I(check_mode) is supported.
 '''
 
@@ -366,7 +368,7 @@ EXAMPLES = r'''
       - virtual_volume
       - replication_group
 
-- name: Get list of storage containers
+- name: Get list of storage containers and discovered appliances
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -374,7 +376,7 @@ EXAMPLES = r'''
     password: "{{password}}"
     gather_subset:
       - storage_container
-
+      - discovered_appliance
 '''
 
 RETURN = r'''
@@ -388,7 +390,7 @@ Array_Software_Version:
     description: API version of PowerStore array.
     returned: always
     type: str
-    sample: "2.1.0.0"
+    sample: "2.2.0.0"
 ActiveDirectory:
     description: Provides details of all active directories.
     type: list
@@ -413,15 +415,86 @@ Appliance:
         name:
             description: Name of the appliance.
             type: str
+        service_tag:
+            description: Dell service tag of the appliance.
+            type: str
+        express_service_code:
+            description: Express service code.
+            type: str
         model:
             description: Model type of the PowerStore.
             type: str
+        node_count:
+            description: Number of nodes deployed on an appliance. It was added
+                         in version 3.0.0.0.
+            type: int
+        drive_failure_tolerance_level:
+            description: Drive failure tolerance level.
+            type: str
+        is_hyper_converged:
+            description: Whether the appliance is a hyper-converged appliance.
+                         It was added in version 3.2.0.0.
+            type: bool
+        nodes:
+            description: Provides details of all nodes.
+            type: list
+        ip_pool_addresses:
+            description: Provides details of all IP pool addresses.
+            type: list
+        veth_ports:
+            description: Provides details of all veth ports.
+            type: list
+        virtual_volumes:
+            description: Provides details of all virtual volumes.
+            type: list
+        maintenance_windows:
+            description: Provides details of all maintenance windows.
+            type: list
+        fc_ports:
+            description: Provides details of all FC ports.
+            type: list
+        sas_ports:
+            description: Provides details of all SAS ports.
+            type: list
+        eth_ports:
+            description: Provides details of all Ethernet ports.
+            type: list
+        eth_be_ports:
+            description: Provides details of all eth_be_ports. It was added in
+                         version 3.0.0.0.
+            type: list
+        software_installed:
+            description: Provides details of all software installed.
+            type: list
+        hardware:
+            description: Provides details of all hardware.
+            type: list
+        volumes:
+            description: Provides details of all volumes.
+            type: list
     sample: [
-          {
+        {
             "id": "A1",
+            "name": "Appliance-WND8977",
+            "service_tag": "A1",
+            "express_service_code": "A1",
             "model": "PowerStore 1000T",
-            "name": "Appliance-WND8977"
-          }
+            "node_count": 1,
+            "drive_failure_tolerance_level": "None",
+            "is_hyper_converged": false,
+            "nodes": [],
+            "ip_pool_addresses": [],
+            "veth_ports": [],
+            "virtual_volumes": [],
+            "maintenance_windows": [],
+            "fc_ports": [],
+            "sas_ports": [],
+            "eth_ports": [],
+            "eth_be_ports": [],
+            "software_installed": [],
+            "hardware": [],
+            "volumes": []
+        }
     ]
 Certificate:
     description: Provides details of all certificates.
@@ -454,6 +527,92 @@ Cluster:
               "id": "0",
               "name": "RT-D1006"
           }
+    ]
+DiscoveredAppliances:
+    description: Provides details of all discovered appliances.
+    type: list
+    returned: When C(discovered_appliance) is in a given I(gather_subset)
+    contains:
+        id:
+            description: ID of a discovered appliance. The local discovered
+                         appliance has the id "0".
+            type: str
+        link_local_address:
+            description: Link local IPv4 address of the discovered appliance.
+            type: str
+        service_name:
+            description: Service name of the discovered appliance.
+            type: str
+        service_tag:
+            description: The Dell service tag.
+            type: str
+        state:
+            description: Possible unmanaged appliance states.
+            type: str
+        mode:
+            description: Storage access mode supported by the appliance.
+            type: str
+        model:
+            description: The model of the appliance.
+            type: str
+        express_service_code:
+            description: Express service code for the appliance.
+            type: str
+        is_local:
+            description: Indicates whether appliance is local or not.
+            type: bool
+        management_service_ready:
+            description: Indicates whether the management services are ready.
+            type: bool
+        software_version_compatibility:
+            description: Compatibility of the software version on an appliance
+                         compared to the software version on the appliance
+                         running the request.
+            type: str
+        build_version:
+            description: Build version of the installed software package
+                         release.
+            type: str
+        build_id:
+            description: Build ID.
+            type: str
+        power_score:
+            description: Power rating of the appliance.
+            type: int
+        node_count:
+            description: Number of nodes deployed on an appliance.
+            type: int
+        is_unified_capable:
+            description: Indicates whether the appliance is capable of unified
+                         configuration.
+            type: bool
+        drive_failure_tolerance_level_and_availability:
+            description: Drive failure tolerance level and availability.
+            type: list
+        is_hyper_converged:
+            description: Indicates whether the appliance is a hyper converged
+                         or not. It was added in version 3.2.0.0.
+            type: bool
+    sample: [
+        {
+            "id": "A1",
+            "link_local_address": "1.0.2.x",
+            "service_name": "Appliance-WND8977",
+            "service_tag": "A8977",
+            "state": "Unconfigured",
+            "mode": "Unified",
+            "model": "PowerStore 1000T",
+            "express_service_code": "A8977",
+            "is_local": true,
+            "management_service_ready": true,
+            "software_version_compatibility": "3.0.0.0",
+            "build_version": "3.0.0.0",
+            "build_id": "3202",
+            "power_score": 0,
+            "node_count": 2,
+            "is_unified_capable": true,
+            "is_hyper_converged": false
+        }
     ]
 DNS:
     description: Provides details of all DNS servers.
@@ -1388,7 +1547,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.1.0'
+APPLICATION_TYPE = 'Ansible/2.2.0'
 
 
 class PowerstoreInfo(object):
@@ -1574,6 +1733,10 @@ class PowerstoreInfo(object):
             'storage_container': {
                 'func': self.configuration.get_storage_container_list,
                 'display_as': 'StorageContainers'
+            },
+            'discovered_appliance': {
+                'func': self.configuration.get_discovered_appliances,
+                'display_as': 'DiscoveredAppliances'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -1681,17 +1844,22 @@ class PowerstoreInfo(object):
 
     def perform_module_operation(self):
         clusters = self.get_clusters()
+        cluster_state = ''
         if len(clusters) > 0:
             self.cluster_name = clusters[0]['name']
             self.cluster_global_id = clusters[0]['id']
+            cluster_state = clusters[0]['state']
         else:
             self.module.fail_json(msg="Unable to find any active cluster on"
                                       " this array ")
 
-        array_soft_ver = self.get_array_software_version()
-
         self.result.update(Cluster=clusters,
-                           Array_Software_Version=array_soft_ver)
+                           Array_Software_Version=None)
+        if cluster_state == 'Configured':
+            array_soft_ver = self.get_array_software_version()
+            self.result.update(Cluster=clusters,
+                               Array_Software_Version=array_soft_ver)
+
         subset = self.module.params['gather_subset']
         filters = self.module.params['filters']
         all_pages = self.module.params['all_pages']
@@ -1732,7 +1900,7 @@ def get_powerstore_info_parameters():
                      'remote_support', 'remote_support_contact',
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',
-                     'replication_group']),
+                     'replication_group', 'discovered_appliance']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

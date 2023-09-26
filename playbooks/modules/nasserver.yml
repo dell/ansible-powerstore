@@ -14,6 +14,22 @@
     prefered_node: "N2"
 
   tasks:
+    - name: Create NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        description: "{{ description }}"
+        current_unix_directory_service: "LDAP"
+        default_unix_user: "user1"
+        default_windows_user: "user2"
+        is_username_translation_enabled: true
+        is_auto_user_mapping_enabled: true
+        protection_policy: "ansible_policy"
+        state: "present"
+
     - name: Get details of NAS Server by name
       register: result_nas
       dellemc.powerstore.nasserver:
@@ -122,12 +138,11 @@
         protection_policy: ""
         state: "present"
 
-    - name: Disassociate protection policy from a NAS Server - Idempotency
+    - name: Delete NAS Server
       dellemc.powerstore.nasserver:
         array_ip: "{{ array_ip }}"
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
         nas_server_name: "{{ nas_server_name }}"
-        protection_policy: ""
-        state: "present"
+        state: "absent"

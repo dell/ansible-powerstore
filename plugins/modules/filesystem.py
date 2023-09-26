@@ -15,11 +15,13 @@ short_description: Filesystem operations for PowerStore Storage system
 description:
 - Supports the provisioning operations on a filesystem such as create, modify,
   delete and get the details of a filesystem.
+- Supports clone, refresh and restore operations on a filesystem.
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 author:
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
 - Trisha Datta (@trisha-dell) <ansible.team@dell.com>
+- Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
 options:
  filesystem_name:
    description:
@@ -225,6 +227,128 @@ options:
    - Cannot be modified.
    choices: ['VMWARE_8K', 'VMWARE_16K', 'VMWARE_32K', 'VMWARE_64K']
    type: str
+ clone_filesystem:
+   description:
+   - The attributes for filesystem clone.
+   type: dict
+   suboptions:
+     name:
+       description:
+       - Name of the clone.
+       - It can only be provided during creation of a filesystem clone.
+       type: str
+     description:
+       description:
+       - Description of the clone.
+       type: str
+     access_policy:
+       description:
+       - File system security access policies.
+       - C(Native) - Native Security.
+       - C(UNIX) - UNIX Security.
+       - C(Windows) - Windows Security.
+       choices: ['Native', 'UNIX', 'Windows']
+       type: str
+     locking_policy:
+       description:
+       - File system locking policies.
+       - C(Advisory)- No lock checking for NFS and honor SMB lock range only for SMB.
+       - C(Mandatory)- Honor SMB and NFS lock range.
+       choices: ['Advisory', 'Mandatory']
+       type: str
+     folder_rename_policy:
+       description:
+       - File system folder rename policies for the file system with
+         multi-protocol access enabled.
+       - C(All_Allowed) - All protocols are allowed to rename directories without
+         any restrictions.
+       - C(SMB_Forbidden) - A directory rename from the SMB protocol will be
+         denied if at least one file is opened in the directory or in one of its
+         child directories.
+       - C(All_Forbidden) - Any directory rename request will be denied regardless
+         of the protocol used, if at least one file is opened in the directory
+         or in one of its child directories.
+       choices: ['All_Allowed', 'SMB_Forbidden', 'All_Forbidden']
+       type: str
+     is_smb_sync_writes_enabled:
+       description:
+       - Indicates whether the synchronous writes option is enabled on the
+         file system.
+       type: bool
+     is_smb_no_notify_enabled:
+       description:
+       - Indicates whether notifications of changes to directory file
+         structure are enabled.
+       type: bool
+     is_smb_op_locks_enabled:
+       description:
+       - Indicates whether opportunistic file locking is enabled on the file
+         system.
+       type: bool
+     is_smb_notify_on_access_enabled:
+       description:
+       - Indicates whether file access notifications are enabled on the file
+         system.
+       type: bool
+     is_smb_notify_on_write_enabled:
+       description:
+       - Indicates whether file write notifications are enabled on the file
+         system.
+       type: bool
+     smb_notify_on_change_dir_depth:
+       description:
+       - Determines the lowest directory level to which the
+         enabled notifications apply. minimum value is C(1).
+       type: int
+     is_async_MTime_enabled:
+       description:
+       - Indicates whether asynchronous MTIME is enabled on the file system.
+       type: bool
+     file_events_publishing_mode:
+       description:
+       - State of the event notification services for all file systems of the NAS server.
+       - C(None) - File event notifications are disabled for this file system.
+       - C(SMB_Only) - SMB notifications are enabled for this file system.
+       - C(NFS_Only) - NFS notifications are enabled for this file system.
+       - C(All) - SMB and NFS notifications are enabled for this file system.
+       choices: ['None', 'SMB_Only', 'NFS_Only', 'All']
+       type: str
+     flr_attributes:
+       description:
+       - The attributes for file retention.
+       type: dict
+       suboptions:
+         force_clone:
+           description:
+            - Specifies whether an FLR-C file system should be cloned.
+            - C(true) - means cloning an FLR-C file system is allowed.
+            - C(false) - means cloning an FLR-C file system is not allowed.
+              and any attempt to do so will return an error.
+           type: bool
+ snapshot_name:
+   description:
+   - The name of the filesystem snapshot.
+   - Specify either snapshot name or ID (but not both) for restore and refresh operations.
+   type: str
+ snapshot_id:
+   description:
+   - The ID of the Snapshot.
+   - Specify either snapshot name or ID (but not both) for restore and refresh operations.
+   type: str
+ refresh_filesystem:
+   description:
+   - Specifies to refresh filesystem.
+   - Mandatory only for refresh filesystem.
+   type: bool
+ restore_filesystem:
+   description:
+   - Specifies to restore filesystem.
+   - Mandatory only for restore filesystem.
+   type: bool
+ backup_snap_name:
+   description:
+   - Name of the backup snap to be created before the restore operation occurs.
+   type: str
  state:
    description:
    - Define whether the filesystem should exist or not.
@@ -237,6 +361,7 @@ notes:
 - The I(check_mode) is not supported.
 - The pattern for I(minimum_retention), I(default_retention)
   and I(maximum_retention) is (^\d+[DMY])|(^infinite$).
+- Filesystem snapshot can be created using filesystem_snapshot module.
 '''
 
 EXAMPLES = r'''
@@ -312,11 +437,74 @@ EXAMPLES = r'''
      password: "{{password}}"
      filesystem_id: "{{result_fs.filesystem_details.id}}"
      state: "absent"
+
+ - name: Clone File System
+   dellemc.powerstore.filesystem:
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     filesystem_name: 'Atest'
+     nas_server: 'Test_Nas'
+     clone_filesystem:
+       name: "Test_ansible"
+       description: "Test"
+       access_policy: "UNIX"
+       locking_policy: "Advisory"
+       folder_rename_policy: "All_Allowed"
+       is_smb_sync_writes_enabled: true
+       is_smb_no_notify_enabled: true
+       is_smb_op_locks_enabled: true
+       is_smb_notify_on_access_enabled: true
+       is_smb_notify_on_write_enabled: true
+       smb_notify_on_change_dir_depth: 32
+       is_async_MTime_enabled: false
+       file_events_publishing_mode: "All"
+       flr_attributes:
+           force_clone: false
+     state: "present"
+
+ - name: Refresh File System
+   dellemc.powerstore.filesystem:
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     snapshot_name: "Refresh_test"
+     nas_server: 'Sample_NAS'
+     refresh_filesystem: true
+     state: "present"
+
+ - name: Restore File System
+   dellemc.powerstore.filesystem:
+     array_ip: "{{ array_ip }}"
+     validate_certs: "{{ validate_certs }}"
+     user: "{{ user }}"
+     password: "{{ password }}"
+     snapshot_id: "xxx-xxx-xxx"
+     restore_filesystem: true
+     backup_snap_name: "Restore_test"
+     state: "present"
 '''
 
 RETURN = r'''
 changed:
     description: Whether or not the resource has changed.
+    returned: always
+    type: bool
+    sample: "false"
+is_filesystem_cloned:
+    description: Whether or not the clone of filesystem is created.
+    returned: always
+    type: bool
+    sample: "false"
+is_filesystem_refreshed:
+    description: Whether or not the filesystem is refreshed.
+    returned: always
+    type: bool
+    sample: "false"
+is_filesystem_restored:
+    description: Whether or not the filesystem is restored.
     returned: always
     type: bool
     sample: "false"
@@ -552,7 +740,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.1.0'
+APPLICATION_TYPE = 'Ansible/2.2.0'
 
 
 class PowerStoreFileSystem(object):
@@ -568,17 +756,15 @@ class PowerStoreFileSystem(object):
         self.module_params = utils.get_powerstore_management_host_parameters()
         self.module_params.update(get_powerstore_filesystem_parameters())
 
-        mutually_exclusive = [['filesystem_name', 'filesystem_id']]
-        required_one_of = [['filesystem_name', 'filesystem_id']]
-        required_together = [['filesystem_name', 'nas_server']]
+        mutually_exclusive = [['filesystem_name', 'filesystem_id'], ['snapshot_name', 'snapshot_id']]
+        required_one_of = [['filesystem_name', 'filesystem_id', 'snapshot_name', 'snapshot_id']]
 
         # initialize the Ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
             supports_check_mode=False,
             mutually_exclusive=mutually_exclusive,
-            required_one_of=required_one_of,
-            required_together=required_together
+            required_one_of=required_one_of
         )
         msg = 'HAS_PY4PS = {0} , IMPORT_ERROR = ' \
               '{1}'.format(HAS_PY4PS, IMPORT_ERROR)
@@ -1093,6 +1279,115 @@ class PowerStoreFileSystem(object):
                     LOG.error(msg)
                     self.module.fail_json(msg=msg)
 
+    def clone_filesystem_dict_params(self, clone_filesystem):
+        adv_parameters = {}
+        adv_param_list_enum = [
+            'name', 'description', 'access_policy', 'locking_policy',
+            'folder_rename_policy', 'is_smb_sync_writes_enabled',
+            'is_smb_no_notify_enabled', 'is_smb_op_locks_enabled',
+            'is_smb_notify_on_access_enabled', 'is_smb_notify_on_write_enabled',
+            'smb_notify_on_change_dir_depth', 'is_async_MTime_enabled',
+            'file_events_publishing_mode', 'flr_attributes'
+        ]
+
+        for param in adv_param_list_enum:
+            if clone_filesystem[param] is not None:
+                adv_parameters[param] = clone_filesystem[param]
+        return adv_parameters
+
+    def clone_filesystem(self, filesystem_id, clone_filesystem):
+        """Clone filesystem"""
+        try:
+            LOG.info("Cloning filesystem")
+            adv_parameters = self.clone_filesystem_dict_params(clone_filesystem)
+            resp = self.provisioning.clone_filesystem(filesystem_id,
+                                                      advance_parameters=adv_parameters)
+            LOG.debug(resp)
+            return resp["id"]
+        except Exception as e:
+            errormsg = f"Cloning filesystem failed with error {str(e)}"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def verify_required_together_params(self, filesystem_name=None,
+                                        snapshot_name=None,
+                                        nas_server=None):
+        if (filesystem_name or snapshot_name) and not nas_server:
+            errormsg = "nas_server is required along with, filesystem_name or snapshot_name"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        elif nas_server and not (filesystem_name or snapshot_name):
+            errormsg = "filesystem_name or snapshot_name is required along with, nas_server"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+
+    def get_snapshot_details_by_name(self, name, nas_server):
+        try:
+            snap_details = self.protection.get_filesystem_snapshot_details_by_name(snapshot_name=name,
+                                                                                   nas_server_id=nas_server)
+            return snap_details[0] if snap_details else None
+        except Exception as e:
+            LOG.error("Error getting snapshot details by name: %s", str(e))
+            raise
+
+    def get_snap_details(self, snapshot_id=None,
+                         snapshot_name=None,
+                         nas_server=None,
+                         backup_snap_name=None):
+        try:
+            snap_details = None
+            if snapshot_id:
+                snap_details = self.protection.get_filesystem_snapshot_details(snapshot_id=snapshot_id)
+            elif snapshot_name and nas_server:
+                snap_details = self.get_snapshot_details_by_name(snapshot_name, nas_server)
+                if not snap_details:
+                    errormsg = f"Instance with name {str(snapshot_name)} was not found."
+                    LOG.error(errormsg)
+                    self.module.fail_json(msg=errormsg)
+            elif backup_snap_name and nas_server:
+                snap_details = self.get_snapshot_details_by_name(backup_snap_name, nas_server)
+                if not snap_details:
+                    return None
+            return snap_details
+        except Exception as e:
+            errormsg = f"Failed to get filesystem snapshot {str(e)}"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def refresh_filesystem(self, snapshot_id=None):
+        """Refresh filesystem"""
+        try:
+            LOG.info("Refreshing filesystem")
+            self.provisioning.refresh_filesystem(snapshot_id)
+            return True
+        except Exception as e:
+            errormsg = f"Refreshing filesystem failed with error {str(e)}"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def restore_filesystem(self, snapshot_id=None,
+                           backup_snap_name=None):
+        """Restore filesystem"""
+        try:
+            LOG.info("Restoring filesystem")
+            self.provisioning.restore_filesystem(snapshot_id, backup_snap_name)
+            return True
+        except Exception as e:
+            errormsg = f"Restoring filesystem failed with error {str(e)}"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+    def get_clone(self, clone_name, nas_server_id):
+        """Get Clone filesystem"""
+        if clone_name:
+            clone = self.get_filesystem_details(filesystem_name=clone_name,
+                                                nas_server_id=nas_server_id)
+            return clone
+        else:
+            errormsg = "'name' parameter is required in clone_filesystem"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+
     def perform_module_operation(self):
         clusters = self.get_clusters()
         if len(clusters) > 0:
@@ -1108,15 +1403,24 @@ class PowerStoreFileSystem(object):
         size = self.module.params['size']
         cap_unit = self.module.params['cap_unit']
         protection_policy = self.module.params['protection_policy']
+        clone_filesystem = self.module.params['clone_filesystem']
+        refresh_filesystem = self.module.params['refresh_filesystem']
+        restore_filesystem = self.module.params['restore_filesystem']
+        snapshot_name = self.module.params['snapshot_name']
+        snapshot_id = self.module.params['snapshot_id']
+        backup_snap_name = self.module.params['backup_snap_name']
         state = self.module.params['state']
 
         # result is a dictionary to contain end state and filesystem details
         changed = False
+        is_filesystem_restored = False
+        is_filesystem_refreshed = False
+        is_filesystem_cloned = False
         result = dict(
             changed=False,
             filesystem_details=None
         )
-
+        self.verify_required_together_params(filesystem_name, snapshot_name, nas_server)
         fs_id = None
         to_modify = False
         to_modify_dict = None
@@ -1128,7 +1432,7 @@ class PowerStoreFileSystem(object):
 
         self.validate_modify(fs_details)
 
-        if not fs_details and state == 'present':
+        if not fs_details and state == 'present' and not (snapshot_id or snapshot_name or clone_filesystem):
             fs_id = self.create_filesystem(
                 name=filesystem_name,
                 nas_server_id=nas_server,
@@ -1150,6 +1454,54 @@ class PowerStoreFileSystem(object):
                 modify_parameters=to_modify_dict)
             changed = True
 
+        if state == 'present' and clone_filesystem:
+            if filesystem_id:
+                nas_server = fs_details['nas_server']['id']
+            clone = self.get_clone(clone_name=clone_filesystem['name'],
+                                   nas_server_id=nas_server)
+            if not clone:
+                if filesystem_name and nas_server:
+                    fs_details = self.get_filesystem_details(filesystem_name=filesystem_name,
+                                                             nas_server_id=nas_server)
+                    filesystem_id = fs_details['id']
+                self.clone_filesystem(filesystem_id, clone_filesystem)
+                changed = True
+                is_filesystem_cloned = True
+
+        if (snapshot_id or snapshot_name) and \
+                not (refresh_filesystem or restore_filesystem):
+            errormsg = "Either refresh_filesystem or restore_filesystem is required"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        elif (snapshot_id or snapshot_name) and \
+                (refresh_filesystem or restore_filesystem):
+            snap = self.get_snap_details(snapshot_id=snapshot_id,
+                                         snapshot_name=snapshot_name,
+                                         nas_server=nas_server)
+            fs_id = snap['parent_id']
+            snapshot_id = snap['id']
+            nas_server = snap['nas_server']['id']
+
+        if state == 'present' and refresh_filesystem and \
+                (snapshot_id or snapshot_name):
+            self.refresh_filesystem(snapshot_id=snapshot_id)
+            fs_details = self.get_filesystem_details(filesystem_id=fs_id)
+            changed = True
+            is_filesystem_refreshed = True
+
+        if state == 'present' and restore_filesystem and \
+                (snapshot_id or snapshot_name):
+            backup_snap = None
+            if backup_snap_name:
+                backup_snap = self.get_snap_details(nas_server=nas_server,
+                                                    backup_snap_name=backup_snap_name)
+            if not backup_snap:
+                self.restore_filesystem(snapshot_id=snapshot_id,
+                                        backup_snap_name=backup_snap_name)
+                changed = True
+                is_filesystem_restored = True
+            fs_details = self.get_filesystem_details(filesystem_id=fs_id)
+
         if state == 'absent' and fs_details:
             self.delete_filesystem(filesystem_id=fs_id)
             fs_details = None
@@ -1160,6 +1512,9 @@ class PowerStoreFileSystem(object):
                 filesystem_id=fs_id)
 
         result['changed'] = changed
+        result['is_filesystem_restored'] = is_filesystem_restored
+        result['is_filesystem_refreshed'] = is_filesystem_refreshed
+        result['is_filesystem_cloned'] = is_filesystem_cloned
         result['filesystem_details'] = fs_details
         self.module.exit_json(**result)
 
@@ -1213,6 +1568,30 @@ def get_powerstore_filesystem_parameters():
                 policy_interval=dict(type='int')
             )
         ),
+        clone_filesystem=dict(
+            type='dict', options=dict(
+                name=dict(type='str'),
+                description=dict(type='str'),
+                access_policy=dict(choices=['Native', 'UNIX', 'Windows'], type='str'),
+                locking_policy=dict(choices=['Advisory', 'Mandatory'], type='str'),
+                folder_rename_policy=dict(choices=['All_Allowed', 'SMB_Forbidden', 'All_Forbidden'], type='str'),
+                is_smb_sync_writes_enabled=dict(type='bool'),
+                is_smb_no_notify_enabled=dict(type='bool'),
+                is_smb_op_locks_enabled=dict(type='bool'),
+                is_smb_notify_on_access_enabled=dict(type='bool'),
+                is_smb_notify_on_write_enabled=dict(type='bool'),
+                smb_notify_on_change_dir_depth=dict(type='int'),
+                is_async_MTime_enabled=dict(type='bool'),
+                file_events_publishing_mode=dict(choices=['All', 'None', 'SMB_Only', 'NFS_Only'], type='str'),
+                flr_attributes=dict(type='dict',
+                                    options=dict(force_clone=dict(type='bool')))
+            )
+        ),
+        snapshot_name=dict(type='str'),
+        snapshot_id=dict(type='str'),
+        refresh_filesystem=dict(type='bool'),
+        restore_filesystem=dict(type='bool'),
+        backup_snap_name=dict(type='str'),
         smb_properties=dict(
             type='dict', options=dict(
                 is_smb_sync_writes_enabled=dict(type='bool'),

@@ -229,3 +229,51 @@
         filesystem_name: "{{ filesystem_name_prime }}"
         nas_server: "{{ nas_server_id }}"
         state: "absent"
+
+    - name: Clone File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: "{{ filesystem_name }}"
+        nas_server: "{{ nas_server_id }}"
+        clone_filesystem:
+          name: "Test_Clone"
+          description: "{{ description }}"
+          access_policy: "UNIX"
+          locking_policy: "Advisory"
+          folder_rename_policy: "All_Allowed"
+          is_smb_sync_writes_enabled: true
+          is_smb_no_notify_enabled: true
+          is_smb_op_locks_enabled: true
+          is_smb_notify_on_access_enabled: true
+          is_smb_notify_on_write_enabled: true
+          smb_notify_on_change_dir_depth: 32
+          is_async_MTime_enabled: false
+          file_events_publishing_mode: "All"
+          flr_attributes:
+            force_clone: false
+        state: "present"
+
+    - name: Refresh File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "Refresh_test"
+        nas_server: "{{ nas_server_id }}"
+        refresh_filesystem: true
+        state: "present"
+
+    - name: Restore File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_id: "xxx-xxx-xxx"
+        restore_filesystem: true
+        backup_snap_name: "Restore_test"
+        state: "present"

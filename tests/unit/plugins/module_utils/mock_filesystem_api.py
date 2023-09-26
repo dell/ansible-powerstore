@@ -10,7 +10,6 @@ __metaclass__ = type
 
 
 class MockFilesystemApi:
-    MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     FILESYSTEM_COMMON_ARGS = {
         "array_ip": '**.***.**.***',
@@ -31,7 +30,13 @@ class MockFilesystemApi:
         "is_async_mtime_enabled": None,
         "file_events_publishing_mode": None,
         "flr_attributes": None,
-        "host_io_size": None
+        "host_io_size": None,
+        "clone_filesystem": None,
+        "snapshot_name": None,
+        "snapshot_id": None,
+        "refresh_filesystem": None,
+        "restore_filesystem": None,
+        "backup_snap_name": None
     }
 
     FS_NAME = "sample_filesystem"
@@ -40,6 +45,7 @@ class MockFilesystemApi:
     NAS_ID = "6026056b-5405-0e36-7697-c285b9fa42b7"
     DESCRIPTION1 = "FS Testing"
     FILESYSTEM_TYPE = "Primary File system"
+    SNAP_ID = "6026056b-5405-0e36-7697-c4523fa42b7"
 
     FS_DETAILS_1 = [{
         "access_policy": "UNIX",
@@ -106,6 +112,51 @@ class MockFilesystemApi:
         "total_size_with_unit": "10.0 GB",
         "used_size_with_unit": "1.51 GB"
     }]
+
+    FILESYSTEM_SNAP_DETAILS = [
+        {
+            "access_policy": None,
+            "access_policy_l10n": None,
+            "access_type": "Snapshot",
+            "access_type_l10n": "Snapshot",
+            "creation_timestamp": "2022-01-17T00:58:00+00:00",
+            "creator_type": "User",
+            "creator_type_l10n": "User",
+            "default_hard_limit": None,
+            "default_soft_limit": None,
+            "description": None,
+            "expiration_timestamp": "2022-01-17T00:58:00+00:00",
+            "filesystem_type": "Snapshot",
+            "filesystem_type_l10n": "Snapshot",
+            "folder_rename_policy": None,
+            "folder_rename_policy_l10n": None,
+            "grace_period": None,
+            "id": "61e49f3f-9b57-e69b-1038-aa02b52a030f",
+            "is_async_MTime_enabled": False,
+            "is_modified": False,
+            "is_quota_enabled": None,
+            "is_smb_no_notify_enabled": None,
+            "is_smb_notify_on_access_enabled": None,
+            "is_smb_notify_on_write_enabled": None,
+            "is_smb_op_locks_enabled": None,
+            "is_smb_sync_writes_enabled": None,
+            "last_refresh_timestamp": None,
+            "last_writable_timestamp": None,
+            "locking_policy": None,
+            "locking_policy_l10n": None,
+            "name": "Sample_FS_Snapshot",
+            "nas_server": {
+                "id": "6026056b-5405-0e36-7697-c285b9fa42b7",
+                "name": "ansible_nas_server_2"
+            },
+            "parent_id": "61e4947b-8992-3db7-2859-aa02b52a0308",
+            "parent_name": "sample-filesystem",
+            "protection_policy": None,
+            "size_total": "214748364800",
+            "size_used": "1621098496",
+            "smb_notify_on_change_dir_depth": 0
+        }
+    ]
 
     MODIFY_FS_DETAILS = [{
         "access_policy": "Native",
@@ -258,3 +309,31 @@ class MockFilesystemApi:
     @staticmethod
     def create_filesystem_without_size_failed_msg():
         return "cap_unit can be specified along with size"
+
+    @staticmethod
+    def filesystem_with_invalid_default_hard_limit():
+        return "default_hard_limit cannot be less than '0'"
+
+    @staticmethod
+    def exception_messages(action_type):
+        if action_type == "modify_filesystem":
+            return 'Failed to modify filesystem id 621fb793-5e18-b998-462d-a6cb1f6ffcd6 with error '
+        elif action_type == "delete_filesystem":
+            return 'Failed to delete filesystem id 621fb793-5e18-b998-462d-a6cb1f6ffcd6 with error '
+        elif action_type == "create_filesystem":
+            return 'Create FileSystem with name sample_filesystem on powerstore array name : WN-ABCD , global id : 0 failed with error  '
+        elif action_type == "get_nas_server":
+            return 'Get NAS Server 6026056b-5405-0e36-7697-c285b9fa42b7 for powerstore array name : WN-ABCD , global id : 0 failed with error  '
+        elif action_type == "get_protection_policy":
+            return 'Get details of protection policy name or ID : 4db27abe-08cf-427d-a95b-e7a51216b0cf failed with error :  '
+        elif action_type == "get_filesystem_no_nas":
+            return "Get NAS Server 6026056b-5405-0e36-7697-c285b9fa42b7 for powerstore array name : WN-ABCD , global id : 0 failed with error" \
+                   " Failed to get NAS Server with id or name 6026056b-5405-0e36-7697-c285b9fa42b7 from powerstore system "
+        elif action_type == "fs_snapshot":
+            return "Failed to get filesystem snapshot"
+        elif action_type == "clone_filesystem":
+            return "Cloning filesystem failed with error"
+        elif action_type == "refresh_filesystem":
+            return "Refreshing filesystem failed with error"
+        elif action_type == "restore_filesystem":
+            return "Restoring filesystem failed with error"

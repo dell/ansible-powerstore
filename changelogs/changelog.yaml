@@ -204,3 +204,10 @@ releases:
       minor_changes:
         - Bug fix for initial SMTP configuration in smtp_config module.
     release_date: '2023-07-31'
+  2.2.0:
+    changes:
+      minor_changes:
+        - Added support for cloning, refreshing, and restoring filesystem.
+        - Added support for creating and deleting NAS server.
+        - Info module is enhanced to list discovered appliances.
+    release_date: '2023-09-29'

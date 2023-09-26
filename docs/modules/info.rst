@@ -22,7 +22,7 @@ Replication module includes replication rules, replication sessions, replication
 
 Virtualization module includes vCenters and virtual volumes.
 
-Configuration module includes cluster nodes, networks, roles, local users, appliances, security configs, certificates, AD/LDAP servers, LDAP accounts, and LDAP domain.
+Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates, AD/LDAP servers, LDAP accounts, and LDAP domain.
 
 It also includes DNS/NTP servers, smtp configs, email destinations, remote support, and remote support contacts.
 
@@ -117,6 +117,8 @@ Parameters
 
     Replication groups - ``replication_group``.
 
+    Discovered appliances - ``discovered_appliance``.
+
 
   filters (optional, list, None)
     A list of filters to support filtered output for storage entities.
@@ -184,7 +186,7 @@ Notes
 -----
 
 .. note::
-   - Pagination is not supported for role, local user, security configs, LDAP accounts and LDAP domain. If *all_pages* is passed, it will be ignored.
+   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If *all_pages* is passed, it will be ignored.
    - The *check_mode* is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
@@ -436,7 +438,7 @@ Examples
           - virtual_volume
           - replication_group
 
-    - name: Get list of storage containers
+    - name: Get list of storage containers and discovered appliances
       dellemc.powerstore.info:
         array_ip: "{{array_ip}}"
         validate_certs: "{{validate_certs}}"
@@ -444,7 +446,7 @@ Examples
         password: "{{password}}"
         gather_subset:
           - storage_container
-
+          - discovered_appliance
 
 
 
@@ -468,7 +470,7 @@ ActiveDirectory (When C(ad) is in a given I(gather_subset), list, [{'id': '60866
 
 
 
-Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1', 'model': 'PowerStore 1000T', 'name': 'Appliance-WND8977'}])
+Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1', 'name': 'Appliance-WND8977', 'service_tag': 'A1', 'express_service_code': 'A1', 'model': 'PowerStore 1000T', 'node_count': 1, 'drive_failure_tolerance_level': 'None', 'is_hyper_converged': False, 'nodes': [], 'ip_pool_addresses': [], 'veth_ports': [], 'virtual_volumes': [], 'maintenance_windows': [], 'fc_ports': [], 'sas_ports': [], 'eth_ports': [], 'eth_be_ports': [], 'software_installed': [], 'hardware': [], 'volumes': []}])
   Provides details of all appliances.
 
 
@@ -480,8 +482,76 @@ Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1',
     Name of the appliance.
 
 
+  service_tag (, str, )
+    Dell service tag of the appliance.
+
+
+  express_service_code (, str, )
+    Express service code.
+
+
   model (, str, )
     Model type of the PowerStore.
+
+
+  node_count (, int, )
+    Number of nodes deployed on an appliance. It was added in version 3.0.0.0.
+
+
+  drive_failure_tolerance_level (, str, )
+    Drive failure tolerance level.
+
+
+  is_hyper_converged (, bool, )
+    Whether the appliance is a hyper-converged appliance. It was added in version 3.2.0.0.
+
+
+  nodes (, list, )
+    Provides details of all nodes.
+
+
+  ip_pool_addresses (, list, )
+    Provides details of all IP pool addresses.
+
+
+  veth_ports (, list, )
+    Provides details of all veth ports.
+
+
+  virtual_volumes (, list, )
+    Provides details of all virtual volumes.
+
+
+  maintenance_windows (, list, )
+    Provides details of all maintenance windows.
+
+
+  fc_ports (, list, )
+    Provides details of all FC ports.
+
+
+  sas_ports (, list, )
+    Provides details of all SAS ports.
+
+
+  eth_ports (, list, )
+    Provides details of all Ethernet ports.
+
+
+  eth_be_ports (, list, )
+    Provides details of all eth_be_ports. It was added in version 3.0.0.0.
+
+
+  software_installed (, list, )
+    Provides details of all software installed.
+
+
+  hardware (, list, )
+    Provides details of all hardware.
+
+
+  volumes (, list, )
+    Provides details of all volumes.
 
 
 
@@ -504,6 +574,83 @@ Cluster (always, list, [{'id': '0', 'name': 'RT-D1006'}])
 
   name (always, str, )
     Name of the cluster.
+
+
+
+DiscoveredAppliances (When C(discovered_appliance) is in a given I(gather_subset), list, [{'id': 'A1', 'link_local_address': '1.0.2.x', 'service_name': 'Appliance-WND8977', 'service_tag': 'A8977', 'state': 'Unconfigured', 'mode': 'Unified', 'model': 'PowerStore 1000T', 'express_service_code': 'A8977', 'is_local': True, 'management_service_ready': True, 'software_version_compatibility': '3.0.0.0', 'build_version': '3.0.0.0', 'build_id': '3202', 'power_score': 0, 'node_count': 2, 'is_unified_capable': True, 'is_hyper_converged': False}])
+  Provides details of all discovered appliances.
+
+
+  id (, str, )
+    ID of a discovered appliance. The local discovered appliance has the id "0".
+
+
+  link_local_address (, str, )
+    Link local IPv4 address of the discovered appliance.
+
+
+  service_name (, str, )
+    Service name of the discovered appliance.
+
+
+  service_tag (, str, )
+    The Dell service tag.
+
+
+  state (, str, )
+    Possible unmanaged appliance states.
+
+
+  mode (, str, )
+    Storage access mode supported by the appliance.
+
+
+  model (, str, )
+    The model of the appliance.
+
+
+  express_service_code (, str, )
+    Express service code for the appliance.
+
+
+  is_local (, bool, )
+    Indicates whether appliance is local or not.
+
+
+  management_service_ready (, bool, )
+    Indicates whether the management services are ready.
+
+
+  software_version_compatibility (, str, )
+    Compatibility of the software version on an appliance compared to the software version on the appliance running the request.
+
+
+  build_version (, str, )
+    Build version of the installed software package release.
+
+
+  build_id (, str, )
+    Build ID.
+
+
+  power_score (, int, )
+    Power rating of the appliance.
+
+
+  node_count (, int, )
+    Number of nodes deployed on an appliance.
+
+
+  is_unified_capable (, bool, )
+    Indicates whether the appliance is capable of unified configuration.
+
+
+  drive_failure_tolerance_level_and_availability (, list, )
+    Drive failure tolerance level and availability.
+
+
+  is_hyper_converged (, bool, )
+    Indicates whether the appliance is a hyper converged or not. It was added in version 3.2.0.0.
 
 
 

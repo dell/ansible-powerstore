@@ -476,3 +476,12 @@
           - filter_key: storage_protocol
             filter_operator: equal
             filter_value: SCSI
+
+    - name: Get list of discovered appliance
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - discovered_appliance
