@@ -10,22 +10,16 @@ __metaclass__ = type
 
 
 import pytest
+# pylint: disable=unused-import
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_replicationsession_api import MockReplicationSessionApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import utils
-
-utils.get_logger = MagicMock()
-utils.get_powerstore_connection = MagicMock()
-utils.PowerStoreException = MagicMock()
-from ansible.module_utils import basic
-basic.AnsibleModule = MagicMock()
 from ansible_collections.dellemc.powerstore.plugins.modules.replicationsession\
     import PowerstoreReplicationSession
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
-    mock_fail_json import FailJsonException, fail_json
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library.\
+    fail_json import FailJsonException, fail_json
 
 
 class TestPowerstoreReplicationSession():

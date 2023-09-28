@@ -12,7 +12,7 @@ nasserver -- NAS Server operations for PowerStore Storage system
 Synopsis
 --------
 
-Supports getting the details and modifying the attributes of a NAS server.
+Supports getting the details, creating, modifying the attributes of a NAS server and deleting a NAS server.
 
 
 
@@ -72,6 +72,16 @@ Parameters
     Policy can be removed by passing an empty string in the *protection_policy* parameter.
 
 
+  is_username_translation_enabled (optional, bool, None)
+    Enable the possibility to match a Windows account with an Unix account with different names.
+
+
+  is_auto_user_mapping_enabled (optional, bool, None)
+    To automatically generate the unix user (uid), if the windows user does not have any in the configured Unix Directory Service (UDS).
+
+    In a pure SMB or non multi-protocol environment, this should be set to true.
+
+
   state (True, str, None)
     Define whether the nas server should exist or not.
 
@@ -129,56 +139,81 @@ Examples
 
     
 
+     - name: Create a NAS Server
+       dellemc.powerstore.nasserver:
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_name: "test-nas-server"
+         description: "NAS Server test"
+         current_unix_directory_service: "LDAP"
+         default_unix_user: "user1"
+         default_windows_user: "user2"
+         is_username_translation_enabled: true
+         is_auto_user_mapping_enabled: true
+         protection_policy: "ansible_policy"
+         state: "present"
+
      - name: Get details of NAS Server by name
        dellemc.powerstore.nasserver:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         nas_server_name: "{{nas_server_name}}"
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_name: "{{ nas_server_name }}"
          state: "present"
 
      - name: Get Details of NAS Server by ID
        dellemc.powerstore.nasserver:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         nas_server_id: "{{nas_id}}"
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_id: "{{ nas_id }}"
          state: "present"
 
      - name: Rename NAS Server by Name
        dellemc.powerstore.nasserver:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         nas_server_name: "{{nas_server_name}}"
-         nas_server_new_name : "{{nas_server_new_name}}"
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_name: "{{ nas_server_name }}"
+         nas_server_new_name : "{{ nas_server_new_name }}"
          state: "present"
 
      - name: Modify NAS Server attributes by ID
        dellemc.powerstore.nasserver:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         nas_server_id: "{{nas_id}}"
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_id: "{{ nas_id }}"
          current_unix_directory_service: "LOCAL_FILES"
-         current_node: "{{cur_node_n1}}"
-         preferred_node: "{{prefered_node}}"
+         current_node: "{{ cur_node_n1 }}"
+         preferred_node: "{{ prefered_node }}"
          protection_policy: "protection_policy_1"
          state: "present"
 
      - name: Remove protection policy
        dellemc.powerstore.nasserver:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         nas_server_id: "{{nas_id}}"
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_id: "{{ nas_id }}"
          protection_policy: ""
          state: "present"
+
+     - name: Delete NAS Server
+       dellemc.powerstore.nasserver:
+         array_ip: "{{ array_ip }}"
+         validate_certs: "{{ validate_certs }}"
+         user: "{{ user }}"
+         password: "{{ password }}"
+         nas_server_id: "{{ nas_id }}"
+         state: "absent"
 
 
 
@@ -285,4 +320,5 @@ Authors
 ~~~~~~~
 
 - Arindam Datta (@dattaarindam) <ansible.team@dell.com>
+- Jennifer John (@johnj9) <ansible.team@dell.com>
 

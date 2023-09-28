@@ -357,7 +357,7 @@ EXAMPLES = r'''
     appliances:
       - link_local_address: "1.2.x.x"
         name: "Ansible_cluster"
-        derive_failure_tolerance_level: "Double"
+        drive_failure_tolerance_level: "Double"
     dns_servers:
       - "1.1.x.x"
     ntp_servers:
@@ -396,7 +396,7 @@ EXAMPLES = r'''
     appliances:
       - link_local_address: "1.2.x.x"
         name: "Ansible_cluster"
-        derive_failure_tolerance_level: "Double"
+        drive_failure_tolerance_level: "Double"
     dns_servers:
       - "1.1.x.x"
     ntp_servers:
@@ -627,7 +627,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.1.0'
+APPLICATION_TYPE = 'Ansible/2.2.0'
 
 
 class PowerStoreCluster(object):

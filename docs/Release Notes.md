@@ -1,6 +1,6 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 2.1.0
+### Release Notes 2.2.0
 
 >   © 2022 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
@@ -28,7 +28,7 @@ Table 1. Revision history
 
 | Revision | Date       | Description                                               |
 |----------|------------|-----------------------------------------------------------|
-| 01       | July 2023 | Current release of Ansible Modules for Dell PowerStore 2.1.0 |
+| 01       | September 2023 | Current release of Ansible Modules for Dell PowerStore 2.2.0 |
 
 Product Description
 -------------------
@@ -38,17 +38,9 @@ New features & enhancements
 ---------------------------
 Along with the previous release deliverables, this release supports these features:
 
-- Volume module is enhanced to support manual appliance selection.
-- Info module is enhanced to list storage containers and replication group.
-- Added support for replication group in replication session module to perform async vVOL replication.
-- Added support for PowerStore Medusa 3.5.x.
-- Storage container module supports the following functionalities:
-    -  Create storage container.
-    -  Create storage container destination.
-    -  Delete storage container.
-    -  Delete storage container destination.
-    -  Get details of storage container.
-    -  Modify storage container.
+- Added support for cloning, refreshing, and restoring filesystem.
+- Added support for creating and deleting NAS server.
+- Info module is enhanced to list discovered appliances.
 
 Known issues
 ------------
@@ -65,11 +57,11 @@ Limitations
 Distribution
 ----------------
 The software package is available for download from the [Ansible Modules
-for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/2.1.0) page.
+for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/2.2.0) page.
 
 Documentation
 -------------
-The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/2.1.0/docs)
+The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/2.2.0/docs)
 page. It includes these:
 - README
 - Release Notes (this document)

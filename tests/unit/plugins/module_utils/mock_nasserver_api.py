@@ -27,7 +27,7 @@ class MockNasServerApi:
         'protection_policy': None
     }
     NAS_SERVER_NAME_1 = "Sample_nas_server_1"
-
+    NAS_SERVER_ID = "60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9"
     PROTECTION_POLICY_DETAILS = [{
         "description": None,
         "id": "bce845ea-78ba-4414-ada1-8130f3a49e74",
@@ -38,6 +38,11 @@ class MockNasServerApi:
         }],
         "snapshot_rules": [],
         "type": "Protection"
+    }]
+
+    CLUSTERS = [{
+        "id": "bce845ea-78ba-4414-ada1-8130f3a49e74",
+        "name": "cluster_1",
     }]
 
     NAS_SERVER_DETAILS = [{
@@ -184,8 +189,12 @@ class MockNasServerApi:
 
     @staticmethod
     def create_nas_server_failed_msg():
-        return "Creation of NAS Server is not currently supported through Ansible Module"
+        return "Creating NAS server " + MockNasServerApi.NAS_SERVER_NAME_1 + " failed with error "
+
+    @staticmethod
+    def modify_nas_server_failed_msg():
+        return "Failed to modify nasserver"
 
     @staticmethod
     def delete_nas_server_failed_msg():
-        return "Deletion of NAS Server is not currently supported through Ansible Module"
+        return "Deleting NAS server " + MockNasServerApi.NAS_SERVER_ID + " failed with error"

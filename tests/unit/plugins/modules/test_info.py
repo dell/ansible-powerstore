@@ -9,18 +9,13 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pytest
+# pylint: disable=unused-import
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_info_api import MockInfoApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import utils
 
-utils.get_logger = MagicMock()
-utils.get_powerstore_connection = MagicMock()
-utils.PowerStoreException = MagicMock()
-from ansible.module_utils import basic
-basic.AnsibleModule = MagicMock()
 from ansible_collections.dellemc.powerstore.plugins.modules.info import PowerstoreInfo
 
 
@@ -189,6 +184,8 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
+        info_module_mock.provisioning.get_cluster_list = MagicMock(
+            return_value=MockInfoApi.CLUSTER_DETAILS_TWO)
         info_module_mock.provisioning.get_array_version = MagicMock(
             side_effect=MockApiException)
         info_module_mock.perform_module_operation()
@@ -316,3 +313,29 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.protection.get_replication_groups.assert_called()
+
+    def test_get_discovered_appliances(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['discovered_appliance'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_discovered_appliances.assert_called()
+
+    def test_get_filesystem_invalid_filter_key(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['file_system'],
+            'filters': [{
+                'filter_key': 'access_type',
+                'filter_operator': "equal",
+                'filter_value': 'Snapshot',
+                'filter_subset': None
+            }],
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        assert MockInfoApi.get_invalid_filter_key() in \
+            info_module_mock.module.fail_json.call_args[1]['msg']

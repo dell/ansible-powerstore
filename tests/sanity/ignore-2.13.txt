@@ -2,6 +2,14 @@ plugins/modules/vcenter.py compile-2.7
 plugins/modules/vcenter.py compile-3.5
 plugins/modules/vcenter.py import-2.7
 plugins/modules/vcenter.py import-3.5
+plugins/modules/nasserver.py import-2.7
+plugins/modules/nasserver.py compile-2.7
+plugins/modules/nasserver.py import-3.5
+plugins/modules/nasserver.py compile-3.5
+plugins/modules/filesystem.py compile-2.7
+plugins/modules/filesystem.py compile-3.5
+plugins/modules/filesystem.py import-2.7
+plugins/modules/filesystem.py import-3.5
 plugins/modules/volume.py compile-2.7
 plugins/modules/volume.py compile-3.5
 plugins/modules/volume.py import-2.7

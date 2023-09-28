@@ -376,7 +376,7 @@ Examples
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible_cluster"
-            derive_failure_tolerance_level: "Double"
+            drive_failure_tolerance_level: "Double"
         dns_servers:
           - "1.1.x.x"
         ntp_servers:
@@ -415,7 +415,7 @@ Examples
         appliances:
           - link_local_address: "1.2.x.x"
             name: "Ansible_cluster"
-            derive_failure_tolerance_level: "Double"
+            drive_failure_tolerance_level: "Double"
         dns_servers:
           - "1.1.x.x"
         ntp_servers:

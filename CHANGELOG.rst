@@ -5,6 +5,15 @@ Dellemc.Powerstore Change Logs
 .. contents:: Topics
 
 
+v2.2.0
+======
+
+Minor Changes
+-------------
+
+- Added support for cloning, refreshing, and restoring filesystem.
+- Added support for creating and deleting NAS server.
+- Info module is enhanced to list discovered appliances.
 
 v2.1.0
 ======
