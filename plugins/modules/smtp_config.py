@@ -58,36 +58,35 @@ notes:
 - The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
+- name: Get details of SMTP configuration
+  dellemc.powerstore.smtp_config:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    smtp_id: "0"
+    state: "present"
 
-  - name: Get details of SMTP configuration
-    dellemc.powerstore.smtp_config:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      smtp_id: "0"
-      state: "present"
+- name: Modify SMTP config details
+  dellemc.powerstore.smtp_config:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    smtp_id: "0"
+    smtp_address: "sample.smtp.com"
+    source_email: "def@dell.com"
+    state: "present"
 
-  - name: Modify SMTP config details
-    dellemc.powerstore.smtp_config:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      smtp_id: "0"
-      smtp_address: "sample.smtp.com"
-      source_email: "def@dell.com"
-      state: "present"
-
-  - name: Send a test mail through the SMTP server
-    dellemc.powerstore.smtp_config:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      smtp_id: "0"
-      destination_email: "abc@dell.com"
-      state: "present"
+- name: Send a test mail through the SMTP server
+  dellemc.powerstore.smtp_config:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    smtp_id: "0"
+    destination_email: "abc@dell.com"
+    state: "present"
 '''
 
 RETURN = r'''
@@ -139,7 +138,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreSmtpConfig(object):

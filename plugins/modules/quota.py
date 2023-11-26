@@ -138,86 +138,85 @@ notes:
 - The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
+- name: Create a Quota for a User using unix name
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_type: "user"
+    unix_name: "{{unix_name}}"
+    filesystem: "sample_fs"
+    nas_server: "{{nas_server_id}}"
+    quota:
+      soft_limit: 5
+      hard_limit: 10
+    cap_unit: "TB"
+    state: "present"
 
-    - name: Create a Quota for a User using unix name
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_type: "user"
-        unix_name: "{{unix_name}}"
-        filesystem: "sample_fs"
-        nas_server: "{{nas_server_id}}"
-        quota:
-          soft_limit: 5
-          hard_limit: 10
-          cap_unit: "TB"
-        state: "present"
+- name: Create a Tree Quota
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_type: "tree"
+    path: "/home"
+    filesystem: "sample_fs"
+    nas_server: "sample_nas_server"
+    quota:
+      soft_limit: 5
+      hard_limit: 10
+      cap_unit: "TB"
+    state: "present"
 
-    - name: Create a Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_type: "tree"
-        path: "/home"
-        filesystem: "sample_fs"
-        nas_server: "sample_nas_server"
-        quota:
-          soft_limit: 5
-          hard_limit: 10
-          cap_unit: "TB"
-        state: "present"
+- name: Modify attributes for Tree Quota
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_id: "{{quota_id}}"
+    quota:
+      soft_limit: 10
+      hard_limit: 15
+      cap_unit: "TB"
+    state: "present"
 
-    - name: Modify attributes for Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_id: "{{quota_id}}"
-        quota:
-          soft_limit: 10
-          hard_limit: 15
-          cap_unit: "TB"
-        state: "present"
+- name: Get details of User Quota
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_type: "user"
+    uid: 100
+    path: "/home"
+    filesystem: "{{filesystem_id}}"
+    state: "present"
 
-    - name: Get details of User Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_type: "user"
-        uid: 100
-        path: "/home"
-        filesystem: "{{filesystem_id}}"
-        state: "present"
+- name: Get details of Tree Quota
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_id: "{{quota_id}}"
+    state: "present"
 
-    - name: Get details of Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_id: "{{quota_id}}"
-        state: "present"
-
-    - name: Delete a Tree Quota
-      dellemc.powerstore.quota:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        quota_type: "tree"
-        path: "/home"
-        filesystem: "sample_fs"
-        nas_server: "sample_nas_server"
-        state: "absent"
-
+- name: Delete a Tree Quota
+  dellemc.powerstore.quota:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    quota_type: "tree"
+    path: "/home"
+    filesystem: "sample_fs"
+    nas_server: "sample_nas_server"
+    state: "absent"
 '''
+
 RETURN = r'''
 changed:
     description: Whether or not the resource has changed.
@@ -364,7 +363,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreQuota(object):

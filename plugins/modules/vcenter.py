@@ -95,49 +95,49 @@ notes:
 '''
 
 EXAMPLES = r'''
-  - name: Get details of vCenter
-    dellemc.powerstore.vcenter:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       vcenter_id: "24d333-59f-423c-205-c6181ea81b"
+- name: Get details of vCenter
+  dellemc.powerstore.vcenter:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    vcenter_id: "24d333-59f-423c-205-c6181ea81b"
 
-  - name: Add a vcenter
-    dellemc.powerstore.vcenter:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       address: "XX.XX.XX.XX"
-       vcenter_username: "user-name"
-       vcenter_password: "password"
-       update_password: "on_create"
-       vasa_provider_credentials:
-         username: "admin"
-         password: "pass"
+- name: Add a vcenter
+  dellemc.powerstore.vcenter:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    address: "XX.XX.XX.XX"
+    vcenter_username: "user-name"
+    vcenter_password: "password"
+    update_password: "on_create"
+    vasa_provider_credentials:
+      username: "admin"
+      password: "pass"
 
-  - name: Modify a vCenter attribute
-    dellemc.powerstore.vcenter:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       vcenter_id: "24d333-59f-423c-205-c6181ea81b"
-       address: "XX.XX.XX.YY"
-       vcenter_username: "user-name"
-       vcenter_password: "password"
-       update_password: "always"
+- name: Modify a vCenter attribute
+  dellemc.powerstore.vcenter:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    vcenter_id: "24d333-59f-423c-205-c6181ea81b"
+    address: "XX.XX.XX.YY"
+    vcenter_username: "user-name"
+    vcenter_password: "password"
+    update_password: "always"
 
-  - name: Remove a vcenter
-    dellemc.powerstore.vcenter:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       vcenter_id: "24d333-59f-423c-205-c6181ea81b"
-       delete_vasa_provider: true
-       state: "absent"
+- name: Remove a vcenter
+  dellemc.powerstore.vcenter:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    vcenter_id: "24d333-59f-423c-205-c6181ea81b"
+    delete_vasa_provider: true
+    state: "absent"
 '''
 
 RETURN = r'''
@@ -215,7 +215,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreVCenter(object):

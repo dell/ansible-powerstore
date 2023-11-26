@@ -92,71 +92,71 @@ notes:
 
 
 EXAMPLES = r'''
-  - name: Create host group with hosts
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
-        - host1
-        - c17fc987-bf82-480c-af31-9307b89923c3
-      state: 'present'
-      host_state: 'present-in-group'
+- name: Create host group with hosts
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_name: "{{hostgroup_name}}"
+    hosts:
+      - host1
+      - c17fc987-bf82-480c-af31-9307b89923c3
+    state: 'present'
+    host_state: 'present-in-group'
 
-  - name: Get host group details using ID
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_id: "{{host group_id}}"
-      state: 'present'
+- name: Get host group details using ID
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_id: "{{host group_id}}"
+    state: 'present'
 
-  - name: Add hosts to host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
-        - host3
-      host_state: 'present-in-group'
-      state: 'present'
+- name: Add hosts to host group
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_name: "{{hostgroup_name}}"
+    hosts:
+      - host3
+    host_state: 'present-in-group'
+    state: 'present'
 
-  - name: Remove hosts from host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      hosts:
-        - host3
-      host_state: 'absent-in-group'
-      state: 'present'
+- name: Remove hosts from host group
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_name: "{{hostgroup_name}}"
+    hosts:
+      - host3
+    host_state: 'absent-in-group'
+    state: 'present'
 
-  - name: Modify host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      host_connectivity: "Metro_Optimize_Both"
-      new_name: "{{new_hostgroup_name}}"
-      state: 'present'
+- name: Modify host group
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_name: "{{hostgroup_name}}"
+    host_connectivity: "Metro_Optimize_Both"
+    new_name: "{{new_hostgroup_name}}"
+    state: 'present'
 
-  - name: Delete host group
-    dellemc.powerstore.hostgroup:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      hostgroup_name: "{{hostgroup_name}}"
-      state: 'absent'
+- name: Delete host group
+  dellemc.powerstore.hostgroup:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    hostgroup_name: "{{hostgroup_name}}"
+    state: 'absent'
 '''
 
 RETURN = r'''
@@ -224,7 +224,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreHostgroup(object):

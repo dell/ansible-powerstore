@@ -211,7 +211,7 @@ EXAMPLES = r'''
     user: "{{user}}"
     password: "{{password}}"
     storage_container_name: "Ansible_storage_container_1"
-    force_delete: True
+    force_delete: true
     state: "absent"
 
 - name: Delete a storage container using id
@@ -231,12 +231,12 @@ EXAMPLES = r'''
     validate_certs: "{{validate_certs}}"
     storage_container_name: "local_storage_container"
     storage_container_destination:
-        remote_address: "x.x.x.x"
-        user: "{{user}}"
-        password: "{{password}}"
-        validate_certs: "{{validate_certs}}"
-        remote_system: "remote_system_name"
-        remote_storage_container: "remote_storage_container_name"
+      remote_address: "x.x.x.x"
+      user: "{{user}}"
+      password: "{{password}}"
+      validate_certs: "{{validate_certs}}"
+      remote_system: "remote_system_name"
+      remote_storage_container: "remote_storage_container_name"
 
 - name: Delete a storage container destination
   dellemc.powerstore.storage_container:
@@ -247,12 +247,12 @@ EXAMPLES = r'''
     storage_container_id: "storage_container_id"
     storage_container_destination_state: "absent"
     storage_container_destination:
-        remote_address: "x.x.x.x"
-        user: "{{user}}"
-        password: "{{password}}"
-        validate_certs: "{{validate_certs}}"
-        remote_system: "remote_system_name"
-        remote_storage_container: "remote_storage_container_name"
+      remote_address: "x.x.x.x"
+      user: "{{user}}"
+      password: "{{password}}"
+      validate_certs: "{{validate_certs}}"
+      remote_system: "remote_system_name"
+      remote_storage_container: "remote_storage_container_name"
 '''
 
 RETURN = r'''
@@ -361,7 +361,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreStorageContainer(object):
@@ -464,7 +464,7 @@ class PowerStoreStorageContainer(object):
 
         except Exception as e:
             msg = (f'Deletion of storage container {storage_container_id}'
-                   f' failed with error { str(e) }')
+                   f' failed with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 

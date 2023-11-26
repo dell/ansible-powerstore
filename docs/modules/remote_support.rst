@@ -23,8 +23,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -41,7 +41,7 @@ Parameters
 
     Mandatory for modify and verify operation.
 
-    ``SRS_Gateway``, *support_type* is only supported for verify operation.
+    \ :literal:`SRS\_Gateway`\ , \ :emphasis:`support\_type`\  is only supported for verify operation.
 
 
   remote_support_servers (optional, list, None)
@@ -61,14 +61,14 @@ Parameters
     is_primary (optional, bool, None)
       Indicates whether the server is acting as the primary.
 
-      One server must be set to ``false`` when two servers are configured.
+      One server must be set to \ :literal:`false`\  when two servers are configured.
 
 
 
   server_state (optional, str, None)
-    Indicates the state of the remote_support_servers.
+    Indicates the state of the remote\_support\_servers.
 
-    Required with *remote_support_servers*.
+    Required with \ :emphasis:`remote\_support\_servers`\ .
 
 
   is_support_assist_license_accepted (optional, bool, None)
@@ -112,7 +112,7 @@ Parameters
 
 
   wait_for_completion (optional, bool, False)
-    Flag to indicate if the operation should be run synchronously or asynchronously. ``true`` signifies synchronous execution. By default, modify operation will run asynchronously.
+    Flag to indicate if the operation should be run synchronously or asynchronously. \ :literal:`true`\  signifies synchronous execution. By default, modify operation will run asynchronously.
 
 
   return_support_license_text (optional, bool, False)
@@ -122,9 +122,9 @@ Parameters
   state (True, str, None)
     The state of the remote support configuration after the task is performed.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to \ :literal:`absent`\ .
 
-    For get/modify operation it should be set to ``present``.
+    For get/modify operation it should be set to \ :literal:`present`\ .
 
 
   array_ip (True, str, None)
@@ -134,9 +134,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -167,7 +167,7 @@ Notes
 
 .. note::
    - Creation and deletion of remote support configuration is not supported.
-   - Support for *check_mode* is not available for this module.
+   - Support for \ :emphasis:`check\_mode`\  is not available for this module.
    - Verify and send test alert operations do not support idempotency.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
@@ -180,73 +180,72 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Get details of remote support configuration
+      dellemc.powerstore.remote_support:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        remote_support_id: 0
+        state: "present"
 
-      - name: Get details of remote support configuration
-        dellemc.powerstore.remote_support:
-           array_ip: "{{array_ip}}"
-           user: "{{user}}"
-           password: "{{password}}"
-           validate_certs: "{{validate_certs}}"
-           remote_support_id: 0
-           state: "present"
-
-      - name: Modify remote support configuration - SRS_Gateway_Tier2
-        dellemc.powerstore.remote_support:
-          array_ip: "{{array_ip}}"
-          user: "{{user}}"
-          password: "{{password}}"
-          validate_certs: "{{validate_certs}}"
-          remote_support_id: 0
-          support_type: "SRS_Gateway_Tier2"
-          remote_support_servers:
+    - name: Modify remote support configuration - SRS_Gateway_Tier2
+      dellemc.powerstore.remote_support:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        remote_support_id: 0
+        support_type: "SRS_Gateway_Tier2"
+        remote_support_servers:
           - address: "10.XX.XX.XX"
             port: 9443
             is_primary: true
           - address: "10.XX.XX.YY"
             port: 9443
             is_primary: false
-          server_state: "present-in-server"
-          is_rsc_enabled: true
-          is_cloudiq_enabled: false
-          timeout: 300
-          state: "present"
+        server_state: "present-in-server"
+        is_rsc_enabled: true
+        is_cloudiq_enabled: false
+        timeout: 300
+        state: "present"
 
-      - name: Modify remote support configuration - SRS_Integrated_Tier2
-        dellemc.powerstore.remote_support:
-          array_ip: "{{array_ip}}"
-          user: "{{user}}"
-          password: "{{password}}"
-          validate_certs: "{{validate_certs}}"
-          remote_support_id: 0
-          support_type: "SRS_Integrated_Tier2"
-          proxy_address: "10.XX.XX.ZZ"
-          proxy_port: 3128
-          proxy_username: "user"
-          proxy_password: "password"
-          timeout: 300
-          state: "present"
+    - name: Modify remote support configuration - SRS_Integrated_Tier2
+      dellemc.powerstore.remote_support:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        remote_support_id: 0
+        support_type: "SRS_Integrated_Tier2"
+        proxy_address: "10.XX.XX.ZZ"
+        proxy_port: 3128
+        proxy_username: "user"
+        proxy_password: "password"
+        timeout: 300
+        state: "present"
 
-      - name: Verify remote support configuration
-        dellemc.powerstore.remote_support:
-          array_ip: "{{array_ip}}"
-          user: "{{user}}"
-          password: "{{password}}"
-          validate_certs: "{{validate_certs}}"
-          remote_support_id: 0
-          support_type: "SRS_Integrated_Tier3"
-          timeout: 300
-          verify_connection: true
-          state: "present"
+    - name: Verify remote support configuration
+      dellemc.powerstore.remote_support:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        remote_support_id: 0
+        support_type: "SRS_Integrated_Tier3"
+        timeout: 300
+        verify_connection: true
+        state: "present"
 
-      - name: Send a test alert
-        dellemc.powerstore.remote_support:
-           array_ip: "{{array_ip}}"
-           user: "{{user}}"
-           password: "{{password}}"
-           validate_certs: "{{validate_certs}}"
-           remote_support_id: 0
-           send_test_alert: true
-           state: "present"
+    - name: Send a test alert
+      dellemc.powerstore.remote_support:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        remote_support_id: 0
+        send_test_alert: true
+        state: "present"
 
 
 

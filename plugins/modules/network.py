@@ -187,12 +187,12 @@ EXAMPLES = r'''
     password: "{{password}}"
     network_id: "NW1"
     addresses:
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.230.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.230.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.230.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.230.x.x"
     new_cluster_mgmt_address: "100.230.x.x"
     vasa_provider_credentials:
       username: "vmadmin"
@@ -207,7 +207,7 @@ EXAMPLES = r'''
     password: "{{password}}"
     network_id: "NW6"
     ports:
-    - "IP1"
+      - "IP1"
     port_state: "present-in-network"
     state: "present"
 
@@ -219,7 +219,7 @@ EXAMPLES = r'''
     password: "{{password}}"
     network_id: "NW6"
     ports:
-    - "IP1"
+      - "IP1"
     port_state: "absent-in-network"
     state: "present"
 
@@ -236,25 +236,25 @@ EXAMPLES = r'''
     mtu: 1500
     prefix_length: 24
     addresses:
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
-    - current_address: "100.230.x.x"
-      new_address: "100.231.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.231.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.231.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.231.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.231.x.x"
+      - current_address: "100.230.x.x"
+        new_address: "100.231.x.x"
     new_cluster_mgmt_address: "100.231.x.x"
     vasa_provider_credentials:
       username: "vmadmin"
       password: "{{vm_password}}"
     esxi_credentials:
-    - "node_id": "N1"
-      "password": "{{node_password}}"
-    - "node_id": "N2"
-      "password": "{{node_password}}"
+      - "node_id": "N1"
+        "password": "{{node_password}}"
+      - "node_id": "N2"
+        "password": "{{node_password}}"
     state: "present"
 '''
 
@@ -498,7 +498,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreNetwork(object):

@@ -23,8 +23,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -65,9 +65,9 @@ Parameters
   retention_unit (optional, str, None)
     The unit for retention.
 
-    If this unit is not specified, ``hours`` is taken as default *retention_unit*.
+    If this unit is not specified, \ :literal:`hours`\  is taken as default \ :emphasis:`retention\_unit`\ .
 
-    If *desired_retention* is specified, *expiration_timestamp* cannot be specified.
+    If \ :emphasis:`desired\_retention`\  is specified, \ :emphasis:`expiration\_timestamp`\  cannot be specified.
 
 
   expiration_timestamp (optional, str, None)
@@ -89,9 +89,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -121,7 +121,7 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is not supported.
+   - The \ :emphasis:`check\_mode`\  is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -133,104 +133,104 @@ Examples
 .. code-block:: yaml+jinja
 
     
-        - name: Create a volume snapshot on PowerStore
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            volume: "{{volume}}"
-            description: "{{description}}"
-            desired_retention: "{{desired_retention}}"
-            retention_unit: "{{retention_unit_days}}"
-            state: "{{state_present}}"
+    - name: Create a volume snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        volume: "{{volume}}"
+        description: "{{description}}"
+        desired_retention: "{{desired_retention}}"
+        retention_unit: "{{retention_unit_days}}"
+        state: "{{state_present}}"
 
-        - name: Get details of a volume snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            volume: "{{volume}}"
-            state: "{{state_present}}"
+    - name: Get details of a volume snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        volume: "{{volume}}"
+        state: "{{state_present}}"
 
-        - name: Rename volume snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            new_snapshot_name: "{{new_snapshot_name}}"
-            volume: "{{volume}}"
-            state: "{{state_present}}"
+    - name: Rename volume snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        new_snapshot_name: "{{new_snapshot_name}}"
+        volume: "{{volume}}"
+        state: "{{state_present}}"
 
-        - name: Delete volume snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{new_snapshot_name}}"
-            volume: "{{volume}}"
-            state: "{{state_absent}}"
+    - name: Delete volume snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{new_snapshot_name}}"
+        volume: "{{volume}}"
+        state: "{{state_absent}}"
 
-        - name: Create a volume group snapshot on PowerStore
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            volume_group: "{{volume_group}}"
-            description: "{{description}}"
-            expiration_timestamp: "{{expiration_timestamp}}"
-            state: "{{state_present}}"
+    - name: Create a volume group snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        volume_group: "{{volume_group}}"
+        description: "{{description}}"
+        expiration_timestamp: "{{expiration_timestamp}}"
+        state: "{{state_present}}"
 
-        - name: Get details of a volume group snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            volume_group: "{{volume_group}}"
-            state: "{{state_present}}"
+    - name: Get details of a volume group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        volume_group: "{{volume_group}}"
+        state: "{{state_present}}"
 
-        - name: Modify volume group snapshot expiration timestamp
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            volume_group: "{{volume_group}}"
-            description: "{{description}}"
-            expiration_timestamp: "{{expiration_timestamp_new}}"
-            state: "{{state_present}}"
+    - name: Modify volume group snapshot expiration timestamp
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        volume_group: "{{volume_group}}"
+        description: "{{description}}"
+        expiration_timestamp: "{{expiration_timestamp_new}}"
+        state: "{{state_present}}"
 
-        - name: Rename volume group snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{snapshot_name}}"
-            new_snapshot_name: "{{new_snapshot_name}}"
-            volume_group: "{{volume_group}}"
-            state: "{{state_present}}"
+    - name: Rename volume group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{snapshot_name}}"
+        new_snapshot_name: "{{new_snapshot_name}}"
+        volume_group: "{{volume_group}}"
+        state: "{{state_present}}"
 
-        - name: Delete volume group snapshot
-          dellemc.powerstore.snapshot:
-            array_ip: "{{mgmt_ip}}"
-            validate_certs: "{{validate_certs}}"
-            user: "{{user}}"
-            password: "{{password}}"
-            snapshot_name: "{{new_snapshot_name}}"
-            volume_group: "{{volume_group}}"
-            state: "{{state_absent}}"
+    - name: Delete volume group snapshot
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "{{new_snapshot_name}}"
+        volume_group: "{{volume_group}}"
+        state: "{{state_absent}}"
 
 
 

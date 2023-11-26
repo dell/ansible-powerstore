@@ -220,7 +220,7 @@ EXAMPLES = r'''
     source_vg: "vg_source"
     create_backup_snap: true
     backup_snap_profile:
-        name: "test_snap"
+      name: "test_snap"
     state: "present"
 
 - name: Restore a volume group
@@ -233,7 +233,7 @@ EXAMPLES = r'''
     source_snap: "snap_source"
     create_backup_snap: true
     backup_snap_profile:
-        name: "test_snap_restore"
+      name: "test_snap_restore"
     state: "present"
 
 - name: Clone a volume group
@@ -244,8 +244,8 @@ EXAMPLES = r'''
     password: "{{password}}"
     vg_name: "ansible_vg"
     vg_clone:
-        name: "ansible_vg_clone"
-        protection_policy: "policy1"
+      name: "ansible_vg_clone"
+      protection_policy: "policy1"
     state: "present"
 '''
 
@@ -398,7 +398,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreVolumeGroup(object):

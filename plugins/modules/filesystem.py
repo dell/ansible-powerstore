@@ -365,126 +365,125 @@ notes:
 '''
 
 EXAMPLES = r'''
+- name: Create FileSystem by Name
+  register: result_fs
+  dellemc.powerstore.filesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    filesystem_name: "{{filesystem_name}}"
+    description: "{{description}}"
+    nas_server: "{{nas_server_id}}"
+    size: "5"
+    cap_unit: "GB"
+    access_policy: "UNIX"
+    locking_policy: "MANDATORY"
+    smb_properties:
+      is_smb_no_notify_enabled: true
+      is_smb_notify_on_access_enabled: true
+    quota_defaults:
+      grace_period: 1
+      grace_period_unit: 'days'
+      default_hard_limit: 3
+      default_soft_limit: 2
+    protection_policy: "{{protection_policy_id}}"
+    config_type: "VMWARE"
+    is_async_mtime_enabled: true
+    file_events_publishing_mode: "NFS_ONLY"
+    host_io_size: "VMWARE_16K"
+    state: "present"
 
- - name: Create FileSystem by Name
-   register: result_fs
-   dellemc.powerstore.filesystem:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     filesystem_name: "{{filesystem_name}}"
-     description: "{{description}}"
-     nas_server: "{{nas_server_id}}"
-     size: "5"
-     cap_unit: "GB"
-     access_policy: "UNIX"
-     locking_policy: "MANDATORY"
-     smb_properties:
-       is_smb_no_notify_enabled: true
-       is_smb_notify_on_access_enabled: true
-     quota_defaults:
-       grace_period: 1
-       grace_period_unit: 'days'
-       default_hard_limit: 3
-       default_soft_limit: 2
-     protection_policy: "{{protection_policy_id}}"
-     config_type: "VMWARE"
-     is_async_mtime_enabled: true
-     file_events_publishing_mode: "NFS_ONLY"
-     host_io_size: "VMWARE_16K"
-     state: "present"
+- name: Modify File System by id
+  dellemc.powerstore.filesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    filesystem_id: "{{fs_id}}"
+    folder_rename_policy: "ALL_ALLOWED"
+    smb_properties:
+      is_smb_op_locks_enabled: true
+      smb_notify_on_change_dir_depth: 3
+    quota_defaults:
+      grace_period: 2
+      grace_period_unit: 'weeks'
+      default_hard_limit: 2
+      default_soft_limit: 1
+    is_async_mtime_enabled: true
+    file_events_publishing_mode: "ALL"
+    flr_attributes:
+      mode: "Enterprise"
+      minimum_retention: "5D"
+      default_retention: "1M"
+      maximum_retention: "1Y"
+    state: "present"
 
- - name: Modify File System by id
-   dellemc.powerstore.filesystem:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     filesystem_id: "{{fs_id}}"
-     folder_rename_policy: "ALL_ALLOWED"
-     smb_properties:
-       is_smb_op_locks_enabled: true
-       smb_notify_on_change_dir_depth: 3
-     quota_defaults:
-       grace_period: 2
-       grace_period_unit: 'weeks'
-       default_hard_limit: 2
-       default_soft_limit: 1
-     is_async_mtime_enabled: true
-     file_events_publishing_mode: "ALL"
-     flr_attributes:
-       mode: "Enterprise"
-       minimum_retention: "5D"
-       default_retention: "1M"
-       maximum_retention: "1Y"
-     state: "present"
+- name: Get File System details by id
+  dellemc.powerstore.filesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    filesystem_id: "{{result_fs.filesystem_details.id}}"
+    state: "present"
 
- - name: Get File System details by id
-   dellemc.powerstore.filesystem:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     filesystem_id: "{{result_fs.filesystem_details.id}}"
-     state: "present"
+- name: Delete File System by id
+  dellemc.powerstore.filesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    filesystem_id: "{{result_fs.filesystem_details.id}}"
+    state: "absent"
 
- - name: Delete File System by id
-   dellemc.powerstore.filesystem:
-     array_ip: "{{array_ip}}"
-     validate_certs: "{{validate_certs}}"
-     user: "{{user}}"
-     password: "{{password}}"
-     filesystem_id: "{{result_fs.filesystem_details.id}}"
-     state: "absent"
+- name: Clone File System
+  dellemc.powerstore.filesystem:
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    filesystem_name: 'Atest'
+    nas_server: 'Test_Nas'
+    clone_filesystem:
+      name: "Test_ansible"
+      description: "Test"
+      access_policy: "UNIX"
+      locking_policy: "Advisory"
+      folder_rename_policy: "All_Allowed"
+      is_smb_sync_writes_enabled: true
+      is_smb_no_notify_enabled: true
+      is_smb_op_locks_enabled: true
+      is_smb_notify_on_access_enabled: true
+      is_smb_notify_on_write_enabled: true
+      smb_notify_on_change_dir_depth: 32
+      is_async_MTime_enabled: false
+      file_events_publishing_mode: "All"
+      flr_attributes:
+        force_clone: false
+    state: "present"
 
- - name: Clone File System
-   dellemc.powerstore.filesystem:
-     array_ip: "{{ array_ip }}"
-     validate_certs: "{{ validate_certs }}"
-     user: "{{ user }}"
-     password: "{{ password }}"
-     filesystem_name: 'Atest'
-     nas_server: 'Test_Nas'
-     clone_filesystem:
-       name: "Test_ansible"
-       description: "Test"
-       access_policy: "UNIX"
-       locking_policy: "Advisory"
-       folder_rename_policy: "All_Allowed"
-       is_smb_sync_writes_enabled: true
-       is_smb_no_notify_enabled: true
-       is_smb_op_locks_enabled: true
-       is_smb_notify_on_access_enabled: true
-       is_smb_notify_on_write_enabled: true
-       smb_notify_on_change_dir_depth: 32
-       is_async_MTime_enabled: false
-       file_events_publishing_mode: "All"
-       flr_attributes:
-           force_clone: false
-     state: "present"
+- name: Refresh File System
+  dellemc.powerstore.filesystem:
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    snapshot_name: "Refresh_test"
+    nas_server: 'Sample_NAS'
+    refresh_filesystem: true
+    state: "present"
 
- - name: Refresh File System
-   dellemc.powerstore.filesystem:
-     array_ip: "{{ array_ip }}"
-     validate_certs: "{{ validate_certs }}"
-     user: "{{ user }}"
-     password: "{{ password }}"
-     snapshot_name: "Refresh_test"
-     nas_server: 'Sample_NAS'
-     refresh_filesystem: true
-     state: "present"
-
- - name: Restore File System
-   dellemc.powerstore.filesystem:
-     array_ip: "{{ array_ip }}"
-     validate_certs: "{{ validate_certs }}"
-     user: "{{ user }}"
-     password: "{{ password }}"
-     snapshot_id: "xxx-xxx-xxx"
-     restore_filesystem: true
-     backup_snap_name: "Restore_test"
-     state: "present"
+- name: Restore File System
+  dellemc.powerstore.filesystem:
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    snapshot_id: "xxx-xxx-xxx"
+    restore_filesystem: true
+    backup_snap_name: "Restore_test"
+    state: "present"
 '''
 
 RETURN = r'''
@@ -740,7 +739,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreFileSystem(object):

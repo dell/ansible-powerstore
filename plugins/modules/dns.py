@@ -51,39 +51,39 @@ notes:
 '''
 
 EXAMPLES = r'''
-  - name: Get details of DNS instance
-    dellemc.powerstore.dns:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       dns_id: "DNS1"
-       state: "present"
+- name: Get details of DNS instance
+  dellemc.powerstore.dns:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    dns_id: "DNS1"
+    state: "present"
 
-  - name: Add addresses to DNS instance
-    dellemc.powerstore.dns:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       dns_id: "DNS1"
-       dns_addresses:
-        - "XX.XX.XX.XX"
-        - "YY.YY.YY.YY"
-       dns_address_state: "present-in-dns"
-       state: "present"
+- name: Add addresses to DNS instance
+  dellemc.powerstore.dns:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    dns_id: "DNS1"
+    dns_addresses:
+      - "XX.XX.XX.XX"
+      - "YY.YY.YY.YY"
+    dns_address_state: "present-in-dns"
+    state: "present"
 
-  - name: Remove addresses from DNS instance
-    dellemc.powerstore.dns:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       dns_id: "DNS1"
-       dns_addresses:
-        - "YY.YY.YY.YY"
-       dns_address_state: "absent-in-dns"
-       state: "present"
+- name: Remove addresses from DNS instance
+  dellemc.powerstore.dns:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    dns_id: "DNS1"
+    dns_addresses:
+      - "YY.YY.YY.YY"
+    dns_address_state: "absent-in-dns"
+    state: "present"
 '''
 
 RETURN = r'''
@@ -127,7 +127,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreDns(object):

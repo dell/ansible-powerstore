@@ -133,73 +133,72 @@ notes:
 '''
 
 EXAMPLES = r'''
+- name: Get details of remote support configuration
+  dellemc.powerstore.remote_support:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    remote_support_id: 0
+    state: "present"
 
-  - name: Get details of remote support configuration
-    dellemc.powerstore.remote_support:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       remote_support_id: 0
-       state: "present"
-
-  - name: Modify remote support configuration - SRS_Gateway_Tier2
-    dellemc.powerstore.remote_support:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      remote_support_id: 0
-      support_type: "SRS_Gateway_Tier2"
-      remote_support_servers:
+- name: Modify remote support configuration - SRS_Gateway_Tier2
+  dellemc.powerstore.remote_support:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    remote_support_id: 0
+    support_type: "SRS_Gateway_Tier2"
+    remote_support_servers:
       - address: "10.XX.XX.XX"
         port: 9443
         is_primary: true
       - address: "10.XX.XX.YY"
         port: 9443
         is_primary: false
-      server_state: "present-in-server"
-      is_rsc_enabled: true
-      is_cloudiq_enabled: false
-      timeout: 300
-      state: "present"
+    server_state: "present-in-server"
+    is_rsc_enabled: true
+    is_cloudiq_enabled: false
+    timeout: 300
+    state: "present"
 
-  - name: Modify remote support configuration - SRS_Integrated_Tier2
-    dellemc.powerstore.remote_support:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      remote_support_id: 0
-      support_type: "SRS_Integrated_Tier2"
-      proxy_address: "10.XX.XX.ZZ"
-      proxy_port: 3128
-      proxy_username: "user"
-      proxy_password: "password"
-      timeout: 300
-      state: "present"
+- name: Modify remote support configuration - SRS_Integrated_Tier2
+  dellemc.powerstore.remote_support:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    remote_support_id: 0
+    support_type: "SRS_Integrated_Tier2"
+    proxy_address: "10.XX.XX.ZZ"
+    proxy_port: 3128
+    proxy_username: "user"
+    proxy_password: "password"
+    timeout: 300
+    state: "present"
 
-  - name: Verify remote support configuration
-    dellemc.powerstore.remote_support:
-      array_ip: "{{array_ip}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      validate_certs: "{{validate_certs}}"
-      remote_support_id: 0
-      support_type: "SRS_Integrated_Tier3"
-      timeout: 300
-      verify_connection: true
-      state: "present"
+- name: Verify remote support configuration
+  dellemc.powerstore.remote_support:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    remote_support_id: 0
+    support_type: "SRS_Integrated_Tier3"
+    timeout: 300
+    verify_connection: true
+    state: "present"
 
-  - name: Send a test alert
-    dellemc.powerstore.remote_support:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       remote_support_id: 0
-       send_test_alert: true
-       state: "present"
+- name: Send a test alert
+  dellemc.powerstore.remote_support:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    remote_support_id: 0
+    send_test_alert: true
+    state: "present"
 '''
 
 RETURN = r'''
@@ -357,7 +356,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreRemoteSupport(object):

@@ -144,107 +144,107 @@ notes:
 - The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
-  - name: Create host with FC initiator
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      os_type: 'Windows'
-      host_connectivity: "Metro_Optimize_Local"
-      initiators:
-        - 21:00:00:24:ff:31:e9:fc
-      state: 'present'
-      initiator_state: 'present-in-host'
+- name: Create host with FC initiator
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_name: "ansible-test-host-1"
+    os_type: 'Windows'
+    host_connectivity: "Metro_Optimize_Local"
+    initiators:
+      - 21:00:00:24:ff:31:e9:fc
+    state: 'present'
+    initiator_state: 'present-in-host'
 
-  - name: Create host with iSCSI initiator and its details
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-2"
-      os_type: 'Windows'
-      detailed_initiators:
-        - port_name: 'iqn.1998-01.com.vmware:lgc198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_single_username: 'chapuserSingle'
-          chap_single_password: 'chappasswd12345'
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
-      state: 'present'
-      initiator_state: 'present-in-host'
+- name: Create host with iSCSI initiator and its details
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_name: "ansible-test-host-2"
+    os_type: 'Windows'
+    detailed_initiators:
+      - port_name: 'iqn.1998-01.com.vmware:lgc198248-5b06fb37'
+        port_type: 'iSCSI'
+        chap_single_username: 'chapuserSingle'
+        chap_single_password: 'chappasswd12345'
+      - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
+        port_type: 'iSCSI'
+        chap_mutual_username: 'chapuserMutual'
+        chap_mutual_password: 'chappasswd12345'
+    state: 'present'
+    initiator_state: 'present-in-host'
 
-  - name: Get host details by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      state: 'present'
+- name: Get host details by id
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
+    state: 'present'
 
-  - name: Add initiators to host by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      initiators:
-        - 21:00:00:24:ff:31:e9:ee
-      initiator_state: 'present-in-host'
-      state: 'present'
+- name: Add initiators to host by name
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_name: "ansible-test-host-1"
+    initiators:
+      - 21:00:00:24:ff:31:e9:ee
+    initiator_state: 'present-in-host'
+    state: 'present'
 
-  - name: Add initiators to host by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
-      detailed_initiators:
-        - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
-          port_type: 'iSCSI'
-          chap_mutual_username: 'chapuserMutual'
-          chap_mutual_password: 'chappasswd12345'
-      initiator_state: 'present-in-host'
-      state: 'present'
+- name: Add initiators to host by id
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_id: "5c1e869b-ed8a-4845-abae-b102bc249d41"
+    detailed_initiators:
+      - port_name: 'iqn.1998-01.com.vmware:imn198248-5b06fb37'
+        port_type: 'iSCSI'
+        chap_mutual_username: 'chapuserMutual'
+        chap_mutual_password: 'chappasswd12345'
+    initiator_state: 'present-in-host'
+    state: 'present'
 
-  - name: Remove initiators from by id
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_id: "8c1e869b-fe8a-4845-hiae-h802bc249d41"
-      initiators:
-        - 21:00:00:24:ff:31:e9:ee
-      initiator_state: 'absent-in-host'
-      state: 'present'
+- name: Remove initiators from by id
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_id: "8c1e869b-fe8a-4845-hiae-h802bc249d41"
+    initiators:
+      - 21:00:00:24:ff:31:e9:ee
+    initiator_state: 'absent-in-host'
+    state: 'present'
 
-  - name: Modify host by name
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1"
-      new_name: "ansible-test-host-1-new"
-      host_connectivity: "Metro_Optimize_Remote"
-      state: 'present'
+- name: Modify host by name
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_name: "ansible-test-host-1"
+    new_name: "ansible-test-host-1-new"
+    host_connectivity: "Metro_Optimize_Remote"
+    state: 'present'
 
-  - name: Delete host
-    dellemc.powerstore.host:
-      array_ip: "{{array_ip}}"
-      validate_certs: "{{validate_certs}}"
-      user: "{{user}}"
-      password: "{{password}}"
-      host_name: "ansible-test-host-1-new"
-      state: 'absent'
+- name: Delete host
+  dellemc.powerstore.host:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    host_name: "ansible-test-host-1-new"
+    state: 'absent'
 '''
 
 RETURN = r'''
@@ -373,7 +373,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 # DO NOT CHANGE BELOW PORT_TYPES SEQUENCE AS ITS USED IN SCRIPT USING INDEX
 PORT_TYPES = ["iSCSI", "FC", "NVMe"]

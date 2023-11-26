@@ -94,8 +94,7 @@ EXAMPLES = r'''
     snapshotrule_state: "present-in-policy"
     state: "present"
 
-
-- name : Modify protection policy, change name
+- name: Modify protection policy, change name
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -105,8 +104,7 @@ EXAMPLES = r'''
     new_name: "{{new_name}}"
     state: "present"
 
-
-- name : Modify protection policy, add snapshot rule
+- name: Modify protection policy, add snapshot rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -118,7 +116,7 @@ EXAMPLES = r'''
     snapshotrule_state: "present-in-policy"
     state: "present"
 
-- name : Modify protection policy, remove snapshot rule, replication rule
+- name: Modify protection policy, remove snapshot rule, replication rule
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -131,7 +129,7 @@ EXAMPLES = r'''
     snapshotrule_state: "absent-in-policy"
     state: "present"
 
-- name : Get details of protection policy by name
+- name: Get details of protection policy by name
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -140,7 +138,7 @@ EXAMPLES = r'''
     name: "{{name}}"
     state: "present"
 
-- name : Get details of protection policy by ID
+- name: Get details of protection policy by ID
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -149,7 +147,7 @@ EXAMPLES = r'''
     protectionpolicy_id: "{{protectionpolicy_id}}"
     state: "present"
 
-- name : Delete protection policy
+- name: Delete protection policy
   dellemc.powerstore.protectionpolicy:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -241,7 +239,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreProtectionpolicy(object):

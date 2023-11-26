@@ -33,9 +33,10 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
+
 
 
 
@@ -45,85 +46,85 @@ Parameters
   gather_subset (True, list, None)
     A list of string variables which specify the PowerStore system entities requiring information.
 
-    Volumes - ``vol``.
+    Volumes - \ :literal:`vol`\ .
 
-    All the nodes - ``node``.
+    All the nodes - \ :literal:`node`\ .
 
-    Volume groups - ``vg``.
+    Volume groups - \ :literal:`vg`\ .
 
-    Protection policies - ``protection_policy``.
+    Protection policies - \ :literal:`protection\_policy`\ .
 
-    Hosts - ``host``.
+    Hosts - \ :literal:`host`\ .
 
-    Host groups - ``hg``.
+    Host groups - \ :literal:`hg`\ .
 
-    Snapshot rules - ``snapshot_rule``.
+    Snapshot rules - \ :literal:`snapshot\_rule`\ .
 
-    NAS servers - ``nas_server``.
+    NAS servers - \ :literal:`nas\_server`\ .
 
-    NFS exports - ``nfs_export``.
+    NFS exports - \ :literal:`nfs\_export`\ .
 
-    SMB shares - ``smb_share``.
+    SMB shares - \ :literal:`smb\_share`\ .
 
-    Tree quotas - ``tree_quota``.
+    Tree quotas - \ :literal:`tree\_quota`\ .
 
-    User quotas - ``user_quota``.
+    User quotas - \ :literal:`user\_quota`\ .
 
-    File systems - ``file_system``.
+    File systems - \ :literal:`file\_system`\ .
 
-    Replication rules - ``replication_rule``.
+    Replication rules - \ :literal:`replication\_rule`\ .
 
-    Replication sessions - ``replication_session``.
+    Replication sessions - \ :literal:`replication\_session`\ .
 
-    Remote systems - ``remote_system``.
+    Remote systems - \ :literal:`remote\_system`\ .
 
-    Various networks - ``network``.
+    Various networks - \ :literal:`network`\ .
 
-    Roles - ``role``.
+    Roles - \ :literal:`role`\ .
 
-    Local users - ``user``.
+    Local users - \ :literal:`user`\ .
 
-    Appliances - ``appliance``.
+    Appliances - \ :literal:`appliance`\ .
 
-    Security configurations - ``security_config``.
+    Security configurations - \ :literal:`security\_config`\ .
 
-    Certificates - ``certificate``.
+    Certificates - \ :literal:`certificate`\ .
 
-    Active directories - ``ad``.
+    Active directories - \ :literal:`ad`\ .
 
-    LDAPs - ``ldap``.
+    LDAPs - \ :literal:`ldap`\ .
 
-    DNS servers - ``dns``.
+    DNS servers - \ :literal:`dns`\ .
 
-    NTP servers - ``ntp``.
+    NTP servers - \ :literal:`ntp`\ .
 
-    Email notification destinations - ``email_notification``.
+    Email notification destinations - \ :literal:`email\_notification`\ .
 
-    SMTP configurations - ``smtp_config``.
+    SMTP configurations - \ :literal:`smtp\_config`\ .
 
-    Remote Support - ``remote_support``.
+    Remote Support - \ :literal:`remote\_support`\ .
 
-    Remote support contacts - ``remote_support_contact``.
+    Remote support contacts - \ :literal:`remote\_support\_contact`\ .
 
-    LDAP accounts - ``ldap_account``.
+    LDAP accounts - \ :literal:`ldap\_account`\ .
 
-    LDAP domain - ``ldap_domain``.
+    LDAP domain - \ :literal:`ldap\_domain`\ .
 
-    All vCenters - ``vcenter``.
+    All vCenters - \ :literal:`vcenter`\ .
 
-    Virtual volumes - ``virtual_volume``.
+    Virtual volumes - \ :literal:`virtual\_volume`\ .
 
-    Storage containers - ``storage_container``.
+    Storage containers - \ :literal:`storage\_container`\ .
 
-    Replication groups - ``replication_group``.
+    Replication groups - \ :literal:`replication\_group`\ .
 
-    Discovered appliances - ``discovered_appliance``.
+    Discovered appliances - \ :literal:`discovered\_appliance`\ .
 
 
   filters (optional, list, None)
     A list of filters to support filtered output for storage entities.
 
-    Each filter is a list of *filter_key*, *filter_operator*, *filter_value*.
+    Each filter is a list of \ :emphasis:`filter\_key`\ , \ :emphasis:`filter\_operator`\ , \ :emphasis:`filter\_value`\ .
 
     Supports passing of multiple filters.
 
@@ -144,7 +145,7 @@ Parameters
   all_pages (optional, bool, False)
     Indicates whether to return all available entities on the storage system.
 
-    If set to ``true``, the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
+    If set to \ :literal:`true`\ , the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
 
 
   array_ip (True, str, None)
@@ -154,9 +155,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -186,8 +187,8 @@ Notes
 -----
 
 .. note::
-   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If *all_pages* is passed, it will be ignored.
-   - The *check_mode* is supported.
+   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If \ :emphasis:`all\_pages`\  is passed, it will be ignored.
+   - The \ :emphasis:`check\_mode`\  is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -369,11 +370,11 @@ Examples
         user: "{{user}}"
         password: "{{password}}"
         gather_subset:
-        - email_notification
+          - email_notification
         filters:
-            - filter_key: 'notify_minor'
-              filter_operator: 'equal'
-              filter_value: 'false'
+          - filter_key: 'notify_minor'
+            filter_operator: 'equal'
+            filter_value: 'false'
 
     - name: Get list of LDAP accounts
       dellemc.powerstore.info:
@@ -391,11 +392,11 @@ Examples
         user: "{{user}}"
         password: "{{password}}"
         gather_subset:
-        - ldap_account
+          - ldap_account
         filters:
-            - filter_key: 'type'
-              filter_operator: 'equal'
-              filter_value: 'User'
+          - filter_key: 'type'
+            filter_operator: 'equal'
+            filter_value: 'User'
 
     - name: Get list of LDAP domain
       dellemc.powerstore.info:
@@ -413,11 +414,11 @@ Examples
         user: "{{user}}"
         password: "{{password}}"
         gather_subset:
-        - ldap_domain
+          - ldap_domain
         filters:
-            - filter_key: 'protocol'
-              filter_operator: 'equal'
-              filter_value: 'LDAPS'
+          - filter_key: 'protocol'
+            filter_operator: 'equal'
+            filter_value: 'LDAPS'
 
     - name: Get list of vCenters
       dellemc.powerstore.info:
@@ -457,7 +458,7 @@ changed (always, bool, false)
   Shows whether or not the resource has changed.
 
 
-Array_Software_Version (always, str, 2.1.0.0)
+Array_Software_Version (always, str, 3.0.0.0)
   API version of PowerStore array.
 
 
@@ -539,7 +540,7 @@ Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1',
 
 
   eth_be_ports (, list, )
-    Provides details of all eth_be_ports. It was added in version 3.0.0.0.
+    Provides details of all eth\_be\_ports. It was added in version 3.0.0.0.
 
 
   software_installed (, list, )
@@ -790,7 +791,7 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
 
 
   is_global_catalog (, bool, )
-    Whether or not the catalog is global. Default value is ``false``.
+    Whether or not the catalog is global. Default value is \ :literal:`false`\ .
 
 
   user_id_attribute (, str, )
@@ -826,7 +827,7 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
 
 
   ldap_server_type_l10n (, str, )
-    Localized message string corresponding to ldap_server_type.
+    Localized message string corresponding to ldap\_server\_type.
 
 
   protocol_l10n (, str, )
@@ -972,7 +973,7 @@ ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., li
 
 
   creator_type_l10n (, str, )
-    Localized message string corresponding to creator_type.
+    Localized message string corresponding to creator\_type.
 
 
 
@@ -1226,7 +1227,7 @@ vCenter (When C(vCenter) is in a given I(gather_subset), list, [{'id': '0d330d6c
 
 
   vendor_provider_status_l10n (, str, )
-    Localized message string corresponding to vendor_provider_status.
+    Localized message string corresponding to vendor\_provider\_status.
 
 
   virtual_machines (, list, )
@@ -1384,15 +1385,15 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
 
 
   usage_type_l10n (, str, )
-    Localized message string corresponding to usage_type.
+    Localized message string corresponding to usage\_type.
 
 
   io_priority_l10n (, str, )
-    Localized message string corresponding to io_priority.
+    Localized message string corresponding to io\_priority.
 
 
   creator_type_l10n (, str, )
-    Localized message string corresponding to creator_type.
+    Localized message string corresponding to creator\_type.
 
 
   host_virtual_volume_mappings (, complex, )
