@@ -5,6 +5,14 @@ Dellemc.Powerstore Change Logs
 .. contents:: Topics
 
 
+v3.0.0
+======
+
+Minor Changes
+-------------
+
+- Added support for PowerStore 3.6.x.x.
+
 v2.2.0
 ======
 
