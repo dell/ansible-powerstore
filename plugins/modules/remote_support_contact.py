@@ -58,28 +58,27 @@ notes:
 - The I(check_mode) is not supported.
 '''
 EXAMPLES = r'''
+- name: Get details of remote support contact
+  dellemc.powerstore.remote_support_contact:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    contact_id: 0
+    state: "present"
 
-  - name: Get details of remote support contact
-    dellemc.powerstore.remote_support_contact:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       contact_id: 0
-       state: "present"
-
-  - name: Modify remote support contact
-    dellemc.powerstore.remote_support_contact:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       contact_id: 0
-       first_name: "abc"
-       last_name: "xyz"
-       phone: "111-222-333-444"
-       email: "abc_xyz@dell.com"
-       state: "present"
+- name: Modify remote support contact
+  dellemc.powerstore.remote_support_contact:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    contact_id: 0
+    first_name: "abc"
+    last_name: "xyz"
+    phone: "111-222-333-444"
+    email: "abc_xyz@dell.com"
+    state: "present"
 '''
 
 RETURN = r'''
@@ -137,7 +136,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreRemoteSupportContact(object):

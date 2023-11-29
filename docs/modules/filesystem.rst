@@ -23,8 +23,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -33,11 +33,11 @@ Parameters
 ----------
 
   filesystem_name (optional, str, None)
-    Name of the file system. Mutually exclusive with *filesystem_id*. Mandatory only for create operation.
+    Name of the file system. Mutually exclusive with \ :emphasis:`filesystem\_id`\ . Mandatory only for create operation.
 
 
   filesystem_id (optional, str, None)
-    Unique id of the file system. Mutually exclusive with *filesystem_name*.
+    Unique id of the file system. Mutually exclusive with \ :emphasis:`filesystem\_name`\ .
 
 
   description (optional, str, None)
@@ -45,7 +45,7 @@ Parameters
 
 
   nas_server (optional, str, None)
-    Name or ID of the NAS Server on which the file system is created. Mandatory parameter whenever *filesystem_name* is provided, since filesystem names are unique only within a NAS server.
+    Name or ID of the NAS Server on which the file system is created. Mandatory parameter whenever \ :emphasis:`filesystem\_name`\  is provided, since filesystem names are unique only within a NAS server.
 
 
   size (optional, int, None)
@@ -57,7 +57,7 @@ Parameters
   cap_unit (optional, str, None)
     Capacity unit for the size.
 
-    It defaults to ``GB``, if not specified.
+    It defaults to \ :literal:`GB`\ , if not specified.
 
 
   access_policy (optional, str, None)
@@ -67,19 +67,19 @@ Parameters
   locking_policy (optional, str, None)
     File system locking policies.
 
-    ``ADVISORY``- No lock checking for NFS and honor SMB lock range only for SMB.
+    \ :literal:`ADVISORY`\ - No lock checking for NFS and honor SMB lock range only for SMB.
 
-    ``MANDATORY``- Honor SMB and NFS lock range.
+    \ :literal:`MANDATORY`\ - Honor SMB and NFS lock range.
 
 
   folder_rename_policy (optional, str, None)
     File system folder rename policies for the file system with multi-protocol access enabled.
 
-    ``ALL_ALLOWED`` - All protocols are allowed to rename directories without any restrictions.
+    \ :literal:`ALL\_ALLOWED`\  - All protocols are allowed to rename directories without any restrictions.
 
-    ``SMB_FORBIDDEN`` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
+    \ :literal:`SMB\_FORBIDDEN`\  - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
 
-    ``All_FORBIDDEN`` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
+    \ :literal:`All\_FORBIDDEN`\  - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
 
 
   smb_properties (optional, dict, None)
@@ -107,7 +107,7 @@ Parameters
 
 
     smb_notify_on_change_dir_depth (optional, int, None)
-      Determines the lowest directory level to which the enabled notifications apply. minimum value is ``1``.
+      Determines the lowest directory level to which the enabled notifications apply. minimum value is \ :literal:`1`\ .
 
 
 
@@ -145,7 +145,7 @@ Parameters
   flr_attributes (optional, dict, None)
     The attributes for file retention.
 
-    Can only be provided when the *config_type* is ``GENERAL``.
+    Can only be provided when the \ :emphasis:`config\_type`\  is \ :literal:`GENERAL`\ .
 
 
     mode (optional, str, None)
@@ -196,13 +196,13 @@ Parameters
   file_events_publishing_mode (optional, str, None)
     State of the event notification services for all file systems of the NAS server.
 
-    It can only be set to ``NFS_ONLY`` when *config_typ* is set to ``VMWARE``.
+    It can only be set to \ :literal:`NFS\_ONLY`\  when \ :emphasis:`config\_typ`\  is set to \ :literal:`VMWARE`\ .
 
 
   host_io_size (optional, str, None)
     Typical size of writes from the server or other computer using the VMware file system to the storage system.
 
-    Can only be set when the *config_type* is ``VMWARE``.
+    Can only be set when the \ :emphasis:`config\_type`\  is \ :literal:`VMWARE`\ .
 
     Cannot be modified.
 
@@ -224,29 +224,29 @@ Parameters
     access_policy (optional, str, None)
       File system security access policies.
 
-      ``Native`` - Native Security.
+      \ :literal:`Native`\  - Native Security.
 
-      ``UNIX`` - UNIX Security.
+      \ :literal:`UNIX`\  - UNIX Security.
 
-      ``Windows`` - Windows Security.
+      \ :literal:`Windows`\  - Windows Security.
 
 
     locking_policy (optional, str, None)
       File system locking policies.
 
-      ``Advisory``- No lock checking for NFS and honor SMB lock range only for SMB.
+      \ :literal:`Advisory`\ - No lock checking for NFS and honor SMB lock range only for SMB.
 
-      ``Mandatory``- Honor SMB and NFS lock range.
+      \ :literal:`Mandatory`\ - Honor SMB and NFS lock range.
 
 
     folder_rename_policy (optional, str, None)
       File system folder rename policies for the file system with multi-protocol access enabled.
 
-      ``All_Allowed`` - All protocols are allowed to rename directories without any restrictions.
+      \ :literal:`All\_Allowed`\  - All protocols are allowed to rename directories without any restrictions.
 
-      ``SMB_Forbidden`` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
+      \ :literal:`SMB\_Forbidden`\  - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
 
-      ``All_Forbidden`` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
+      \ :literal:`All\_Forbidden`\  - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
 
 
     is_smb_sync_writes_enabled (optional, bool, None)
@@ -270,7 +270,7 @@ Parameters
 
 
     smb_notify_on_change_dir_depth (optional, int, None)
-      Determines the lowest directory level to which the enabled notifications apply. minimum value is ``1``.
+      Determines the lowest directory level to which the enabled notifications apply. minimum value is \ :literal:`1`\ .
 
 
     is_async_MTime_enabled (optional, bool, None)
@@ -280,13 +280,13 @@ Parameters
     file_events_publishing_mode (optional, str, None)
       State of the event notification services for all file systems of the NAS server.
 
-      ``None`` - File event notifications are disabled for this file system.
+      \ :literal:`None`\  - File event notifications are disabled for this file system.
 
-      ``SMB_Only`` - SMB notifications are enabled for this file system.
+      \ :literal:`SMB\_Only`\  - SMB notifications are enabled for this file system.
 
-      ``NFS_Only`` - NFS notifications are enabled for this file system.
+      \ :literal:`NFS\_Only`\  - NFS notifications are enabled for this file system.
 
-      ``All`` - SMB and NFS notifications are enabled for this file system.
+      \ :literal:`All`\  - SMB and NFS notifications are enabled for this file system.
 
 
     flr_attributes (optional, dict, None)
@@ -296,9 +296,9 @@ Parameters
       force_clone (optional, bool, None)
         Specifies whether an FLR-C file system should be cloned.
 
-        ``true`` - means cloning an FLR-C file system is allowed.
+        \ :literal:`true`\  - means cloning an FLR-C file system is allowed.
 
-        ``false`` - means cloning an FLR-C file system is not allowed. and any attempt to do so will return an error.
+        \ :literal:`false`\  - means cloning an FLR-C file system is not allowed. and any attempt to do so will return an error.
 
 
 
@@ -342,9 +342,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -375,9 +375,9 @@ Notes
 
 .. note::
    - It is recommended to remove the protection policy before deleting the filesystem.
-   - The *check_mode* is not supported.
-   - The pattern for *minimum_retention*, *default_retention* and *maximum_retention* is (^\d+[DMY])|(^infinite$).
-   - Filesystem snapshot can be created using filesystem_snapshot module.
+   - The \ :emphasis:`check\_mode`\  is not supported.
+   - The pattern for \ :emphasis:`minimum\_retention`\ , \ :emphasis:`default\_retention`\  and \ :emphasis:`maximum\_retention`\  is (^\\d+[DMY])|(^infinite$).
+   - Filesystem snapshot can be created using filesystem\_snapshot module.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -389,126 +389,125 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Create FileSystem by Name
+      register: result_fs
+      dellemc.powerstore.filesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_name: "{{filesystem_name}}"
+        description: "{{description}}"
+        nas_server: "{{nas_server_id}}"
+        size: "5"
+        cap_unit: "GB"
+        access_policy: "UNIX"
+        locking_policy: "MANDATORY"
+        smb_properties:
+          is_smb_no_notify_enabled: true
+          is_smb_notify_on_access_enabled: true
+        quota_defaults:
+          grace_period: 1
+          grace_period_unit: 'days'
+          default_hard_limit: 3
+          default_soft_limit: 2
+        protection_policy: "{{protection_policy_id}}"
+        config_type: "VMWARE"
+        is_async_mtime_enabled: true
+        file_events_publishing_mode: "NFS_ONLY"
+        host_io_size: "VMWARE_16K"
+        state: "present"
 
-     - name: Create FileSystem by Name
-       register: result_fs
-       dellemc.powerstore.filesystem:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         filesystem_name: "{{filesystem_name}}"
-         description: "{{description}}"
-         nas_server: "{{nas_server_id}}"
-         size: "5"
-         cap_unit: "GB"
-         access_policy: "UNIX"
-         locking_policy: "MANDATORY"
-         smb_properties:
-           is_smb_no_notify_enabled: true
-           is_smb_notify_on_access_enabled: true
-         quota_defaults:
-           grace_period: 1
-           grace_period_unit: 'days'
-           default_hard_limit: 3
-           default_soft_limit: 2
-         protection_policy: "{{protection_policy_id}}"
-         config_type: "VMWARE"
-         is_async_mtime_enabled: true
-         file_events_publishing_mode: "NFS_ONLY"
-         host_io_size: "VMWARE_16K"
-         state: "present"
+    - name: Modify File System by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_id: "{{fs_id}}"
+        folder_rename_policy: "ALL_ALLOWED"
+        smb_properties:
+          is_smb_op_locks_enabled: true
+          smb_notify_on_change_dir_depth: 3
+        quota_defaults:
+          grace_period: 2
+          grace_period_unit: 'weeks'
+          default_hard_limit: 2
+          default_soft_limit: 1
+        is_async_mtime_enabled: true
+        file_events_publishing_mode: "ALL"
+        flr_attributes:
+          mode: "Enterprise"
+          minimum_retention: "5D"
+          default_retention: "1M"
+          maximum_retention: "1Y"
+        state: "present"
 
-     - name: Modify File System by id
-       dellemc.powerstore.filesystem:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         filesystem_id: "{{fs_id}}"
-         folder_rename_policy: "ALL_ALLOWED"
-         smb_properties:
-           is_smb_op_locks_enabled: true
-           smb_notify_on_change_dir_depth: 3
-         quota_defaults:
-           grace_period: 2
-           grace_period_unit: 'weeks'
-           default_hard_limit: 2
-           default_soft_limit: 1
-         is_async_mtime_enabled: true
-         file_events_publishing_mode: "ALL"
-         flr_attributes:
-           mode: "Enterprise"
-           minimum_retention: "5D"
-           default_retention: "1M"
-           maximum_retention: "1Y"
-         state: "present"
+    - name: Get File System details by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_id: "{{result_fs.filesystem_details.id}}"
+        state: "present"
 
-     - name: Get File System details by id
-       dellemc.powerstore.filesystem:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         filesystem_id: "{{result_fs.filesystem_details.id}}"
-         state: "present"
+    - name: Delete File System by id
+      dellemc.powerstore.filesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        filesystem_id: "{{result_fs.filesystem_details.id}}"
+        state: "absent"
 
-     - name: Delete File System by id
-       dellemc.powerstore.filesystem:
-         array_ip: "{{array_ip}}"
-         validate_certs: "{{validate_certs}}"
-         user: "{{user}}"
-         password: "{{password}}"
-         filesystem_id: "{{result_fs.filesystem_details.id}}"
-         state: "absent"
+    - name: Clone File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        filesystem_name: 'Atest'
+        nas_server: 'Test_Nas'
+        clone_filesystem:
+          name: "Test_ansible"
+          description: "Test"
+          access_policy: "UNIX"
+          locking_policy: "Advisory"
+          folder_rename_policy: "All_Allowed"
+          is_smb_sync_writes_enabled: true
+          is_smb_no_notify_enabled: true
+          is_smb_op_locks_enabled: true
+          is_smb_notify_on_access_enabled: true
+          is_smb_notify_on_write_enabled: true
+          smb_notify_on_change_dir_depth: 32
+          is_async_MTime_enabled: false
+          file_events_publishing_mode: "All"
+          flr_attributes:
+            force_clone: false
+        state: "present"
 
-     - name: Clone File System
-       dellemc.powerstore.filesystem:
-         array_ip: "{{ array_ip }}"
-         validate_certs: "{{ validate_certs }}"
-         user: "{{ user }}"
-         password: "{{ password }}"
-         filesystem_name: 'Atest'
-         nas_server: 'Test_Nas'
-         clone_filesystem:
-           name: "Test_ansible"
-           description: "Test"
-           access_policy: "UNIX"
-           locking_policy: "Advisory"
-           folder_rename_policy: "All_Allowed"
-           is_smb_sync_writes_enabled: true
-           is_smb_no_notify_enabled: true
-           is_smb_op_locks_enabled: true
-           is_smb_notify_on_access_enabled: true
-           is_smb_notify_on_write_enabled: true
-           smb_notify_on_change_dir_depth: 32
-           is_async_MTime_enabled: false
-           file_events_publishing_mode: "All"
-           flr_attributes:
-               force_clone: false
-         state: "present"
+    - name: Refresh File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "Refresh_test"
+        nas_server: 'Sample_NAS'
+        refresh_filesystem: true
+        state: "present"
 
-     - name: Refresh File System
-       dellemc.powerstore.filesystem:
-         array_ip: "{{ array_ip }}"
-         validate_certs: "{{ validate_certs }}"
-         user: "{{ user }}"
-         password: "{{ password }}"
-         snapshot_name: "Refresh_test"
-         nas_server: 'Sample_NAS'
-         refresh_filesystem: true
-         state: "present"
-
-     - name: Restore File System
-       dellemc.powerstore.filesystem:
-         array_ip: "{{ array_ip }}"
-         validate_certs: "{{ validate_certs }}"
-         user: "{{ user }}"
-         password: "{{ password }}"
-         snapshot_id: "xxx-xxx-xxx"
-         restore_filesystem: true
-         backup_snap_name: "Restore_test"
-         state: "present"
+    - name: Restore File System
+      dellemc.powerstore.filesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_id: "xxx-xxx-xxx"
+        restore_filesystem: true
+        backup_snap_name: "Restore_test"
+        state: "present"
 
 
 

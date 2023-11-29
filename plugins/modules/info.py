@@ -299,11 +299,11 @@ EXAMPLES = r'''
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
-    - email_notification
+      - email_notification
     filters:
-        - filter_key: 'notify_minor'
-          filter_operator: 'equal'
-          filter_value: 'false'
+      - filter_key: 'notify_minor'
+        filter_operator: 'equal'
+        filter_value: 'false'
 
 - name: Get list of LDAP accounts
   dellemc.powerstore.info:
@@ -321,11 +321,11 @@ EXAMPLES = r'''
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
-    - ldap_account
+      - ldap_account
     filters:
-        - filter_key: 'type'
-          filter_operator: 'equal'
-          filter_value: 'User'
+      - filter_key: 'type'
+        filter_operator: 'equal'
+        filter_value: 'User'
 
 - name: Get list of LDAP domain
   dellemc.powerstore.info:
@@ -343,11 +343,11 @@ EXAMPLES = r'''
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
-    - ldap_domain
+      - ldap_domain
     filters:
-        - filter_key: 'protocol'
-          filter_operator: 'equal'
-          filter_value: 'LDAPS'
+      - filter_key: 'protocol'
+        filter_operator: 'equal'
+        filter_value: 'LDAPS'
 
 - name: Get list of vCenters
   dellemc.powerstore.info:
@@ -390,7 +390,7 @@ Array_Software_Version:
     description: API version of PowerStore array.
     returned: always
     type: str
-    sample: "2.2.0.0"
+    sample: "3.0.0.0"
 ActiveDirectory:
     description: Provides details of all active directories.
     type: list
@@ -1547,7 +1547,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreInfo(object):

@@ -79,68 +79,68 @@ notes:
 '''
 
 EXAMPLES = r'''
-  - name: Get details of destination email with email_id
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
-       state: "present"
+- name: Get details of destination email with email_id
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
+    state: "present"
 
-  - name: Get details of destination email with email_address
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_address: "abc@dell.com"
-       state: "present"
+- name: Get details of destination email with email_address
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_address: "abc@dell.com"
+    state: "present"
 
-  - name: Create destination email
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_address: "abc_xyz@dell.com"
-       notify:
-         info: true
-         critical: true
-         major: false
-       state: "present"
+- name: Create destination email
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_address: "abc_xyz@dell.com"
+    notify:
+      info: true
+      critical: true
+      major: false
+    state: "present"
 
-  - name: Modify destination email
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_address: "abc_xyz@dell.com"
-       new_address: "def_pqr@dell.com"
-       notify:
-         info: false
-         major: false
-       state: "present"
+- name: Modify destination email
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_address: "abc_xyz@dell.com"
+    new_address: "def_pqr@dell.com"
+    notify:
+      info: false
+      major: false
+    state: "present"
 
-  - name: Send a test mail to the destination email with email_id
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
-       send_test_email: true
-       state: "present"
+- name: Send a test mail to the destination email with email_id
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_id: "780b6220-2d0b-4b9f-a485-4ae7f673bd98"
+    send_test_email: true
+    state: "present"
 
-  - name: Delete destination email
-    dellemc.powerstore.email:
-       array_ip: "{{array_ip}}"
-       user: "{{user}}"
-       password: "{{password}}"
-       validate_certs: "{{validate_certs}}"
-       email_address: "def_pqr@dell.com"
-       state: "absent"
+- name: Delete destination email
+  dellemc.powerstore.email:
+    array_ip: "{{array_ip}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    validate_certs: "{{validate_certs}}"
+    email_address: "def_pqr@dell.com"
+    state: "absent"
 '''
 
 RETURN = r'''
@@ -205,7 +205,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreEmail(object):

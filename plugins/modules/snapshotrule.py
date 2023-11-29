@@ -95,7 +95,6 @@ notes:
 '''
 
 EXAMPLES = r'''
-
 - name: Get details of an existing snapshot rule by name
   dellemc.powerstore.snapshotrule:
     array_ip: "{{array_ip}}"
@@ -123,7 +122,7 @@ EXAMPLES = r'''
     name: "{{name}}"
     interval: "{{interval}}"
     days_of_week:
-          - Monday
+      - Monday
     desired_retention: "{{desired_retention}}"
     state: "present"
 
@@ -254,7 +253,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerstoreSnapshotrule(object):

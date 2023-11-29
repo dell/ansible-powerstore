@@ -21,8 +21,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -39,13 +39,13 @@ Parameters
 
 
   ntp_address_state (optional, str, None)
-    State of the addresses mentioned in *ntp_addresses*.
+    State of the addresses mentioned in \ :emphasis:`ntp\_addresses`\ .
 
 
   state (True, str, None)
     The state of the NTP instance after the task is performed.
 
-    For get and modify operations it should be set to ``present``.
+    For get and modify operations it should be set to \ :literal:`present`\ .
 
 
   array_ip (True, str, None)
@@ -55,9 +55,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -88,9 +88,9 @@ Notes
 
 .. note::
    - Minimum 1 and maximum 3 addresses can be associated to a NTP instance.
-   - Parameters *ntp_addresses* and *ntp_address_state* are required together.
+   - Parameters \ :emphasis:`ntp\_addresses`\  and \ :emphasis:`ntp\_address\_state`\  are required together.
    - Creation and deletion of NTP is not supported.
-   - The *check_mode* is not supported.
+   - The \ :emphasis:`check\_mode`\  is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -102,39 +102,39 @@ Examples
 .. code-block:: yaml+jinja
 
     
-      - name: Get details of NTP instance
-        dellemc.powerstore.ntp:
-           array_ip: "{{array_ip}}"
-           user: "{{user}}"
-           password: "{{password}}"
-           validate_certs: "{{validate_certs}}"
-           ntp_id: "NTP1"
-           state: "present"
+    - name: Get details of NTP instance
+      dellemc.powerstore.ntp:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        ntp_id: "NTP1"
+        state: "present"
 
-      - name: Add addresses to NTP instance
-        dellemc.powerstore.ntp:
-           array_ip: "{{array_ip}}"
-           user: "{{user}}"
-           password: "{{password}}"
-           validate_certs: "{{validate_certs}}"
-           ntp_id: "NTP1"
-           ntp_addresses:
-            - "XX.XX.XX.XX"
-            - "YY.YY.YY.YY"
-           ntp_address_state: "present-in-ntp"
-           state: "present"
+    - name: Add addresses to NTP instance
+      dellemc.powerstore.ntp:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "XX.XX.XX.XX"
+          - "YY.YY.YY.YY"
+        ntp_address_state: "present-in-ntp"
+        state: "present"
 
-      - name: Remove addresses from NTP instance
-        dellemc.powerstore.ntp:
-           array_ip: "{{array_ip}}"
-           user: "{{user}}"
-           password: "{{password}}"
-           validate_certs: "{{validate_certs}}"
-           ntp_id: "NTP1"
-           ntp_addresses:
-            - "YY.YY.YY.YY"
-           ntp_address_state: "absent-in-ntp"
-           state: "present"
+    - name: Remove addresses from NTP instance
+      dellemc.powerstore.ntp:
+        array_ip: "{{array_ip}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        validate_certs: "{{validate_certs}}"
+        ntp_id: "NTP1"
+        ntp_addresses:
+          - "YY.YY.YY.YY"
+        ntp_address_state: "absent-in-ntp"
+        state: "present"
 
 
 

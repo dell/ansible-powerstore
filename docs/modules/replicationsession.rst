@@ -23,8 +23,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- Ansible-core 2.14 or later.
+- PyPowerStore 2.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -35,37 +35,37 @@ Parameters
   filesystem (optional, str, None)
     Name/ID of the filesystem for which replication session exists.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   nas_server (optional, str, None)
     Name/ID of the NAS server for which replication session exists.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   volume_group (optional, str, None)
     Name/ID of the volume group for which a replication session exists.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   volume (optional, str, None)
     Name/ID of the volume for which replication session exists.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   replication_group (optional, str, None)
     Name or ID of the replication group for which replication session exists.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   session_id (optional, str, None)
     ID of the replication session.
 
-    Parameter *filesystem*, *nas_server*, *volume_group*, *volume*, *replication_group*, and *session_id* are mutually exclusive.
+    Parameter \ :emphasis:`filesystem`\ , \ :emphasis:`nas\_server`\ , \ :emphasis:`volume\_group`\ , \ :emphasis:`volume`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`session\_id`\  are mutually exclusive.
 
 
   session_state (optional, str, None)
@@ -83,9 +83,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -116,10 +116,10 @@ Notes
 
 .. note::
    - Manual synchronization for a replication session is not supported through the Ansible module.
-   - When the current state of the replication session is 'OK' and in the playbook task ``synchronizing``, then it will return "changed" as false.
+   - When the current state of the replication session is 'OK' and in the playbook task \ :literal:`synchronizing`\ , then it will return "changed" as false.
    - The changed as false in above scenario is because there is a scheduled synchronization in place with the associated replication rule's RPO in the protection policy.
-   - The *check_mode* is not supported.
-   - Parameter *nas_server*, *filesystem*, *replication_group*, and *role* parameters are supported only for PowerStore version 3.0.0. and above.
+   - The \ :emphasis:`check\_mode`\  is not supported.
+   - Parameter \ :emphasis:`nas\_server`\ , \ :emphasis:`filesystem`\ , \ :emphasis:`replication\_group`\ , and \ :emphasis:`role`\  parameters are supported only for PowerStore version 3.0.0. and above.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -192,7 +192,7 @@ replication_session_details (When replication session exists, complex, {'estimat
 
 
   resource_type (, str, )
-    Storage resource type eligible for replication protection. volume - Replication session created on a volume. volume_group - Replication session created on a volume group.
+    Storage resource type eligible for replication protection. volume - Replication session created on a volume. volume\_group - Replication session created on a volume group.
 
 
   local_resource_id (, str, )

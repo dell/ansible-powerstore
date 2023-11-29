@@ -212,7 +212,7 @@ EXAMPLES = r'''
     password: "{{password}}"
     ldap_domain_name: "{{domain_name}}"
     ldap_servers:
-    - "10.xxx.xx.xx"
+      - "10.xxx.xx.xx"
     ldap_server_state: "present-in-domain"
     ldap_server_type: "AD"
     bind_user: "{{bind_user}}"
@@ -354,7 +354,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/2.2.0'
+APPLICATION_TYPE = 'Ansible/3.0.0'
 
 
 class PowerStoreLDAPDomain(object):
