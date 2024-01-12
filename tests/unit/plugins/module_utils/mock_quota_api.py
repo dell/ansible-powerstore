@@ -1,4 +1,4 @@
-# Copyright: (c) 2022, Dell Technologies
+# Copyright: (c) 2022-24, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -12,6 +12,43 @@ __metaclass__ = type
 class MockQuotaApi:
     MODULE_PATH = 'ansible_collections.dellemc.powerstore.plugins.modules.quota.PowerStoreQuota'
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
+    MODULE_OPERATION_ERROR1 = 'Unable to fetch the quota details, Invalid Quota ID passed.'
+    MODULE_OPERATION_ERROR2 = 'Description parameter is not valid for User Quota.'
+    MODULE_OPERATION_ERROR3 = 'uid/unix_name/windows_sid/windows_name are not valid parameters for Tree Quota type. Please enter correct quota_type'
+    MODULE_OPERATION_ERROR4 = 'Please enter domain name and user name in the windows_name parameter.'
+    MODULE_OPERATION_ERROR5 = 'Empty description or white spaced description is not allowed. Please enter a valid description'
+    MODULE_OPERATION_ERROR6 = 'Description starting or ending with white spaces is not allowed. Please enter a valid description'
+    MODULE_OPERATION_DESCRIPTION1 = "My Own Description"
+    MODULE_OPERATION_DESCRIPTION2 = "Tree quota created on filesystem"
+    MODULE_OPERATION_DESCRIPTION3 = "Test Quota description"
+
+    UPDATE_QUOTA_ERROR1 = "Update quota for quota_id: 61d68a87-6000-3cc3-f816-96e8abdcbab0 failed with "
+
+    CREATE_QUOTA_ERROR1 = "Path and filesystem are required for creation of tree quota."
+    CREATE_QUOTA_ERROR2 = "Create quota for path = /ansible_tree_quota_FS1_path2 on filesystem = 629494e2-f86e-63ef-3d95-827ee627f9b1 failed with error =  "
+    CREATE_QUOTA_ERROR3 = "UID/Windows SID/Windows Name/Unix Name and filesystem both are required to create User Quota"
+    CREATE_QUOTA_ERROR4 = 'Create quota for uid: uid-123-unique-id failed with '
+    CREATE_QUOTA_ERROR5 = 'Create quota for unix_name: unix_name failed with '
+    CREATE_QUOTA_ERROR6 = 'Create quota for windows_name: windows_name failed with '
+    CREATE_QUOTA_ERROR7 = 'Create quota for windows_sid: windows_sid failed with '
+
+    DELETE_QUOTA_ERROR1 = "Delete Tree quota with quota_id: {0} failed with Deletion of User Quota is not supported."
+
+    QUOTA_ERROR1 = "Unable to enforce user quotas on tree quotas, failed with error: "
+    QUOTA_ERROR2 = "Unable to enable quota, failed with error: "
+    QUOTA_ERROR3 = "Invalid soft_limit provided, must be greater than or equal to 0"
+
+    QUOTA_EXPECTED1 = "No Tree Quota with path"
+    QUOTA_EXPECTED2 = "UID/Windows SID/Windows Name/Unix Name and File"
+    QUOTA_EXPECTED3 = 'Get quota details for user with uid: uid-123-unique-id failed with '
+    QUOTA_EXPECTED4 = 'Get quota details for user with unix_name: unix_name failed with '
+    QUOTA_EXPECTED5 = 'Get quota details for user with windows_name: windows_name failed with '
+    QUOTA_EXPECTED6 = 'Get quota details for user with windows_sid: windows_sid failed with '
+    QUOTA_EXPECTED7 = "Failed to get details of NAS server nas-server with error: "
+    QUOTA_EXPECTED8 = "Failed to get details of NAS Server None with error: "
+    QUOTA_EXPECTED9 = "NAS Server Name/ID is required along with File System Name. Please enter NAS Server Name/ID"
+    QUOTA_EXPECTED10 = "Failed to get details of File System {0} with error: "
+    QUOTA_EXPECTED11 = "Get details of Tree Quota failed"
 
     QUOTA_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
@@ -25,11 +62,7 @@ class MockQuotaApi:
         "unix_name": None,
         "windows_sid": None,
         "uid": None,
-        "quota": {
-            'soft_limit': None,
-            'hard_limit': None,
-            'cap_unit': None
-        },
+        "quota": None,
         "state": None
     }
 
@@ -44,139 +77,17 @@ class MockQuotaApi:
                 "name": "ansible_nas_server_2"
             }
         },
-        "hard_limit(GB)": "90.0",
+        "hard_limit": 90,
         "id": "00000006-08f2-0000-0200-000000000000",
         "is_user_quotas_enforced": False,
         "path": "/sample_file_system",
         "remaining_grace_period": -1,
         "size_used": 0,
-        "soft_limit(GB)": "50.0",
-        "state": "Ok"
-    }]
-
-    QUOTA_DETAILS2 = [{
-        "description": "Tree quota created on filesystem",
-        "file_system": {
-            "filesystem_type": "Primary",
-            "id": "61d68a87-6000-3cc3-f816-96e8abdcbab0",
-            "name": "ansible_PS_SMB_quota_FS1",
-            "nas_server": {
-                "id": "60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9",
-                "name": "ansible_nas_server_2"
-            }
-        },
-        "hard_limit(GB)": "90.0",
-        "id": "00000006-08f2-0000-0200-000000000000",
-        "is_user_quotas_enforced": False,
-        "path": "/ansible_tree_quota_FS1_path2",
-        "remaining_grace_period": -1,
-        "size_used": 0,
-        "soft_limit(GB)": "50.0",
-        "state": "Ok"
-    }]
-
-    FILESYSTEM_DETAILS1 = [{
-        "access_policy": "Native",
-        "access_policy_l10n": "Native",
-        "access_type": None,
-        "access_type_l10n": None,
-        "creation_timestamp": None,
-        "creator_type": None,
-        "creator_type_l10n": None,
-        "default_hard_limit": 0,
-        "default_soft_limit": 0,
-        "description": None,
-        "expiration_timestamp": None,
-        "filesystem_type": "Primary",
-        "filesystem_type_l10n": "Primary File system",
-        "folder_rename_policy": "All_Forbidden",
-        "folder_rename_policy_l10n": "All Renames Forbidden",
-        "grace_period": 604800,
-        "id": "629494e2-f86e-63ef-3d95-827ee627f9b1",
-        "is_async_MTime_enabled": False,
-        "is_modified": None,
-        "is_quota_enabled": True,
-        "is_smb_no_notify_enabled": False,
-        "is_smb_notify_on_access_enabled": False,
-        "is_smb_notify_on_write_enabled": False,
-        "is_smb_op_locks_enabled": True,
-        "is_smb_sync_writes_enabled": False,
-        "last_refresh_timestamp": None,
-        "last_writable_timestamp": None,
-        "locking_policy": "Advisory",
-        "locking_policy_l10n": "Advisory",
-        "name": "ansible_PS_SMB_quota_FS1",
-        "nas_server": {
-            "id": "628619c1-a1ad-b85d-37ae-b2dcd309270e",
-            "name": "ansible_nas_server_2"
-        },
-        "parent_id": None,
-        "protection_policy": None,
-        "size_total": 107374182400,
-        "size_used": 1621098496,
-        "smb_notify_on_change_dir_depth": 512,
-        "snapshots": {},
-        "total_size_with_unit": "100.0 GB",
-        "used_size_with_unit": "1.51 GB"
-    }]
-
-    NAS_SERVER_DETAILS1 = [{
-        "backup_IPv4_interface_id": None,
-        "backup_IPv6_interface_id": None,
-        "current_node": {
-            "id": "N2",
-            "name": "Appliance-WND8977-node-B"
-        },
-        "current_node_id": "Appliance-WND8977-node-B",
-        "current_preferred_IPv4_interface_id": "60c02-b5d8-9d9b-7e6f-feb93c9",
-        "current_preferred_IPv6_interface_id": None,
-        "current_unix_directory_service": "LDAP",
-        "current_unix_directory_service_l10n": "LDAP",
-        "default_unix_user": None,
-        "default_windows_user": None,
-        "description": "",
-        "file_interfaces":
-        [
-            {
-                "id": "0c05652-b5d8-9d9b-7e6f-fe8be1eb93c9",
-                "ip_address": "X.X.X.X",
-                "name": "PROD001_xxxxxxxx08a9_6"
-            }
-        ],
-        "file_ldaps":
-        [
-            {
-                "id": "60c05ba8-362e-159a-0205-ee6f605dfe5a"
-            }
-        ],
-        "file_nises": [],
-        "file_systems": [
-            {
-                "id": "629494e2-f86e-63ef-3d95-827ee627f9b1",
-                "name": "ansible_PS_SMB_quota_FS1"
-            }
-        ],
-        "id": "628619c1-a1ad-b85d-37ae-b2dcd309270e",
-        "is_auto_user_mapping_enabled": True,
-        "is_username_translation_enabled": False,
-        "name": "ansible_nas_server_2",
-        "nfs_servers": [
-            {
-                "id": "60c05653-4fd3-2033-2da0-ee6f605dfe5a"
-            }
-        ],
-        "operational_status": "Started",
-        "operational_status_l10n": "Started",
-        "preferred_node": {
-            "id": "N2",
-            "name": "Appliance-XXXXXXX-node-B"
-        },
-        "preferred_node_id": "Appliance-XXXXXXX-node-B",
-        "production_IPv4_interface_id": "60c05652-b5d8-9d9b-7e6f-fe8be1eb93c",
-        "production_IPv6_interface_id": None,
-        "smb_servers": [
-            {
-                "id": "60c05c18-6806-26ae-3b0d-fe8be1eb93c"
-            }
-        ]
+        "soft_limit": 50,
+        "state": "Ok",
+        "tree_quota_id": None,
+        "tree_quota": {
+            "soft_limit": 50,
+            "hard_limit": 90,
+        }
     }]
