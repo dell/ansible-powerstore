@@ -1,0 +1,64 @@
+---
+- name: Nas Server operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "password"
+    nas_server_name: "sample_nas_1"
+
+  tasks:
+    - name: Create File interface
+      register: result
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        ip_address: "10.10.10.10"
+        vlan_id: 0
+        prefix_length: 21
+        gateway: "10.10.10.1"
+        state: "present"
+
+    - name: Get File interface
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_interface_id: "{{ result.file_interface_details.id }}"
+
+    - name: Get File interface with NAS server and IP address
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_id: "{{ result.file_interface_details.nas_server_id }}"
+        ip_address: "10.10.10.10"
+
+    - name: Modify File interface
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_interface_id: "{{ result.file_interface_details.id }}"
+        ip_address: "10.10.10.11"
+        vlan_id: 0
+        prefix_length: 21
+        gateway: "10.10.10.1"
+        state: "present"
+
+    - name: Delete File interface
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_interface_id: "{{ result.file_interface_details.id }}"
+        state: "absent"
