@@ -64,6 +64,7 @@ class PowerStoreBase:
 
         self.configuration = self.conn.config_mgmt
         self.protection = self.conn.protection
+        self.provisioning = self.conn.provisioning
 
         msg = 'Got Py4ps instance for configuration {0} and protection {1}' \
               ' on PowerStore'.format(self.configuration, self.protection)
