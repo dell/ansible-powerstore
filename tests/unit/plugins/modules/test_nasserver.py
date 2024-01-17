@@ -10,13 +10,13 @@ __metaclass__ = type
 
 import pytest
 # pylint: disable=unused-import
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_nasserver_api import MockNasServerApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.plugins.modules.nasserver import PowerStoreNasServer
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library.\
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.\
     fail_json import FailJsonException, fail_json
 
 
