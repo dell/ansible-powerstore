@@ -23,10 +23,10 @@
         user: "{{ user }}"
         password: "{{ password }}"
         service_config:
-            - appliance_name: "sample-appliance"
-              is_ssh_enabled: true
-            - appliance_id: "A2"
-              is_ssh_enabled: false
+          - appliance_name: "sample-appliance"
+            is_ssh_enabled: true
+          - appliance_id: "A2"
+            is_ssh_enabled: false
       check_mode: true
 
     - name: Modify ssh service configuration of the appliances - check mode
@@ -36,7 +36,7 @@
         user: "{{ user }}"
         password: "{{ password }}"
         service_config:
-            - appliance_name: "sample-appliance"
-              is_ssh_enabled: true
-            - appliance_id: "A2"
-              is_ssh_enabled: false
+          - appliance_name: "sample-appliance"
+            is_ssh_enabled: true
+          - appliance_id: "A2"
+            is_ssh_enabled: false
