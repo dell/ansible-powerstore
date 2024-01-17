@@ -519,13 +519,6 @@ class PowerStoreNfsExport(object):
                                                   export_parent, nas_server,
                                                   path)
 
-                if exports_list and not export_details:
-                    error_msg = "Entered filesystem/snapshot/nas_server/" \
-                                "path do not match with the corresponding " \
-                                "NFS Export details. Please provide valid " \
-                                "parameters."
-                    self.module.fail_json(msg=error_msg)
-
             # Add the export path
             if export_details:
                 nas_details = self.provisioning.get_nas_server_details(

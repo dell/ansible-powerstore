@@ -57,35 +57,6 @@ class TestPowerstoreNfs():
         assert self.get_module_args['nfs_export_name'] == nfs_module_mock.module.exit_json.call_args[1]['nfs_export_details']['name']
         nfs_module_mock.provisioning.get_nfs_export_details_by_name.assert_called()
 
-    def test_get_nfs_name_invalid_nas_response(self, nfs_module_mock):
-        self.get_module_args.update({
-            'nfs_export_name': "sample_nfs_export",
-            'nas_server': " ",
-            'state': "present"
-        })
-        nfs_module_mock.module.params = self.get_module_args
-        nfs_module_mock.provisioning.get_nfs_export_details_by_name = MagicMock(
-            return_value=MockNfsApi.NFS_DETAILS_BY_NAME)
-        nfs_module_mock.perform_module_operation()
-        print(nfs_module_mock.module.fail_json.call_args[1]['msg'])
-        assert MockNfsApi.get_nfs_export_failed_msg() in \
-            nfs_module_mock.module.fail_json.call_args[1]['msg']
-
-    def test_get_nfs_name_with_other_nas_response(self, nfs_module_mock):
-        self.get_module_args.update({
-            'nfs_export_name': "sample_nfs_export",
-            'nas_server': "Sample_nas_server_2",
-            'state': "present"
-        })
-        nfs_module_mock.module.params = self.get_module_args
-        nfs_module_mock.provisioning.get_nfs_export_details_by_name = MagicMock(
-            return_value=MockNfsApi.NFS_DETAILS_BY_NAME)
-        nfs_module_mock.provisioning.get_nas_server_details = MagicMock(
-            return_value=MockNfsApi.NAS_SERVER_DETAILS_2)
-        nfs_module_mock.perform_module_operation()
-        assert MockNfsApi.get_nfs_export_failed_msg() in \
-            nfs_module_mock.module.fail_json.call_args[1]['msg']
-
     def test_get_nfs_name_nas_id_response(self, nfs_module_mock):
         self.get_module_args.update({
             'nfs_export_name': "sample_nfs_export",
@@ -316,7 +287,6 @@ class TestPowerstoreNfs():
         nfs_module_mock.provisioning.get_nas_server_details = MagicMock(
             return_value=MockNfsApi.NAS_SERVER_DETAILS)
         nfs_module_mock.perform_module_operation()
-        print(nfs_module_mock.module.fail_json.call_args[1]['msg'])
         assert MockNfsApi.add_invalid_ipv6_hosts_failed_msg() in \
             nfs_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -377,7 +347,6 @@ class TestPowerstoreNfs():
         nfs_module_mock.provisioning.get_nas_server_details = MagicMock(
             return_value=MockNfsApi.NAS_SERVER_DETAILS)
         nfs_module_mock.perform_module_operation()
-        print(nfs_module_mock.module.fail_json.call_args[1]['msg'])
         assert MockNfsApi.remove_nfs_export_hosts_without_hosts_failed_msg() in \
             nfs_module_mock.module.fail_json.call_args[1]['msg']
 
