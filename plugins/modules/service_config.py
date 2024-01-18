@@ -107,6 +107,8 @@ service_configs_details:
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.libraries.powerstore_base \
     import PowerStoreBase
+from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.libraries.configuration \
+    import ConfigurationSDK
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
 
@@ -135,18 +137,15 @@ class ServiceConfigs(PowerStoreBase):
     def update_appliance_details(self, configs_details):
         """Update appliance details in service config."""
         updated_details = []
-        try:
-            for config in configs_details:
-                if config.get('appliance_id'):
-                    config['appliance_name'] = self.configuration.get_appliance_details(
-                        appliance_id=config['appliance_id']).get('name')
-                updated_details.append(config)
+        for config in configs_details:
+            if config.get('appliance_id'):
+                appliance_details = ConfigurationSDK(self.configuration,
+                                                     self.module).\
+                    get_appliance_details(appliance_id=config['appliance_id'])
+                config['appliance_name'] = appliance_details.get('name')
+            updated_details.append(config)
 
-            return updated_details
-        except Exception as e:
-            msg = f"Failed to get the appliance details with error: {str(e)}"
-            LOG.error(msg)
-            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+        return updated_details
 
     def get_service_configs(self):
         """
@@ -265,12 +264,14 @@ class ServiceConfigs(PowerStoreBase):
 
                 # check for mutually exclusive parameters
                 if app_name and app_id:
-                    err_msg = "parameters are mutually exclusive: appliance_name|appliance_id."
+                    err_msg = "parameters are mutually exclusive: " \
+                              "appliance_name|appliance_id."
                     self.module.fail_json(msg=err_msg)
 
                 # Check for required parameters
                 if not app_name and not app_id:
-                    err_msg = "one of the following is required: appliance_name, appliance_id."
+                    err_msg = "one of the following is required: " \
+                              "appliance_name, appliance_id."
                     self.module.fail_json(msg=err_msg)
 
                 self.is_param_empty(app_name=app_name, app_id=app_id)

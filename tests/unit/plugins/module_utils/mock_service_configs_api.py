@@ -42,11 +42,12 @@ class MockServiceConfigApi:
     @staticmethod
     def get_service_exception_response(response_type):
         if response_type == 'appliance_exception':
-            return "Failed to get the appliance details with error"
+            return "Get Appliance with id A1 or name None failed with error"
         elif response_type == 'get_service_config_exception':
             return "Failed to get the service configs with error"
         elif response_type == "no_appliance_found":
-            return "Appliance id: A3 or name: None not found. Specify valid appliance_id or appliance_name"
+            return "Appliance id: A3 or name: None not found. Specify valid " \
+                   "appliance_id or appliance_name"
         elif response_type == "update_service_config_exception":
             return "Failed to update the service config with error"
         elif response_type == "mutually_exclusive_exception":

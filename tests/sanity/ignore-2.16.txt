@@ -15,6 +15,8 @@ plugins/modules/service_config.py compile-2.7
 tests/unit/plugins/module_utils/mock_service_configs_api.py compile-2.7
 plugins/module_utils/storage/dell/libraries/powerstore_base.py import-2.7
 plugins/module_utils/storage/dell/libraries/powerstore_base.py compile-2.7
+plugins/module_utils/storage/dell/libraries/configuration.py import-2.7
+plugins/module_utils/storage/dell/libraries/configuration.py compile-2.7
 plugins/modules/certificate.py validate-modules:missing-gplv3-license
 plugins/modules/cluster.py validate-modules:missing-gplv3-license
 plugins/modules/dns.py validate-modules:missing-gplv3-license

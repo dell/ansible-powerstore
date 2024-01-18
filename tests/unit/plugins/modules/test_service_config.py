@@ -13,14 +13,21 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock import utils
-from ansible_collections.dellemc.powerstore.plugins.modules.service_config import ServiceConfigs
-from ansible_collections.dellemc.powerstore.plugins.modules.service_config import ServiceConfigsHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.service_config import main
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
+    import utils
+from ansible_collections.dellemc.powerstore.plugins.modules.service_config import \
+    ServiceConfigs
+from ansible_collections.dellemc.powerstore.plugins.modules.service_config import \
+    ServiceConfigsHandler
+from ansible_collections.dellemc.powerstore.plugins.modules.service_config import \
+    main
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_service_configs_api import MockServiceConfigApi
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import MockApiException
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.powerstore_unit_base import PowerStoreUnitBase
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_service_configs_api \
+    import MockServiceConfigApi
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import \
+    MockApiException
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.powerstore_unit_base \
+    import PowerStoreUnitBase
 
 
 class TestServiceConfigs(PowerStoreUnitBase):
@@ -33,12 +40,14 @@ class TestServiceConfigs(PowerStoreUnitBase):
 
     def test_get_service_response(self, powerstore_module_mock):
         self.set_module_params(powerstore_module_mock, self.get_module_args, {})
-        ServiceConfigsHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
+        ServiceConfigsHandler().handle(
+            powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.configuration.get_service_configs.assert_called()
 
     def test_get_service_exception(self, powerstore_module_mock):
         self.set_module_params(powerstore_module_mock, self.get_module_args, {})
-        powerstore_module_mock.configuration.get_service_configs = MagicMock(side_effect=MockApiException)
+        powerstore_module_mock.configuration.get_service_configs = MagicMock(
+            side_effect=MockApiException)
         self.capture_fail_json_call(
             MockServiceConfigApi.get_service_exception_response('get_service_config_exception'),
             powerstore_module_mock, ServiceConfigsHandler)
@@ -149,7 +158,8 @@ class TestServiceConfigs(PowerStoreUnitBase):
             return_value=MockServiceConfigApi.SERVICE_CONFIGS_DETAILS)
         powerstore_module_mock.configuration.get_appliance_details = MagicMock(
             return_value=MockServiceConfigApi.APPLIANCE_DETAILS)
-        ServiceConfigsHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
+        ServiceConfigsHandler().handle(
+            powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.configuration.modify_service_config.assert_called()
         assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
 
