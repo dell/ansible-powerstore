@@ -11,6 +11,9 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
 
 LOG = utils.get_logger('configuration')
 
+# Application type
+APPLICATION_TYPE = 'Ansible/3.1.0'
+
 
 class ConfigurationSDK:
 
