@@ -9,7 +9,7 @@ import pytest
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library. \
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries. \
     fail_json import FailJsonException, fail_json
 
 
@@ -24,6 +24,7 @@ class PowerStoreUnitBase:
         powerstore_module_mock = module_object()
         powerstore_module_mock.module = MagicMock()
         powerstore_module_mock.module.fail_json = fail_json
+        powerstore_module_mock.module.check_mode = False
         return powerstore_module_mock
 
     def capture_fail_json_call(self, error_msg, module_mock, module_handler=None, invoke_perform_module=False):
@@ -32,6 +33,14 @@ class PowerStoreUnitBase:
                 module_handler().handle(module_mock, module_mock.module.params)
             else:
                 module_mock.perform_module_operation()
+        except FailJsonException as fj_object:
+            if error_msg not in fj_object.message:
+                raise AssertionError(fj_object.message)
+
+    def capture_fail_json_method(self, error_msg, module_mock, function_name, *args, **kwargs):
+        try:
+            func = getattr(module_mock, function_name)
+            func(*args, **kwargs)
         except FailJsonException as fj_object:
             if error_msg not in fj_object.message:
                 raise AssertionError(fj_object.message)

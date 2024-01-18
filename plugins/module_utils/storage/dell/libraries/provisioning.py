@@ -25,41 +25,38 @@ class Provisioning:
         self.provisioning = provisioning
         self.module = module
 
-    def get_nas_server(self, nas_server_id=None, nas_server_name=None):
+    def get_nas_server(self, nas_server=None):
         """Get the details of NAS Server of a given Powerstore storage
         system"""
-        msg = None
 
         try:
-            log_msg = "Getting NAS Server details id: {0} name " \
-                      "{1}".format(nas_server_id, nas_server_name)
-            LOG.info(log_msg)
-            if nas_server_name:
+            msg = 'Getting NAS Server details {0}'.format(nas_server)
+            LOG.info(msg)
+            id_or_name = utils.name_or_id(val=nas_server)
+            LOG.info(id_or_name)
+            if id_or_name == "NAME":
                 nas_details = self.provisioning.get_nas_server_by_name(
-                    nas_server_name=nas_server_name)
-                if nas_details:
-                    nas_details = nas_details[0]
+                    nas_server_name=nas_server)
+                if nas_details:  # implement in sdk , workaround
+                    nas_details = nas_details[0]['id']
             else:
                 nas_details = self.provisioning.get_nas_server_details(
-                    nas_server_id=nas_server_id)
+                    nas_server_id=nas_server)
+                if nas_details:  # implement in sdk , workaround
+                    nas_details = nas_details['id']
 
             if nas_details:
-                log_msg = 'Successfully got NAS Server details {0} '.format(nas_details)
-                LOG.info(log_msg)
+                msg = f'Successfully got NAS Server details {nas_details}'
+                LOG.info(msg)
+
+                return nas_details
             else:
-                msg = 'Failed to get NAS Server with id {0} or name {1}' \
-                      ' from powerstore system'.format(nas_server_id,
-                                                       nas_server_name)
-            LOG.error(msg)
-            return nas_details
+                msg = 'Failed to get NAS Server with id or name {0} from ' \
+                      'powerstore system'.format(nas_server)
+
+            self.module.fail_json(msg=msg)
 
         except Exception as e:
-            msg = 'Get NAS Server with id {0} or name {1} failed with ' \
-                  'error {2} '.format(nas_server_id, nas_server_name, str(e))
-            if isinstance(e, utils.PowerStoreException) and \
-                    e.err_code == utils.PowerStoreException.HTTP_ERR and \
-                    e.status_code == "404":
-                LOG.info(msg)
-                return None
+            msg = f'Get NAS Server {nas_server} failed with error {str(e)} '
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))

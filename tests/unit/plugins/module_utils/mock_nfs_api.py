@@ -347,6 +347,10 @@ class MockNfsApi:
     ]
 
     @staticmethod
+    def get_nfs_export_failed_msg():
+        return "Entered filesystem/snapshot/nas_server/path do not match with the corresponding NFS Export details."
+
+    @staticmethod
     def get_nfs_export_wo_nas_failed_msg():
         return "Please provide NAS Server details along with filesystem"
 

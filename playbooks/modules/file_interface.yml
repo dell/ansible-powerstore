@@ -8,6 +8,9 @@
     user: "user"
     password: "password"
     nas_server_name: "sample_nas_1"
+    ip_address_1: "10.**.**.**"
+    ip_address_2: "10.**.**.**"
+    gateway: "10.**.**.1"
 
   tasks:
     - name: Create File interface
@@ -17,8 +20,8 @@
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        nas_server_name: "{{ nas_server_name }}"
-        ip_address: "10.10.10.10"
+        nas_server: "{{ nas_server_name }}"
+        ip_address: "{{ ip_address_1 }}"
         vlan_id: 0
         prefix_length: 21
         gateway: "10.10.10.1"
@@ -38,8 +41,8 @@
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        nas_server_id: "{{ result.file_interface_details.nas_server_id }}"
-        ip_address: "10.10.10.10"
+        nas_server: "{{ result.file_interface_details.nas_server_id }}"
+        ip_address: "{{ ip_address_1 }}"
 
     - name: Modify File interface
       dellemc.powerstore.file_interface:
@@ -48,10 +51,10 @@
         user: "{{ user }}"
         password: "{{ password }}"
         file_interface_id: "{{ result.file_interface_details.id }}"
-        ip_address: "10.10.10.11"
+        ip_address: "{{ ip_address_2 }}"
         vlan_id: 0
         prefix_length: 21
-        gateway: "10.10.10.1"
+        gateway: "{{ gateway }}"
         state: "present"
 
     - name: Delete File interface

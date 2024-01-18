@@ -10,7 +10,7 @@ __metaclass__ = type
 
 import pytest
 # pylint: disable=unused-import
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_info_api import MockInfoApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
@@ -339,3 +339,13 @@ class TestPowerstoreInfo():
         info_module_mock.perform_module_operation()
         assert MockInfoApi.get_invalid_filter_key() in \
             info_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_get_service_config(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['service_config'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_service_configs.assert_called()

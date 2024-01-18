@@ -26,13 +26,9 @@ options:
     description:
     - The unique identifier of the file interface.
     type: str
-  nas_server_name:
+  nas_server:
     description:
-    - Name for the NAS server.
-    type: str
-  nas_server_id:
-    description:
-    - Unique identifier of the NAS server to which the network interface belongs,
+    - Unique identifier/name of the NAS server to which the network interface belongs,
       as defined by the nas_server resource type.
     type: str
   ip_address:
@@ -99,7 +95,7 @@ EXAMPLES = r'''
     validate_certs: "{{ validate_certs }}"
     user: "{{ user }}"
     password: "{{ password }}"
-    nas_server_id: "{{ nas_server_id }}"
+    nas_server: "{{ nas_server_id }}"
     ip_address: "10.10.10.10"
     vlan_id: 0
     prefix_length: 21
@@ -120,7 +116,7 @@ EXAMPLES = r'''
     validate_certs: "{{ validate_certs }}"
     user: "{{ user }}"
     password: "{{ password }}"
-    nas_server_name: "sample_nas_server"
+    nas_server: "sample_nas_server"
     ip_address: "10.10.10.10"
 
 - name: Modify file interface
@@ -233,13 +229,9 @@ class PowerStoreFileInterface(PowerStoreBase):
 
         """Define all parameters for this module."""
 
-        # initialize the Ansible module
-        mut_ex_args = [['nas_server_id', 'nas_server_name']]
-
         ansible_module_params = {
             'argument_spec': get_powerstore_file_interface_parameters(),
-            'supports_check_mode': True,
-            'mutually_exclusive': mut_ex_args
+            'supports_check_mode': True
         }
         super().__init__(AnsibleModule, ansible_module_params)
 
@@ -249,11 +241,10 @@ class PowerStoreFileInterface(PowerStoreBase):
         )
         self.file_interface = self.conn.file_interface
 
-    def get_nas_server(self, nas_server_id=None, nas_server_name=None):
+    def get_nas_server(self, nas_server=None):
         """Get the details of NAS Server of a given Powerstore storage
         system"""
-        return Provisioning(self.provisioning, self.module).get_nas_server(nas_server_id=nas_server_id,
-                                                                           nas_server_name=nas_server_name)
+        return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
     def create_file_interface(self, create_params):
         """Create a file interface"""
@@ -264,12 +255,14 @@ class PowerStoreFileInterface(PowerStoreBase):
             if not self.module.check_mode:
                 create_dict = dict()
                 create_keys = ['ip_address', 'vlan_id', 'gateway',
-                               'prefix_length', 'role', 'nas_server_id',
+                               'prefix_length', 'role',
                                'is_disabled', 'ip_port_id']
                 for key in create_keys:
                     if create_params[key] is not None:
                         create_dict[key] = create_params[key]
 
+                if create_params['nas_server'] is not None:
+                    create_dict['nas_server_id'] = create_params['nas_server']
                 resp = self.file_interface.create_file_interface(
                     payload=create_dict)
 
@@ -315,8 +308,8 @@ class PowerStoreFileInterface(PowerStoreBase):
 
         try:
             msg = (f'Getting file interface details with '
-                   f'file_interface_id {file_interface_id}'
-                   f'nas_server_id {nas_server_id}'
+                   f'file_interface_id {file_interface_id} '
+                   f'nas_server_id {nas_server_id} '
                    f'ip_address {ip_address}')
             LOG.info(msg)
             file_interface_details = None
@@ -388,8 +381,7 @@ def get_powerstore_file_interface_parameters():
     """This method provides the parameters required for the ansible
     nas server modules on PowerStore"""
     return dict(
-        nas_server_name=dict(type='str'),
-        nas_server_id=dict(type='str'),
+        nas_server=dict(type='str'),
         file_interface_id=dict(type='str'),
         ip_address=dict(type='str'),
         gateway=dict(type='str'),
@@ -443,13 +435,13 @@ class FileInterfaceCreateHandler():
 
 class FileInterfaceHandler():
     def handle(self, file_interface_obj, file_interface_params):
-        nas_details = file_interface_obj.get_nas_server(nas_server_id=file_interface_params['nas_server_id'],
-                                                        nas_server_name=file_interface_params['nas_server_name'])
-        nas_server_id = None
-        if nas_details:
-            file_interface_params['nas_server_id'] = nas_details['id']
+        nas_id = None
+        if file_interface_params['nas_server']:
+            nas_id = file_interface_obj.get_nas_server(nas_server=file_interface_params['nas_server'])
+        if nas_id:
+            file_interface_params['nas_server'] = nas_id
         file_interface_details = file_interface_obj.get_file_interface_details(file_interface_id=file_interface_params['file_interface_id'],
-                                                                               nas_server_id=file_interface_params['nas_server_id'],
+                                                                               nas_server_id=file_interface_params['nas_server'],
                                                                                ip_address=file_interface_params['ip_address'])
         FileInterfaceCreateHandler().handle(file_interface_obj, file_interface_params, file_interface_details)
 

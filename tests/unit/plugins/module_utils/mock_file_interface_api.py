@@ -17,8 +17,7 @@ class MockFileInterfaceApi:
     FILE_INTERFACE_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'file_interface_id': None,
-        'nas_server_id': None,
-        'nas_server_name': None,
+        'nas_server': None,
         'ip_address': None,
         'gateway': None,
         'prefix_length': None,
@@ -33,7 +32,7 @@ class MockFileInterfaceApi:
     FILE_INTERFACE_DETAILS = {
         "gateway": "10.10.10.1",
         "id": "65a50e0d-25f9-bd0a-8ca7-62b767ad9845",
-        "ip_address": "10.10.10.10",
+        "ip_address": "10.**.**.**",
         "ip_port_id": "IP_PORT2",
         "is_destination_override_enabled": False,
         "is_disabled": False,
