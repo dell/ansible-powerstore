@@ -1,5 +1,5 @@
 ---
-- name: Nas Server operations on Powerstore Storage System
+- name: File interface operations on Powerstore Storage System
   hosts: localhost
   connection: local
   vars:
@@ -8,8 +8,9 @@
     user: "user"
     password: "password"
     nas_server_name: "sample_nas_1"
-    ip_address_1: "10.**.**.**"
-    ip_address_2: "10.**.**.**"
+
+    ip_address_1: "10.**.**.aa"
+    ip_address_2: "10.**.**.bb"
     gateway: "10.**.**.1"
 
   tasks:

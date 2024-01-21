@@ -1,0 +1,63 @@
+---
+- name: SMB Server operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "password"
+    nas_server_name: "sample_nas_1"
+
+  tasks:
+    - name: Enable SMB server
+      register: result
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        is_standalone: true
+        netbios_name: "string"
+        workgroup: "string"
+        description: "string"
+        local_admin_password: "string"
+        state: "present"
+
+    - name: Get SMB server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        smb_server_id: "{{ result.smb_server_details.id }}"
+
+    - name: Get SMB server with NAS server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ result.smb_server_details.nas_server_id }}"
+
+    - name: Modify SMB server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        smb_server_id: "{{ result.smb_server_details.id }}"
+        netbios_name: "string2"
+        workgroup: "string2"
+        description: "string2"
+        local_admin_password: "string2"
+
+    - name: Delete SMB server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        smb_server_id: "{{ result.smb_server_details.id }}"
+        state: "absent"

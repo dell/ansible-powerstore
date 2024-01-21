@@ -325,7 +325,7 @@ class PowerStoreFileInterface(PowerStoreBase):
                 else:
                     file_interface_details = file_interfaces[0]
 
-            msg = f'Successfully got file_interface details {file_interface_details}'
+            msg = f'Successfully got file interface details {file_interface_details}'
             LOG.info(msg)
             return file_interface_details
 
@@ -369,7 +369,8 @@ class PowerStoreFileInterface(PowerStoreBase):
                 self.file_interface.modify_file_interface(
                     file_interface_id=file_interface_id,
                     modify_parameters=modify_params)
-            return True
+            return self.get_file_interface_details(
+                file_interface_id=file_interface_id)
         except Exception as e:
             msg = (f'Failed to modify the file interface instance '
                    f'with error {str(e)}')
@@ -379,7 +380,7 @@ class PowerStoreFileInterface(PowerStoreBase):
 
 def get_powerstore_file_interface_parameters():
     """This method provides the parameters required for the ansible
-    nas server modules on PowerStore"""
+    file interface module on PowerStore"""
     return dict(
         nas_server=dict(type='str'),
         file_interface_id=dict(type='str'),
