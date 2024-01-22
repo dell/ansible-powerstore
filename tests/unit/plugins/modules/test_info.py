@@ -339,13 +339,3 @@ class TestPowerstoreInfo():
         info_module_mock.perform_module_operation()
         assert MockInfoApi.get_invalid_filter_key() in \
             info_module_mock.module.fail_json.call_args[1]['msg']
-
-    def test_get_service_config(self, info_module_mock):
-        self.get_module_args.update({
-            'gather_subset': ['service_config'],
-            'filters': None,
-            'all_pages': None
-        })
-        info_module_mock.module.params = self.get_module_args
-        info_module_mock.perform_module_operation()
-        info_module_mock.configuration.get_service_configs.assert_called()

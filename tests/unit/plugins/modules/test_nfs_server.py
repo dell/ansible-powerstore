@@ -103,7 +103,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             self.get_module_args,
             {
                 'nas_server': "sample_nas_server",
-                 'host_name': "sample_host",
+                'host_name': "sample_host",
                 'credentials_cache_TTL': 60,
                 'is_extended_credentials_enabled': False,
                 'is_nfsv3_enabled': True,

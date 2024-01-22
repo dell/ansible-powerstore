@@ -13,7 +13,7 @@ short_description: Manage File interface for PowerStore
 description:
 - Managing storage containers on PowerStore Storage System includes creating
   a file interface, getting details of a file interface, modifying a
-  sfile interface and deleting a file interface.
+  file interface and deleting a file interface.
 
 author:
 - Trisha Datta (@trisha-dell) <ansible.team@dell.com>
@@ -82,8 +82,8 @@ options:
 
 notes:
 - The I(check_mode) is supported.
-- The details of a file interface can be fetched using C(file_interface_id) or
-  C(nas_server_id)/C(nas_server_name) and C(ip_address)
+- The details of a file interface can be fetched using I(file_interface_id) or
+  I(nas_server) and C(ip_address)
 '''
 
 EXAMPLES = r'''
@@ -96,10 +96,10 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     nas_server: "{{ nas_server_id }}"
-    ip_address: "10.10.10.10"
+    ip_address: "10.**.**.**"
     vlan_id: 0
     prefix_length: 21
-    gateway: "10.10.10.1"
+    gateway: "10.**.**.1"
     state: "present"
 
 - name: Get file interface with file_interface_id
@@ -117,7 +117,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     nas_server: "sample_nas_server"
-    ip_address: "10.10.10.10"
+    ip_address: "10.**.**.**"
 
 - name: Modify file interface
   dellemc.powerstore.file_interface:
@@ -126,10 +126,10 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     file_interface_id: "{{ file_interface_id }}"
-    ip_address: "10.10.10.11"
+    ip_address: "10.**.**.aa"
     vlan_id: 0
     prefix_length: 21
-    gateway: "10.10.10.1"
+    gateway: "10.**.**.1"
     state: "present"
 
 - name: Delete file interface
@@ -389,8 +389,8 @@ def get_powerstore_file_interface_parameters():
         prefix_length=dict(type='int'),
         vlan_id=dict(type='int'),
         ip_port_id=dict(type='str'),
-        is_disabled=dict(required=False, type='bool'),
-        role=dict(required=False, type='str',
+        is_disabled=dict(type='bool'),
+        role=dict(type='str',
                   choices=['Production', 'Backup', 'System']),
         is_destination_override_enabled=dict(type='bool'),
         state=dict(default='present', type='str', choices=['present', 'absent'])
