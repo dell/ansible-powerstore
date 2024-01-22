@@ -78,7 +78,7 @@ EXAMPLES = r'''
     nas_server: "{{ nas_server_name }}"
     domain: "NAS_domain"
     add_ip_addresses:
-    -  "10.10.10.10"
+      - "10.**.**.**"
     state: "present"
 
 - name: Get File DNS
@@ -106,9 +106,9 @@ EXAMPLES = r'''
     file_nis_id: "{{ result.file_nis_details.id }}"
     domain: "NAS_domain"
     add_ip_addresses:
-    - "10.10.10.11"
+      - "10.**.**.@@"
     remove_ip_addresses:
-    - "10.10.10.10"
+      - "10.**.**.**"
 
 - name: Delete file DNS
   dellemc.powerstore.file_nis:
@@ -118,7 +118,6 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_nis_id: "{{ result.file_nis_details.id }}"
     state: "absent"
-
 '''
 
 RETURN = r'''

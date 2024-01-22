@@ -86,7 +86,7 @@ EXAMPLES = r'''
     nas_server: "{{ nas_server_name }}"
     domain: "NAS_domain"
     add_ip_addresses:
-    -  "10.10.10.10"
+      - "10.**.**.**"
     transport: "UDP"
     state: "present"
 
@@ -115,9 +115,9 @@ EXAMPLES = r'''
     file_dns_id: "{{ result.file_dns_details.id }}"
     domain: "NAS_domain"
     add_ip_addresses:
-    - "10.10.10.11"
+      - "10.**.**.@@"
     remove_ip_addresses:
-    - "10.10.10.10"
+      - "10.**.**.**"
     transport: "UDP"
 
 - name: Delete file DNS
@@ -128,7 +128,6 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_dns_id: "{{ result.file_dns_details.id }}"
     state: "absent"
-
 '''
 
 RETURN = r'''
