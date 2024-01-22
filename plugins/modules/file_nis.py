@@ -118,7 +118,6 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_nis_id: "{{ result.file_nis_details.id }}"
     state: "absent"
-
 '''
 
 RETURN = r'''

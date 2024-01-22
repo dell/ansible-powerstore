@@ -128,7 +128,6 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_dns_id: "{{ result.file_dns_details.id }}"
     state: "absent"
-
 '''
 
 RETURN = r'''
