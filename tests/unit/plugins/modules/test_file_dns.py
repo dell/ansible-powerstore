@@ -10,14 +10,10 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
-    import utils
 from ansible_collections.dellemc.powerstore.plugins.modules.file_dns import \
     PowerStoreFileDNS
 from ansible_collections.dellemc.powerstore.plugins.modules.file_dns import \
     FileDNSHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.file_dns import \
-    main
 
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_file_dns_api \
     import MockFileDNSApi

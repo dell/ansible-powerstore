@@ -58,7 +58,7 @@ options:
   is_destination_override_enabled:
     description:
     - In order to modify any properties of this resource when the associated NAS server
-      is a replication destination, the is_destination_override_enabled flag must be set to true.
+      is a replication destination, the I(is_destination_override_enabled) flag must be set to C(true).
     type: bool
   state:
     description:
@@ -128,6 +128,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_dns_id: "{{ result.file_dns_details.id }}"
     state: "absent"
+
 '''
 
 RETURN = r'''
@@ -165,7 +166,7 @@ file_nis_details:
         "domain": "NAS_domain",
         "id": "65ab7e44-7009-e3e5-907a-62b767ad9845",
         "ip_addresses": [
-            "10.10.10.11"
+            "10.**.**.**"
         ],
         "is_destination_override_enabled": false,
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
@@ -214,6 +215,18 @@ class PowerStoreFileDNS(PowerStoreBase):
         system"""
         return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
+    def prepare_ip_addresses(self, create_params):
+        create_dict = dict()
+
+        if create_params['add_ip_addresses'] is None:
+            create_dict['ip_addresses'] = []
+        elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
+            create_dict['ip_addresses'] = [ip for ip in create_params['add_ip_addresses'] if ip not in create_params['remove_ip_addresses']]
+        elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is None:
+            create_dict['ip_addresses'] = create_params['add_ip_addresses']
+
+        return create_dict
+
     def create_file_dns(self, create_params):
         """Enable the File DNS"""
         try:
@@ -223,12 +236,7 @@ class PowerStoreFileDNS(PowerStoreBase):
             if not self.module.check_mode:
                 create_dict = dict()
 
-                if create_params['add_ip_addresses'] is None:
-                    create_dict['ip_addresses'] = []
-                elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
-                    create_dict['ip_addresses'] = [ip for ip in create_params['add_ip_addresses'] if ip not in create_params['remove_ip_addresses']]
-                elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is None:
-                    create_dict['ip_addresses'] = create_params['add_ip_addresses']
+                create_dict = self.prepare_ip_addresses(create_params)
 
                 create_keys = ['domain', 'transport']
                 for key in create_keys:
@@ -308,14 +316,8 @@ class PowerStoreFileDNS(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def is_modify_required(self, file_dns_details, file_dns_params):
-        """To get the details of the fields to be modified."""
-
-        msg = f'File DNS details: {file_dns_details}'
-        LOG.info(msg)
+    def modify_ip_addresses(self, file_dns_details, file_dns_params):
         modify_dict = dict()
-
-        modify_keys = ['domain', 'transport']
 
         if file_dns_params['add_ip_addresses'] is None and file_dns_params['remove_ip_addresses'] is not None:
             ip_addresses_list = [ip for ip in file_dns_details['ip_addresses'] if ip not in file_dns_params['remove_ip_addresses']]
@@ -333,6 +335,18 @@ class PowerStoreFileDNS(PowerStoreBase):
             if set(ip_addresses_list) != set(file_dns_details['ip_addresses']):
                 modify_dict['ip_addresses'] = ip_addresses_list
 
+        return modify_dict
+
+    def is_modify_required(self, file_dns_details, file_dns_params):
+        """To get the details of the fields to be modified."""
+
+        msg = f'File DNS details: {file_dns_details}'
+        LOG.info(msg)
+        modify_dict = dict()
+
+        modify_keys = ['domain', 'transport']
+
+        modify_dict = self.modify_ip_addresses(file_dns_details, file_dns_params)
         for key in modify_keys:
             if file_dns_params[key] is not None and \
                     file_dns_params[key] != file_dns_details[key]:
@@ -387,9 +401,8 @@ class FileDNSExitHandler():
 class FileDNSDeleteHandler():
     def handle(self, file_dns_obj, file_dns_params, file_dns_details):
         if file_dns_params['state'] == 'absent' and file_dns_details:
-            changed = file_dns_obj.delete_file_dns(file_dns_params['file_dns_id'])
+            file_dns_details = file_dns_obj.delete_file_dns(file_dns_params['file_dns_id'])
             file_dns_obj.result['changed'] = True
-            file_dns_details = {}
 
         FileDNSExitHandler().handle(file_dns_obj, file_dns_details)
 
@@ -419,7 +432,7 @@ class FileDNSHandler():
     def handle(self, file_dns_obj, file_dns_params):
         nas_id = None
         if file_dns_params['nas_server']:
-            nas_id = file_dns_obj.get_nas_server(nas_server=file_dns_params['nas_server'])
+            nas_id = file_dns_obj.get_nas_server(nas_server=file_dns_params['nas_server'])['id']
         if nas_id:
             file_dns_params['nas_server'] = nas_id
         file_dns_details = file_dns_obj.get_file_dns_details(file_dns_id=file_dns_params['file_dns_id'],

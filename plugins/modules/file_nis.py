@@ -9,9 +9,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 module: file_nis
 version_added: '3.1.0'
-short_description: Manage File nis for PowerStore
+short_description: Manage File NIS for PowerStore
 description:
-- Managing storage containers on PowerStore Storage System includes enabling
+- Managing file NIS on PowerStore Storage System includes enabling
   the file NIS, getting details of a file NIS, modifying a
   file NIS and disabling the file NIS.
 
@@ -50,7 +50,7 @@ options:
   is_destination_override_enabled:
     description:
     - In order to modify any properties of this resource when the associated NAS server
-      is a replication destination, the is_destination_override_enabled flag must be set to true.
+      is a replication destination, the I(is_destination_override_enabled) flag must be set to C(true).
     type: bool
   state:
     description:
@@ -81,7 +81,7 @@ EXAMPLES = r'''
       - "10.**.**.**"
     state: "present"
 
-- name: Get File DNS
+- name: Get File NIS
   dellemc.powerstore.file_nis:
     array_ip: "{{ array_ip }}"
     validate_certs: "{{ validate_certs }}"
@@ -89,7 +89,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_nis_id: "{{ result.file_nis_details.id }}"
 
-- name: Get File DNS with NAS server
+- name: Get File NIS with NAS server
   dellemc.powerstore.file_nis:
     array_ip: "{{ array_ip }}"
     validate_certs: "{{ validate_certs }}"
@@ -97,7 +97,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     nas_server: "{{ result.file_nis_details.nas_server_id }}"
 
-- name: Modify File DNS
+- name: Modify File NIS
   dellemc.powerstore.file_nis:
     array_ip: "{{ array_ip }}"
     validate_certs: "{{ validate_certs }}"
@@ -110,7 +110,7 @@ EXAMPLES = r'''
     remove_ip_addresses:
       - "10.**.**.**"
 
-- name: Delete file DNS
+- name: Delete file NIS
   dellemc.powerstore.file_nis:
     array_ip: "{{ array_ip }}"
     validate_certs: "{{ validate_certs }}"
@@ -118,6 +118,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     file_nis_id: "{{ result.file_nis_details.id }}"
     state: "absent"
+
 '''
 
 RETURN = r'''
@@ -152,7 +153,7 @@ file_nis_details:
         "domain": "NAS_domain",
         "id": "65ab7e44-7009-e3e5-907a-62b767ad9845",
         "ip_addresses": [
-            "10.10.10.11"
+            "10.**.**.**"
         ],
         "is_destination_override_enabled": false,
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845"
@@ -199,6 +200,18 @@ class PowerStoreFileNIS(PowerStoreBase):
         system"""
         return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
+    def prepare_ip_addresses(self, create_params):
+        create_dict = dict()
+
+        if create_params['add_ip_addresses'] is None:
+            create_dict['ip_addresses'] = []
+        elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
+            create_dict['ip_addresses'] = [ip for ip in create_params['add_ip_addresses'] if ip not in create_params['remove_ip_addresses']]
+        elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is None:
+            create_dict['ip_addresses'] = create_params['add_ip_addresses']
+
+        return create_dict
+
     def create_file_nis(self, create_params):
         """Enable the File NIS"""
         try:
@@ -208,12 +221,7 @@ class PowerStoreFileNIS(PowerStoreBase):
             if not self.module.check_mode:
                 create_dict = dict()
 
-                if create_params['add_ip_addresses'] is None:
-                    create_dict['ip_addresses'] = []
-                elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
-                    create_dict['ip_addresses'] = [ip for ip in create_params['add_ip_addresses'] if ip not in create_params['remove_ip_addresses']]
-                elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is None:
-                    create_dict['ip_addresses'] = create_params['add_ip_addresses']
+                create_dict = self.prepare_ip_addresses(create_params)
 
                 if create_params['domain'] is not None:
                     create_dict['domain'] = create_params['domain']
@@ -291,11 +299,7 @@ class PowerStoreFileNIS(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def is_modify_required(self, file_nis_details, file_nis_params):
-        """To get the details of the fields to be modified."""
-
-        msg = f'File nis details: {file_nis_details}'
-        LOG.info(msg)
+    def modify_ip_addresses(self, file_nis_details, file_nis_params):
         modify_dict = dict()
 
         if file_nis_params['add_ip_addresses'] is None and file_nis_params['remove_ip_addresses'] is not None:
@@ -314,6 +318,17 @@ class PowerStoreFileNIS(PowerStoreBase):
             if set(ip_addresses_list) != set(file_nis_details['ip_addresses']):
                 modify_dict['ip_addresses'] = ip_addresses_list
 
+        return modify_dict
+
+    def is_modify_required(self, file_nis_details, file_nis_params):
+        """To get the details of the fields to be modified."""
+
+        msg = f'File NIS details: {file_nis_details}'
+        LOG.info(msg)
+        modify_dict = dict()
+
+        modify_dict = self.modify_ip_addresses(file_nis_details, file_nis_params)
+
         if file_nis_params['domain'] is not None and \
                 file_nis_params['domain'] != file_nis_details['domain']:
             modify_dict['domain'] = file_nis_params['domain']
@@ -328,7 +343,7 @@ class PowerStoreFileNIS(PowerStoreBase):
 
     def modify_file_nis_details(self, file_nis_id,
                                 modify_params):
-        """Perform modify operations on a File nis"""
+        """Perform modify operations on a File NIS"""
 
         try:
             if not self.module.check_mode:
@@ -346,7 +361,7 @@ class PowerStoreFileNIS(PowerStoreBase):
 
 def get_powerstore_file_nis_parameters():
     """This method provides the parameters required for the ansible
-    File nis modules on PowerStore"""
+    File NIS modules on PowerStore"""
     return dict(
         nas_server=dict(type='str'),
         file_nis_id=dict(type='str'),
@@ -367,9 +382,8 @@ class FileNISExitHandler():
 class FileNISDeleteHandler():
     def handle(self, file_nis_obj, file_nis_params, file_nis_details):
         if file_nis_params['state'] == 'absent' and file_nis_details:
-            changed = file_nis_obj.delete_file_nis(file_nis_params['file_nis_id'])
+            file_nis_details = file_nis_obj.delete_file_nis(file_nis_params['file_nis_id'])
             file_nis_obj.result['changed'] = True
-            file_nis_details = {}
 
         FileNISExitHandler().handle(file_nis_obj, file_nis_details)
 
@@ -399,7 +413,7 @@ class FileNISHandler():
     def handle(self, file_nis_obj, file_nis_params):
         nas_id = None
         if file_nis_params['nas_server']:
-            nas_id = file_nis_obj.get_nas_server(nas_server=file_nis_params['nas_server'])
+            nas_id = file_nis_obj.get_nas_server(nas_server=file_nis_params['nas_server'])['id']
         if nas_id:
             file_nis_params['nas_server'] = nas_id
         file_nis_details = file_nis_obj.get_file_nis_details(file_nis_id=file_nis_params['file_nis_id'],

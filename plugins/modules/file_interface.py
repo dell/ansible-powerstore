@@ -11,7 +11,7 @@ module: file_interface
 version_added: '3.1.0'
 short_description: Manage File interface for PowerStore
 description:
-- Managing storage containers on PowerStore Storage System includes creating
+- Managing file interfaces on PowerStore Storage System includes creating
   a file interface, getting details of a file interface, modifying a
   file interface and deleting a file interface.
 
@@ -29,7 +29,7 @@ options:
   nas_server:
     description:
     - Unique identifier/name of the NAS server to which the network interface belongs,
-      as defined by the nas_server resource type.
+      as defined by the I(nas_server) resource type.
     type: str
   ip_address:
     description:
@@ -74,7 +74,7 @@ options:
     type: bool
   state:
     description:
-    - Define whether the storage container should exist or not.
+    - Define whether the file interface should exist or not.
     - For Delete operation only, it should be set to C(absent).
     choices: ['absent', 'present']
     type: str
@@ -83,7 +83,7 @@ options:
 notes:
 - The I(check_mode) is supported.
 - The details of a file interface can be fetched using I(file_interface_id) or
-  I(nas_server) and C(ip_address)
+  I(nas_server) and I(ip_address)
 '''
 
 EXAMPLES = r'''
@@ -126,7 +126,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     file_interface_id: "{{ file_interface_id }}"
-    ip_address: "10.**.**.aa"
+    ip_address: "10.**.**.@@"
     vlan_id: 0
     prefix_length: 21
     gateway: "10.**.**.1"
@@ -190,9 +190,9 @@ file_interface_details:
             type: int
 
     sample: {
-        "gateway": "10.10.10.1",
+        "gateway": "10.**.**.1",
         "id": "65a50e0d-25f9-bd0a-8ca7-62b767ad9845",
-        "ip_address": "10.10.10.10",
+        "ip_address": "10.**.**.**",
         "ip_port_id": "IP_PORT2",
         "is_destination_override_enabled": False,
         "is_disabled": False,
@@ -270,8 +270,8 @@ class PowerStoreFileInterface(PowerStoreBase):
                     file_interface_details = self.get_file_interface_details(
                         file_interface_id=resp['id'])
 
-                msg = f'Successfully created file interface with details' \
-                      f' {file_interface_details}'
+                msg = (f'Successfully created file interface with details'
+                       f' {file_interface_details}')
                 LOG.info(msg)
 
             return file_interface_details
@@ -406,9 +406,8 @@ class FileInterfaceExitHandler():
 class FileInterfaceDeleteHandler():
     def handle(self, file_interface_obj, file_interface_params, file_interface_details):
         if file_interface_params['state'] == 'absent' and file_interface_details:
-            changed = file_interface_obj.delete_file_interface(file_interface_params['file_interface_id'])
+            file_interface_details = file_interface_obj.delete_file_interface(file_interface_params['file_interface_id'])
             file_interface_obj.result['changed'] = True
-            file_interface_details = {}
 
         FileInterfaceExitHandler().handle(file_interface_obj, file_interface_details)
 
@@ -438,7 +437,7 @@ class FileInterfaceHandler():
     def handle(self, file_interface_obj, file_interface_params):
         nas_id = None
         if file_interface_params['nas_server']:
-            nas_id = file_interface_obj.get_nas_server(nas_server=file_interface_params['nas_server'])
+            nas_id = file_interface_obj.get_nas_server(nas_server=file_interface_params['nas_server'])['id']
         if nas_id:
             file_interface_params['nas_server'] = nas_id
         file_interface_details = file_interface_obj.get_file_interface_details(file_interface_id=file_interface_params['file_interface_id'],

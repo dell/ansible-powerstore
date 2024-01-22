@@ -10,15 +10,10 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
-    import utils
 from ansible_collections.dellemc.powerstore.plugins.modules.smb_server import \
     PowerStoreSMBServer
 from ansible_collections.dellemc.powerstore.plugins.modules.smb_server import \
     SMBServerHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.smb_server import \
-    main
-
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_smb_server_api \
     import MockSMBServerApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import \

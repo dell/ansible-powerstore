@@ -29,7 +29,7 @@ options:
   nas_server:
     description:
     - Unique identifier/name of the NAS server to which the network interface belongs,
-      as defined by the nas_server resource type.
+      as defined by the I(nas_server) resource type.
     type: str
   host_name:
     description:
@@ -76,7 +76,7 @@ options:
 
 notes:
 - The I(check_mode) is supported.
-- The details of a file interface can be fetched using I(nfs_server_id) or
+- The details of an NFS server can be fetched using I(nfs_server_id) or
   I(nas_server)
 '''
 
@@ -257,9 +257,6 @@ class PowerStoreNFSServer(PowerStoreBase):
                 resp = self.nfs_server.create_nfs_server(
                     payload=create_dict)
 
-                LOG.info("this is create response")
-                LOG.info(resp)
-
                 if resp:
                     nfs_server_details = self.get_nfs_server_details(
                         nfs_server_id=resp['id'])
@@ -279,7 +276,7 @@ class PowerStoreNFSServer(PowerStoreBase):
         """ Disable an nfs server """
 
         try:
-            msg = f'Deleting nfs server with identifier:' \
+            msg = f'Deleting NFS server with identifier:' \
                   f' {nfs_server_id}'
             LOG.info(msg)
             if not self.module.check_mode:
@@ -332,7 +329,7 @@ class PowerStoreNFSServer(PowerStoreBase):
     def is_modify_required(self, nfs_server_details, nfs_server_params):
         """To get the details of the fields to be modified."""
 
-        msg = f'nfs server details: {nfs_server_details}'
+        msg = f'NFS server details: {nfs_server_details}'
         LOG.info(msg)
         modify_dict = dict()
 
@@ -398,9 +395,8 @@ class NFSServerExitHandler():
 class NFSServerDeleteHandler():
     def handle(self, nfs_server_obj, nfs_server_params, nfs_server_details):
         if nfs_server_params['state'] == 'absent' and nfs_server_details:
-            changed = nfs_server_obj.delete_nfs_server(nfs_server_params['nfs_server_id'])
+            nfs_server_details = nfs_server_obj.delete_nfs_server(nfs_server_params['nfs_server_id'])
             nfs_server_obj.result['changed'] = True
-            nfs_server_details = {}
 
         NFSServerExitHandler().handle(nfs_server_obj, nfs_server_details)
 
@@ -409,8 +405,6 @@ class NFSServerModifyHandler():
     def handle(self, nfs_server_obj, nfs_server_params, nfs_server_details):
         if nfs_server_params['state'] == 'present' and nfs_server_details:
             modify_dict = nfs_server_obj.is_modify_required(nfs_server_details, nfs_server_params)
-            LOG.info("This is modify dict")
-            LOG.info(modify_dict)
             if modify_dict:
                 nfs_server_details = nfs_server_obj.modify_nfs_server_details(nfs_server_id=nfs_server_details['id'],
                                                                               modify_params=modify_dict)
@@ -432,7 +426,7 @@ class NFSServerHandler():
     def handle(self, nfs_server_obj, nfs_server_params):
         nas_id = None
         if nfs_server_params['nas_server']:
-            nas_id = nfs_server_obj.get_nas_server(nas_server=nfs_server_params['nas_server'])
+            nas_id = nfs_server_obj.get_nas_server(nas_server=nfs_server_params['nas_server'])['id']
         if nas_id:
             nfs_server_params['nas_server'] = nas_id
         nfs_server_details = nfs_server_obj.get_nfs_server_details(nfs_server_id=nfs_server_params['nfs_server_id'],

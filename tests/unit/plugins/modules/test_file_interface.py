@@ -10,15 +10,10 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
-    import utils
 from ansible_collections.dellemc.powerstore.plugins.modules.file_interface import \
     PowerStoreFileInterface
 from ansible_collections.dellemc.powerstore.plugins.modules.file_interface import \
     FileInterfaceHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.file_interface import \
-    main
-
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_file_interface_api \
     import MockFileInterfaceApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import \

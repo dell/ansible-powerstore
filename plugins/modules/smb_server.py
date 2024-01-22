@@ -29,7 +29,7 @@ options:
   nas_server:
     description:
     - Unique identifier/name of the NAS server to which the network interface belongs,
-      as defined by the nas_server resource type.
+      as defined by the I(nas_server) resource type.
     type: str
   is_standalone:
     description:
@@ -72,7 +72,7 @@ options:
 
 notes:
 - The I(check_mode) is supported.
-- The details of a file interface can be fetched using I(smb_server_id) or
+- The details of an SMB server can be fetched using I(smb_server_id) or
   I(nas_server)
 '''
 
@@ -139,8 +139,8 @@ changed:
     sample: "false"
 
 smb_server_details:
-    description: Details of the file interface.
-    returned: When file interface exists.
+    description: Details of the SMB server.
+    returned: When SMB server exists.
     type: complex
     contains:
         computer_name:
@@ -243,9 +243,6 @@ class PowerStoreSMBServer(PowerStoreBase):
                     create_dict['nas_server_id'] = create_params['nas_server']
                 resp = self.smb_server.create_smb_server(
                     payload=create_dict)
-
-                LOG.info("this is create response")
-                LOG.info(resp)
 
                 if resp:
                     smb_server_details = self.get_smb_server_details(
@@ -384,9 +381,8 @@ class SMBServerExitHandler():
 class SMBServerDeleteHandler():
     def handle(self, smb_server_obj, smb_server_params, smb_server_details):
         if smb_server_params['state'] == 'absent' and smb_server_details:
-            changed = smb_server_obj.delete_smb_server(smb_server_params['smb_server_id'])
+            smb_server_details = smb_server_obj.delete_smb_server(smb_server_params['smb_server_id'])
             smb_server_obj.result['changed'] = True
-            smb_server_details = {}
 
         SMBServerExitHandler().handle(smb_server_obj, smb_server_details)
 
@@ -416,7 +412,7 @@ class SMBServerHandler():
     def handle(self, smb_server_obj, smb_server_params):
         nas_id = None
         if smb_server_params['nas_server']:
-            nas_id = smb_server_obj.get_nas_server(nas_server=smb_server_params['nas_server'])
+            nas_id = smb_server_obj.get_nas_server(nas_server=smb_server_params['nas_server'])['id']
         if nas_id:
             smb_server_params['nas_server'] = nas_id
         smb_server_details = smb_server_obj.get_smb_server_details(smb_server_id=smb_server_params['smb_server_id'],

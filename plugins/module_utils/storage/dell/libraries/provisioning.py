@@ -38,12 +38,10 @@ class Provisioning:
                 nas_details = self.provisioning.get_nas_server_by_name(
                     nas_server_name=nas_server)
                 if nas_details:  # implement in sdk , workaround
-                    nas_details = nas_details[0]['id']
+                    nas_details = nas_details[0]
             else:
                 nas_details = self.provisioning.get_nas_server_details(
                     nas_server_id=nas_server)
-                if nas_details:  # implement in sdk , workaround
-                    nas_details = nas_details['id']
 
             if nas_details:
                 msg = f'Successfully got NAS Server details {nas_details}'

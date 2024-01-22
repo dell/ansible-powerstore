@@ -10,15 +10,10 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
-    import utils
 from ansible_collections.dellemc.powerstore.plugins.modules.nfs_server import \
     PowerStoreNFSServer
 from ansible_collections.dellemc.powerstore.plugins.modules.nfs_server import \
     NFSServerHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.nfs_server import \
-    main
-
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_nfs_server_api \
     import MockNFSServerApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import \

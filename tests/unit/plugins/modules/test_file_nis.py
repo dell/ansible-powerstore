@@ -10,15 +10,10 @@ import pytest
 from mock.mock import MagicMock
 # pylint: disable=unused-import
 
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
-    import utils
 from ansible_collections.dellemc.powerstore.plugins.modules.file_nis import \
     PowerStoreFileNIS
 from ansible_collections.dellemc.powerstore.plugins.modules.file_nis import \
     FileNISHandler
-from ansible_collections.dellemc.powerstore.plugins.modules.file_nis import \
-    main
-
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_file_nis_api \
     import MockFileNISApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception import \
