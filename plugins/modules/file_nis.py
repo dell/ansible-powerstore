@@ -335,7 +335,7 @@ class PowerStoreFileNIS(PowerStoreBase):
         if file_nis_params['is_destination_override_enabled'] is not None:
             modify_dict['is_destination_override_enabled'] = file_nis_params['is_destination_override_enabled']
 
-        return modify_dict:
+        return modify_dict
 
     def modify_file_nis_details(self, file_nis_id,
                                 modify_params):
