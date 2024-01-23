@@ -2042,7 +2042,7 @@ class PowerstoreInfo(object):
             'service_config': {
                 'func': self.configuration.get_service_configs,
                 'display_as': 'ServiceConfigs'
-             }
+            }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
 
