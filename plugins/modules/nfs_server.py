@@ -237,7 +237,7 @@ class PowerStoreNFSServer(PowerStoreBase):
         system"""
         return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
-    def create_nfs_server(self, create_params):
+    def create_nfs_server(self, create_params, nas_id):
         """Create an NFS server"""
         try:
             msg = 'Attempting to create an NFS server'
@@ -252,8 +252,8 @@ class PowerStoreNFSServer(PowerStoreBase):
                     if create_params[key] is not None:
                         create_dict[key] = create_params[key]
 
-                if create_params['nas_server'] is not None:
-                    create_dict['nas_server_id'] = create_params['nas_server']
+                if nas_id is not None:
+                    create_dict['nas_server_id'] = nas_id
                 resp = self.nfs_server.create_nfs_server(
                     payload=create_dict)
 
@@ -345,10 +345,8 @@ class PowerStoreNFSServer(PowerStoreBase):
         if nfs_server_params['is_skip_unjoin'] is not None and \
                 nfs_server_params['is_skip_unjoin'] != nfs_server_details['is_joined']:
             modify_dict['is_skip_unjoin'] = nfs_server_params['is_skip_unjoin']
-        if modify_dict:
-            return modify_dict
-        else:
-            return None
+
+        return modify_dict
 
     def modify_nfs_server_details(self, nfs_server_id,
                                   modify_params):
@@ -414,9 +412,10 @@ class NFSServerModifyHandler():
 
 
 class NFSServerCreateHandler():
-    def handle(self, nfs_server_obj, nfs_server_params, nfs_server_details):
+    def handle(self, nfs_server_obj, nfs_server_params, nfs_server_details, nas_id):
         if nfs_server_params['state'] == 'present' and not nfs_server_details:
-            nfs_server_details = nfs_server_obj.create_nfs_server(nfs_server_params)
+            nfs_server_details = nfs_server_obj.create_nfs_server(create_params=nfs_server_params,
+                                                                  nas_id=nas_id)
             nfs_server_obj.result['changed'] = True
 
         NFSServerModifyHandler().handle(nfs_server_obj, nfs_server_params, nfs_server_details)
@@ -427,11 +426,9 @@ class NFSServerHandler():
         nas_id = None
         if nfs_server_params['nas_server']:
             nas_id = nfs_server_obj.get_nas_server(nas_server=nfs_server_params['nas_server'])['id']
-        if nas_id:
-            nfs_server_params['nas_server'] = nas_id
         nfs_server_details = nfs_server_obj.get_nfs_server_details(nfs_server_id=nfs_server_params['nfs_server_id'],
-                                                                   nas_server_id=nfs_server_params['nas_server'])
-        NFSServerCreateHandler().handle(nfs_server_obj, nfs_server_params, nfs_server_details)
+                                                                   nas_server_id=nas_id)
+        NFSServerCreateHandler().handle(nfs_server_obj, nfs_server_params, nfs_server_details, nas_id)
 
 
 def main():

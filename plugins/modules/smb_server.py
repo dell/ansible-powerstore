@@ -224,7 +224,7 @@ class PowerStoreSMBServer(PowerStoreBase):
         system"""
         return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
-    def create_smb_server(self, create_params):
+    def create_smb_server(self, create_params, nas_id):
         """Create an SMB server"""
         try:
             msg = 'Attempting to create an SMB server'
@@ -239,8 +239,8 @@ class PowerStoreSMBServer(PowerStoreBase):
                     if create_params[key] is not None:
                         create_dict[key] = create_params[key]
 
-                if create_params['nas_server'] is not None:
-                    create_dict['nas_server_id'] = create_params['nas_server']
+                if nas_id is not None:
+                    create_dict['nas_server_id'] = nas_id
                 resp = self.smb_server.create_smb_server(
                     payload=create_dict)
 
@@ -332,10 +332,8 @@ class PowerStoreSMBServer(PowerStoreBase):
             if smb_server_params[key] is not None and \
                     smb_server_params[key].lower() != smb_server_details[key].lower():
                 modify_dict[key] = smb_server_params[key]
-        if modify_dict:
-            return modify_dict
-        else:
-            return None
+
+        return modify_dict
 
     def modify_smb_server_details(self, smb_server_id,
                                   modify_params):
@@ -400,9 +398,10 @@ class SMBServerModifyHandler():
 
 
 class SMBServerCreateHandler():
-    def handle(self, smb_server_obj, smb_server_params, smb_server_details):
+    def handle(self, smb_server_obj, smb_server_params, smb_server_details, nas_id):
         if smb_server_params['state'] == 'present' and not smb_server_details:
-            smb_server_details = smb_server_obj.create_smb_server(smb_server_params)
+            smb_server_details = smb_server_obj.create_smb_server(create_params=smb_server_params,
+                                                                  nas_id=nas_id)
             smb_server_obj.result['changed'] = True
 
         SMBServerModifyHandler().handle(smb_server_obj, smb_server_params, smb_server_details)
@@ -417,7 +416,7 @@ class SMBServerHandler():
             smb_server_params['nas_server'] = nas_id
         smb_server_details = smb_server_obj.get_smb_server_details(smb_server_id=smb_server_params['smb_server_id'],
                                                                    nas_server_id=smb_server_params['nas_server'])
-        SMBServerCreateHandler().handle(smb_server_obj, smb_server_params, smb_server_details)
+        SMBServerCreateHandler().handle(smb_server_obj, smb_server_params, smb_server_details, nas_id)
 
 
 def main():

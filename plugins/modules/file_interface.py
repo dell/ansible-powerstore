@@ -246,7 +246,7 @@ class PowerStoreFileInterface(PowerStoreBase):
         system"""
         return Provisioning(self.provisioning, self.module).get_nas_server(nas_server=nas_server)
 
-    def create_file_interface(self, create_params):
+    def create_file_interface(self, create_params, nas_id):
         """Create a file interface"""
         try:
             msg = 'Attempting to create a file interface'
@@ -261,8 +261,8 @@ class PowerStoreFileInterface(PowerStoreBase):
                     if create_params[key] is not None:
                         create_dict[key] = create_params[key]
 
-                if create_params['nas_server'] is not None:
-                    create_dict['nas_server_id'] = create_params['nas_server']
+                if nas_id is not None:
+                    create_dict['nas_server_id'] = nas_id
                 resp = self.file_interface.create_file_interface(
                     payload=create_dict)
 
@@ -355,10 +355,8 @@ class PowerStoreFileInterface(PowerStoreBase):
             if file_interface_params[key] is not None and \
                     file_interface_params[key] != file_interface_details[key]:
                 modify_dict[key] = file_interface_params[key]
-        if modify_dict:
-            return modify_dict
-        else:
-            return None
+
+        return modify_dict
 
     def modify_file_interface_details(self, file_interface_id,
                                       modify_params):
@@ -425,9 +423,10 @@ class FileInterfaceModifyHandler():
 
 
 class FileInterfaceCreateHandler():
-    def handle(self, file_interface_obj, file_interface_params, file_interface_details):
+    def handle(self, file_interface_obj, file_interface_params, file_interface_details, nas_id):
         if file_interface_params['state'] == 'present' and not file_interface_details:
-            file_interface_details = file_interface_obj.create_file_interface(file_interface_params)
+            file_interface_details = file_interface_obj.create_file_interface(create_params=file_interface_params,
+                                                                              nas_id=nas_id)
             file_interface_obj.result['changed'] = True
 
         FileInterfaceModifyHandler().handle(file_interface_obj, file_interface_params, file_interface_details)
@@ -438,12 +437,10 @@ class FileInterfaceHandler():
         nas_id = None
         if file_interface_params['nas_server']:
             nas_id = file_interface_obj.get_nas_server(nas_server=file_interface_params['nas_server'])['id']
-        if nas_id:
-            file_interface_params['nas_server'] = nas_id
         file_interface_details = file_interface_obj.get_file_interface_details(file_interface_id=file_interface_params['file_interface_id'],
-                                                                               nas_server_id=file_interface_params['nas_server'],
+                                                                               nas_server_id=nas_id,
                                                                                ip_address=file_interface_params['ip_address'])
-        FileInterfaceCreateHandler().handle(file_interface_obj, file_interface_params, file_interface_details)
+        FileInterfaceCreateHandler().handle(file_interface_obj, file_interface_params, file_interface_details, nas_id)
 
 
 def main():

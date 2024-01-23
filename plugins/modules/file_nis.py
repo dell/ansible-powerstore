@@ -211,7 +211,7 @@ class PowerStoreFileNIS(PowerStoreBase):
 
         return create_dict
 
-    def create_file_nis(self, create_params):
+    def create_file_nis(self, create_params, nas_id):
         """Enable the File NIS"""
         try:
             msg = 'Attempting to create a file NIS'
@@ -224,8 +224,8 @@ class PowerStoreFileNIS(PowerStoreBase):
 
                 if create_params['domain'] is not None:
                     create_dict['domain'] = create_params['domain']
-                if create_params['nas_server'] is not None:
-                    create_dict['nas_server_id'] = create_params['nas_server']
+                if nas_id is not None:
+                    create_dict['nas_server_id'] = nas_id
                 resp = self.file_nis.create_file_nis(
                     payload=create_dict)
 
@@ -335,10 +335,7 @@ class PowerStoreFileNIS(PowerStoreBase):
         if file_nis_params['is_destination_override_enabled'] is not None:
             modify_dict['is_destination_override_enabled'] = file_nis_params['is_destination_override_enabled']
 
-        if modify_dict:
-            return modify_dict
-        else:
-            return None
+        return modify_dict:
 
     def modify_file_nis_details(self, file_nis_id,
                                 modify_params):
@@ -400,9 +397,10 @@ class FileNISModifyHandler():
 
 
 class FileNISCreateHandler():
-    def handle(self, file_nis_obj, file_nis_params, file_nis_details):
+    def handle(self, file_nis_obj, file_nis_params, file_nis_details, nas_id):
         if file_nis_params['state'] == 'present' and not file_nis_details:
-            file_nis_details = file_nis_obj.create_file_nis(file_nis_params)
+            file_nis_details = file_nis_obj.create_file_nis(create_params=file_nis_params,
+                                                            nas_id=nas_id)
             file_nis_obj.result['changed'] = True
 
         FileNISModifyHandler().handle(file_nis_obj, file_nis_params, file_nis_details)
@@ -413,11 +411,9 @@ class FileNISHandler():
         nas_id = None
         if file_nis_params['nas_server']:
             nas_id = file_nis_obj.get_nas_server(nas_server=file_nis_params['nas_server'])['id']
-        if nas_id:
-            file_nis_params['nas_server'] = nas_id
         file_nis_details = file_nis_obj.get_file_nis_details(file_nis_id=file_nis_params['file_nis_id'],
-                                                             nas_server_id=file_nis_params['nas_server'])
-        FileNISCreateHandler().handle(file_nis_obj, file_nis_params, file_nis_details)
+                                                             nas_server_id=nas_id)
+        FileNISCreateHandler().handle(file_nis_obj, file_nis_params, file_nis_details, nas_id)
 
 
 def main():

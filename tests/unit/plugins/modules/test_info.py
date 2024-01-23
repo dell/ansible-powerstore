@@ -389,3 +389,13 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.file_nis.get_file_nis_list.assert_called()
+
+    def test_get_service_configs(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['service_config'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_service_configs.assert_called()

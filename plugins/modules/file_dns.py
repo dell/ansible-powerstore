@@ -226,7 +226,7 @@ class PowerStoreFileDNS(PowerStoreBase):
 
         return create_dict
 
-    def create_file_dns(self, create_params):
+    def create_file_dns(self, create_params, nas_id):
         """Enable the File DNS"""
         try:
             msg = 'Attempting to create a file DNS'
@@ -241,8 +241,8 @@ class PowerStoreFileDNS(PowerStoreBase):
                 for key in create_keys:
                     if create_params[key] is not None:
                         create_dict[key] = create_params[key]
-                if create_params['nas_server'] is not None:
-                    create_dict['nas_server_id'] = create_params['nas_server']
+                if nas_id is not None:
+                    create_dict['nas_server_id'] = nas_id
                 resp = self.file_dns.create_file_dns(
                     payload=create_dict)
 
@@ -353,10 +353,7 @@ class PowerStoreFileDNS(PowerStoreBase):
         if file_dns_params['is_destination_override_enabled'] is not None:
             modify_dict['is_destination_override_enabled'] = file_dns_params['is_destination_override_enabled']
 
-        if modify_dict:
-            return modify_dict
-        else:
-            return None
+        return modify_dict
 
     def modify_file_dns_details(self, file_dns_id,
                                 modify_params):
@@ -419,9 +416,10 @@ class FileDNSModifyHandler():
 
 
 class FileDNSCreateHandler():
-    def handle(self, file_dns_obj, file_dns_params, file_dns_details):
+    def handle(self, file_dns_obj, file_dns_params, file_dns_details, nas_id):
         if file_dns_params['state'] == 'present' and not file_dns_details:
-            file_dns_details = file_dns_obj.create_file_dns(file_dns_params)
+            file_dns_details = file_dns_obj.create_file_dns(create_params=file_dns_params,
+                                                            nas_id=nas_id)
             file_dns_obj.result['changed'] = True
 
         FileDNSModifyHandler().handle(file_dns_obj, file_dns_params, file_dns_details)
@@ -432,11 +430,9 @@ class FileDNSHandler():
         nas_id = None
         if file_dns_params['nas_server']:
             nas_id = file_dns_obj.get_nas_server(nas_server=file_dns_params['nas_server'])['id']
-        if nas_id:
-            file_dns_params['nas_server'] = nas_id
         file_dns_details = file_dns_obj.get_file_dns_details(file_dns_id=file_dns_params['file_dns_id'],
-                                                             nas_server_id=file_dns_params['nas_server'])
-        FileDNSCreateHandler().handle(file_dns_obj, file_dns_params, file_dns_details)
+                                                             nas_server_id=nas_id)
+        FileDNSCreateHandler().handle(file_dns_obj, file_dns_params, file_dns_details, nas_id)
 
 
 def main():

@@ -25,7 +25,7 @@ description:
 - Virtualization module includes vCenters and virtual volumes.
 - Configuration module includes cluster nodes, networks, roles, local users,
   appliances, discovered appliances, security configs, certificates,
-  AD/LDAP servers, LDAP accounts, and LDAP domain.
+  AD/LDAP servers, LDAP accounts, LDAP domain,  and service configs.
 - It also includes DNS/NTP servers, smtp configs, email destinations,
   remote support, and remote support contacts.
 author:
@@ -83,6 +83,7 @@ options:
     - NFS servers - C(nfs_server).
     - File DNS - C(file_dns).
     - File NIS - C(file_nis).
+    - Service configs - C(service_configs).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -93,7 +94,7 @@ options:
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
-              smb_server, nfs_server, file_dns, file_nis]
+              smb_server, nfs_server, file_dns, file_nis, service_config]
     type: list
   filters:
     description:
@@ -397,6 +398,15 @@ EXAMPLES = r'''
       - nfs_server
       - file_dns
       - file_nis
+
+- name: Get list of service configs.
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - service_config
 '''
 
 RETURN = r'''
@@ -1316,6 +1326,27 @@ SecurityConfig:
             "id": "1"
           }
     ]
+ServiceConfigs:
+    description: Provides details of all service configurations.
+    type: list
+    returned: When C(service_config) is in a given I(gather_subset)
+    contains:
+          id:
+            description: ID of the service config.
+            type: str
+          appliance_id:
+            description: ID of the appliance.
+            type: str
+          is_ssh_enabled:
+            description: Indicates whether ssh is enabled or not on the appliance.
+            type: bool
+    sample: [
+          {
+              "id": "A1",
+              "appliance_id": "A1",
+              "is_ssh_enabled": true
+          }
+    ]
 SMBServers:
     description: Provides details of all SMB servers.
     type: list
@@ -2007,7 +2038,11 @@ class PowerstoreInfo(object):
             'file_nis': {
                 'func': self.file_nis.get_file_nis_list,
                 'display_as': 'FileNISes'
-            }
+            },
+            'service_config': {
+                'func': self.configuration.get_service_configs,
+                'display_as': 'ServiceConfigs'
+             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
 
@@ -2171,7 +2206,7 @@ def get_powerstore_info_parameters():
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',
                      'replication_group', 'discovered_appliance', 'file_interface',
-                     'smb_server', 'nfs_server', 'file_dns', 'file_nis']),
+                     'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),
