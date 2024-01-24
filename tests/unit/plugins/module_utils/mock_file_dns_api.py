@@ -26,7 +26,7 @@ class MockFileDNSApi:
         'state': "present"
     }
 
-    FILE_DNS_DETAILS = {
+    FILE_DNS_DETAILS = [{
         "domain": "NAS_domain",
         "id": "65ad05aa-01bc-11d5-c30e-62b767ad9845",
         "ip_addresses": [
@@ -34,6 +34,10 @@ class MockFileDNSApi:
         ],
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
         "transport": "UDP"
+    }]
+
+    NAS_SERVER_DETAILS = {
+        "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
 
     @staticmethod

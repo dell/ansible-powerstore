@@ -227,6 +227,7 @@ class PowerStoreSMBServer(PowerStoreBase):
     def create_smb_server(self, create_params, nas_id):
         """Create an SMB server"""
         try:
+            self.validate_create(create_params)
             msg = 'Attempting to create an SMB server'
             LOG.info(msg)
             smb_server_details = {}
@@ -352,6 +353,15 @@ class PowerStoreSMBServer(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def validate_create(self, create_params):
+        """Perform validation of create operations on an SMB server"""
+
+        if create_params['nas_server'] is None or \
+                create_params['is_standalone'] is None or \
+                create_params['local_admin_password'] is None:
+            err_msg = "SMB server does not exist. Provide nas_server, is_standalone and local_admin_password for creation"
+            self.module.fail_json(msg=err_msg)
+
 
 def get_powerstore_smb_server_parameters():
     """This method provides the parameters required for the ansible
@@ -412,10 +422,9 @@ class SMBServerHandler():
         nas_id = None
         if smb_server_params['nas_server']:
             nas_id = smb_server_obj.get_nas_server(nas_server=smb_server_params['nas_server'])['id']
-        if nas_id:
-            smb_server_params['nas_server'] = nas_id
         smb_server_details = smb_server_obj.get_smb_server_details(smb_server_id=smb_server_params['smb_server_id'],
-                                                                   nas_server_id=smb_server_params['nas_server'])
+                                                                   nas_server_id=nas_id)
+
         SMBServerCreateHandler().handle(smb_server_obj, smb_server_params, smb_server_details, nas_id)
 
 

@@ -25,6 +25,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libr
 class TestPowerStoreNFSServer(PowerStoreUnitBase):
 
     get_module_args = MockNFSServerApi.NFS_SERVER_COMMON_ARGS
+    nas_id = "6581683c-61a3-76ab-f107-62b767ad9845"
 
     @pytest.fixture
     def module_object(self):
@@ -35,7 +36,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'state': "present"}
         )
         NFSServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
@@ -46,21 +47,22 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "nas_server_id",
+                'nas_server': self.nas_id,
                 'state': "present"
             })
+        powerstore_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockNFSServerApi.NAS_SERVER_DETAILS)
+        powerstore_module_mock.nfs_server.get_nfs_server_by_nas_server_id = MagicMock(
+            return_value=MockNFSServerApi.NFS_SERVER_DETAILS)
         NFSServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.nfs_server.get_nfs_server_by_nas_server_id.assert_called()
 
     def test_get_nfs_server_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'state': "present"
             })
         powerstore_module_mock.nfs_server.get_nfs_server_details = MagicMock(
@@ -120,7 +122,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'credentials_cache_TTL': 60,
                 'is_extended_credentials_enabled': False,
                 'is_nfsv3_enabled': False,
@@ -129,7 +131,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.nfs_server.get_nfs_server_details = MagicMock(
-            return_value=MockNFSServerApi.NFS_SERVER_DETAILS)
+            return_value=MockNFSServerApi.NFS_SERVER_DETAILS[0])
         NFSServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.nfs_server.modify_nfs_server.assert_called()
 
@@ -141,7 +143,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'credentials_cache_TTL': 60,
                 'is_extended_credentials_enabled': False,
                 'is_nfsv3_enabled': False,
@@ -150,7 +152,7 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.nfs_server.get_nfs_server_details = MagicMock(
-            return_value=MockNFSServerApi.NFS_SERVER_DETAILS)
+            return_value=MockNFSServerApi.NFS_SERVER_DETAILS[0])
         powerstore_module_mock.nfs_server.modify_nfs_server = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
@@ -162,12 +164,12 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.nfs_server.get_nfs_server_details = MagicMock(
-            return_value=MockNFSServerApi.NFS_SERVER_DETAILS)
+            return_value=MockNFSServerApi.NFS_SERVER_DETAILS[0])
         NFSServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.nfs_server.delete_nfs_server.assert_called()
 
@@ -179,12 +181,12 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS['id'],
+                'nfs_server_id': MockNFSServerApi.NFS_SERVER_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.nfs_server.get_nfs_server_details = MagicMock(
-            return_value=MockNFSServerApi.NFS_SERVER_DETAILS)
+            return_value=MockNFSServerApi.NFS_SERVER_DETAILS[0])
         powerstore_module_mock.nfs_server.delete_nfs_server = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(

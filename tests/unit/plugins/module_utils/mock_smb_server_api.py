@@ -29,7 +29,7 @@ class MockSMBServerApi:
         'state': "present"
     }
 
-    SMB_SERVER_DETAILS = {
+    SMB_SERVER_DETAILS = [{
         "computer_name": None,
         "description": "string2",
         "domain": None,
@@ -39,6 +39,10 @@ class MockSMBServerApi:
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
         "netbios_name": "STRING2",
         "workgroup": "STRING2"
+    }]
+
+    NAS_SERVER_DETAILS = {
+        "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
 
     @staticmethod

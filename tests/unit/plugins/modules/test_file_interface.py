@@ -28,6 +28,7 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
     IP_ADDRESS_1 = "10.**.**.**"
     IP_ADDRESS_2 = "10.**.**.@@"
     GATEWAY = "10.**.**.1"
+    nas_id = "6581683c-61a3-76ab-f107-62b767ad9845"
 
     @pytest.fixture
     def module_object(self):
@@ -38,7 +39,7 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'state': "present"}
         )
         FileInterfaceHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
@@ -49,22 +50,23 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "nas_server_id",
+                'nas_server': self.nas_id,
                 'ip_address': self.IP_ADDRESS_2,
                 'state': "present"
             })
+        powerstore_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockFileInterfaceApi.NAS_SERVER_DETAILS)
+        powerstore_module_mock.file_interface.get_file_interface_by_nas_server_id = MagicMock(
+            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS)
         FileInterfaceHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_interface.get_file_interface_by_nas_server_id.assert_called()
 
     def test_get_file_interface_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'state': "present"
             })
         powerstore_module_mock.file_interface.get_file_interface_details = MagicMock(
@@ -122,13 +124,13 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'ip_address': self.IP_ADDRESS_2,
                 'state': "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_interface.get_file_interface_details = MagicMock(
-            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS)
+            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0])
         FileInterfaceHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_interface.modify_file_interface.assert_called()
 
@@ -140,13 +142,13 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'ip_address': self.IP_ADDRESS_2,
                 'state': "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_interface.get_file_interface_details = MagicMock(
-            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS)
+            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0])
         powerstore_module_mock.file_interface.modify_file_interface = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
@@ -158,12 +160,12 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_interface.get_file_interface_details = MagicMock(
-            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS)
+            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0])
         FileInterfaceHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_interface.delete_file_interface.assert_called()
 
@@ -175,12 +177,12 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS['id'],
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_interface.get_file_interface_details = MagicMock(
-            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS)
+            return_value=MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0])
         powerstore_module_mock.file_interface.delete_file_interface = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(

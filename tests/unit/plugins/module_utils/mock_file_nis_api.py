@@ -25,13 +25,17 @@ class MockFileNISApi:
         'state': "present"
     }
 
-    FILE_NIS_DETAILS = {
+    FILE_NIS_DETAILS = [{
         "domain": "NAS_domain",
         "id": "65ad05aa-01bc-11d5-c30e-62b767ad9845",
         "ip_addresses": [
             "10.10.10.10"
         ],
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845"
+    }]
+
+    NAS_SERVER_DETAILS = {
+        "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
 
     @staticmethod

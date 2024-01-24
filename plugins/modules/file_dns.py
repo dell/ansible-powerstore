@@ -229,6 +229,7 @@ class PowerStoreFileDNS(PowerStoreBase):
     def create_file_dns(self, create_params, nas_id):
         """Enable the File DNS"""
         try:
+            self.validate_create(create_params)
             msg = 'Attempting to create a file DNS'
             LOG.info(msg)
             file_dns_details = {}
@@ -371,6 +372,15 @@ class PowerStoreFileDNS(PowerStoreBase):
                    f'with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def validate_create(self, create_params):
+        """Perform validation of create operations on a File DNS"""
+
+        if create_params['nas_server'] is None or \
+                create_params['add_ip_addresses'] is None or \
+                create_params['domain'] is None:
+            err_msg = "File DNS does not exist. Provide nas_server, add_ip_addresses and domain for creation."
+            self.module.fail_json(msg=err_msg)
 
 
 def get_powerstore_file_dns_parameters():

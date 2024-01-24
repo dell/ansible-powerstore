@@ -29,7 +29,7 @@ class MockNFSServerApi:
         'state': "present"
     }
 
-    NFS_SERVER_DETAILS = {
+    NFS_SERVER_DETAILS = [{
         "credentials_cache_TTL": 120,
         "host_name": "sample_host_name",
         "id": "65acf901-6a2f-f10b-1d10-62b767ad9845",
@@ -41,6 +41,10 @@ class MockNFSServerApi:
         "is_use_smb_config_enabled": None,
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
         "service_principal_name": None
+    }]
+
+    NAS_SERVER_DETAILS = {
+        "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
 
     @staticmethod

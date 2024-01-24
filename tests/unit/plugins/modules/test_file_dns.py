@@ -26,6 +26,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libr
 class TestPowerStoreFileDNS(PowerStoreUnitBase):
 
     get_module_args = MockFileDNSApi.FILE_DNS_COMMON_ARGS
+    nas_id = "6581683c-61a3-76ab-f107-62b767ad9845"
 
     @pytest.fixture
     def module_object(self):
@@ -36,7 +37,7 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS['id'],
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'state': "present"}
         )
         FileDNSHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
@@ -47,21 +48,22 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "nas_server_id",
+                'nas_server': self.nas_id,
                 'state': "present"
             })
+        powerstore_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockFileDNSApi.NAS_SERVER_DETAILS)
+        powerstore_module_mock.file_dns.get_file_dns_by_nas_server_id = MagicMock(
+            return_value=MockFileDNSApi.FILE_DNS_DETAILS)
         FileDNSHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_dns.get_file_dns_by_nas_server_id.assert_called()
 
     def test_get_file_dns_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS['id'],
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'state': "present"
             })
         powerstore_module_mock.file_dns.get_file_dns_details = MagicMock(
@@ -117,7 +119,7 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "sample_nas_server",
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'add_ip_addresses': ['10.10.10.11'],
                 'remove_ip_addresses': ['10.10.10.10'],
                 'transport': "TCP",
@@ -126,7 +128,7 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_dns.get_file_dns_details = MagicMock(
-            return_value=MockFileDNSApi.FILE_DNS_DETAILS)
+            return_value=MockFileDNSApi.FILE_DNS_DETAILS[0])
         FileDNSHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_dns.modify_file_dns.assert_called()
 
@@ -138,7 +140,7 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "sample_nas_server",
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'add_ip_addresses': ['10.10.10.11'],
                 'remove_ip_addresses': ['10.10.10.10'],
                 'transport': "UDP",
@@ -147,7 +149,7 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_dns.get_file_dns_details = MagicMock(
-            return_value=MockFileDNSApi.FILE_DNS_DETAILS)
+            return_value=MockFileDNSApi.FILE_DNS_DETAILS[0])
         powerstore_module_mock.file_dns.modify_file_dns = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
@@ -159,12 +161,12 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS['id'],
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_dns.get_file_dns_details = MagicMock(
-            return_value=MockFileDNSApi.FILE_DNS_DETAILS)
+            return_value=MockFileDNSApi.FILE_DNS_DETAILS[0])
         FileDNSHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_dns.delete_file_dns.assert_called()
 
@@ -176,12 +178,12 @@ class TestPowerStoreFileDNS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS['id'],
+                'file_dns_id': MockFileDNSApi.FILE_DNS_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_dns.get_file_dns_details = MagicMock(
-            return_value=MockFileDNSApi.FILE_DNS_DETAILS)
+            return_value=MockFileDNSApi.FILE_DNS_DETAILS[0])
         powerstore_module_mock.file_dns.delete_file_dns = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(

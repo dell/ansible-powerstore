@@ -78,6 +78,8 @@ notes:
 - The I(check_mode) is supported.
 - The details of an NFS server can be fetched using I(nfs_server_id) or
   I(nas_server)
+- To set I(is_use_smb_config_enabled) as C(true), I(is_secure_enabled) should be
+  set to C(true)
 '''
 
 EXAMPLES = r'''
@@ -240,6 +242,7 @@ class PowerStoreNFSServer(PowerStoreBase):
     def create_nfs_server(self, create_params, nas_id):
         """Create an NFS server"""
         try:
+            self.validate_create(create_params)
             msg = 'Attempting to create an NFS server'
             LOG.info(msg)
             nfs_server_details = {}
@@ -364,6 +367,13 @@ class PowerStoreNFSServer(PowerStoreBase):
                    f'with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def validate_create(self, create_params):
+        """Perform validation of create operations on an SMB server"""
+
+        if create_params['nas_server'] is None:
+            err_msg = "NFS server does not exist. Provide nas_server for creation"
+            self.module.fail_json(msg=err_msg)
 
 
 def get_powerstore_nfs_server_parameters():

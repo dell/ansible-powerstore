@@ -25,6 +25,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libr
 class TestPowerStoreSMBServer(PowerStoreUnitBase):
 
     get_module_args = MockSMBServerApi.SMB_SERVER_COMMON_ARGS
+    nas_id = "6581683c-61a3-76ab-f107-62b767ad9845"
 
     @pytest.fixture
     def module_object(self):
@@ -35,7 +36,7 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'state': "present"}
         )
         SMBServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
@@ -46,21 +47,22 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "nas_server_id",
+                'nas_server': self.nas_id,
                 'state': "present"
             })
+        powerstore_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockSMBServerApi.NAS_SERVER_DETAILS)
+        powerstore_module_mock.smb_server.get_smb_server_by_nas_server_id = MagicMock(
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS)
         SMBServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.smb_server.get_smb_server_by_nas_server_id.assert_called()
 
     def test_get_smb_server_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'state': "present"
             })
         powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
@@ -89,9 +91,9 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
         powerstore_module_mock.smb_server.create_smb_server.assert_called()
 
     def test_create_smb_server_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
+        # MockApiException.HTTP_ERR = "1"
+        # MockApiException.err_code = "1"
+        # MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
@@ -105,7 +107,7 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
                 'state': "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
-        powerstore_module_mock.configuration.get_smb_server_details_by_nas_server_id = MagicMock(
+        powerstore_module_mock.smb_server.get_smb_server_details_by_nas_server_id = MagicMock(
             return_value=None)
         powerstore_module_mock.smb_server.create_smb_server = MagicMock(
             side_effect=MockApiException)
@@ -118,14 +120,14 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'description': "New description",
                 'workgroup': "workgroupnew",
                 'state': "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
-            return_value=MockSMBServerApi.SMB_SERVER_DETAILS)
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS[0])
         SMBServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.smb_server.modify_smb_server.assert_called()
 
@@ -137,14 +139,14 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'description': "New description",
                 'workgroup': "workgroupnew",
                 'state': "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
-            return_value=MockSMBServerApi.SMB_SERVER_DETAILS)
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS[0])
         powerstore_module_mock.smb_server.modify_smb_server = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
@@ -156,12 +158,12 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
-            return_value=MockSMBServerApi.SMB_SERVER_DETAILS)
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS[0])
         SMBServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.smb_server.delete_smb_server.assert_called()
 
@@ -173,12 +175,12 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS['id'],
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
-            return_value=MockSMBServerApi.SMB_SERVER_DETAILS)
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS[0])
         powerstore_module_mock.smb_server.delete_smb_server = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(

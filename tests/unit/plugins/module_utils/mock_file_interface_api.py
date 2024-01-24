@@ -29,7 +29,7 @@ class MockFileInterfaceApi:
         'state': "present"
     }
 
-    FILE_INTERFACE_DETAILS = {
+    FILE_INTERFACE_DETAILS = [{
         "gateway": "10.10.10.1",
         "id": "65a50e0d-25f9-bd0a-8ca7-62b767ad9845",
         "ip_address": "10.**.**.**",
@@ -43,6 +43,10 @@ class MockFileInterfaceApi:
         "role": "Production",
         "source_parameters": None,
         "vlan_id": 0
+    }]
+
+    NAS_SERVER_DETAILS = {
+        "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
 
     @staticmethod

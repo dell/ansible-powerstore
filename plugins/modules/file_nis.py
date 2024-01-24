@@ -214,6 +214,7 @@ class PowerStoreFileNIS(PowerStoreBase):
     def create_file_nis(self, create_params, nas_id):
         """Enable the File NIS"""
         try:
+            self.validate_create(create_params)
             msg = 'Attempting to create a file NIS'
             LOG.info(msg)
             file_nis_details = {}
@@ -353,6 +354,15 @@ class PowerStoreFileNIS(PowerStoreBase):
                    f'with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def validate_create(self, create_params):
+        """Perform validation of create operations on a File NIS"""
+
+        if create_params['nas_server'] is None or \
+                create_params['add_ip_addresses'] is None or \
+                create_params['domain'] is None:
+            err_msg = "File NIS does not exist. Provide nas_server, add_ip_addresses and domain for creation."
+            self.module.fail_json(msg=err_msg)
 
 
 def get_powerstore_file_nis_parameters():

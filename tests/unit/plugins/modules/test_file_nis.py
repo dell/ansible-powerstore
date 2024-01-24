@@ -25,6 +25,7 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libr
 class TestPowerStoreFileNIS(PowerStoreUnitBase):
 
     get_module_args = MockFileNISApi.FILE_NIS_COMMON_ARGS
+    nas_id = "6581683c-61a3-76ab-f107-62b767ad9845"
 
     @pytest.fixture
     def module_object(self):
@@ -35,7 +36,7 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS['id'],
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'state': "present"}
         )
         FileNISHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
@@ -46,21 +47,22 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "nas_server_id",
+                'nas_server': self.nas_id,
                 'state': "present"
             })
+        powerstore_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockFileNISApi.NAS_SERVER_DETAILS)
+        powerstore_module_mock.file_nis.get_file_nis_by_nas_server_id = MagicMock(
+            return_value=MockFileNISApi.FILE_NIS_DETAILS)
         FileNISHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_nis.get_file_nis_by_nas_server_id.assert_called()
 
     def test_get_file_nis_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
-        MockApiException.err_code = "1"
-        MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS['id'],
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'state': "present"
             })
         powerstore_module_mock.file_nis.get_file_nis_details = MagicMock(
@@ -114,7 +116,7 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "sample_nas_server",
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'add_ip_addresses': ['10.10.10.11'],
                 'remove_ip_addresses': ['10.10.10.10'],
                 'is_destination_override_enabled': True,
@@ -122,7 +124,7 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_nis.get_file_nis_details = MagicMock(
-            return_value=MockFileNISApi.FILE_NIS_DETAILS)
+            return_value=MockFileNISApi.FILE_NIS_DETAILS[0])
         FileNISHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_nis.modify_file_nis.assert_called()
 
@@ -134,7 +136,7 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'nas_server': "sample_nas_server",
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'add_ip_addresses': ['10.10.10.11'],
                 'remove_ip_addresses': ['10.10.10.10'],
                 'is_destination_override_enabled': True,
@@ -142,7 +144,7 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_nis.get_file_nis_details = MagicMock(
-            return_value=MockFileNISApi.FILE_NIS_DETAILS)
+            return_value=MockFileNISApi.FILE_NIS_DETAILS[0])
         powerstore_module_mock.file_nis.modify_file_nis = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
@@ -154,12 +156,12 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS['id'],
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_nis.get_file_nis_details = MagicMock(
-            return_value=MockFileNISApi.FILE_NIS_DETAILS)
+            return_value=MockFileNISApi.FILE_NIS_DETAILS[0])
         FileNISHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_nis.delete_file_nis.assert_called()
 
@@ -171,12 +173,12 @@ class TestPowerStoreFileNIS(PowerStoreUnitBase):
             powerstore_module_mock,
             self.get_module_args,
             {
-                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS['id'],
+                'file_nis_id': MockFileNISApi.FILE_NIS_DETAILS[0]['id'],
                 'state': "absent"
             })
         powerstore_module_mock.module.params = self.get_module_args
         powerstore_module_mock.file_nis.get_file_nis_details = MagicMock(
-            return_value=MockFileNISApi.FILE_NIS_DETAILS)
+            return_value=MockFileNISApi.FILE_NIS_DETAILS[0])
         powerstore_module_mock.file_nis.delete_file_nis = MagicMock(
             side_effect=MockApiException)
         self.capture_fail_json_call(
