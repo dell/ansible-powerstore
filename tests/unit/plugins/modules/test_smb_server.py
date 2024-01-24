@@ -90,10 +90,26 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
         SMBServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.smb_server.create_smb_server.assert_called()
 
+    def test_create_smb_server_without_is_standalone_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'nas_server': "sample_nas_server",
+                'netbios_name': "string",
+                'workgroup': "string",
+                'description': "string",
+                'local_admin_password': "string",
+                'state': "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.smb_server.get_smb_server_details_by_nas_server_id = MagicMock(
+            return_value=None)
+        self.capture_fail_json_call(
+            MockSMBServerApi.get_smb_server_exception_response(
+                'create_smb_server_wo_is_standalone_exception'), powerstore_module_mock, SMBServerHandler)
+
     def test_create_smb_server_exception(self, powerstore_module_mock):
-        # MockApiException.HTTP_ERR = "1"
-        # MockApiException.err_code = "1"
-        # MockApiException.status_code = "404"
         self.set_module_params(
             powerstore_module_mock,
             self.get_module_args,

@@ -62,3 +62,7 @@ class MockFileInterfaceApi:
         elif response_type == "get_file_interface_exception":
             return "Get file interface details for PowerStore " \
                    "array failed with error"
+        elif response_type == "create_file_interface_wo_ip_exception":
+            return "Provide nas_server, ip_address and prefix_length for creation."
+        elif response_type == "get_file_interface_nas_ip_id_exception":
+            return "file_interface_id is mutually exclusive with nas_server and ip_address."

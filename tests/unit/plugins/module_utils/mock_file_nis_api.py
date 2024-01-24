@@ -49,3 +49,5 @@ class MockFileNISApi:
                    "PowerStore array failed with error "
         elif response_type == "get_file_nis_exception":
             return "Getting File NIS details failed with error"
+        elif response_type == "create_without_ip_exception":
+            return "Provide nas_server, add_ip_addresses and domain for creation"

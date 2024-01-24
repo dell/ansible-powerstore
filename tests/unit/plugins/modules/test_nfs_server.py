@@ -91,6 +91,29 @@ class TestPowerStoreNFSServer(PowerStoreUnitBase):
         NFSServerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.nfs_server.create_nfs_server.assert_called()
 
+    def test_create_nfs_server_wo_nas_server_exception(self, powerstore_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "404"
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'host_name': "sample_host",
+                'credentials_cache_TTL': 60,
+                'is_extended_credentials_enabled': False,
+                'is_nfsv3_enabled': True,
+                'is_nfsv4_enabled': True,
+                'is_secure_enabled': False,
+                'state': "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.configuration.get_nfs_server_details_by_nas_server_id = MagicMock(
+            return_value=None)
+        self.capture_fail_json_call(
+            MockNFSServerApi.get_nfs_server_exception_response(
+                'create_nfs_server_wo_nas_server_exception'), powerstore_module_mock, NFSServerHandler)
+
     def test_create_nfs_server_exception(self, powerstore_module_mock):
         MockApiException.HTTP_ERR = "1"
         MockApiException.err_code = "1"

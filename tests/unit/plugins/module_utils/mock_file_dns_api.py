@@ -51,3 +51,5 @@ class MockFileDNSApi:
                    "PowerStore array failed with error "
         elif response_type == "get_file_dns_exception":
             return "Getting File DNS details failed with error"
+        elif response_type == "create_without_ip_exception":
+            return "Provide nas_server, add_ip_addresses and domain for creation"

@@ -62,7 +62,7 @@ options:
     type: bool
   state:
     description:
-    - Define whether the file NIS should be enabled or not.
+    - Define whether the file DNS should be enabled or not.
     - For Delete operation only, it should be set to C(absent).
     choices: ['absent', 'present']
     type: str

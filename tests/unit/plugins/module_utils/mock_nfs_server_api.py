@@ -58,3 +58,5 @@ class MockNFSServerApi:
                    "PowerStore array failed with error "
         elif response_type == "get_nfs_server_exception":
             return "Getting NFS server details failed with error"
+        elif response_type == "create_nfs_server_wo_nas_server_exception":
+            return "Provide nas_server for creation"

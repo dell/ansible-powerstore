@@ -56,3 +56,5 @@ class MockSMBServerApi:
                    "PowerStore array failed with error "
         elif response_type == "get_smb_server_exception":
             return "Getting SMB server details failed with error"
+        elif response_type == "create_smb_server_wo_is_standalone_exception":
+            return "Provide nas_server, is_standalone and local_admin_password for creation"

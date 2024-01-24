@@ -75,6 +75,20 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             MockFileInterfaceApi.get_file_interface_exception_response(
                 'get_file_interface_exception'), powerstore_module_mock, FileInterfaceHandler)
 
+    def test_get_file_interface_with_nas_server_ip_address_id_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'file_interface_id': MockFileInterfaceApi.FILE_INTERFACE_DETAILS[0]['id'],
+                'nas_server': self.nas_id,
+                'ip_address': self.IP_ADDRESS_2,
+                'state': "present"
+            })
+        self.capture_fail_json_call(
+            MockFileInterfaceApi.get_file_interface_exception_response(
+                'get_file_interface_nas_ip_id_exception'), powerstore_module_mock, FileInterfaceHandler)
+
     def test_create_file_interface_response(self, powerstore_module_mock):
         self.set_module_params(
             powerstore_module_mock,
@@ -93,6 +107,25 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
             return_value=None)
         FileInterfaceHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         powerstore_module_mock.file_interface.create_file_interface.assert_called()
+
+    def test_create_file_interface_without_ip_address_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'nas_server': "sample_nas_server",
+                'prefix_length': 21,
+                'vlan_id': 0,
+                'gateway': self.GATEWAY,
+                'role': "Production",
+                'state': "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.file_interface.get_file_interface_details_by_nas_server_id = MagicMock(
+            return_value=None)
+        self.capture_fail_json_call(
+            MockFileInterfaceApi.get_file_interface_exception_response(
+                'create_file_interface_wo_ip_exception'), powerstore_module_mock, FileInterfaceHandler)
 
     def test_create_file_interface_exception(self, powerstore_module_mock):
         MockApiException.HTTP_ERR = "1"
