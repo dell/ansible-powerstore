@@ -354,7 +354,7 @@ class PowerStoreFileInterface(PowerStoreBase):
             if file_interface_params[key] is not None and \
                     file_interface_params[key] != file_interface_details[key]:
                 modify_dict[key] = file_interface_params[key]
- 
+
         return modify_dict
 
     def modify_file_interface_details(self, file_interface_id,
