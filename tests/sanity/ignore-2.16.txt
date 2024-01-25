@@ -20,8 +20,6 @@ plugins/modules/smb_server.py import-2.7
 plugins/modules/smb_server.py compile-2.7
 plugins/modules/nfs_server.py import-2.7
 plugins/modules/nfs_server.py compile-2.7
-plugins/module_utils/storage/dell/libraries/powerstore_base.py import-2.7
-plugins/module_utils/storage/dell/libraries/powerstore_base.py compile-2.7
 plugins/module_utils/storage/dell/libraries/provisioning.py import-2.7
 plugins/module_utils/storage/dell/libraries/provisioning.py compile-2.7
 plugins/modules/service_config.py import-2.7
