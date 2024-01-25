@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2019-2021, Dell Technologies
+# Copyright: (c) 2024, Dell Technologies
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -677,7 +677,7 @@ EmailNotification:
             "id": "9c3e5cba-17d5-4d64-b97c-350f91e2b714"
           }
     ]
-FileDNSes:
+FileDNS:
     description: Provides details of all file DNS.
     type: list
     returned: When C(file_dns) is in a given I(gather_subset)
@@ -770,7 +770,7 @@ FileInterfaces:
             "vlan_id": 0
           }
     ]
-FileNISes:
+FileNIS:
     description: Provides details of all file NIS.
     type: list
     returned: When C(file_nis) is in a given I(gather_subset)
@@ -1224,7 +1224,7 @@ ReplicationGroups:
             "name": "Ansible_RTD8337_VM",
             "description": "Ansible_RTD8337_VM",
             "creator_type": "User",
-            "creation_timestamp": "2023-05-16T13:58:09.348368+00:00",
+            "creation_timestamp": "2024-05-16T13:58:09.348368+00:00",
             "is_replication_destination": false,
             "creator_type_l10n": "User"
         }
@@ -2033,11 +2033,11 @@ class PowerstoreInfo(object):
             },
             'file_dns': {
                 'func': self.file_dns.get_file_dns_list,
-                'display_as': 'FileDNSes'
+                'display_as': 'FileDNS'
             },
             'file_nis': {
                 'func': self.file_nis.get_file_nis_list,
-                'display_as': 'FileNISes'
+                'display_as': 'FileNIS'
             },
             'service_config': {
                 'func': self.configuration.get_service_configs,

@@ -4,6 +4,26 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.1.0
+======
+
+Minor Changes
+-------------
+
+- Added support for creating multiple NFS exports with same name
+  but different NAS servers
+- Info module is enhanced to list file interfaces, file DNS,
+  file NIS, SMB servers and NFS servers.
+
+New Modules
+-----------
+
+- dellemc.powerstore.file_interface - Manage file interfaces for PowerStore
+- dellemc.powerstore.file_dns - Manage file DNS for PowerStore
+- dellemc.powerstore.file_nis - Manage file NIS for PowerStore
+- dellemc.powerstore.smb_server - Manage SMB server for PowerStore
+- dellemc.powerstore.nfs_server - Manage NFS server for PowerStore
+- dellemc.powerstore.service_config - Manage service config for PowerStore
 
 v3.0.0
 ======

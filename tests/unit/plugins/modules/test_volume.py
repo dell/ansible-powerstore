@@ -1,4 +1,4 @@
-# Copyright: (c) 2022, Dell Technologies
+# Copyright: (c) 2024, Dell Technologies
 
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
@@ -677,7 +677,7 @@ class TestPowerstoreVolume():
 
     def test_refresh_volume_expiration_timestamp_error(self, volume_module_mock):
         self.operation_before_refresh_volume(volume_module_mock)
-        self.get_module_args['backup_snap_profile']['expiration_timestamp'] = '2022-23T01:20:00Z'
+        self.get_module_args['backup_snap_profile']['expiration_timestamp'] = '2024-23T01:20:00Z'
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.refresh_volume = MagicMock(return_value='snap_id_3')
         self.perform_operation(volume_module_mock)

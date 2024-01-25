@@ -1,4 +1,4 @@
-# Copyright: (c) 2019, Dell Technologies.
+# Copyright: (c) 2024, Dell Technologies.
 # Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -51,7 +51,7 @@ class ModuleDocFragment(object):
     requirements:
       - A Dell PowerStore storage system version 3.0.0.0 or later.
       - Ansible-core 2.13 or later.
-      - PyPowerStore 2.0.0.
+      - PyPowerStore 3.0.0.
       - Python 3.9, 3.10 or 3.11.
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
