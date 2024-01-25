@@ -342,15 +342,13 @@ class PowerStoreFileDNS(PowerStoreBase):
         LOG.info(msg)
         modify_dict = dict()
 
-        modify_keys = ['domain', 'transport']
+        modify_keys = ['domain', 'transport', 'is_destination_override_enabled']
 
         modify_dict = self.modify_ip_addresses(file_dns_details, file_dns_params)
         for key in modify_keys:
             if file_dns_params[key] is not None and \
                     file_dns_params[key] != file_dns_details[key]:
                 modify_dict[key] = file_dns_params[key]
-        if file_dns_params['is_destination_override_enabled'] is not None:
-            modify_dict['is_destination_override_enabled'] = file_dns_params['is_destination_override_enabled']
 
         return modify_dict
 
