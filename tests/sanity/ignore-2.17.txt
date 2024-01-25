@@ -32,3 +32,4 @@ plugins/modules/volume.py validate-modules:missing-gplv3-license
 plugins/modules/volumegroup.py validate-modules:missing-gplv3-license
 plugins/modules/ldap_domain.py validate-modules:missing-gplv3-license
 plugins/modules/vcenter.py validate-modules:missing-gplv3-license
+plugins/modules/service_config.py validate-modules:missing-gplv3-license

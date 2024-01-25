@@ -1,0 +1,42 @@
+---
+- name: Service Config Module Operations on Powerstore Array
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '**.**.**.**'
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get the details of the service config
+      dellemc.powerstore.service_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+
+    - name: Modify ssh service configuration of the appliances - check mode
+      dellemc.powerstore.service_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        service_config:
+          - appliance_name: "sample-appliance"
+            is_ssh_enabled: true
+          - appliance_id: "A2"
+            is_ssh_enabled: false
+      check_mode: true
+
+    - name: Modify ssh service configuration of the appliances - check mode
+      dellemc.powerstore.service_config:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        service_config:
+          - appliance_name: "sample-appliance"
+            is_ssh_enabled: true
+          - appliance_id: "A2"
+            is_ssh_enabled: false

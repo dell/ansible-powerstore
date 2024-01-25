@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 import pytest
 # pylint: disable=unused-import
-from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.shared_library import initial_mock
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_volume_api import MockVolumeApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
