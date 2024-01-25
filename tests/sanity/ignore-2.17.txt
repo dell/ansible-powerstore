@@ -37,3 +37,4 @@ plugins/modules/file_dns.py validate-modules:missing-gplv3-license
 plugins/modules/file_nis.py validate-modules:missing-gplv3-license
 plugins/modules/smb_server.py validate-modules:missing-gplv3-license
 plugins/modules/nfs_server.py validate-modules:missing-gplv3-license
+plugins/modules/service_config.py validate-modules:missing-gplv3-license

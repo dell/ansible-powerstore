@@ -32,6 +32,7 @@ class MockFileDNSApi:
         "ip_addresses": [
             "10.10.10.10"
         ],
+        "is_destination_override_enabled": False,
         "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
         "transport": "UDP"
     }]
