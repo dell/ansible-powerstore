@@ -1,0 +1,62 @@
+---
+- name: File NIS operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "password"
+    nas_server_name: "sample_nas_1"
+
+  tasks:
+    - name: Enable file NIS
+      register: result
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "10.10.10.10"
+        state: "present"
+
+    - name: Get File NIS
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_nis_id: "{{ result.file_nis_details.id }}"
+
+    - name: Get File NIS with NAS server
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ result.file_nis_details.nas_server_id }}"
+
+    - name: Modify File NIS
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_nis_id: "{{ result.file_nis_details.id }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "10.10.10.11"
+        remove_ip_addresses:
+          - "10.10.10.10"
+
+    - name: Delete file NIS
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_nis_id: "{{ result.file_nis_details.id }}"
+        state: "absent"

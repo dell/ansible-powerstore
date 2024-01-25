@@ -485,3 +485,25 @@
         password: "{{ password }}"
         gather_subset:
           - discovered_appliance
+
+    - name: Get list of file interface, file DNS, file NFS, SMB server and NFS server
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - file_interface
+          - file_dns
+          - file_nis
+          - smb_server
+          - nfs_server
+
+    - name: Get list of service configs
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - service_config

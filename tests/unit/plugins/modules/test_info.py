@@ -339,3 +339,63 @@ class TestPowerstoreInfo():
         info_module_mock.perform_module_operation()
         assert MockInfoApi.get_invalid_filter_key() in \
             info_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_get_file_interfaces(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['file_interface'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.file_interface.get_file_interface_list.assert_called()
+
+    def test_get_smb_servers(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['smb_server'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.smb_server.get_smb_server_list.assert_called()
+
+    def test_get_nfs_servers(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['nfs_server'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.nfs_server.get_nfs_server_list.assert_called()
+
+    def test_get_file_dnses(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['file_dns'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.file_dns.get_file_dns_list.assert_called()
+
+    def test_get_file_nises(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['file_nis'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.file_nis.get_file_nis_list.assert_called()
+
+    def test_get_service_configs(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['service_config'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock.perform_module_operation()
+        info_module_mock.configuration.get_service_configs.assert_called()

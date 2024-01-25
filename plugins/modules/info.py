@@ -18,13 +18,14 @@ description:
 - Block provisioning module includes volumes, volume groups, hosts,
   host groups, snapshot rules, and protection policies.
 - File provisioning module includes NAS servers, NFS exports, SMB shares,
-  tree quotas, user quotas, and file systems.
+  tree quotas, user quotas, file systems, file interface, SMB server,
+  NFS server, file DNS, and file NIS.
 - Replication module includes replication rules, replication sessions,
   replication groups, and remote system.
 - Virtualization module includes vCenters and virtual volumes.
 - Configuration module includes cluster nodes, networks, roles, local users,
   appliances, discovered appliances, security configs, certificates,
-  AD/LDAP servers, LDAP accounts, and LDAP domain.
+  AD/LDAP servers, LDAP accounts, LDAP domain,  and service configs.
 - It also includes DNS/NTP servers, smtp configs, email destinations,
   remote support, and remote support contacts.
 author:
@@ -77,6 +78,12 @@ options:
     - Storage containers - C(storage_container).
     - Replication groups - C(replication_group).
     - Discovered appliances - C(discovered_appliance).
+    - File interfaces - C(file_interface).
+    - SMB servers - C(smb_server).
+    - NFS servers - C(nfs_server).
+    - File DNS - C(file_dns).
+    - File NIS - C(file_nis).
+    - Service configs - C(service_configs).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -86,7 +93,8 @@ options:
               ldap, security_config, certificate, dns, ntp, smtp_config,
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
-              replication_group, discovered_appliance]
+              replication_group, discovered_appliance, file_interface,
+              smb_server, nfs_server, file_dns, file_nis, service_config]
     type: list
   filters:
     description:
@@ -377,6 +385,28 @@ EXAMPLES = r'''
     gather_subset:
       - storage_container
       - discovered_appliance
+
+- name: Get list of file interfaces, SMB servers, NFS servers, file DNS and file NIS
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - file_interface
+      - smb_server
+      - nfs_server
+      - file_dns
+      - file_nis
+
+- name: Get list of service configs.
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - service_config
 '''
 
 RETURN = r'''
@@ -647,6 +677,131 @@ EmailNotification:
             "id": "9c3e5cba-17d5-4d64-b97c-350f91e2b714"
           }
     ]
+FileDNSes:
+    description: Provides details of all file DNS.
+    type: list
+    returned: When C(file_dns) is in a given I(gather_subset)
+    contains:
+        domain:
+            description: Name of the DNS domain.
+            type: str
+        id:
+            description: The unique identifier of the file DNS.
+            type: str
+        ip_addresses:
+            description: The addresses may be IPv4 or IPv6.
+            type: list
+            elements: str
+        is_destination_override_enabled:
+            description: Used in replication context when the user wants to override the settings on the destination.
+            type: bool
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
+        transport:
+            description: Transport used when connecting to the DNS Server.
+            type: str
+    sample: [
+          {
+            "domain": "NAS_domain",
+            "id": "65ab7e44-7009-e3e5-907a-62b767ad9845",
+            "ip_addresses": [
+              "10.10.10.11"
+            ],
+            "is_destination_override_enabled": false,
+            "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
+            "transport": "UDP"
+          }
+    ]
+FileInterfaces:
+    description: Provides details of all file interfaces.
+    type: list
+    returned: When C(file_interface) is in a given I(gather_subset)
+    contains:
+        gateway:
+            description: Gateway address for the network interface.
+            type: str
+        id:
+            description: The unique identifier of the file interface.
+            type: str
+        ip_address:
+            description: IP address of the network interface.
+            type: str
+        ip_port_id:
+            description: Unique Identifier of the IP Port that is associated with the file interface.
+            type: str
+        is_destination_override_enabled:
+            description: Used in replication context when the user wants to override the settings on the destination.
+            type: bool
+        is_disabled:
+            description: Indicates whether the network interface is disabled.
+            type: bool
+        name:
+            description: Name of the network interface.
+                         This property supports case-insensitive filtering.
+            type: str
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
+        prefix_length:
+            description: Prefix length for the interface.
+            type: int
+        role:
+            description: Role of the interface
+            type: str
+        vlan_id:
+            description: Virtual Local Area Network (VLAN) identifier for the interface.
+            type: int
+
+    sample: [
+          {
+            "gateway": "10.10.10.1",
+            "id": "65a50e0d-25f9-bd0a-8ca7-62b767ad9845",
+            "ip_address": "10.10.10.10",
+            "ip_port_id": "IP_PORT2",
+            "is_destination_override_enabled": False,
+            "is_disabled": False,
+            "is_dr_test": False,
+            "name": "PROD022_19c8adfb1d41_1d",
+            "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
+            "prefix_length": 21,
+            "role": "Production",
+            "source_parameters": None,
+            "vlan_id": 0
+          }
+    ]
+FileNISes:
+    description: Provides details of all file NIS.
+    type: list
+    returned: When C(file_nis) is in a given I(gather_subset)
+    contains:
+        domain:
+            description: Name of the NIS domain.
+            type: str
+        id:
+            description: The unique identifier of the file NIS.
+            type: str
+        ip_addresses:
+            description: The addresses may be IPv4 or IPv6.
+            type: list
+            elements: str
+        is_destination_override_enabled:
+            description: Used in replication context when the user wants to override the settings on the destination.
+            type: bool
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
+    sample: [
+          {
+            "domain": "NAS_domain",
+            "id": "65ab7e44-7009-e3e5-907a-62b767ad9845",
+            "ip_addresses": [
+              "10.10.10.11"
+            ],
+            "is_destination_override_enabled": false,
+            "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845"
+          }
+    ]
 FileSystems:
     description: Provides details of all filesystems.
     type: list
@@ -900,6 +1055,60 @@ NFSExports:
             "name": "test_nfs"
           }
     ]
+NFSServers:
+    description: Provides details of all nfs servers.
+    type: list
+    returned: When C(nfs_server) is in a given I(gather_subset)
+    contains:
+        credentials_cache_TTL:
+            description: Sets the Time-To-Live (in minutes) expiration timestamp for a Windows entry in the credentials cache.
+            type: int
+        id:
+            description: The unique identifier of the NFS server.
+            type: str
+        host_name:
+            description: The name that will be used by NFS clients to connect to this NFS server.
+            type: str
+        is_extended_credentials_enabled:
+            description: Indicates whether the NFS server supports more than 16 Unix groups in a Unix credential.
+            type: bool
+        is_joined:
+            description: Indicates whether the NFS server is joined to Active Directory.
+            type: bool
+        is_nfsv3_enabled:
+            description: Indicates whether NFSv3 is enabled on the NAS server.
+            type: bool
+        is_nfsv4_enabled:
+            description: Indicates whether NFSv4 is enabled on the NAS server.
+            type: bool
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
+        is_secure_enabled:
+            description: Indicates whether secure NFS is enabled on the NFS server.
+            type: bool
+        is_use_smb_config_enabled:
+            description: Indicates whether SMB authentication is used to authenticate to the KDC.
+            type: bool
+        service_principal_name:
+            description: The Service Principal Name (SPN) for the NFS server.
+            type: str
+
+    sample: [
+          {
+            "credentials_cache_TTL": 120,
+            "host_name": "sample_host_name",
+            "id": "65ad14fe-5f6e-beb3-424f-62b767ad9845",
+            "is_extended_credentials_enabled": true,
+            "is_joined": false,
+            "is_nfsv3_enabled": true,
+            "is_nfsv4_enabled": false,
+            "is_secure_enabled": false,
+            "is_use_smb_config_enabled": null,
+            "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
+            "service_principal_name": null
+          }
+    ]
 Nodes:
     description: Provides details of all nodes.
     type: list
@@ -1115,6 +1324,73 @@ SecurityConfig:
     sample: [
           {
             "id": "1"
+          }
+    ]
+ServiceConfigs:
+    description: Provides details of all service configurations.
+    type: list
+    returned: When C(service_config) is in a given I(gather_subset)
+    contains:
+          id:
+            description: ID of the service config.
+            type: str
+          appliance_id:
+            description: ID of the appliance.
+            type: str
+          is_ssh_enabled:
+            description: Indicates whether ssh is enabled or not on the appliance.
+            type: bool
+    sample: [
+          {
+              "id": "A1",
+              "appliance_id": "A1",
+              "is_ssh_enabled": true
+          }
+    ]
+SMBServers:
+    description: Provides details of all SMB servers.
+    type: list
+    returned: When C(smb_server) is in a given I(gather_subset)
+    contains:
+        computer_name:
+            description: DNS name of the associated computer account when the SMB server is joined to an Active Directory domain.
+            type: str
+        id:
+            description: The unique identifier of the SMB server.
+            type: str
+        description:
+            description: Description of the SMB server.
+            type: str
+        domain:
+            description: Domain name where SMB server is registered in Active Directory, if applicable.
+            type: str
+        is_joined:
+            description: Indicates whether the SMB server is joined to the Active Directory.
+            type: bool
+        is_standalone:
+            description: Indicates whether the SMB server is standalone.
+            type: bool
+        netbios_name:
+            description: NetBIOS name is the network name of the standalone SMB server.
+            type: str
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
+        workgroup:
+            description: Windows network workgroup for the SMB server.
+            type: str
+
+    sample: [
+          {
+            "computer_name": null,
+            "description": "string2",
+            "domain": null,
+            "id": "65ad211b-374b-5f77-2946-62b767ad9845",
+            "is_joined": false,
+            "is_standalone": true,
+            "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
+            "netbios_name": "STRING2",
+            "workgroup": "STRING2"
           }
     ]
 SMBShares:
@@ -1547,7 +1823,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/3.0.0'
+APPLICATION_TYPE = 'Ansible/3.1.0'
 
 
 class PowerstoreInfo(object):
@@ -1588,6 +1864,11 @@ class PowerstoreInfo(object):
         self.provisioning = self.conn.provisioning
         self.protection = self.conn.protection
         self.configuration = self.conn.config_mgmt
+        self.file_interface = self.conn.file_interface
+        self.smb_server = self.conn.smb_server
+        self.nfs_server = self.conn.nfs_server
+        self.file_dns = self.conn.file_dns
+        self.file_nis = self.conn.file_nis
 
         self.subset_mapping = {
             'vol': {
@@ -1737,6 +2018,30 @@ class PowerstoreInfo(object):
             'discovered_appliance': {
                 'func': self.configuration.get_discovered_appliances,
                 'display_as': 'DiscoveredAppliances'
+            },
+            'file_interface': {
+                'func': self.file_interface.get_file_interface_list,
+                'display_as': 'FileInterfaces'
+            },
+            'smb_server': {
+                'func': self.smb_server.get_smb_server_list,
+                'display_as': 'SMBServers'
+            },
+            'nfs_server': {
+                'func': self.nfs_server.get_nfs_server_list,
+                'display_as': 'NFSServers'
+            },
+            'file_dns': {
+                'func': self.file_dns.get_file_dns_list,
+                'display_as': 'FileDNSes'
+            },
+            'file_nis': {
+                'func': self.file_nis.get_file_nis_list,
+                'display_as': 'FileNISes'
+            },
+            'service_config': {
+                'func': self.configuration.get_service_configs,
+                'display_as': 'ServiceConfigs'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -1900,7 +2205,8 @@ def get_powerstore_info_parameters():
                      'remote_support', 'remote_support_contact',
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',
-                     'replication_group', 'discovered_appliance']),
+                     'replication_group', 'discovered_appliance', 'file_interface',
+                     'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

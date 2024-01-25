@@ -1,0 +1,63 @@
+---
+- name: NFS Server operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "password"
+    nas_server_name: "sample_nas_1"
+
+  tasks:
+    - name: Enable NFS server
+      register: result
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        host_name: "sample.hostname"
+        is_nfsv3_enabled: true
+        is_nfsv4_enabled: true
+        is_secure_enabled: false
+        is_extended_credentials_enabled: false
+        credentials_cache_TTL: 60
+        state: "present"
+
+    - name: Get NFS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_server_id: "{{ result.nfs_server_details.id }}"
+
+    - name: Get NFS server with NAS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ result.nfs_server_details.nas_server_id }}"
+
+    - name: Modify NFS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_server_id: "{{ result.nfs_server_details.id }}"
+        is_nfsv4_enabled: false
+        is_extended_credentials_enabled: true
+        credentials_cache_TTL: 120
+
+    - name: Delete NFS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_server_id: "{{ result.nfs_server_details.id }}"
+        state: "absent"
