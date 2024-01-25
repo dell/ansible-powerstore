@@ -498,3 +498,12 @@
           - file_nis
           - smb_server
           - nfs_server
+
+    - name: Get list of service configs
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - service_config
