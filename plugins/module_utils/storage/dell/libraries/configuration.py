@@ -42,7 +42,7 @@ class ConfigurationSDK:
 
         try:
             # Log the appliance details being retrieved
-            log_msg = f"Getting Appliance details id: {appliance_id} or " \
+            log_msg = f"Getting Appliance details with id: {appliance_id} or " \
                       f"name {appliance_name}"
             LOG.info(log_msg)
 

@@ -22,7 +22,7 @@ The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
 - Ansible-core 2.13 or later.
-- PyPowerStore 2.0.0.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -115,7 +115,7 @@ Examples
         user: "{{ user }}"
         password: "{{ password }}"
         validate_certs: "{{ validate_certs }}"
-        ssh_access:
+        service_config:
           - appliance_name: "{{ appliance_name }}"
             is_ssh_enabled: true
           - appliance_id: "A2"

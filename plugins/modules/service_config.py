@@ -66,7 +66,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     validate_certs: "{{ validate_certs }}"
-    ssh_access:
+    service_config:
       - appliance_name: "{{ appliance_name }}"
         is_ssh_enabled: true
       - appliance_id: "A2"
