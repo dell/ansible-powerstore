@@ -21,10 +21,9 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
-
 
 
 
@@ -36,7 +35,7 @@ Parameters
 
     This parameter is added in 2.0.0.0.
 
-    Specify either \ :emphasis:`network\_name`\  or \ :emphasis:`network\_id`\  for any operation.
+    Specify either *network_name* or *network_id* for any operation.
 
 
   network_id (optional, str, None)
@@ -129,7 +128,7 @@ Parameters
 
 
   wait_for_completion (optional, bool, False)
-    Flag to indicate if the operation should be run synchronously or asynchronously. \ :literal:`true`\  signifies synchronous execution. By default, modify operation will run \ :literal:`asynchronously`\ .
+    Flag to indicate if the operation should be run synchronously or asynchronously. ``true`` signifies synchronous execution. By default, modify operation will run ``asynchronously``.
 
 
   state (True, str, None)
@@ -143,9 +142,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -176,9 +175,9 @@ Notes
 
 .. note::
    - It is recommended to perform task asynchronously while changing cluster management address.
-   - Idempotency is not supported for \ :emphasis:`vasa\_provider\_credentials`\  and \ :emphasis:`esxi\_credentials`\ .
-   - For PowerStore X model, \ :emphasis:`vasa\_provider\_credentials`\  has to be specified along with \ :emphasis:`new\_cluster\_mgmt\_address`\ .
-   - The \ :emphasis:`check\_mode`\  is not supported.
+   - Idempotency is not supported for *vasa_provider_credentials* and *esxi_credentials*.
+   - For PowerStore X model, *vasa_provider_credentials* has to be specified along with *new_cluster_mgmt_address*.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

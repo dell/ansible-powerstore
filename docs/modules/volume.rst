@@ -23,8 +23,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -61,7 +61,7 @@ Parameters
 
     Used to signify unit of the size provided for creation and expansion of volume.
 
-    It defaults to \ :literal:`GB`\ , if not specified.
+    It defaults to ``GB``, if not specified.
 
 
   new_name (optional, str, None)
@@ -81,23 +81,23 @@ Parameters
 
 
   app_type_other (optional, str, None)
-    Application type for volume when \ :emphasis:`app\_type`\  is set to \ :literal:`\*Other`\  types.
+    Application type for volume when *app_type* is set to ``*Other`` types.
 
 
   appliance_id (optional, str, None)
     ID of the appliance on which the volume is provisioned.
 
-    \ :emphasis:`appliance\_id`\  and \ :emphasis:`appliance\_name`\  are mutually exclusive.
+    *appliance_id* and *appliance_name* are mutually exclusive.
 
 
   appliance_name (optional, str, None)
     Name of the appliance on which the volume is provisioned.
 
-    \ :emphasis:`appliance\_id`\  and \ :emphasis:`appliance\_name`\  are mutually exclusive.
+    *appliance_id* and *appliance_name* are mutually exclusive.
 
 
   protection_policy (optional, str, None)
-    The \ :emphasis:`protection\_policy`\  of the volume.
+    The *protection_policy* of the volume.
 
     To represent policy, both name or ID can be used interchangably. The module will detect both.
 
@@ -111,7 +111,7 @@ Parameters
 
 
   performance_policy (optional, str, None)
-    The \ :emphasis:`performance\_policy`\  for the volume.
+    The *performance_policy* for the volume.
 
     A volume can be assigned a performance policy at the time of creation of the volume, or later.
 
@@ -119,7 +119,7 @@ Parameters
 
     Check examples for more clarity.
 
-    If not given, performance policy will be \ :literal:`medium`\ .
+    If not given, performance policy will be ``medium``.
 
 
   host (optional, str, None)
@@ -139,9 +139,9 @@ Parameters
   mapping_state (optional, str, None)
     Define whether the volume should be mapped to a host or hostgroup.
 
-    Value \ :literal:`mapped`\  - indicates that the volume should be mapped to the host or host group.
+    Value ``mapped`` - indicates that the volume should be mapped to the host or host group.
 
-    Value \ :literal:`unmapped`\  - indicates that the volume should not be mapped to the host or host group.
+    Value ``unmapped`` - indicates that the volume should not be mapped to the host or host group.
 
     Only one of a host or host group can be supplied in one call.
 
@@ -175,9 +175,9 @@ Parameters
 
 
     logical_unit_number (optional, int, None)
-      logical unit number when creating a \ :literal:`mapped`\  volume.
+      logical unit number when creating a ``mapped`` volume.
 
-      If no \ :literal:`host\_id`\  or \ :literal:`host\_group\_id`\  is specified, \ :literal:`logical\_unit\_number`\  is ignored.
+      If no ``host_id`` or ``host_group_id`` is specified, ``logical_unit_number`` is ignored.
 
 
     protection_policy (optional, str, None)
@@ -227,9 +227,9 @@ Parameters
   state (True, str, None)
     Define whether the volume should exist or not.
 
-    Value \ :literal:`present`\  - indicates that the volume should exist on the system.
+    Value ``present`` - indicates that the volume should exist on the system.
 
-    Value \ :literal:`absent`\  - indicates that the volume should not exist on the system.
+    Value ``absent`` - indicates that the volume should not exist on the system.
 
 
   remote_system (optional, str, None)
@@ -269,9 +269,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -301,13 +301,13 @@ Notes
 -----
 
 .. note::
-   - To create a new volume, \ :emphasis:`vol\_name`\  and \ :emphasis:`size`\  is required. \ :emphasis:`cap\_unit`\ , \ :emphasis:`description`\ , \ :emphasis:`vg\_name`\ , \ :emphasis:`performance\_policy`\ , and \ :emphasis:`protection\_policy`\  are optional.
-   - Parameter \ :emphasis:`new\_name`\  should not be provided when creating a new volume.
-   - The \ :emphasis:`size`\ is a required parameter for expand volume.
+   - To create a new volume, *vol_name* and *size* is required. *cap_unit*, *description*, *vg_name*, *performance_policy*, and *protection_policy* are optional.
+   - Parameter *new_name* should not be provided when creating a new volume.
+   - The *size*is a required parameter for expand volume.
    - Clones or Snapshots of a deleted production volume or a clone are not deleted.
    - A volume that is attached to a host/host group, or that is part of a volume group cannot be deleted.
    - If volume in metro session, volume can only be modified, refreshed and restored when session is in the pause state.
-   - The \ :emphasis:`Check\_mode`\  is not supported.
+   - The *Check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -484,7 +484,7 @@ volume_details (When volume exists, complex, {'appliance_id': 'A1', 'creation_ti
 
 
   app_type_other (, str, )
-    Application type for volume when app\_type is set to \*Other.
+    Application type for volume when app_type is set to *Other.
 
 
   id (, str, )
@@ -613,7 +613,7 @@ volume_details (When volume exists, complex, {'appliance_id': 'A1', 'creation_ti
 
 
   mapped_volumes (, complex, )
-    This is the inverse of the resource type host\_volume\_mapping association.
+    This is the inverse of the resource type host_volume_mapping association.
 
 
     id (, str, )

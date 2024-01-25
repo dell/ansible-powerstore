@@ -21,8 +21,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -61,9 +61,9 @@ Parameters
   state (True, str, None)
     String variable. Indicates the state of protection policy.
 
-    For Delete operation only, it should be set to \ :literal:`absent`\ .
+    For Delete operation only, it should be set to ``absent``.
 
-    For all other operations like Create, Modify or Get details, it should be set to \ :literal:`present`\ .
+    For all other operations like Create, Modify or Get details, it should be set to ``present``.
 
 
   snapshotrule_state (False, str, None)
@@ -71,9 +71,9 @@ Parameters
 
     When snapshot rules are specified, this variable is required.
 
-    Value \ :literal:`present-in-policy`\  indicates to add to protection policy.
+    Value ``present-in-policy`` indicates to add to protection policy.
 
-    Value \ :literal:`absent-in-policy`\  indicates to remove from protection policy.
+    Value ``absent-in-policy`` indicates to remove from protection policy.
 
 
   array_ip (True, str, None)
@@ -83,9 +83,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -117,7 +117,7 @@ Notes
 .. note::
    - Before deleting a protection policy, the replication rule has to be removed from the protection policy.
    - In PowerStore version 3.0.0.0, protection policy without snapshot rule/replication rule is not allowed.
-   - The \ :emphasis:`check\_mode`\  is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

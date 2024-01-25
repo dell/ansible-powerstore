@@ -21,8 +21,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -31,7 +31,7 @@ Parameters
 ----------
 
   user_name (optional, str, None)
-    Name of the local user account. Mutually exclusive with \ :emphasis:`user\_id`\ .
+    Name of the local user account. Mutually exclusive with *user_id*.
 
     Mandatory only for create operation.
 
@@ -39,7 +39,7 @@ Parameters
   user_id (optional, str, None)
     Unique identifier of the local user account.
 
-    Mutually exclusive with \ :emphasis:`user\_name`\ .
+    Mutually exclusive with *user_name*.
 
 
   user_password (optional, str, None)
@@ -55,19 +55,19 @@ Parameters
   role_name (optional, str, None)
     The name of the role to which the local user account will be mapped.
 
-    It is mutually exclusive with \ :emphasis:`role\_id`\ .
+    It is mutually exclusive with *role_id*.
 
 
   role_id (optional, int, None)
     The unique identifier of the role to which the local user account will be mapped.
 
-    It is mutually exclusive with \ :emphasis:`role\_name`\ .
+    It is mutually exclusive with *role_name*.
 
 
   is_locked (optional, bool, None)
     Whether the user account is locked or not.
 
-    Defaults to \ :literal:`false`\  at creation time.
+    Defaults to ``false`` at creation time.
 
 
   state (True, str, None)
@@ -81,9 +81,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -113,7 +113,7 @@ Notes
 -----
 
 .. note::
-   - The \ :emphasis:`check\_mode`\  is not supported.
+   - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
