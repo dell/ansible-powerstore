@@ -120,8 +120,8 @@ Notes
 
 .. note::
    - The *check_mode* is supported.
-   - The details of an NFS server can be fetched using *nfs_server_id* or *nas_server*
-   - To set *is_use_smb_config_enabled* as ``true``, *is_secure_enabled* should be set to ``true``
+   - The details of an NFS server can be fetched using *nfs_server_id* or *nas_server*.
+   - To set *is_use_smb_config_enabled* as ``true``, *is_secure_enabled* should be set to ``true``.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

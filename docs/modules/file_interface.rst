@@ -65,7 +65,7 @@ Parameters
 
     ``Backup`` type of network interface is used only for NDMP/NFS backup or disaster recovery testing. This type of interface is always active in all NAS server modes.
 
-    ``System`` type of interface are reserved for system traffic such as for NAS server migration, they can't be used for the production traffic.
+    ``System`` type of interface are reserved for system traffic such as for NAS server migration, they can not be used for the production traffic.
 
     ``System`` type is not supported during create interface.
 
@@ -128,7 +128,7 @@ Notes
 
 .. note::
    - The *check_mode* is supported.
-   - The details of a file interface can be fetched using *file_interface_id* or *nas_server* and *ip_address*
+   - The details of a file interface can be fetched using *file_interface_id* or *nas_server* and *ip_address*.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

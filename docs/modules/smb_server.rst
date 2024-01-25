@@ -118,7 +118,7 @@ Notes
 
 .. note::
    - The *check_mode* is supported.
-   - The details of an SMB server can be fetched using *smb_server_id* or *nas_server*
+   - The details of an SMB server can be fetched using *smb_server_id* or *nas_server*.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

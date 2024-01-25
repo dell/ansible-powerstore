@@ -22,7 +22,9 @@ Replication module includes replication rules, replication sessions, replication
 
 Virtualization module includes vCenters and virtual volumes.
 
-Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates, AD/LDAP servers, LDAP accounts, LDAP domain,  and service configs.
+Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates.
+
+Configureation modules also includes AD/LDAP servers, LDAP accounts, LDAP domain, and service configs.
 
 It also includes DNS/NTP servers, smtp configs, email destinations, remote support, and remote support contacts.
 
@@ -473,7 +475,7 @@ Examples
           - file_dns
           - file_nis
 
-    - name: Get list of service configs.
+    - name: Get list of service configs
       dellemc.powerstore.info:
         array_ip: "{{array_ip}}"
         validate_certs: "{{validate_certs}}"

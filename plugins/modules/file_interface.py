@@ -56,7 +56,7 @@ options:
       This type of interface is inactive while a NAS server is in destination mode.
     - C(Backup) type of network interface is used only for NDMP/NFS backup or disaster recovery testing.
       This type of interface is always active in all NAS server modes.
-    - C(System) type of interface are reserved for system traffic such as for NAS server migration, they can't be used for the production traffic.
+    - C(System) type of interface are reserved for system traffic such as for NAS server migration, they can not be used for the production traffic.
     - C(System) type is not supported during create interface.
     choices: ['Production', 'Backup', 'System']
     type: str
@@ -83,7 +83,7 @@ options:
 notes:
 - The I(check_mode) is supported.
 - The details of a file interface can be fetched using I(file_interface_id) or
-  I(nas_server) and I(ip_address)
+  I(nas_server) and I(ip_address).
 '''
 
 EXAMPLES = r'''

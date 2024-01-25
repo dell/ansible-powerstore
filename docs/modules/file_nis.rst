@@ -104,7 +104,7 @@ Notes
 
 .. note::
    - The *check_mode* is supported.
-   - The details of a file NIS can be fetched using *file_nis_id* or *nas_server*
+   - The details of a file NIS can be fetched using *file_nis_id* or *nas_server*.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

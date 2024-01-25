@@ -77,9 +77,9 @@ options:
 notes:
 - The I(check_mode) is supported.
 - The details of an NFS server can be fetched using I(nfs_server_id) or
-  I(nas_server)
+  I(nas_server).
 - To set I(is_use_smb_config_enabled) as C(true), I(is_secure_enabled) should be
-  set to C(true)
+  set to C(true).
 '''
 
 EXAMPLES = r'''
