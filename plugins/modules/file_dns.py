@@ -217,9 +217,7 @@ class PowerStoreFileDNS(PowerStoreBase):
     def prepare_ip_addresses(self, create_params):
         create_dict = dict()
 
-        if create_params['add_ip_addresses'] is None:
-            create_dict['ip_addresses'] = []
-        elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
+        if create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is not None:
             create_dict['ip_addresses'] = [ip for ip in create_params['add_ip_addresses'] if ip not in create_params['remove_ip_addresses']]
         elif create_params['add_ip_addresses'] is not None and create_params['remove_ip_addresses'] is None:
             create_dict['ip_addresses'] = create_params['add_ip_addresses']

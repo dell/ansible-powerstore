@@ -1,0 +1,289 @@
+---
+- name: NAS server operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "password"
+    ip_address_1: "10.**.**.**"
+    ip_address_2: "10.**.**.@@"
+    gateway: "10.**.**.1"
+    nas_server_name: "ansible_nas_server"
+    nas_server_new_name: "ansible_new_nas_server"
+    description: "Modifying through ansible"
+    cur_node_n1: "XX.XX.XX.XX"
+    prefered_node: "N2"
+
+  tasks:
+    - name: Create NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        description: "{{ description }}"
+        current_unix_directory_service: "LDAP"
+        default_unix_user: "user1"
+        default_windows_user: "user2"
+        is_username_translation_enabled: true
+        is_auto_user_mapping_enabled: true
+        protection_policy: "ansible_policy"
+        state: "present"
+
+    - name: Get details of NAS Server by name
+      register: result_nas
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        state: "present"
+
+    - name: Set nas_server_id
+      ansible.builtin.set_fact:
+        nas_id: "{{ result_nas.nasserver_details.id }}"
+
+    - name: Create File interface
+      register: result
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        ip_address: "{{ ip_address_1 }}"
+        vlan_id: 0
+        prefix_length: 21
+        gateway: "{{ gateway }}"
+        state: "present"
+
+    - name: Enable SMB server
+      register: result
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        is_standalone: true
+        netbios_name: "string"
+        workgroup: "string"
+        description: "string"
+        local_admin_password: "string"
+        state: "present"
+
+    - name: Enable NFS server
+      register: result
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        host_name: "sample_host_name"
+        is_nfsv3_enabled: true
+        is_nfsv4_enabled: true
+        is_secure_enabled: false
+        is_extended_credentials_enabled: false
+        credentials_cache_TTL: 60
+        state: "present"
+
+    - name: Enable file DNS
+      register: result
+      dellemc.powerstore.file_dns:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "{{ ip_address_1 }}"
+        transport: "UDP"
+        state: "present"
+
+    - name: Enable file NIS
+      register: result
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server: "{{ nas_server_name }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "{{ ip_address_1 }}"
+        state: "present"
+
+    - name: Rename NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        nas_server_new_name: "{{ nas_server_new_name }}"
+        state: "present"
+
+    - name: Modify NAS Server attributes by ID
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_id: "{{ nas_id }}"
+        current_unix_directory_service: "LOCAL_FILES"
+        current_node: "{{ cur_node_n1 }}"
+        preferred_node: "{{ prefered_node }}"
+        state: "present"
+
+    - name: Rename NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_new_name }}"
+        nas_server_new_name: "{{ nas_server_name }}"
+        state: "present"
+
+    - name: Associate protection policy to a NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: "sra-nas-pp"
+        state: "present"
+
+    - name: Disassociate protection policy from a NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        protection_policy: ""
+        state: "present"
+
+    - name: Modify File interface
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_interface_id: "{{ result.file_interface_details.id }}"
+        ip_address: "{{ ip_address_2 }}"
+        vlan_id: 0
+        prefix_length: 21
+        gateway: "{{ gateway }}"
+        state: "present"
+
+    - name: Modify NFS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_server_id: "{{ result.nfs_server_details.id }}"
+        is_nfsv4_enabled: false
+        is_extended_credentials_enabled: true
+        credentials_cache_TTL: 120
+
+    - name: Modify SMB server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        smb_server_id: "{{ result.smb_server_details.id }}"
+        netbios_name: "string2"
+        workgroup: "string2"
+        description: "string2"
+        local_admin_password: "string2"
+
+    - name: Modify File NIS
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_nis_id: "{{ result.file_nis_details.id }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "{{ ip_address_2 }}"
+        remove_ip_addresses:
+          - "{{ ip_address_1 }}"
+
+    - name: Modify File DNS
+      dellemc.powerstore.file_dns:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_dns_id: "{{ result.file_dns_details.id }}"
+        domain: "NAS_domain"
+        add_ip_addresses:
+          - "{{ ip_address_2 }}"
+        remove_ip_addresses:
+          - "{{ ip_address_1 }}"
+        transport: "UDP"
+
+    - name: Delete file NIS
+      dellemc.powerstore.file_nis:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_nis_id: "{{ result.file_nis_details.id }}"
+        state: "absent"
+
+    - name: Delete file DNS
+      dellemc.powerstore.file_dns:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_dns_id: "{{ result.file_dns_details.id }}"
+        state: "absent"
+
+    - name: Delete SMB server
+      dellemc.powerstore.smb_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        smb_server_id: "{{ result.smb_server_details.id }}"
+        state: "absent"
+
+    - name: Delete NFS server
+      dellemc.powerstore.nfs_server:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nfs_server_id: "{{ result.nfs_server_details.id }}"
+        state: "absent"
+
+    - name: Delete File interface
+      dellemc.powerstore.file_interface:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_interface_id: "{{ result.file_interface_details.id }}"
+        state: "absent"
+
+    - name: Delete NAS Server
+      dellemc.powerstore.nasserver:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        nas_server_name: "{{ nas_server_name }}"
+        state: "absent"

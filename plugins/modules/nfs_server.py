@@ -92,7 +92,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     nas_server: "{{ nas_server_name }}"
-    host_name: "sample_host_name"
+    host_name: "sample.hostname"
     is_nfsv3_enabled: true
     is_nfsv4_enabled: true
     is_secure_enabled: false
