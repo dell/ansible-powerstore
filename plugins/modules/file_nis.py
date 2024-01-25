@@ -63,7 +63,7 @@ options:
 notes:
 - The I(check_mode) is supported.
 - The details of a file NIS can be fetched using I(file_nis_id) or
-  I(nas_server)
+  I(nas_server).
 '''
 
 EXAMPLES = r'''

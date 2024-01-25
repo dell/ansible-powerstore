@@ -16,13 +16,15 @@ Gathers the list of specified PowerStore Storage System entities, includes block
 
 Block provisioning module includes volumes, volume groups, hosts, host groups, snapshot rules, and protection policies.
 
-File provisioning module includes NAS servers, NFS exports, SMB shares, tree quotas, user quotas, and file systems.
+File provisioning module includes NAS servers, NFS exports, SMB shares, tree quotas, user quotas, file systems, file interface, SMB server, NFS server, file DNS, and file NIS.
 
 Replication module includes replication rules, replication sessions, replication groups, and remote system.
 
 Virtualization module includes vCenters and virtual volumes.
 
-Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates, AD/LDAP servers, LDAP accounts, and LDAP domain.
+Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates.
+
+Configureation modules also includes AD/LDAP servers, LDAP accounts, LDAP domain, and service configs.
 
 It also includes DNS/NTP servers, smtp configs, email destinations, remote support, and remote support contacts.
 
@@ -33,10 +35,9 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
-
 
 
 
@@ -46,85 +47,97 @@ Parameters
   gather_subset (True, list, None)
     A list of string variables which specify the PowerStore system entities requiring information.
 
-    Volumes - \ :literal:`vol`\ .
+    Volumes - ``vol``.
 
-    All the nodes - \ :literal:`node`\ .
+    All the nodes - ``node``.
 
-    Volume groups - \ :literal:`vg`\ .
+    Volume groups - ``vg``.
 
-    Protection policies - \ :literal:`protection\_policy`\ .
+    Protection policies - ``protection_policy``.
 
-    Hosts - \ :literal:`host`\ .
+    Hosts - ``host``.
 
-    Host groups - \ :literal:`hg`\ .
+    Host groups - ``hg``.
 
-    Snapshot rules - \ :literal:`snapshot\_rule`\ .
+    Snapshot rules - ``snapshot_rule``.
 
-    NAS servers - \ :literal:`nas\_server`\ .
+    NAS servers - ``nas_server``.
 
-    NFS exports - \ :literal:`nfs\_export`\ .
+    NFS exports - ``nfs_export``.
 
-    SMB shares - \ :literal:`smb\_share`\ .
+    SMB shares - ``smb_share``.
 
-    Tree quotas - \ :literal:`tree\_quota`\ .
+    Tree quotas - ``tree_quota``.
 
-    User quotas - \ :literal:`user\_quota`\ .
+    User quotas - ``user_quota``.
 
-    File systems - \ :literal:`file\_system`\ .
+    File systems - ``file_system``.
 
-    Replication rules - \ :literal:`replication\_rule`\ .
+    Replication rules - ``replication_rule``.
 
-    Replication sessions - \ :literal:`replication\_session`\ .
+    Replication sessions - ``replication_session``.
 
-    Remote systems - \ :literal:`remote\_system`\ .
+    Remote systems - ``remote_system``.
 
-    Various networks - \ :literal:`network`\ .
+    Various networks - ``network``.
 
-    Roles - \ :literal:`role`\ .
+    Roles - ``role``.
 
-    Local users - \ :literal:`user`\ .
+    Local users - ``user``.
 
-    Appliances - \ :literal:`appliance`\ .
+    Appliances - ``appliance``.
 
-    Security configurations - \ :literal:`security\_config`\ .
+    Security configurations - ``security_config``.
 
-    Certificates - \ :literal:`certificate`\ .
+    Certificates - ``certificate``.
 
-    Active directories - \ :literal:`ad`\ .
+    Active directories - ``ad``.
 
-    LDAPs - \ :literal:`ldap`\ .
+    LDAPs - ``ldap``.
 
-    DNS servers - \ :literal:`dns`\ .
+    DNS servers - ``dns``.
 
-    NTP servers - \ :literal:`ntp`\ .
+    NTP servers - ``ntp``.
 
-    Email notification destinations - \ :literal:`email\_notification`\ .
+    Email notification destinations - ``email_notification``.
 
-    SMTP configurations - \ :literal:`smtp\_config`\ .
+    SMTP configurations - ``smtp_config``.
 
-    Remote Support - \ :literal:`remote\_support`\ .
+    Remote Support - ``remote_support``.
 
-    Remote support contacts - \ :literal:`remote\_support\_contact`\ .
+    Remote support contacts - ``remote_support_contact``.
 
-    LDAP accounts - \ :literal:`ldap\_account`\ .
+    LDAP accounts - ``ldap_account``.
 
-    LDAP domain - \ :literal:`ldap\_domain`\ .
+    LDAP domain - ``ldap_domain``.
 
-    All vCenters - \ :literal:`vcenter`\ .
+    All vCenters - ``vcenter``.
 
-    Virtual volumes - \ :literal:`virtual\_volume`\ .
+    Virtual volumes - ``virtual_volume``.
 
-    Storage containers - \ :literal:`storage\_container`\ .
+    Storage containers - ``storage_container``.
 
-    Replication groups - \ :literal:`replication\_group`\ .
+    Replication groups - ``replication_group``.
 
-    Discovered appliances - \ :literal:`discovered\_appliance`\ .
+    Discovered appliances - ``discovered_appliance``.
+
+    File interfaces - ``file_interface``.
+
+    SMB servers - ``smb_server``.
+
+    NFS servers - ``nfs_server``.
+
+    File DNS - ``file_dns``.
+
+    File NIS - ``file_nis``.
+
+    Service configs - ``service_configs``.
 
 
   filters (optional, list, None)
     A list of filters to support filtered output for storage entities.
 
-    Each filter is a list of \ :emphasis:`filter\_key`\ , \ :emphasis:`filter\_operator`\ , \ :emphasis:`filter\_value`\ .
+    Each filter is a list of *filter_key*, *filter_operator*, *filter_value*.
 
     Supports passing of multiple filters.
 
@@ -145,7 +158,7 @@ Parameters
   all_pages (optional, bool, False)
     Indicates whether to return all available entities on the storage system.
 
-    If set to \ :literal:`true`\ , the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
+    If set to ``true``, the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
 
 
   array_ip (True, str, None)
@@ -155,9 +168,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -187,8 +200,8 @@ Notes
 -----
 
 .. note::
-   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If \ :emphasis:`all\_pages`\  is passed, it will be ignored.
-   - The \ :emphasis:`check\_mode`\  is supported.
+   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If *all_pages* is passed, it will be ignored.
+   - The *check_mode* is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -449,6 +462,28 @@ Examples
           - storage_container
           - discovered_appliance
 
+    - name: Get list of file interfaces, SMB servers, NFS servers, file DNS and file NIS
+      dellemc.powerstore.info:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        gather_subset:
+          - file_interface
+          - smb_server
+          - nfs_server
+          - file_dns
+          - file_nis
+
+    - name: Get list of service configs
+      dellemc.powerstore.info:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        gather_subset:
+          - service_config
+
 
 
 Return Values
@@ -540,7 +575,7 @@ Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1',
 
 
   eth_be_ports (, list, )
-    Provides details of all eth\_be\_ports. It was added in version 3.0.0.0.
+    Provides details of all eth_be_ports. It was added in version 3.0.0.0.
 
 
   software_installed (, list, )
@@ -677,6 +712,109 @@ EmailNotification (When C(email_notification) is in a given I(gather_subset), li
 
 
 
+FileDNS (When C(file_dns) is in a given I(gather_subset), list, [{'domain': 'NAS_domain', 'id': '65ab7e44-7009-e3e5-907a-62b767ad9845', 'ip_addresses': ['10.10.10.11'], 'is_destination_override_enabled': False, 'nas_server_id': '6581683c-61a3-76ab-f107-62b767ad9845', 'transport': 'UDP'}])
+  Provides details of all file DNS.
+
+
+  domain (, str, )
+    Name of the DNS domain.
+
+
+  id (, str, )
+    The unique identifier of the file DNS.
+
+
+  ip_addresses (, list, )
+    The addresses may be IPv4 or IPv6.
+
+
+  is_destination_override_enabled (, bool, )
+    Used in replication context when the user wants to override the settings on the destination.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
+
+
+  transport (, str, )
+    Transport used when connecting to the DNS Server.
+
+
+
+FileInterfaces (When C(file_interface) is in a given I(gather_subset), list, [{'gateway': '10.10.10.1', 'id': '65a50e0d-25f9-bd0a-8ca7-62b767ad9845', 'ip_address': '10.10.10.10', 'ip_port_id': 'IP_PORT2', 'is_destination_override_enabled': False, 'is_disabled': False, 'is_dr_test': False, 'name': 'PROD022_19c8adfb1d41_1d', 'nas_server_id': '6581683c-61a3-76ab-f107-62b767ad9845', 'prefix_length': 21, 'role': 'Production', 'source_parameters': 'None', 'vlan_id': 0}])
+  Provides details of all file interfaces.
+
+
+  gateway (, str, )
+    Gateway address for the network interface.
+
+
+  id (, str, )
+    The unique identifier of the file interface.
+
+
+  ip_address (, str, )
+    IP address of the network interface.
+
+
+  ip_port_id (, str, )
+    Unique Identifier of the IP Port that is associated with the file interface.
+
+
+  is_destination_override_enabled (, bool, )
+    Used in replication context when the user wants to override the settings on the destination.
+
+
+  is_disabled (, bool, )
+    Indicates whether the network interface is disabled.
+
+
+  name (, str, )
+    Name of the network interface. This property supports case-insensitive filtering.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
+
+
+  prefix_length (, int, )
+    Prefix length for the interface.
+
+
+  role (, str, )
+    Role of the interface
+
+
+  vlan_id (, int, )
+    Virtual Local Area Network (VLAN) identifier for the interface.
+
+
+
+FileNIS (When C(file_nis) is in a given I(gather_subset), list, [{'domain': 'NAS_domain', 'id': '65ab7e44-7009-e3e5-907a-62b767ad9845', 'ip_addresses': ['10.10.10.11'], 'is_destination_override_enabled': False, 'nas_server_id': '6581683c-61a3-76ab-f107-62b767ad9845'}])
+  Provides details of all file NIS.
+
+
+  domain (, str, )
+    Name of the NIS domain.
+
+
+  id (, str, )
+    The unique identifier of the file NIS.
+
+
+  ip_addresses (, list, )
+    The addresses may be IPv4 or IPv6.
+
+
+  is_destination_override_enabled (, bool, )
+    Used in replication context when the user wants to override the settings on the destination.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
+
+
+
 FileSystems (When C(file_system) is in a given I(gather_subset), list, [{'id': '61ef399b-f4c4-ccb6-1761-16c6ac7490fc', 'name': 'test_fs'}])
   Provides details of all filesystems.
 
@@ -791,7 +929,7 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
 
 
   is_global_catalog (, bool, )
-    Whether or not the catalog is global. Default value is \ :literal:`false`\ .
+    Whether or not the catalog is global. Default value is ``false``.
 
 
   user_id_attribute (, str, )
@@ -827,7 +965,7 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
 
 
   ldap_server_type_l10n (, str, )
-    Localized message string corresponding to ldap\_server\_type.
+    Localized message string corresponding to ldap_server_type.
 
 
   protocol_l10n (, str, )
@@ -887,6 +1025,55 @@ NFSExports (When C(nfs_export) is in a given I(gather_subset), list, [{'id': '61
 
 
 
+NFSServers (When C(nfs_server) is in a given I(gather_subset), list, [{'credentials_cache_TTL': 120, 'host_name': 'sample_host_name', 'id': '65ad14fe-5f6e-beb3-424f-62b767ad9845', 'is_extended_credentials_enabled': True, 'is_joined': False, 'is_nfsv3_enabled': True, 'is_nfsv4_enabled': False, 'is_secure_enabled': False, 'is_use_smb_config_enabled': None, 'nas_server_id': '6581683c-61a3-76ab-f107-62b767ad9845', 'service_principal_name': None}])
+  Provides details of all nfs servers.
+
+
+  credentials_cache_TTL (, int, )
+    Sets the Time-To-Live (in minutes) expiration timestamp for a Windows entry in the credentials cache.
+
+
+  id (, str, )
+    The unique identifier of the NFS server.
+
+
+  host_name (, str, )
+    The name that will be used by NFS clients to connect to this NFS server.
+
+
+  is_extended_credentials_enabled (, bool, )
+    Indicates whether the NFS server supports more than 16 Unix groups in a Unix credential.
+
+
+  is_joined (, bool, )
+    Indicates whether the NFS server is joined to Active Directory.
+
+
+  is_nfsv3_enabled (, bool, )
+    Indicates whether NFSv3 is enabled on the NAS server.
+
+
+  is_nfsv4_enabled (, bool, )
+    Indicates whether NFSv4 is enabled on the NAS server.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
+
+
+  is_secure_enabled (, bool, )
+    Indicates whether secure NFS is enabled on the NFS server.
+
+
+  is_use_smb_config_enabled (, bool, )
+    Indicates whether SMB authentication is used to authenticate to the KDC.
+
+
+  service_principal_name (, str, )
+    The Service Principal Name (SPN) for the NFS server.
+
+
+
 Nodes (When a C(node) is in a given I(gather_subset), list, [{'id': 'N1', 'name': 'Appliance-RT-D1006-node-A'}])
   Provides details of all nodes.
 
@@ -940,7 +1127,7 @@ RemoteSupportContact (When C(remote_support_contact) is in a given I(gather_subs
 
 
 
-ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., list, [{'id': 'c4ba4ad3-2200-47d4-8f61-ddf51d83aac2', 'storage_container_id': '0b460d65-b8b6-40bf-8578-aa2e2fd3d02a', 'name': 'Ansible_RTD8337_VM', 'description': 'Ansible_RTD8337_VM', 'creator_type': 'User', 'creation_timestamp': '2023-05-16T13:58:09.348368+00:00', 'is_replication_destination': False, 'creator_type_l10n': 'User'}])
+ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., list, [{'id': 'c4ba4ad3-2200-47d4-8f61-ddf51d83aac2', 'storage_container_id': '0b460d65-b8b6-40bf-8578-aa2e2fd3d02a', 'name': 'Ansible_RTD8337_VM', 'description': 'Ansible_RTD8337_VM', 'creator_type': 'User', 'creation_timestamp': '2024-05-16T13:58:09.348368+00:00', 'is_replication_destination': False, 'creator_type_l10n': 'User'}])
   Provide details of all replication group.
 
 
@@ -973,7 +1160,7 @@ ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., li
 
 
   creator_type_l10n (, str, )
-    Localized message string corresponding to creator\_type.
+    Localized message string corresponding to creator_type.
 
 
 
@@ -1031,6 +1218,64 @@ SecurityConfig (When C(security_config) is in a given I(gather_subset), list, [{
 
   id (, str, )
     ID of the security config.
+
+
+
+ServiceConfigs (When C(service_config) is in a given I(gather_subset), list, [{'id': 'A1', 'appliance_id': 'A1', 'is_ssh_enabled': True}])
+  Provides details of all service configurations.
+
+
+  id (, str, )
+    ID of the service config.
+
+
+  appliance_id (, str, )
+    ID of the appliance.
+
+
+  is_ssh_enabled (, bool, )
+    Indicates whether ssh is enabled or not on the appliance.
+
+
+
+SMBServers (When C(smb_server) is in a given I(gather_subset), list, [{'computer_name': None, 'description': 'string2', 'domain': None, 'id': '65ad211b-374b-5f77-2946-62b767ad9845', 'is_joined': False, 'is_standalone': True, 'nas_server_id': '6581683c-61a3-76ab-f107-62b767ad9845', 'netbios_name': 'STRING2', 'workgroup': 'STRING2'}])
+  Provides details of all SMB servers.
+
+
+  computer_name (, str, )
+    DNS name of the associated computer account when the SMB server is joined to an Active Directory domain.
+
+
+  id (, str, )
+    The unique identifier of the SMB server.
+
+
+  description (, str, )
+    Description of the SMB server.
+
+
+  domain (, str, )
+    Domain name where SMB server is registered in Active Directory, if applicable.
+
+
+  is_joined (, bool, )
+    Indicates whether the SMB server is joined to the Active Directory.
+
+
+  is_standalone (, bool, )
+    Indicates whether the SMB server is standalone.
+
+
+  netbios_name (, str, )
+    NetBIOS name is the network name of the standalone SMB server.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
+
+
+  workgroup (, str, )
+    Windows network workgroup for the SMB server.
 
 
 
@@ -1227,7 +1472,7 @@ vCenter (When C(vCenter) is in a given I(gather_subset), list, [{'id': '0d330d6c
 
 
   vendor_provider_status_l10n (, str, )
-    Localized message string corresponding to vendor\_provider\_status.
+    Localized message string corresponding to vendor_provider_status.
 
 
   virtual_machines (, list, )
@@ -1385,15 +1630,15 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
 
 
   usage_type_l10n (, str, )
-    Localized message string corresponding to usage\_type.
+    Localized message string corresponding to usage_type.
 
 
   io_priority_l10n (, str, )
-    Localized message string corresponding to io\_priority.
+    Localized message string corresponding to io_priority.
 
 
   creator_type_l10n (, str, )
-    Localized message string corresponding to creator\_type.
+    Localized message string corresponding to creator_type.
 
 
   host_virtual_volume_mappings (, complex, )

@@ -21,8 +21,8 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -47,7 +47,7 @@ Parameters
   ldap_server_state (optional, str, None)
     State of the LDAP server.
 
-    The \ :emphasis:`ldap\_servers`\  and \ :emphasis:`ldap\_server\_state`\  are required together.
+    The *ldap_servers* and *ldap_server_state* are required together.
 
 
   ldap_server_port (optional, int, None)
@@ -89,13 +89,13 @@ Parameters
     user_id_attribute (optional, str, None)
       Name of the LDAP attribute whose value indicates the unique identifier of the user.
 
-      Default value is \ :literal:`sAMAccountName`\ .
+      Default value is ``sAMAccountName``.
 
 
     user_object_class (optional, str, None)
       LDAP object class for users.
 
-      Default value is \ :literal:`user`\ .
+      Default value is ``user``.
 
 
     user_search_path (optional, str, None)
@@ -112,19 +112,19 @@ Parameters
     group_name_attribute (optional, str, None)
       Name of the LDAP attribute whose value indicates the group name.
 
-      Default value is \ :literal:`cn`\ .
+      Default value is ``cn``.
 
 
     group_member_attribute (optional, str, None)
       Name of the LDAP attribute whose value contains the names of group members within a group.
 
-      Default value is \ :literal:`member`\ .
+      Default value is ``member``.
 
 
     group_object_class (optional, str, None)
       LDAP object class for groups.
 
-      Default value is \ :literal:`group`\ .
+      Default value is ``group``.
 
 
     group_search_path (optional, str, None)
@@ -147,9 +147,9 @@ Parameters
   state (True, str, None)
     Define whether the LDAP domain configuration should exist or not.
 
-    For Delete operation only, it should be set to \ :literal:`absent`\ .
+    For Delete operation only, it should be set to ``absent``.
 
-    For all other operations except delete, it should be set to \ :literal:`present`\ .
+    For all other operations except delete, it should be set to ``present``.
 
 
   array_ip (True, str, None)
@@ -159,9 +159,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -191,10 +191,10 @@ Notes
 -----
 
 .. note::
-   - The \ :emphasis:`is\_global\_catalog`\  option can be enabled only for AD server type.
+   - The *is_global_catalog* option can be enabled only for AD server type.
    - To use LDAPS protocol, the pre-requisite is to upload the certificate of LDAP server on PowerStore array.
    - Verify operation does not support idempotency.
-   - The \ :emphasis:`check\_mode`\  is supported.
+   - The *check_mode* is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -384,7 +384,7 @@ ldap_domain_details (When LDAP domain configuration exists., complex, {'id': '9'
 
 
   ldap_server_type_l10n (, str, )
-    Localized message string corresponding to ldap\_server\_type.
+    Localized message string corresponding to ldap_server_type.
 
 
   protocol_l10n (, str, )

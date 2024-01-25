@@ -21,10 +21,9 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 2.1.0.
+- Ansible-core 2.13 or later.
+- PyPowerStore 3.0.0.
 - Python 3.9, 3.10 or 3.11.
-
 
 
 
@@ -32,11 +31,11 @@ Parameters
 ----------
 
   nas_server_name (optional, str, None)
-    Name of the NAS server. Mutually exclusive with \ :emphasis:`nas\_server\_id`\ .
+    Name of the NAS server. Mutually exclusive with *nas_server_id*.
 
 
   nas_server_id (optional, str, None)
-    Unique id of the NAS server. Mutually exclusive with \ :emphasis:`nas\_server\_name`\ .
+    Unique id of the NAS server. Mutually exclusive with *nas_server_name*.
 
 
   description (optional, str, None)
@@ -70,7 +69,7 @@ Parameters
   protection_policy (optional, str, None)
     Name/ID of the protection policy applied to the nas server.
 
-    Policy can be removed by passing an empty string in the \ :emphasis:`protection\_policy`\  parameter.
+    Policy can be removed by passing an empty string in the *protection_policy* parameter.
 
 
   is_username_translation_enabled (optional, bool, None)
@@ -94,9 +93,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    ``false`` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -126,7 +125,7 @@ Notes
 -----
 
 .. note::
-   - The \ :emphasis:`check\_mode`\  is not supported.
+   - The *check_mode* is not supported.
    - Adding/Removing protection policy to/from a NAS server is supported for PowerStore version 3.0.0 and above.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
@@ -281,23 +280,23 @@ nasserver_details (When nas server exists, complex, {'backup_IPv4_interface_id':
 
 
   file_interfaces (, dict, )
-    This is the inverse of the resource type file\_interface association. Will return the id,name & ip\_address of the associated file interface.
+    This is the inverse of the resource type file_interface association. Will return the id,name & ip_address of the associated file interface.
 
 
   nfs_servers (, str, )
-    This is the inverse of the resource type nfs\_server association.
+    This is the inverse of the resource type nfs_server association.
 
 
   smb_servers (, str, )
-    This is the inverse of the resource type smb\_server association.
+    This is the inverse of the resource type smb_server association.
 
 
   file_ldaps (, str, )
-    This is the inverse of the resource type file\_ldap association.
+    This is the inverse of the resource type file_ldap association.
 
 
   file_systems (, dict, )
-    This is the inverse of the resource type file\_system association.
+    This is the inverse of the resource type file_system association.
 
 
   protection_policy_id (, str, )

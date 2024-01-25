@@ -216,3 +216,30 @@ releases:
       minor_changes:
         - Added support for PowerStore 3.6.x.x.
     release_date: '2023-11-30'
+  3.1.0:
+    changes:
+      minor_changes:
+        - Added support for creating multiple NFS exports with same name
+          but different NAS servers
+        - Info module is enhanced to list file interfaces, file DNS,
+          file NIS, SMB servers and NFS servers.
+      modules:
+        - description: Manage file interfaces on Dell PowerStore
+          name: file_interface
+          namespace: ''
+        - description: Manage file DNS on Dell PowerStore
+          name: file_dns
+          namespace: ''
+        - description: Manage file NIS on Dell PowerStore
+          name: file_nis
+          namespace: ''
+        - description: Manage SMB servers on Dell PowerStore
+          name: smb_server
+          namespace: ''
+        - description: Manage NFS servers on Dell PowerStore
+          name: nfs_server
+          namespace: ''
+        - description: Manage service configurations on Dell PowerStore
+          name: service_config
+          namespace: ''
+    release_date: '2024-01-31'

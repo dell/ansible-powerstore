@@ -73,7 +73,7 @@ options:
 notes:
 - The I(check_mode) is supported.
 - The details of an SMB server can be fetched using I(smb_server_id) or
-  I(nas_server)
+  I(nas_server).
 '''
 
 EXAMPLES = r'''
