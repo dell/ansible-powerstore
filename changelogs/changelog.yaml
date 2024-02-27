@@ -181,10 +181,10 @@ releases:
           file_events_publishing_mode and is_async_mtime_enabled in filesystem
           module.
         - Info module is enhanced to list vCenters and virtual volumes.
-      modules:
-        - description: Manage vCenter on Dell PowerStore
-          name: vcenter
-          namespace: ''
+    modules:
+      - description: Manage vCenter on Dell PowerStore
+        name: vcenter
+        namespace: ''
     release_date: '2023-03-31'
   2.0.0:
     changes:
@@ -194,10 +194,10 @@ releases:
           to perform async vVOL replication.
         - Info module is enhanced to list storage containers and replication group.
         - Added support for PowerStore Medusa 3.5.x.
-      modules:
-        - description: Manage Storage Containers on Dell PowerStore
-          name: storage_container
-          namespace: ''
+    modules:
+      - description: Manage Storage Containers on Dell PowerStore
+        name: storage_container
+        namespace: ''
     release_date: '2023-06-30'
   2.1.0:
     changes:
@@ -223,23 +223,28 @@ releases:
           but different NAS servers
         - Info module is enhanced to list file interfaces, file DNS,
           file NIS, SMB servers and NFS servers.
-      modules:
-        - description: Manage file interfaces on Dell PowerStore
-          name: file_interface
-          namespace: ''
-        - description: Manage file DNS on Dell PowerStore
-          name: file_dns
-          namespace: ''
-        - description: Manage file NIS on Dell PowerStore
-          name: file_nis
-          namespace: ''
-        - description: Manage SMB servers on Dell PowerStore
-          name: smb_server
-          namespace: ''
-        - description: Manage NFS servers on Dell PowerStore
-          name: nfs_server
-          namespace: ''
-        - description: Manage service configurations on Dell PowerStore
-          name: service_config
-          namespace: ''
+    modules:
+      - description: Manage file interfaces on Dell PowerStore
+        name: file_interface
+        namespace: ''
+      - description: Manage file DNS on Dell PowerStore
+        name: file_dns
+        namespace: ''
+      - description: Manage file NIS on Dell PowerStore
+        name: file_nis
+        namespace: ''
+      - description: Manage SMB servers on Dell PowerStore
+        name: smb_server
+        namespace: ''
+      - description: Manage NFS servers on Dell PowerStore
+        name: nfs_server
+        namespace: ''
+      - description: Manage service configurations on Dell PowerStore
+        name: service_config
+        namespace: ''
     release_date: '2024-01-31'
+  3.2.0:
+    changes:
+      minor_changes:
+        - Updated and verified to support PyPowerStore SDK version 3.1.0
+    release_date: '2024-02-29'

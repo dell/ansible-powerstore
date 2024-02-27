@@ -31,6 +31,21 @@ plugins:
       name: email
       namespace: ''
       version_added: 1.5.0
+    file_dns:
+      description: Manage File DNS for PowerStore
+      name: file_dns
+      namespace: ''
+      version_added: 3.1.0
+    file_interface:
+      description: Manage File interface for PowerStore
+      name: file_interface
+      namespace: ''
+      version_added: 3.1.0
+    file_nis:
+      description: Manage File NIS for PowerStore
+      name: file_nis
+      namespace: ''
+      version_added: 3.1.0
     filesystem:
       description: Filesystem operations for PowerStore Storage system
       name: filesystem
@@ -91,6 +106,11 @@ plugins:
       name: nfs
       namespace: ''
       version_added: 1.1.0
+    nfs_server:
+      description: Manage NFS server for PowerStore
+      name: nfs_server
+      namespace: ''
+      version_added: 3.1.0
     ntp:
       description: NTP operations on a PowerStore storage system
       name: ntp
@@ -141,6 +161,16 @@ plugins:
       name: security_config
       namespace: ''
       version_added: 1.4.0
+    service_config:
+      description: Manage Service config on PowerStore storage systems
+      name: service_config
+      namespace: ''
+      version_added: 3.1.0
+    smb_server:
+      description: Manage SMB server for PowerStore
+      name: smb_server
+      namespace: ''
+      version_added: 3.1.0
     smbshare:
       description: Manage SMB shares on a PowerStore storage system
       name: smbshare
@@ -186,4 +216,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 2.0.0
+version: 3.2.0

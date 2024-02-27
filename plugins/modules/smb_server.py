@@ -195,7 +195,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.li
 LOG = utils.get_logger('smb_server')
 
 # Application type
-APPLICATION_TYPE = 'Ansible/3.1.0'
+APPLICATION_TYPE = 'Ansible/3.2.0'
 
 
 class PowerStoreSMBServer(PowerStoreBase):

@@ -4,26 +4,33 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+
+v3.2.0
+======
+
+Minor Changes
+-------------
+
+- Updated and verified to support PyPowerStore SDK version 3.1.0
+
 v3.1.0
 ======
 
 Minor Changes
 -------------
 
-- Added support for creating multiple NFS exports with same name
-  but different NAS servers
-- Info module is enhanced to list file interfaces, file DNS,
-  file NIS, SMB servers and NFS servers.
+- Added support for creating multiple NFS exports with same name but different NAS servers
+- Info module is enhanced to list file interfaces, file DNS, file NIS, SMB servers and NFS servers.
 
 New Modules
 -----------
 
-- dellemc.powerstore.file_interface - Manage file interfaces for PowerStore
-- dellemc.powerstore.file_dns - Manage file DNS for PowerStore
-- dellemc.powerstore.file_nis - Manage file NIS for PowerStore
-- dellemc.powerstore.smb_server - Manage SMB server for PowerStore
-- dellemc.powerstore.nfs_server - Manage NFS server for PowerStore
-- dellemc.powerstore.service_config - Manage service config for PowerStore
+- dellemc.powerstore.file_dns - Manage file DNS on Dell PowerStore
+- dellemc.powerstore.file_interface - Manage file interfaces on Dell PowerStore
+- dellemc.powerstore.file_nis - Manage file NIS on Dell PowerStore
+- dellemc.powerstore.nfs_server - Manage NFS servers on Dell PowerStore
+- dellemc.powerstore.service_config - Manage service configurations on Dell PowerStore
+- dellemc.powerstore.smb_server - Manage SMB servers on Dell PowerStore
 
 v3.0.0
 ======
@@ -57,15 +64,15 @@ v2.0.0
 Minor Changes
 -------------
 
+- Added support for PowerStore Medusa 3.5.x.
 - Added support for manual appliance selection in volume module.
 - Added support for replication group in replication session module to perform async vVOL replication.
-- Added support for PowerStore Medusa 3.5.x.
-- Info module is enhanced to list storage containers and replication groups.
+- Info module is enhanced to list storage containers and replication group.
 
 New Modules
 -----------
 
-- dellemc.powerstore.storage_container - Manage storage container for PowerStore
+- dellemc.powerstore.storage_container - Manage Storage Containers on Dell PowerStore
 
 v1.9.0
 ======
@@ -80,7 +87,7 @@ Minor Changes
 New Modules
 -----------
 
-- dellemc.powerstore.vcenter - Manage vCenter on a PowerStore storage system
+- dellemc.powerstore.vcenter - Manage vCenter on Dell PowerStore
 
 v1.8.0
 ======
@@ -128,7 +135,7 @@ v1.5.0
 Minor Changes
 -------------
 
-- Info module is enhanced to list dns servers, email notification destinations, NTP servers, remote support configuration, remote support contacts and SMTP configuration.
+- Info module is enhanced to list dns servers, NTP servers, email notification destinations, remote support configuration, remote support contacts and SMTP configuration.
 - Remote support module is added to get the details, modify the attributes, verify the connection and send a test alert.
 
 New Modules
