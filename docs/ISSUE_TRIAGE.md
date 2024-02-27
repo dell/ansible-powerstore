@@ -44,7 +44,7 @@ Should explain what happened, what was expected and how to reproduce it together
  - Ansible Version: [e.g. 2.14]
  - Python Version [e.g. 3.11]
  - Ansible modules for Dell PowerStore Version: [e.g. 3.2.0]
- - PowerStore SDK version: [e.g. PyPowerStore 3.2.0]
+ - PowerStore SDK version: [e.g. PyPowerStore 3.1.0]
  - Any other additional information...
 
 #### Feature requests
