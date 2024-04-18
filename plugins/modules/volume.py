@@ -273,6 +273,8 @@ notes:
 - If volume in metro session, volume can only be modified, refreshed and
   restored when session is in the pause state.
 - The I(Check_mode) is not supported.
+- I(performance_policy) and I(host_group) details are not in the return values for
+  PowerStore 4.0.0.0.
 '''
 
 EXAMPLES = r'''
@@ -842,27 +844,27 @@ class PowerStoreVolume(object):
                 self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         return False
 
-    def map_unmap_volume_to_hostgroup(self, vol, hostgroup, mapping_state):
+    def map_unmap_volume_to_hostgroup(self, vol, hostgroup_details, mapping_state):
         host_group_identifier = self.module.params['hostgroup']
-        current_hostgroups = vol['host_group']
-        current_hostgroup_ids = []
-        for hostgroup_t in current_hostgroups:
-            current_hostgroup_ids.append(hostgroup_t['id'])
+        current_volumes = hostgroup_details['mapped_host_groups']
+        current_volume_ids = []
+        for volume in range(len(current_volumes)):
+            current_volume_ids.append(hostgroup_details['mapped_host_groups'][volume]['volume_id'])
 
-        if mapping_state == 'mapped' and hostgroup in current_hostgroup_ids:
-            LOG.info('Volume %s is already mapped to hostgroup %s',
-                     vol['name'], host_group_identifier)
-            return False
+        if hostgroup_details['mapped_host_groups'] != []:
+            if mapping_state == 'mapped' and vol['id'] in current_volume_ids:
+                LOG.info('Volume %s is already mapped to hostgroup %s',
+                         vol['name'], host_group_identifier)
+                return False
 
-        if mapping_state == 'mapped' and hostgroup not in\
-                current_hostgroup_ids:
+        if mapping_state == 'mapped' and vol['id'] not in current_volume_ids:
             hlu = self.module.params['hlu']
             LOG.info('Mapping volume %s to hostgroup %s with HLU %s',
                      vol['name'], host_group_identifier, hlu)
             try:
                 self.provisioning.map_volume_to_host_group(
                     volume_id=vol['id'],
-                    host_group_id=hostgroup,
+                    host_group_id=hostgroup_details['id'],
                     logical_unit_number=hlu)
                 return True
             except Exception as e:
@@ -873,18 +875,17 @@ class PowerStoreVolume(object):
                 LOG.error(error_msg)
                 self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
-        if mapping_state == 'unmapped' and hostgroup not in\
-                current_hostgroup_ids:
+        if mapping_state == 'unmapped' and vol['id'] not in current_volume_ids:
             LOG.info('Volume %s is not mapped to hostgroup %s', vol['name'],
                      host_group_identifier)
             return False
 
-        if mapping_state == 'unmapped' and hostgroup in current_hostgroup_ids:
+        if mapping_state == 'unmapped' and vol['id'] in current_volume_ids:
             LOG.info('Unmapping volume %s from hostgroup %s', vol['name'],
                      host_group_identifier)
             try:
                 self.provisioning.unmap_volume_from_host_group(
-                    volume_id=vol['id'], host_group_id=hostgroup)
+                    volume_id=vol['id'], host_group_id=hostgroup_details['id'])
                 return True
             except Exception as e:
                 error_msg = (
@@ -926,7 +927,7 @@ class PowerStoreVolume(object):
         if clone_details['host'] is not None:
             clone_details['host_id'] = self.get_host_id_by_name(clone_details['host'])
         if clone_details['host_group'] is not None:
-            clone_details['host_group_id'] = self.get_host_group_id_by_name(clone_details['host_group'])
+            clone_details['host_group_id'] = self.get_host_group_id_by_name(clone_details['host_group'])['id']
         if clone_details['host_id'] is None and clone_details['host_group_id'] is None and clone_details['logical_unit_number'] is not None:
             errormsg = "Either of host identifier or host group identifier is required along with logical_unit_number."
             LOG.error(errormsg)
@@ -1187,8 +1188,11 @@ class PowerStoreVolume(object):
         description = self.module.params['description']
         mapping_state = self.module.params['mapping_state']
         host = self.get_host_id_by_name(self.module.params['host'])
-        hostgroup = self.get_host_group_id_by_name(
+        hostgroup_details = self.get_host_group_id_by_name(
             self.module.params['hostgroup'])
+        hostgroup = None
+        if hostgroup_details:
+          hostgroup = hostgroup_details['id']
         hlu = self.module.params['hlu']
         clone_volume = self.module.params['clone_volume']
         source_volume = self.module.params['source_volume']
@@ -1375,7 +1379,7 @@ class PowerStoreVolume(object):
                     volume, host, mapping_state) or changed
             if hostgroup:
                 changed = self.map_unmap_volume_to_hostgroup(
-                    volume, hostgroup, mapping_state) or changed
+                    volume, hostgroup_details, mapping_state) or changed
 
         if state == 'present' and clone_volume is not None:
             changed = self.clone_volume(vol_id, clone_volume)
@@ -1594,11 +1598,12 @@ class PowerStoreVolume(object):
                                     'found'
                         LOG.error(error_msg)
                         self.module.fail_json(msg=error_msg)
-                    return host_group_info[0]['id']
+                    return host_group_info[0]
             else:
                 # Get the host group details using id
-                if self.provisioning.get_host_group_details(host_group_name):
-                    return host_group_name
+                host_group_info = self.provisioning.get_host_group_details(host_group_name)
+                if host_group_info:
+                    return host_group_info
 
             error_msg = ("host group {0} not found".format(host_group_name))
             LOG.error(error_msg)
