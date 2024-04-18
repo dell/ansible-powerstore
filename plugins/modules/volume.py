@@ -1192,7 +1192,7 @@ class PowerStoreVolume(object):
             self.module.params['hostgroup'])
         hostgroup = None
         if hostgroup_details:
-          hostgroup = hostgroup_details['id']
+            hostgroup = hostgroup_details['id']
         hlu = self.module.params['hlu']
         clone_volume = self.module.params['clone_volume']
         source_volume = self.module.params['source_volume']
@@ -1591,7 +1591,6 @@ class PowerStoreVolume(object):
                 # Get the host group details using name
                 host_group_info = self.provisioning.\
                     get_host_group_by_name(host_group_name)
-
                 if host_group_info:
                     if len(host_group_info) > 1:
                         error_msg = 'Multiple host groups by the same name ' \
