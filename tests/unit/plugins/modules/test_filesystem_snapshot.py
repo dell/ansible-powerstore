@@ -460,11 +460,8 @@ class TestPowerstoreFilesystemSnapshot(PowerStoreUnitBase):
         powerstore_module_mock.delete_filesystem_snapshot = MagicMock(
             return_value=True
         )
-        # powerstore_module_mock.perform_module_operation()
-        self.capture_exit_json_method(
-            params.get("ret_val"),
-            powerstore_module_mock, "perform_module_operation"
-        )
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1] == params.get("ret_val")
 
     def test_main(self, powerstore_module_mock, mocker):
 

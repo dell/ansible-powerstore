@@ -10,7 +10,7 @@ from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries. \
-    fail_json import FailJsonException, ExitJson, fail_json, exit_json
+    fail_json import FailJsonException, fail_json
 
 
 class PowerStoreUnitBase:
@@ -24,7 +24,6 @@ class PowerStoreUnitBase:
         powerstore_module_mock = module_object()
         powerstore_module_mock.module = MagicMock()
         powerstore_module_mock.module.fail_json = fail_json
-        powerstore_module_mock.module.exit_json = exit_json
         powerstore_module_mock.module.check_mode = False
         return powerstore_module_mock
 
@@ -49,11 +48,3 @@ class PowerStoreUnitBase:
     def set_module_params(self, module_mock, get_module_args, params):
         get_module_args.update(params)
         module_mock.module.params = get_module_args
-
-    def capture_exit_json_method(self, exp_msg, module_mock, function_name, *args, **kwargs):
-        try:
-            func = getattr(module_mock, function_name)
-            func(*args, **kwargs)
-        except ExitJson as fj_object:
-            if exp_msg != fj_object.message:
-                raise AssertionError(fj_object.message, exp_msg)

@@ -87,8 +87,7 @@ class MockFilesystemSnapshotApi:
         "nfe_err2": "Failed to get the filesystem sample_filesystem by name with error Please provide NAS Server details along with filesystem",
         "fs_name_exp": "Filesystem 61e4947b-8992-3db7-2859-aa02b52a0308 not found on the array",
         "fs_snap_exp1": "Please provide filesystem or NAS server details along with snapshot name.",
-        "fs_snap_exp2": "Given filesystem 61e4947b-8992-3db7-2859-aa02b52a0318 \
-            does not match with the filesystem of the snapshot. Please provide valid filesystem.",
+        "fs_snap_exp2": "Given filesystem 61e4947b-8992-3db7-2859-aa02b52a0318 does not match with the filesystem of the snapshot.",
         "fs_snap_exp3": "Failed to get the filesystem snapshot None with error",
         "create_exp1": "Please provide valid snapshot name.",
         "create_exp2": "Snapshot with name sample_snapshot is not found on nas_server nas_server. Please provide filesystem details to create a new snapshot.",

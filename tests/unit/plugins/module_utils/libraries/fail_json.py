@@ -19,14 +19,3 @@ class FailJsonException(Exception):
 
 def fail_json(msg, **kwargs):
     raise FailJsonException(msg)
-
-
-class ExitJson(Exception):
-    def __init__(self, *args):
-        self.message = None
-        if args:
-            self.message = args[0]
-
-
-def exit_json(**kwargs):
-    raise ExitJson(kwargs)
