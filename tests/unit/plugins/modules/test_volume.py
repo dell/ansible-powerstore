@@ -301,17 +301,15 @@ class TestPowerstoreVolume():
     def test_unmap_host_group_from_volume(self, volume_module_mock):
         self.get_module_args.update({
             'vol_id': "ae20eb9a-a482-416e-aaf7-2a3fe7203630",
-            'hostgroup': 'd0a61806-0992-4e8b-9419-d47ac1ed563f',
+            'hostgroup': "sample_host_group_2",
             'mapping_state': 'unmapped',
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.get_host_group_details = MagicMock(
-            return_value=MockVolumeApi.HG_DETAILS1[0])
+        volume_module_mock.provisioning.get_host_group_by_name = MagicMock(
+            return_value=MockVolumeApi.HG_DETAILS2)
         volume_module_mock.provisioning.get_volume_details = MagicMock(
             return_value=MockVolumeApi.MODIFY_VOL_DETAILS1[0])
-        volume_module_mock.provisioning.unmap_volume_from_host_group = MagicMock(
-            return_value=[])
         volume_module_mock.perform_module_operation()
         assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
         volume_module_mock.provisioning.unmap_volume_from_host_group.assert_called()
@@ -385,14 +383,14 @@ class TestPowerstoreVolume():
         MockApiException.status_code = "400"
         self.get_module_args.update({
             'vol_id': "ae20eb9a-a482-416e-aaf7-2a3fe7203630",
-            'hostgroup': 'd0a61806-0992-4e8b-9419-d47ac1ed563f',
+            'hostgroup': "sample_host_group_2",
             'mapping_state': 'unmapped',
             'hlu': 123,
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.get_host_group_details = MagicMock(
-            return_value=MockVolumeApi.HG_DETAILS1[0])
+        volume_module_mock.provisioning.get_host_group_by_name = MagicMock(
+            return_value=MockVolumeApi.HG_DETAILS2)
         volume_module_mock.provisioning.get_volume_details = MagicMock(
             return_value=MockVolumeApi.MODIFY_VOL_DETAILS1[0])
         volume_module_mock.provisioning.unmap_volume_from_host_group = MagicMock(
@@ -528,13 +526,13 @@ class TestPowerstoreVolume():
     def test_map_existing_host_group_to_volume(self, volume_module_mock):
         self.get_module_args.update({
             'vol_name': "sample_volume_1",
-            'hostgroup': 'sample_host_group',
+            'hostgroup': 'sample_host_group2',
             'mapping_state': 'mapped',
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_host_group_by_name = MagicMock(
-            return_value=MockVolumeApi.HG_DETAILS1)
+            return_value=MockVolumeApi.HG_DETAILS2)
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.MODIFY_VOL_DETAILS1)
         volume_module_mock.perform_module_operation()
@@ -598,7 +596,7 @@ class TestPowerstoreVolume():
                 'name': 'test_name_3',
                 'description': 'test description 1',
                 'host': 'hst_nm_1',
-                'host_group': 'hst_gp_1',
+                'host_group': "sample_host_group_2",
                 'logical_unit_number': 13,
                 'protection_policy': 'PP1',
                 'performance_policy': 'low'
@@ -611,7 +609,7 @@ class TestPowerstoreVolume():
         volume_module_mock.get_performance_policy = MagicMock(return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
         volume_module_mock.get_protection_policy_id_by_name = MagicMock(return_value='PP_ID_1')
         volume_module_mock.get_host_id_by_name = MagicMock(return_value='HD_ID_1')
-        volume_module_mock.get_host_group_id_by_name = MagicMock(return_value='HD_GP_ID_1')
+        volume_module_mock.provisioning.get_host_group_details = MagicMock(return_value=MockVolumeApi.HG_DETAILS2)
 
     def test_clone_volume(self, volume_module_mock):
         self.operation_before_clone_volume(volume_module_mock)
