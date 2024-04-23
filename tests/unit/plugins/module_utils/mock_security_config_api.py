@@ -19,6 +19,17 @@ class MockSecurityConfigApi:
         'protocol_mode': None
     }
 
+    ERROR_MAP = {
+        "scd_exp": "Failed to get the security config using ID 1 with error",
+        "msc_exp": "Failed to modify security config instance with error",
+        "pm_exp1": "Security config not found",
+        "pm_exp2": "Deletion of security config is not allowed",
+    }
+
+    @staticmethod
+    def get_error_message(key):
+        return MockSecurityConfigApi.ERROR_MAP.get(key)
+
     @staticmethod
     def get_security_config_response(response_type):
         if response_type == 'module':
