@@ -2,4 +2,4 @@
 codecov:
   token: "e922330b-921b-42f1-bf78-f5209defb95d"
 fixes:
-   - "/ansible_collections/dellemc/powerstore/::"
+  - "/ansible_collections/dellemc/powerstore/::"
