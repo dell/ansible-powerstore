@@ -248,3 +248,8 @@ releases:
       minor_changes:
         - Updated and verified to support PyPowerStore SDK version 3.1.0
     release_date: '2024-02-29'
+  3.3.0:
+    changes:
+      minor_changes:
+        - Added the support for PowerStore version 4.0.0.0 (Victory Release).
+    release_date: '2024-04-30'
