@@ -24,7 +24,7 @@ The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
 - Ansible-core 2.14 or later.
-- PyPowerStore 3.1.0.
+- PyPowerStore 3.2.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -308,6 +308,7 @@ Notes
    - A volume that is attached to a host/host group, or that is part of a volume group cannot be deleted.
    - If volume in metro session, volume can only be modified, refreshed and restored when session is in the pause state.
    - The *Check_mode* is not supported.
+   - Parameter performance_policy and host_group details are not in the return values for PowerStore 4.0.0.0.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

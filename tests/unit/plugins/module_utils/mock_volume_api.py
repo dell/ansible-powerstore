@@ -125,7 +125,31 @@ class MockVolumeApi:
             }
         ],
         "id": "d0a61806-0992-4e8b-9419-d47ac1ed563f",
-        "name": "sample_host_group"
+        "name": "sample_host_group",
+        "mapped_host_groups": [
+            {
+                "id": "6bff38b9-4895-4f3c-8d1c-406d5b734656",
+                "volume_id": "ae20eb9a-a482-416e-aaf7-2a3fe7203631"
+            }
+        ]
+    }]
+
+    HG_DETAILS2 = [{
+        "description": None,
+        "hosts": [
+            {
+                "id": "ced80318-b14a-461d-93a7-11b10afaf347",
+                "name": "sample_host1"
+            }
+        ],
+        "id": "d0a61806-0992-4e8b-9419-d47ac1ed563g",
+        "name": "sample_host_group_2",
+        "mapped_host_groups": [
+            {
+                "id": "6bff38b9-4895-4f3c-8d1c-406d5b734656",
+                "volume_id": "ae20eb9a-a482-416e-aaf7-2a3fe7203630"
+            }
+        ]
     }]
 
     VOL_DETAILS1 = [

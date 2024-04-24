@@ -48,6 +48,8 @@ notes:
 - Modification of protocol mode is only supported for PowerStore v2.0.0.0 and
   above.
 - The I(check_mode) is not supported.
+- Only C(TLSv1_1) is supported for I(protocol_mode) for PowerStore v3.0.0.0 and
+  above.
 '''
 
 EXAMPLES = r'''
@@ -116,7 +118,7 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 # Application type
-APPLICATION_TYPE = 'Ansible/3.2.0'
+APPLICATION_TYPE = 'Ansible/3.3.0'
 
 
 class PowerStoreSecurityConfig(object):

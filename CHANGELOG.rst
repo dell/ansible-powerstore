@@ -4,6 +4,13 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.3.0
+======
+
+Minor Changes
+-------------
+
+- Added the support for PowerStore version 4.0.0.0 (Victory Release)
 
 v3.2.0
 ======
