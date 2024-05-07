@@ -2047,6 +2047,20 @@ class PowerstoreInfo(object):
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
 
+    def get_acl(self, smb_share_id):
+        """
+        Retrieves the access control list (ACL) for a given SMB share ID.
+        Parameters:
+            smb_share_id (str): The ID of the SMB share.
+        Returns:
+            The access control list (ACL) for the specified SMB share ID.
+        """
+        try:
+            acl_response = self.provisioning.get_acl(smb_share_id)
+        except Exception:
+            acl_response = []
+        return acl_response
+
     def update_result_with_item_list(self, item, filter_dict=None,
                                      all_pages=False):
         """Update the result json with list of item of a given PowerStore
@@ -2060,6 +2074,9 @@ class PowerstoreInfo(object):
             else:
                 item_list = self.subset_mapping[item]['func'](
                     filter_dict=filter_dict)
+            if item == "smb_share":
+                for each in item_list:
+                    each["acl"] = self.get_acl(each["id"])
             LOG.info('Successfully listed %s %s from powerstore array name: '
                      '%s , global id : %s', len(item_list), self.
                      subset_mapping[item]['display_as'], self.cluster_name,

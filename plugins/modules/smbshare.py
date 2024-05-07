@@ -115,6 +115,38 @@ options:
     type: str
     required: true
     choices: ['absent', 'present']
+  acl:
+    description: To specify the ACL access options.
+    type: list
+    elements: dict
+    suboptions:
+      state:
+        description:
+          - Define whether the ACL should exist or not.
+          - C(present) indicates that the ACL should exist on the system.
+          - C(absent) indicates that the ACL should not exist on the system.
+        type: str
+        required: true
+        choices: ['present', 'absent']
+      trustee_name:
+        description: The name of the trustee.
+        type: str
+        required: true
+      trustee_type:
+        description: The type of the trustee.
+        type: str
+        required: true
+        choices: ['SID', 'User', 'Group', 'WellKnown']
+      access_level:
+        description: The access level.
+        type: str
+        required: true
+        choices: ['Read', 'Full', 'Change']
+      access_type:
+        description: The access type.
+        type: str
+        required: true
+        choices: ['Allow', 'Deny']
 
 notes:
 - When the ID of the filesystem/snapshot is passed then I(nas_server) is not
@@ -614,7 +646,6 @@ class PowerStoreSMBShare(object):
         '''
         smb_share_details = self.get_smb_share(share_id, share_name,
                                                smb_parent, nas_server, path)
-
         '''
         Creation of SMB Share
         '''
@@ -676,7 +707,30 @@ class PowerStoreSMBShare(object):
             self.result["smb_share_details"] = \
                 self.get_smb_share(share_id, share_name,
                                    smb_parent, nas_server, path)
+            acl_details = self.update_acl_details(self.result)
+            self.result["smb_share_details"]["acl"] = acl_details
         self.module.exit_json(**self.result)
+
+    def update_acl_details(self, smb_share_details):
+        acl_params = self.module.params.get("acl")
+        payload = {"add_aces": [], "remove_aces": []}
+        for each in acl_params:
+            data = {"trustee_name": each["trustee_name"],
+                    "trustee_type": each["trustee_type"],
+                    "access_level": each["access_level"],
+                    "access_type": each["access_type"]}
+            if each['state'] == 'present':
+                payload["add_aces"].append(data)
+            elif each['state'] == 'absent':
+                payload["remove_aces"].append(data)
+        try:
+            self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
+                                             add_aces=payload["add_aces"],
+                                             remove_aces=payload["remove_aces"])
+            acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+        except Exception as err:
+            self.module.fail_json(msg=str(err))
+        return acl_details
 
 
 def match_smb_share(share_details, smb_parent, nas_server, path):
@@ -775,6 +829,14 @@ def get_powerstore_smb_share_parameters():
         is_encryption_enabled=dict(type='bool'),
         state=dict(required=True, choices=['present', 'absent'],
                    type='str'),
+        acl=dict(
+            type='list', elements='dict', options=dict(
+                state=dict(type='str', required=True, choices=['present', 'absent']),
+                trustee_name=dict(type='str', required=True),
+                trustee_type=dict(type='str', required=True, choices=['SID', 'User', 'Group', 'WellKnown']),
+                access_level=dict(type='str', required=True, choices=['Read', 'Full', 'Change']),
+                access_type=dict(type='str', required=True, choices=['Allow', 'Deny']),)
+            ),
     )
 
 
