@@ -22,7 +22,7 @@ The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
 - Ansible-core 2.14 or later.
-- PyPowerStore 3.2.0.
+- PyPowerStore 3.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -142,6 +142,39 @@ Parameters
     Value ``present`` indicates that the share should exist on the system.
 
     Value ``absent`` indicates that the share should not exist on the system.
+
+
+  acl (optional, list, None)
+    To specify the ACL access options.
+
+
+    state (True, str, None)
+      Define whether the ACL should exist or not.
+
+      ``present`` indicates that the ACL should exist on the system.
+
+      ``absent`` indicates that the ACL should not exist on the system.
+
+
+    trustee_name (True, str, None)
+      The name of the trustee.
+
+      The *trustee_name* can be ``SID``, ``User``, ``Group`` or ``WellKnown``.
+
+      If *trustee_type* is ``WellKnown``, then *trustee_name* should be `Everyone`.
+
+
+    trustee_type (True, str, None)
+      The type of the trustee.
+
+
+    access_level (True, str, None)
+      The access level.
+
+
+    access_type (True, str, None)
+      The access type.
+
 
 
   array_ip (True, str, None)

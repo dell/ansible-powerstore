@@ -128,6 +128,7 @@ options:
         type: str
         required: true
         choices: ['present', 'absent']
+        version_added: 3.4.0
       trustee_name:
         description:
           - The name of the trustee.
@@ -135,21 +136,25 @@ options:
           - If I(trustee_type) is C(WellKnown), then I(trustee_name) should be `Everyone`.
         type: str
         required: true
+        version_added: 3.4.0
       trustee_type:
         description: The type of the trustee.
         type: str
         required: true
         choices: ['SID', 'User', 'Group', 'WellKnown']
+        version_added: 3.4.0
       access_level:
         description: The access level.
         type: str
         required: true
         choices: ['Read', 'Full', 'Change']
+        version_added: 3.4.0
       access_type:
         description: The access type.
         type: str
         required: true
         choices: ['Allow', 'Deny']
+        version_added: 3.4.0
 
 notes:
 - When the ID of the filesystem/snapshot is passed then I(nas_server) is not
