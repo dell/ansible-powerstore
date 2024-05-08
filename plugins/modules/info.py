@@ -2057,6 +2057,7 @@ class PowerstoreInfo(object):
         """
         try:
             acl_response = self.provisioning.get_acl(smb_share_id)
+            acl_response = acl_response["aces"]
         except Exception:
             acl_response = []
         return acl_response
@@ -2076,7 +2077,7 @@ class PowerstoreInfo(object):
                     filter_dict=filter_dict)
             if item == "smb_share":
                 for each in item_list:
-                    each["acl"] = self.get_acl(each["id"])
+                    each["aces"] = self.get_acl(each["id"])
             LOG.info('Successfully listed %s %s from powerstore array name: '
                      '%s , global id : %s', len(item_list), self.
                      subset_mapping[item]['display_as'], self.cluster_name,

@@ -129,7 +129,10 @@ options:
         required: true
         choices: ['present', 'absent']
       trustee_name:
-        description: The name of the trustee.
+        description:
+          - The name of the trustee.
+          - The I(trustee_name) can be C(SID), C(User), C(Group) or C(WellKnown).
+          - If I(trustee_type) is C(WellKnown), then I(trustee_name) should be `Everyone`.
         type: str
         required: true
       trustee_type:
@@ -707,8 +710,11 @@ class PowerStoreSMBShare(object):
             self.result["smb_share_details"] = \
                 self.get_smb_share(share_id, share_name,
                                    smb_parent, nas_server, path)
-            acl_details = self.update_acl_details(self.result)
-            self.result["smb_share_details"]["acl"] = acl_details
+            self.result["smb_share_details"]["aces"] = []
+            if self.module.params.get("acl"):
+                acl_details, changed = self.update_acl_details(self.result)
+                self.result["smb_share_details"]["aces"] = acl_details["aces"]
+                self.result["changed"] = changed
         self.module.exit_json(**self.result)
 
     def update_acl_details(self, smb_share_details):
@@ -724,13 +730,29 @@ class PowerStoreSMBShare(object):
             elif each['state'] == 'absent':
                 payload["remove_aces"].append(data)
         try:
-            self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
-                                             add_aces=payload["add_aces"],
-                                             remove_aces=payload["remove_aces"])
+            changes, changed = [], False
             acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+            for each_acl in payload["add_aces"]:
+                if each_acl not in acl_details["aces"]:
+                    changes.append(True)
+                    break
+            else:
+                payload["add_aces"] = []
+            for each_acl in payload["remove_aces"]:
+                if each_acl in acl_details["aces"]:
+                    changes.append(True)
+                    break
+            else:
+                payload["remove_aces"] = []
+            if any(changes):
+                self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
+                                                 add_aces=payload["add_aces"],
+                                                 remove_aces=payload["remove_aces"])
+                acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+                changed = True
         except Exception as err:
             self.module.fail_json(msg=str(err))
-        return acl_details
+        return acl_details, changed
 
 
 def match_smb_share(share_details, smb_parent, nas_server, path):
