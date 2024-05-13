@@ -27,7 +27,8 @@ class MockSMBShareApi:
         'is_encryption_enabled': None,
         'offline_availability': None,
         'umask': None,
-        'state': None
+        'state': None,
+        'aces': None,
     }
 
     SMB_NAME = "Sample_smb_share"
@@ -55,7 +56,13 @@ class MockSMBShareApi:
             "name": "Sample_smb_share",
             "offline_availability": "Documents",
             "path": "/sample_file_system",
-            "umask": "007"
+            "umask": "007",
+            "aces": [
+                {"trustee_name": "S-1-5-21-8-5-1-32",
+                 "trustee_type": "SID",
+                 "access_level": "Read",
+                 "access_type": "Allow"}
+                ]
         }
     ]
 

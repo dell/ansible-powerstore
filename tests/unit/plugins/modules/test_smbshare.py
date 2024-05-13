@@ -80,7 +80,7 @@ class TestPowerStoreSMBShare():
         })
         smb_share_module_mock.module.params = self.get_module_args
         smb_share_module_mock.provisioning.get_smb_share_by_name = MagicMock(
-            return_value=None)
+            return_value={})
         smb_share_module_mock.perform_module_operation()
         assert smb_share_module_mock.module.exit_json.call_args[1]['changed'] is True
 
@@ -97,7 +97,7 @@ class TestPowerStoreSMBShare():
         })
         smb_share_module_mock.module.params = self.get_module_args
         smb_share_module_mock.provisioning.get_smb_share_by_name = MagicMock(
-            return_value=None)
+            return_value={})
         smb_share_module_mock.provisioning.create_smb_share = MagicMock(
             side_effect=MockApiException)
         smb_share_module_mock.perform_module_operation()
@@ -168,16 +168,31 @@ class TestPowerStoreSMBShare():
         smb_share_module_mock.perform_module_operation()
         smb_share_module_mock.provisioning.delete_smb_share.assert_called()
 
-    def test_create_smb_share_without_path(self, smb_share_module_mock):
+    def test_create_smb_share_with_aces(self, smb_share_module_mock):
         self.get_module_args.update({
             'share_name': MockSMBShareApi.SMB_NAME,
             'nas_server': 'ansible_nas_server_2',
             'filesystem': 'sample_file_system',
-            'state': 'present'
+            'state': 'present',
+            'acl': [
+                {"state": "present",
+                 "trustee_name": "Everyone",
+                 "trustee_type": "WellKnown",
+                 "access_level": "Read",
+                 "access_type": "Allow"},
+                {"state": "absent",
+                 "trustee_name": "S-1-5-21-8-5-1-32",
+                 "trustee_type": "SID",
+                 "access_level": "Read",
+                 "access_type": "Allow"}
+                ]
         })
         smb_share_module_mock.module.params = self.get_module_args
+        smb_share_module_mock.get_smb_share = MagicMock(
+            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"},
+                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"})
         smb_share_module_mock.provisioning.get_smb_share_by_name = MagicMock(
-            return_value=None)
+            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"},
+                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"})
         smb_share_module_mock.perform_module_operation()
-        assert MockSMBShareApi.create_smb_share_without_path_failed_msg() in \
-               smb_share_module_mock.module.fail_json.call_args[1]['msg']
+        assert smb_share_module_mock.module.exit_json.call_args[1]['changed'] is True
