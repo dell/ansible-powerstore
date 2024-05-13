@@ -282,12 +282,12 @@ EXAMPLES = r'''
         access_type: "Allow"
         trustee_name: "TEST-56\\Guest"
         trustee_type: "User"
-        state: "present"
+        state: "absent"
       - access_level: "Read"
         access_type: "Deny"
         trustee_name: "S-1-5-21-8-5-1-32"
         trustee_type: "SID"
-        state: "present"
+        state: "absent"
     state: "present"
 
 - name: Get details of SMB share

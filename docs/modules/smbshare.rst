@@ -22,7 +22,7 @@ The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
 - Ansible-core 2.14 or later.
-- PyPowerStore 3.2.0.
+- PyPowerStore 3.1.0.
 - Python 3.9, 3.10 or 3.11.
 
 
@@ -298,6 +298,63 @@ Examples
         umask: "022"
         state: "present"
 
+    - name: Create SMB share for a filesystem with ACL
+      dellemc.powerstore.smbshare:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        share_name: "sample_smb_share"
+        filesystem: "sample_fs"
+        nas_server: "{{nas_server_id}}"
+        path: "{{path}}"
+        description: "Sample SMB share created"
+        is_abe_enabled: true
+        is_branch_cache_enabled: true
+        offline_availability: "DOCUMENTS"
+        is_continuous_availability_enabled: true
+        is_encryption_enabled: true
+        acl:
+          - access_level: "Full"
+            access_type: "Allow"
+            trustee_name: "TEST-56\\Guest"
+            trustee_type: "User"
+            state: "present"
+          - access_level: "Read"
+            access_type: "Deny"
+            trustee_name: "S-1-5-21-8-5-1-32"
+            trustee_type: "SID"
+            state: "present"
+        state: "present"
+
+    - name: Modify Attributes of SMB share for a filesystem with ACL
+      dellemc.powerstore.smbshare:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        share_name: "sample_smb_share"
+        nas_server: "sample_nas_server"
+        description: "Sample SMB share attributes updated"
+        is_abe_enabled: false
+        is_branch_cache_enabled: false
+        offline_availability: "MANUAL"
+        is_continuous_availability_enabled: false
+        is_encryption_enabled: false
+        umask: "022"
+        acl:
+          - access_level: "Full"
+            access_type: "Allow"
+            trustee_name: "TEST-56\\Guest"
+            trustee_type: "User"
+            state: "absent"
+          - access_level: "Read"
+            access_type: "Deny"
+            trustee_name: "S-1-5-21-8-5-1-32"
+            trustee_type: "SID"
+            state: "absent"
+        state: "present"
+
     - name: Get details of SMB share
       dellemc.powerstore.smbshare:
         array_ip: "{{array_ip}}"
@@ -325,7 +382,7 @@ changed (always, bool, True)
   Whether or not the resource has changed.
 
 
-smb_share_details (When share exists., complex, {'description': 'SMB Share created', 'file_system': {'filesystem_type': 'Primary', 'id': '61d68c36-7c59-f5d9-65f0-96e8abdcbab0', 'name': 'sample_file_system', 'nas_server': {'id': '60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9', 'name': 'ansible_nas_server'}}, 'id': '61d68cf6-34d3-7b16-0370-96e8abdcbab0', 'is_ABE_enabled': True, 'is_branch_cache_enabled': True, 'is_continuous_availability_enabled': True, 'is_encryption_enabled': True, 'name': 'sample_smb_share', 'offline_availability': 'Documents', 'path': '/sample_file_system', 'umask': '177'})
+smb_share_details (When share exists., complex, {'description': 'SMB Share created', 'file_system': {'filesystem_type': 'Primary', 'id': '61d68c36-7c59-f5d9-65f0-96e8abdcbab0', 'name': 'sample_file_system', 'nas_server': {'id': '60c0564a-4a6e-04b6-4d5e-fe8be1eb93c9', 'name': 'ansible_nas_server'}}, 'id': '61d68cf6-34d3-7b16-0370-96e8abdcbab0', 'is_ABE_enabled': True, 'is_branch_cache_enabled': True, 'is_continuous_availability_enabled': True, 'is_encryption_enabled': True, 'name': 'sample_smb_share', 'offline_availability': 'Documents', 'path': '/sample_file_system', 'umask': '177', 'aces': [{'access_level': 'Read', 'access_type': 'Deny', 'trustee_name': 'S-1-5-21-843271493-548684746-1849754324-32', 'trustee_type': 'SID'}, {'access_level': 'Read', 'access_type': 'Allow', 'trustee_name': 'TEST-56\\Guest', 'trustee_type': 'User'}, {'access_level': 'Read', 'access_type': 'Allow', 'trustee_name': 'S-1-5-21-843271493-548684746-1849754324-33', 'trustee_type': 'SID'}, {'access_level': 'Full', 'access_type': 'Allow', 'trustee_name': 'Everyone', 'trustee_type': 'WellKnown'}]})
   The SMB share details.
 
 
@@ -376,6 +433,27 @@ smb_share_details (When share exists., complex, {'description': 'SMB Share creat
 
   is_encryption_enabled (, bool, False)
     Whether encryption is enabled or not.
+
+
+  aces (, list, )
+    access control list (ACL) of the smb share.
+
+
+    access_level (, str, )
+      access level of the smb share.
+
+
+    access_type (, str, )
+      access type of the smb share.
+
+
+    trustee_name (, str, )
+      trustee name of the smb share.
+
+
+    trustee_type (, str, )
+      trustee type of the smb share.
+
 
 
 
