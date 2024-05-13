@@ -185,7 +185,7 @@ class TestPowerStoreSMBShare():
                  "trustee_type": "SID",
                  "access_level": "Read",
                  "access_type": "Allow"}
-                ]
+            ],
         })
         smb_share_module_mock.module.params = self.get_module_args
         smb_share_module_mock.get_smb_share = MagicMock(
