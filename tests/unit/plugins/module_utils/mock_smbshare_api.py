@@ -58,11 +58,13 @@ class MockSMBShareApi:
             "path": "/sample_file_system",
             "umask": "007",
             "aces": [
-                {"trustee_name": "S-1-5-21-8-5-1-32",
-                 "trustee_type": "SID",
-                 "access_level": "Read",
-                 "access_type": "Allow"}
-                ]
+                {
+                    "trustee_name": "S-1-5-21-8-5-1-32",
+                    "trustee_type": "SID",
+                    "access_level": "Read",
+                    "access_type": "Allow"
+                }
+            ]
         }
     ]
 
