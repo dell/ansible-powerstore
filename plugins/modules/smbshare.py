@@ -313,6 +313,22 @@ smb_share_details:
             description: Whether encryption is enabled or not.
             type: bool
             sample: false
+        aces:
+            description: access control list (ACL) of the smb share.
+            type: list
+            contains:
+                access_level:
+                    description: access level of the smb share.
+                    type: str
+                access_type:
+                    description: access type of the smb share.
+                    type: str
+                trustee_name:
+                    description: trustee name of the smb share.
+                    type: str
+                trustee_type:
+                    description: trustee type of the smb share.
+                    type: str
     sample: {
         "description": "SMB Share created",
         "file_system": {
@@ -332,7 +348,33 @@ smb_share_details:
         "name": "sample_smb_share",
         "offline_availability": "Documents",
         "path": "/sample_file_system",
-        "umask": "177"
+        "umask": "177",
+        "aces": [
+            {
+                "access_level": "Read",
+                "access_type": "Deny",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-32",
+                "trustee_type": "SID"
+            },
+            {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "TEST-56\\Guest",
+                "trustee_type": "User"
+            },
+            {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-33",
+                "trustee_type": "SID"
+            },
+            {
+                "access_level": "Full",
+                "access_type": "Allow",
+                "trustee_name": "Everyone",
+                "trustee_type": "WellKnown"
+            }
+        ]
     }
 '''
 from ansible.module_utils.basic import AnsibleModule
@@ -716,45 +758,47 @@ class PowerStoreSMBShare(object):
                 self.get_smb_share(share_id, share_name,
                                    smb_parent, nas_server, path)
             self.result["smb_share_details"]["aces"] = []
-            if self.module.params.get("acl"):
-                acl_details, changed = self.update_acl_details(self.result)
-                self.result["smb_share_details"]["aces"] = acl_details["aces"]
-                self.result["changed"] = changed
+            # if self.module.params.get("acl"):
+            acl_details, changed = self.update_acl_details(self.result)
+            self.result["smb_share_details"]["aces"] = acl_details["aces"]
+            self.result["changed"] = changed
         self.module.exit_json(**self.result)
 
     def update_acl_details(self, smb_share_details):
         acl_params = self.module.params.get("acl")
-        payload = {"add_aces": [], "remove_aces": []}
-        for each in acl_params:
-            data = {"trustee_name": each["trustee_name"],
-                    "trustee_type": each["trustee_type"],
-                    "access_level": each["access_level"],
-                    "access_type": each["access_type"]}
-            if each['state'] == 'present':
-                payload["add_aces"].append(data)
-            elif each['state'] == 'absent':
-                payload["remove_aces"].append(data)
+        if acl_params:
+            payload = {"add_aces": [], "remove_aces": []}
+            for each in acl_params:
+                data = {"trustee_name": each["trustee_name"],
+                        "trustee_type": each["trustee_type"],
+                        "access_level": each["access_level"],
+                        "access_type": each["access_type"]}
+                if each['state'] == 'present':
+                    payload["add_aces"].append(data)
+                elif each['state'] == 'absent':
+                    payload["remove_aces"].append(data)
         try:
             changes, changed = [], False
             acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
-            for each_acl in payload["add_aces"]:
-                if each_acl not in acl_details["aces"]:
-                    changes.append(True)
-                    break
-            else:
-                payload["add_aces"] = []
-            for each_acl in payload["remove_aces"]:
-                if each_acl in acl_details["aces"]:
-                    changes.append(True)
-                    break
-            else:
-                payload["remove_aces"] = []
-            if any(changes):
-                self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
-                                                 add_aces=payload["add_aces"],
-                                                 remove_aces=payload["remove_aces"])
-                acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
-                changed = True
+            if acl_params:
+                for each_acl in payload["add_aces"]:
+                    if each_acl not in acl_details["aces"]:
+                        changes.append(True)
+                        break
+                else:
+                    payload["add_aces"] = []
+                for each_acl in payload["remove_aces"]:
+                    if each_acl in acl_details["aces"]:
+                        changes.append(True)
+                        break
+                else:
+                    payload["remove_aces"] = []
+                if any(changes):
+                    self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
+                                              add_aces=payload["add_aces"],
+                                              remove_aces=payload["remove_aces"])
+                    acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+                    changed = True
         except Exception as err:
             self.module.fail_json(msg=str(err))
         return acl_details, changed
@@ -854,16 +898,16 @@ def get_powerstore_smb_share_parameters():
         is_branch_cache_enabled=dict(type='bool'),
         is_continuous_availability_enabled=dict(type='bool'),
         is_encryption_enabled=dict(type='bool'),
-        state=dict(required=True, choices=['present', 'absent'],
-                   type='str'),
+        state=dict(required=True, choices=['present', 'absent'], type='str'),
         acl=dict(
-            type='list', elements='dict', options=dict(
+            type='list', elements='dict',
+            options=dict(
                 state=dict(type='str', required=True, choices=['present', 'absent']),
                 trustee_name=dict(type='str', required=True),
                 trustee_type=dict(type='str', required=True, choices=['SID', 'User', 'Group', 'WellKnown']),
                 access_level=dict(type='str', required=True, choices=['Read', 'Full', 'Change']),
-                access_type=dict(type='str', required=True, choices=['Allow', 'Deny']),)
-            ),
+                access_type=dict(type='str', required=True, choices=['Allow', 'Deny']))
+        )
     )
 
 

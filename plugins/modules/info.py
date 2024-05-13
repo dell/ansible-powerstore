@@ -1399,16 +1399,102 @@ SMBShares:
     type: list
     returned: When C(smb_share) is in a given I(gather_subset)
     contains:
-          id:
-            description: ID of the smb share.
-            type: str
-          name:
-            description: name of the smb share.
-            type: str
+        id:
+          description: ID of the smb share.
+          type: str
+        name:
+          description: name of the smb share.
+          type: str
+        description:
+          description: description of the smb share.
+          type: str
+        file_system:
+          description: file system details of the smb share.
+          type: dict
+        is_ABE_enabled:
+          description: indicates whether ABE is enabled or not.
+          type: bool
+        is_branch_cache_enabled:
+          description: indicates whether branch cache is enabled or not.
+          type: bool
+        is_continuous_availability_enabled:
+          description: indicates whether continuous availability is enabled or not.
+          type: bool
+        is_encryption_enabled:
+          description: indicates whether encryption is enabled or not.
+          type: bool
+        offline_availability:
+          description: offline availability of the smb share.
+          type: str
+        path:
+          description: path of the smb share.
+          type: str
+        umask:
+          description: umask of the smb share.
+          type: str
+        aces:
+          description: access control list (ACL) of the smb share.
+          type: list
+          contains:
+            access_level:
+              description: access level of the smb share.
+              type: str
+            access_type:
+              description: access type of the smb share.
+              type: str
+            trustee_name:
+              description: trustee name of the smb share.
+              type: str
+            trustee_type:
+              description: trustee type of the smb share.
+              type: str
     sample: [
           {
             "id": "72ef39a0-09b3-5339-c8bb-16c6ac7490fc",
-            "name": "test_smb"
+            "name": "test_smb",
+            "description": "description of the SMB share",
+            "file_system": {
+              "filesystem_type": "Primary",
+              "id": "66062da4-26f9-0d0e-90e7-aa3bc4047c46",
+              "name": "nfs-test",
+              "nas_server": {
+                "id": "66062cf7-f969-de58-2e33-aa3bc4047c46",
+                "name": "vsi_nas_1"
+              }
+            },
+            "is_ABE_enabled": false,
+            "is_branch_cache_enabled": false,
+            "is_continuous_availability_enabled": false,
+            "is_encryption_enabled": false,
+            "offline_availability": "Documents",
+            "path": "/nfs-test",
+            "umask": "022",
+            "aces": [
+              {
+                "access_level": "Read",
+                "access_type": "Deny",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-32",
+                "trustee_type": "SID"
+              },
+              {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "TEST-56\\Guest",
+                "trustee_type": "User"
+              },
+              {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-33",
+                "trustee_type": "SID"
+              },
+              {
+                "access_level": "Full",
+                "access_type": "Allow",
+                "trustee_name": "Everyone",
+                "trustee_type": "WellKnown"
+              }
+            ]
           }
     ]
 SMTPConfig:
