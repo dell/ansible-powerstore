@@ -15,7 +15,8 @@ from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_smbshare_api import MockSMBShareApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.plugins.modules.smbshare import PowerStoreSMBShare
+from ansible_collections.dellemc.powerstore.plugins.modules.smbshare import PowerStoreSMBShare, is_match_smb_parent, \
+    is_match_path
 
 
 class TestPowerStoreSMBShare():
@@ -173,6 +174,7 @@ class TestPowerStoreSMBShare():
             'share_name': MockSMBShareApi.SMB_NAME,
             'nas_server': 'ansible_nas_server_2',
             'filesystem': 'sample_file_system',
+            'description': 'test update SMB share',
             'state': 'present',
             'acl': [
                 {"state": "present",
@@ -189,10 +191,52 @@ class TestPowerStoreSMBShare():
         })
         smb_share_module_mock.module.params = self.get_module_args
         smb_share_module_mock.get_smb_share = MagicMock(
-            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"},
-                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"})
+            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0",
+                                                "description": "share details"},
+                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0", "description": "share details"})
         smb_share_module_mock.provisioning.get_smb_share_by_name = MagicMock(
-            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"},
-                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0"})
+            return_value={"smb_share_details": {"id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0",
+                                                "description": "share details"},
+                          "id": "61d68cf6-34d3-7b16-0370-96e8abdcbab0", "description": "share details"})
         smb_share_module_mock.perform_module_operation()
         assert smb_share_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_is_match_smb_parent(self, smb_share_module_mock):
+        smb_parent = 'test_fs'
+        smb_share_details = {"file_system": {"id": "61d68c36-7c59-f5d9-65f0-96e8abdcbab0", "name": "file_system"}}
+        result = is_match_smb_parent(smb_parent, smb_share_details)
+        assert not result
+        smb_parent = "61d68c36-7c59-f5d9-65f0-96e8abdcbab0"
+        result = is_match_smb_parent(smb_parent, smb_share_details)
+        assert result
+        smb_parent = "61d68c36-7c59"
+        result = is_match_smb_parent(smb_parent, smb_share_details)
+        assert not result
+
+    def test_is_match_path(self, smb_share_module_mock):
+        input_path = "\file_system"
+        smb_share_details = {"path": "/file_system"}
+        result = is_match_path(input_path, smb_share_details)
+        assert not result
+        input_path = "/file_system"
+        result = is_match_path(input_path, smb_share_details)
+        assert result
+
+    def test_validate_unmask_share(self, smb_share_module_mock):
+        with pytest.raises(Exception) as exc_info:
+            smb_share_module_mock.validate_umask('te')
+        assert exc_info.value.args[0] == MockSMBShareApi.smb_error_messages()['umask_error']
+        nas_server_name = 'ansible_nas_server_2'
+        smb_share_module_mock.provisioning.get_nas_server_by_name = MagicMock(side_effect=MockApiException)
+        result = smb_share_module_mock.get_nas_server_id(nas_server_name)
+        assert result == nas_server_name
+        smb_share_module_mock.provisioning.get_smb_share = MagicMock(side_effect=MockApiException)
+        args = ("61d68c36-7c59-f5d9-65f0-96e8abdcbab0", "smb_share", None, None, None)
+        result = smb_share_module_mock.get_smb_share(*args)
+        assert result is None
+        smb_share_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            return_value=[{"filesystem_type": "Primary"}])
+        smb_share_module_mock.get_nas_server_id = MagicMock(return_value=None)
+        args = ("smb_parent", "new_snapshot", "nas_server")
+        result = smb_share_module_mock.get_filesystem_id(*args)
+        assert result == "smb_parent"
