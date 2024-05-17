@@ -209,7 +209,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     share_name: "sample_snap_smb_share"
     snapshot: "sample_snapshot"
-    nas_server: "{{nas_server_id}}"
+    nas_server: "{{ nas_server_id }}"
     path: "{{ path }}"
     description: "Sample SMB share created for snapshot"
     is_abe_enabled: true
@@ -241,7 +241,7 @@ EXAMPLES = r'''
     password: "{{ password }}"
     share_name: "sample_smb_share"
     filesystem: "sample_fs"
-    nas_server: "{{nas_server_id}}"
+    nas_server: "{{ nas_server_id }}"
     path: "{{ path }}"
     description: "Sample SMB share created"
     is_abe_enabled: true
