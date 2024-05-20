@@ -79,14 +79,14 @@
 
     - name: Create SMB share for a filesystem with ACL
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         filesystem: "sample_fs"
-        nas_server: "{{nas_server_id}}"
-        path: "{{path}}"
+        nas_server: "{{ nas_server_id }}"
+        path: "{{ path }}"
         description: "Sample SMB share created"
         is_abe_enabled: true
         is_branch_cache_enabled: true
@@ -108,10 +108,10 @@
 
     - name: Modify Attributes of SMB share for a filesystem with ACL
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated"
