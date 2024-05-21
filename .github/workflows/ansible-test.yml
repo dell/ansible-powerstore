@@ -116,7 +116,6 @@ jobs:
         python-version: ["3.9", "3.10", "3.11"]
         ansible-version: [stable-2.15, stable-2.16, stable-2.17, devel]
         exclude:
-        # Ansible-core 2.16 is supported only from Python 3.10 onwards
           - python-version: "3.9"
             ansible-version: stable-2.16
           - python-version: "3.9"
