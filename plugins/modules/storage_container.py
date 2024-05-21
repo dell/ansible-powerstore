@@ -360,9 +360,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 
 class PowerStoreStorageContainer(object):
     """Class with storage container Operations"""
@@ -401,8 +398,7 @@ class PowerStoreStorageContainer(object):
             self.module.fail_json(msg=VERSION_ERROR)
 
         self.conn = utils.get_powerstore_connection(
-            self.module.params,
-            application_type=APPLICATION_TYPE)
+            self.module.params)
         self.configuration = self.conn.config_mgmt
         self.protection = self.conn.protection
         msg = 'Got Py4ps instance for configuration {0} and protection {1}' \
@@ -499,7 +495,7 @@ class PowerStoreStorageContainer(object):
                         'storage_container_destination'][parm]
 
             conn = utils.get_powerstore_connection(
-                remote_params, application_type=APPLICATION_TYPE)
+                remote_params)
             remote_config = conn.config_mgmt
             if remote_container_id:
                 con_details = remote_config.get_storage_container_details(

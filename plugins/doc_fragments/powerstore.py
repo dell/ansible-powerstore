@@ -50,9 +50,7 @@ class ModuleDocFragment(object):
           type: int
     requirements:
       - A Dell PowerStore storage system version 3.0.0.0 or later.
-      - Ansible-core 2.14 or later.
-      - PyPowerStore 3.1.0.
-      - Python 3.9, 3.10 or 3.11.
+      - PyPowerStore 3.3.0.
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
         are built to support the Dell PowerStore storage platform.

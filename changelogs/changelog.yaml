@@ -189,11 +189,11 @@ releases:
   2.0.0:
     changes:
       minor_changes:
+        - Added support for PowerStore Medusa 3.5.x.
         - Added support for manual appliance selection in volume module.
         - Added support for replication group in replication session module
           to perform async vVOL replication.
         - Info module is enhanced to list storage containers and replication group.
-        - Added support for PowerStore Medusa 3.5.x.
     modules:
       - description: Manage Storage Containers on Dell PowerStore
         name: storage_container
@@ -224,23 +224,23 @@ releases:
         - Info module is enhanced to list file interfaces, file DNS,
           file NIS, SMB servers and NFS servers.
     modules:
-      - description: Manage file interfaces on Dell PowerStore
-        name: file_interface
-        namespace: ''
       - description: Manage file DNS on Dell PowerStore
         name: file_dns
         namespace: ''
+      - description: Manage file interfaces on Dell PowerStore
+        name: file_interface
+        namespace: ''
       - description: Manage file NIS on Dell PowerStore
         name: file_nis
-        namespace: ''
-      - description: Manage SMB servers on Dell PowerStore
-        name: smb_server
         namespace: ''
       - description: Manage NFS servers on Dell PowerStore
         name: nfs_server
         namespace: ''
       - description: Manage service configurations on Dell PowerStore
         name: service_config
+        namespace: ''
+      - description: Manage SMB servers on Dell PowerStore
+        name: smb_server
         namespace: ''
     release_date: '2024-01-31'
   3.2.0:
@@ -253,3 +253,9 @@ releases:
       minor_changes:
         - Added the support for PowerStore version 4.0.0.0 (Victory Release).
     release_date: '2024-04-30'
+  3.4.0:
+    changes:
+      minor_changes:
+        - Added the support for ACL in the SMB Share module.
+        - Info module is enhanced to list acls.
+    release_date: '2024-05-31'

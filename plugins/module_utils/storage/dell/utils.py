@@ -32,6 +32,9 @@ from decimal import Decimal
 from uuid import UUID
 from datetime import datetime
 
+# Application type
+APPLICATION_TYPE = 'Ansible/3.4.0'
+
 '''
 Check required libraries
 '''
@@ -102,7 +105,7 @@ def get_powerstore_management_host_parameters():
     )
 
 
-def get_powerstore_connection(module_params, application_type=None,
+def get_powerstore_connection(module_params, application_type=APPLICATION_TYPE,
                               enable_log=False):
     if HAS_Py4PS:
         conn = powerstore_conn.PowerStoreConn(

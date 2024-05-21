@@ -626,9 +626,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 
 class PowerStoreCluster(object):
     """Class with cluster configuration operations"""
@@ -672,8 +669,7 @@ class PowerStoreCluster(object):
         # cluster details
         self.result = {"changed": False, "cluster_details": {}}
 
-        self.conn = utils.get_powerstore_connection(
-            self.module.params, application_type=APPLICATION_TYPE)
+        self.conn = utils.get_powerstore_connection(self.module.params)
         self.configuration = self.conn.config_mgmt
         self.provisioning = self.conn.provisioning
         msg = 'Got Py4Ps instance for configuring cluster on' \

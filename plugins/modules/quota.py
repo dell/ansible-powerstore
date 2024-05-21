@@ -362,9 +362,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 
 class PowerStoreQuota(object):
     """Class with Quota operations"""
@@ -411,7 +408,7 @@ class PowerStoreQuota(object):
         self.result = {"changed": False, "quota_details": {}}
 
         self.conn = utils.get_powerstore_connection(
-            self.module.params, application_type=APPLICATION_TYPE)
+            self.module.params)
         self.provisioning = self.conn.provisioning
         msg = 'Got Py4Ps instance for provisioning on' \
               ' PowerStore {0}'.format(self.conn)

@@ -632,9 +632,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 
 class PowerStoreVolume(object):
     """Class with volume operations"""
@@ -672,7 +669,7 @@ class PowerStoreVolume(object):
         # volume details
         self.result = {"changed": False, "volume_details": {}}
         self.conn = utils.get_powerstore_connection(
-            self.module.params, application_type=APPLICATION_TYPE)
+            self.module.params)
         self.provisioning = self.conn.provisioning
         self.protection = self.conn.protection
         self.configuration = self.conn.config_mgmt
