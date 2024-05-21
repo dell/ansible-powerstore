@@ -233,14 +233,14 @@ Examples
 
     - name: Create SMB share for a filesystem
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         filesystem: "sample_fs"
-        nas_server: "{{nas_server_id}}"
-        path: "{{path}}"
+        nas_server: "{{ nas_server_id }}"
+        path: "{{ path }}"
         description: "Sample SMB share created"
         is_abe_enabled: true
         is_branch_cache_enabled: true
@@ -251,10 +251,10 @@ Examples
 
     - name: Modify Attributes of SMB share for a filesystem
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated"
@@ -268,14 +268,14 @@ Examples
 
     - name: Create SMB share for a snapshot
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_snap_smb_share"
         snapshot: "sample_snapshot"
-        nas_server: "{{nas_server_id}}"
-        path: "{{path}}"
+        nas_server: "{{ nas_server_id }}"
+        path: "{{ path }}"
         description: "Sample SMB share created for snapshot"
         is_abe_enabled: true
         is_branch_cache_enabled: true
@@ -284,10 +284,10 @@ Examples
 
     - name: Modify Attributes of SMB share for a snapshot
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_snap_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated for snapshot"
@@ -300,14 +300,14 @@ Examples
 
     - name: Create SMB share for a filesystem with ACL
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         filesystem: "sample_fs"
-        nas_server: "{{nas_server_id}}"
-        path: "{{path}}"
+        nas_server: "{{ nas_server_id }}"
+        path: "{{ path }}"
         description: "Sample SMB share created"
         is_abe_enabled: true
         is_branch_cache_enabled: true
@@ -329,10 +329,10 @@ Examples
 
     - name: Modify Attributes of SMB share for a filesystem with ACL
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
         share_name: "sample_smb_share"
         nas_server: "sample_nas_server"
         description: "Sample SMB share attributes updated"
@@ -357,20 +357,20 @@ Examples
 
     - name: Get details of SMB share
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        share_id: "{{smb_share_id}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ smb_share_id }}"
         state: "present"
 
     - name: Delete SMB share
       dellemc.powerstore.smbshare:
-        array_ip: "{{array_ip}}"
-        validate_certs: "{{validate_certs}}"
-        user: "{{user}}"
-        password: "{{password}}"
-        share_id: "{{smb_share_id}}"
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_id: "{{ smb_share_id }}"
         state: "absent"
 
 
