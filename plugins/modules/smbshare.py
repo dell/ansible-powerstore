@@ -161,6 +161,8 @@ notes:
   required. If passed, then the filesystem/snapshot should exist for the
   I(nas_server), else the task will fail.
 - Multiple SMB shares can be created for the same local path.
+- The maximum number of Access Control List (ACL) entities that can be
+  configured for a SMB share is approximately 600.
 - The I(check_mode) is not supported.
 '''
 
