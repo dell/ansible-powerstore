@@ -218,6 +218,7 @@ Notes
 .. note::
    - When the ID of the filesystem/snapshot is passed then *nas_server* is not required. If passed, then the filesystem/snapshot should exist for the *nas_server*, else the task will fail.
    - Multiple SMB shares can be created for the same local path.
+   - The maximum number of Access Control List (ACL) entities that can be configured for a SMB share is approximately 600.
    - The *check_mode* is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
