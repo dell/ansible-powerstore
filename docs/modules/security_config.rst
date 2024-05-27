@@ -21,9 +21,7 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.0.0.0 or later.
-- Ansible-core 2.14 or later.
-- PyPowerStore 3.2.0.
-- Python 3.9, 3.10 or 3.11.
+- PyPowerStore 3.3.0.
 
 
 
@@ -88,7 +86,7 @@ Notes
    - Creation and deletion of security configs is not supported by Ansible modules.
    - Modification of protocol mode is only supported for PowerStore v2.0.0.0 and above.
    - The *check_mode* is not supported.
-   - Parameter TLSv1_1 is supported for protocol_mode for PowerStore v3.0.0.0 and above.
+   - Only ``TLSv1_1`` is supported for *protocol_mode* for PowerStore v3.0.0.0 and above.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

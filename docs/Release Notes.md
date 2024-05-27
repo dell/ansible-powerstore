@@ -1,6 +1,6 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 3.3.0
+### Release Notes 3.4.0
 
 >   © 2024 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
@@ -28,7 +28,7 @@ Table 1. Revision history
 
 | Revision | Date         | Description                                               |
 |----------|--------------|-----------------------------------------------------------|
-| 01       | April 2024 | Current release of Ansible Modules for Dell PowerStore 3.3.0 |
+| 01       | April 2024 | Current release of Ansible Modules for Dell PowerStore 3.4.0 |
 
 Product Description
 -------------------
@@ -38,23 +38,8 @@ New features & enhancements
 ---------------------------
 Along with the previous release deliverables, this release supports these features:
 
-- Added support for PowerStore 4.0.0.0
-- Added support for PowerStore 3.6.x.x.
-- Added support for creating, getting details, modifying and deleting
-  a file interface.
-- Added support for enabling, getting details, modifying and disabling
-  the file DNS.
-- Added support for enabling, getting details, modifying and disabling
-  the file NIS.
-- Added support for enabling, getting details, modifying and disabling
-  the SMB server.
-- Added support for enabling, getting details, modifying and disabling
-  the NFS server.
-- Added support for getting details and modifying a service configuration.
-- Added support for creating multiple NFS exports with same name
-  but different NAS servers
-- Info module is enhanced to list file interfaces, file DNS,
-  file NIS, SMB servers and NFS servers.
+- Added support for ACLs in the SMB module.
+- Info module is enhanced to list acls.
 
 Known issues
 ------------
@@ -71,11 +56,11 @@ Limitations
 Distribution
 ----------------
 The software package is available for download from the [Ansible Modules
-for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/3.3.0) page.
+for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/main) page.
 
 Documentation
 -------------
-The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/3.3.0/docs)
+The documentation is available on [Ansible Modules for PowerStore GitHub](https://github.com/dell/ansible-powerstore/tree/main/docs)
 page. It includes these:
 - README
 - Release Notes (this document)

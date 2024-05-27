@@ -372,9 +372,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 # DO NOT CHANGE BELOW PORT_TYPES SEQUENCE AS ITS USED IN SCRIPT USING INDEX
 PORT_TYPES = ["iSCSI", "FC", "NVMe"]
 
@@ -410,8 +407,7 @@ class PowerStoreHost(object):
         # result is a dictionary that contains changed status and host details
         self.result = {"changed": False, "host_details": {}}
 
-        self.conn = utils.get_powerstore_connection(
-            self.module.params, application_type=APPLICATION_TYPE)
+        self.conn = utils.get_powerstore_connection(self.module.params)
         LOG.info(
             'Got Python library connection instance for provisioning on'
             ' PowerStore %s', self.conn)

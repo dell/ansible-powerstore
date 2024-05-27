@@ -307,9 +307,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.3.0'
-
 
 class PowerstoreRemoteSystem(object):
     """Remote system operations"""
@@ -342,7 +339,7 @@ class PowerstoreRemoteSystem(object):
             self.module.fail_json(msg=VERSION_ERROR)
 
         self.conn = utils.get_powerstore_connection(
-            self.module.params, application_type=APPLICATION_TYPE)
+            self.module.params)
         self.provisioning = self.conn.provisioning
         LOG.info('Got Py4ps instance for provisioning on PowerStore %s',
                  self.provisioning)

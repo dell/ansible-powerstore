@@ -19,9 +19,6 @@ py4ps_version = utils.py4ps_version_check()
 IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
-# Application type
-APPLICATION_TYPE = 'Ansible/3.2.0'
-
 
 class PowerStoreBase:
 
@@ -59,8 +56,7 @@ class PowerStoreBase:
             self.module.fail_json(msg=VERSION_ERROR)
 
         self.conn = utils.get_powerstore_connection(
-            self.module.params,
-            application_type=APPLICATION_TYPE)
+            self.module.params)
 
         self.configuration = self.conn.config_mgmt
         self.protection = self.conn.protection
