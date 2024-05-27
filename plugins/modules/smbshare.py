@@ -115,12 +115,54 @@ options:
     type: str
     required: true
     choices: ['absent', 'present']
+  acl:
+    description: To specify the ACL access options.
+    type: list
+    elements: dict
+    suboptions:
+      state:
+        description:
+          - Define whether the ACL should exist or not.
+          - C(present) indicates that the ACL should exist on the system.
+          - C(absent) indicates that the ACL should not exist on the system.
+        type: str
+        required: true
+        choices: ['present', 'absent']
+        version_added: 3.4.0
+      trustee_name:
+        description:
+          - The name of the trustee.
+          - The I(trustee_name) can be C(SID), C(User), C(Group) or C(WellKnown).
+          - If I(trustee_type) is C(WellKnown), then I(trustee_name) should be `Everyone`.
+        type: str
+        required: true
+        version_added: 3.4.0
+      trustee_type:
+        description: The type of the trustee.
+        type: str
+        required: true
+        choices: ['SID', 'User', 'Group', 'WellKnown']
+        version_added: 3.4.0
+      access_level:
+        description: The access level.
+        type: str
+        required: true
+        choices: ['Read', 'Full', 'Change']
+        version_added: 3.4.0
+      access_type:
+        description: The access type.
+        type: str
+        required: true
+        choices: ['Allow', 'Deny']
+        version_added: 3.4.0
 
 notes:
 - When the ID of the filesystem/snapshot is passed then I(nas_server) is not
   required. If passed, then the filesystem/snapshot should exist for the
   I(nas_server), else the task will fail.
 - Multiple SMB shares can be created for the same local path.
+- The maximum number of Access Control List (ACL) entities that can be
+  configured for a SMB share is approximately 600.
 - The I(check_mode) is not supported.
 '''
 
@@ -128,14 +170,14 @@ EXAMPLES = r'''
 
 - name: Create SMB share for a filesystem
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
     share_name: "sample_smb_share"
     filesystem: "sample_fs"
-    nas_server: "{{nas_server_id}}"
-    path: "{{path}}"
+    nas_server: "{{ nas_server_id }}"
+    path: "{{ path }}"
     description: "Sample SMB share created"
     is_abe_enabled: true
     is_branch_cache_enabled: true
@@ -146,10 +188,10 @@ EXAMPLES = r'''
 
 - name: Modify Attributes of SMB share for a filesystem
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
     share_name: "sample_smb_share"
     nas_server: "sample_nas_server"
     description: "Sample SMB share attributes updated"
@@ -163,14 +205,14 @@ EXAMPLES = r'''
 
 - name: Create SMB share for a snapshot
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
     share_name: "sample_snap_smb_share"
     snapshot: "sample_snapshot"
-    nas_server: "{{nas_server_id}}"
-    path: "{{path}}"
+    nas_server: "{{ nas_server_id }}"
+    path: "{{ path }}"
     description: "Sample SMB share created for snapshot"
     is_abe_enabled: true
     is_branch_cache_enabled: true
@@ -179,10 +221,10 @@ EXAMPLES = r'''
 
 - name: Modify Attributes of SMB share for a snapshot
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
     share_name: "sample_snap_smb_share"
     nas_server: "sample_nas_server"
     description: "Sample SMB share attributes updated for snapshot"
@@ -193,22 +235,79 @@ EXAMPLES = r'''
     umask: "022"
     state: "present"
 
+- name: Create SMB share for a filesystem with ACL
+  dellemc.powerstore.smbshare:
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    share_name: "sample_smb_share"
+    filesystem: "sample_fs"
+    nas_server: "{{ nas_server_id }}"
+    path: "{{ path }}"
+    description: "Sample SMB share created"
+    is_abe_enabled: true
+    is_branch_cache_enabled: true
+    offline_availability: "DOCUMENTS"
+    is_continuous_availability_enabled: true
+    is_encryption_enabled: true
+    acl:
+      - access_level: "Full"
+        access_type: "Allow"
+        trustee_name: "TEST-56\\Guest"
+        trustee_type: "User"
+        state: "present"
+      - access_level: "Read"
+        access_type: "Deny"
+        trustee_name: "S-1-5-21-8-5-1-32"
+        trustee_type: "SID"
+        state: "present"
+    state: "present"
+
+- name: Modify Attributes of SMB share for a filesystem with ACL
+  dellemc.powerstore.smbshare:
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    share_name: "sample_smb_share"
+    nas_server: "sample_nas_server"
+    description: "Sample SMB share attributes updated"
+    is_abe_enabled: false
+    is_branch_cache_enabled: false
+    offline_availability: "MANUAL"
+    is_continuous_availability_enabled: false
+    is_encryption_enabled: false
+    umask: "022"
+    acl:
+      - access_level: "Full"
+        access_type: "Allow"
+        trustee_name: "TEST-56\\Guest"
+        trustee_type: "User"
+        state: "absent"
+      - access_level: "Read"
+        access_type: "Deny"
+        trustee_name: "S-1-5-21-8-5-1-32"
+        trustee_type: "SID"
+        state: "absent"
+    state: "present"
+
 - name: Get details of SMB share
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    share_id: "{{smb_share_id}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    share_id: "{{ smb_share_id }}"
     state: "present"
 
 - name: Delete SMB share
   dellemc.powerstore.smbshare:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    share_id: "{{smb_share_id}}"
+    array_ip: "{{ array_ip }}"
+    validate_certs: "{{ validate_certs }}"
+    user: "{{ user }}"
+    password: "{{ password }}"
+    share_id: "{{ smb_share_id }}"
     state: "absent"
 '''
 
@@ -273,6 +372,22 @@ smb_share_details:
             description: Whether encryption is enabled or not.
             type: bool
             sample: false
+        aces:
+            description: access control list (ACL) of the smb share.
+            type: list
+            contains:
+                access_level:
+                    description: access level of the smb share.
+                    type: str
+                access_type:
+                    description: access type of the smb share.
+                    type: str
+                trustee_name:
+                    description: trustee name of the smb share.
+                    type: str
+                trustee_type:
+                    description: trustee type of the smb share.
+                    type: str
     sample: {
         "description": "SMB Share created",
         "file_system": {
@@ -292,9 +407,36 @@ smb_share_details:
         "name": "sample_smb_share",
         "offline_availability": "Documents",
         "path": "/sample_file_system",
-        "umask": "177"
+        "umask": "177",
+        "aces": [
+            {
+                "access_level": "Read",
+                "access_type": "Deny",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-32",
+                "trustee_type": "SID"
+            },
+            {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "TEST-56\\Guest",
+                "trustee_type": "User"
+            },
+            {
+                "access_level": "Read",
+                "access_type": "Allow",
+                "trustee_name": "S-1-5-21-843271493-548684746-1849754324-33",
+                "trustee_type": "SID"
+            },
+            {
+                "access_level": "Full",
+                "access_type": "Allow",
+                "trustee_name": "Everyone",
+                "trustee_type": "WellKnown"
+            }
+        ]
     }
 '''
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
@@ -561,6 +703,47 @@ class PowerStoreSMBShare(object):
             else:
                 umask = int(umask / 10)
 
+    def update_acl_details(self, smb_share_details):
+        acl_params = self.module.params.get("acl")
+        if acl_params:
+            payload = {"add_aces": [], "remove_aces": []}
+            for each in acl_params:
+                data = {"trustee_name": each["trustee_name"],
+                        "trustee_type": each["trustee_type"],
+                        "access_level": each["access_level"],
+                        "access_type": each["access_type"]}
+                if each['state'] == 'present':
+                    payload["add_aces"].append(data)
+                elif each['state'] == 'absent':
+                    payload["remove_aces"].append(data)
+        acl_details = {"aces": []}
+        try:
+            changes, changed = [], False
+            if smb_share_details:
+                acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+            if acl_params:
+                for each_acl in payload["add_aces"]:
+                    if each_acl not in acl_details["aces"]:
+                        changes.append(True)
+                        break
+                else:
+                    payload["add_aces"] = []
+                for each_acl in payload["remove_aces"]:
+                    if each_acl in acl_details["aces"]:
+                        changes.append(True)
+                        break
+                else:
+                    payload["remove_aces"] = []
+                if any(changes):
+                    self.provisioning.set_acl(smb_share_details['smb_share_details']['id'],
+                                              add_aces=payload["add_aces"],
+                                              remove_aces=payload["remove_aces"])
+                    acl_details = self.provisioning.get_acl(smb_share_details['smb_share_details']['id'])
+                    changed = True
+        except Exception as err:
+            self.module.fail_json(msg=str(err))
+        return acl_details, changed
+
     def perform_module_operation(self):
         """
         Perform different actions on SMB share based on user parameters
@@ -614,7 +797,6 @@ class PowerStoreSMBShare(object):
         '''
         smb_share_details = self.get_smb_share(share_id, share_name,
                                                smb_parent, nas_server, path)
-
         '''
         Creation of SMB Share
         '''
@@ -676,6 +858,11 @@ class PowerStoreSMBShare(object):
             self.result["smb_share_details"] = \
                 self.get_smb_share(share_id, share_name,
                                    smb_parent, nas_server, path)
+            self.result["smb_share_details"].update({"aces": []})
+            acl_details, changed = self.update_acl_details(self.result)
+            self.result["smb_share_details"]["aces"] = acl_details["aces"]
+            if changed:
+                self.result["changed"] = changed
         self.module.exit_json(**self.result)
 
 
@@ -773,8 +960,16 @@ def get_powerstore_smb_share_parameters():
         is_branch_cache_enabled=dict(type='bool'),
         is_continuous_availability_enabled=dict(type='bool'),
         is_encryption_enabled=dict(type='bool'),
-        state=dict(required=True, choices=['present', 'absent'],
-                   type='str'),
+        state=dict(required=True, choices=['present', 'absent'], type='str'),
+        acl=dict(
+            type='list', elements='dict',
+            options=dict(
+                state=dict(type='str', required=True, choices=['present', 'absent']),
+                trustee_name=dict(type='str', required=True),
+                trustee_type=dict(type='str', required=True, choices=['SID', 'User', 'Group', 'WellKnown']),
+                access_level=dict(type='str', required=True, choices=['Read', 'Full', 'Change']),
+                access_type=dict(type='str', required=True, choices=['Allow', 'Deny']))
+        )
     )
 
 

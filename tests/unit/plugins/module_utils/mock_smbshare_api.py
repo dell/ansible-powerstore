@@ -27,7 +27,8 @@ class MockSMBShareApi:
         'is_encryption_enabled': None,
         'offline_availability': None,
         'umask': None,
-        'state': None
+        'state': None,
+        'aces': None,
     }
 
     SMB_NAME = "Sample_smb_share"
@@ -55,7 +56,15 @@ class MockSMBShareApi:
             "name": "Sample_smb_share",
             "offline_availability": "Documents",
             "path": "/sample_file_system",
-            "umask": "007"
+            "umask": "007",
+            "aces": [
+                {
+                    "trustee_name": "S-1-5-21-8-5-1-32",
+                    "trustee_type": "SID",
+                    "access_level": "Read",
+                    "access_type": "Allow"
+                }
+            ]
         }
     ]
 
@@ -78,7 +87,15 @@ class MockSMBShareApi:
         "name": "Sample_smb_share",
         "offline_availability": "Programs",
         "path": "/sample_file_system",
-        "umask": "177"
+        "umask": "177",
+        "aces": [
+            {
+                "trustee_name": "S-1-5-21-8-5-1-32",
+                "trustee_type": "SID",
+                "access_level": "Read",
+                "access_type": "Allow"
+            }
+        ]
     }
 
     @staticmethod
@@ -88,3 +105,7 @@ class MockSMBShareApi:
     @staticmethod
     def create_smb_share_without_path_failed_msg():
         return "Path is required for creation of a SMB share. Please provide path"
+
+    @staticmethod
+    def smb_error_messages():
+        return {"umask_error": "not all arguments converted during string formatting"}

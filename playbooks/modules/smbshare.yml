@@ -77,6 +77,63 @@
         is_abe_enabled: true
         state: "present"
 
+    - name: Create SMB share for a filesystem with ACL
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "sample_smb_share"
+        filesystem: "sample_fs"
+        nas_server: "{{ nas_server_id }}"
+        path: "{{ path }}"
+        description: "Sample SMB share created"
+        is_abe_enabled: true
+        is_branch_cache_enabled: true
+        offline_availability: "DOCUMENTS"
+        is_continuous_availability_enabled: true
+        is_encryption_enabled: true
+        acl:
+          - access_level: "Full"
+            access_type: "Allow"
+            trustee_name: "TEST-56\\Guest"
+            trustee_type: "User"
+            state: "present"
+          - access_level: "Read"
+            access_type: "Deny"
+            trustee_name: "S-1-5-21-8-5-1-32"
+            trustee_type: "SID"
+            state: "present"
+        state: "present"
+
+    - name: Modify Attributes of SMB share for a filesystem with ACL
+      dellemc.powerstore.smbshare:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        share_name: "sample_smb_share"
+        nas_server: "sample_nas_server"
+        description: "Sample SMB share attributes updated"
+        is_abe_enabled: false
+        is_branch_cache_enabled: false
+        offline_availability: "MANUAL"
+        is_continuous_availability_enabled: false
+        is_encryption_enabled: false
+        umask: "022"
+        acl:
+          - access_level: "Full"
+            access_type: "Allow"
+            trustee_name: "TEST-56\\Guest"
+            trustee_type: "User"
+            state: "absent"
+          - access_level: "Read"
+            access_type: "Deny"
+            trustee_name: "S-1-5-21-8-5-1-32"
+            trustee_type: "SID"
+            state: "absent"
+        state: "present"
+
     - name: Get details of SMB share
       dellemc.powerstore.smbshare:
         array_ip: "{{ array_ip }}"
