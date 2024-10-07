@@ -1,5 +1,5 @@
 # Copyright: (c) 2024, Dell Technologies
-# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """Unit Tests for NFS server module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
