@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ansible-version: [stable-2.15, stable-2.16, stable-2.17, devel]
+        ansible-version: [stable-2.17]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
         run: ansible-galaxy collection build --output-path "${GITHUB_WORKSPACE}/.cache/collection-tarballs"
 
       - name: Store migrated collection artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: collection
           path: .cache/collection-tarballs
@@ -48,19 +48,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.9', '3.10', '3.11']
+        python: ['3.10', '3.11']
         ansible:
           - stable-2.15
           - stable-2.16
           - stable-2.17
           - devel
         exclude:
-          - ansible: stable-2.16
-            python: '3.9'
-          - ansible: stable-2.17
-            python: '3.9'
           - ansible: devel
-            python: '3.9'
+            python: '3.10'
 
     steps:
       - name: Perform unit testing with ansible-test
@@ -81,19 +77,15 @@ jobs:
     needs: [build]
     strategy:
       matrix:
-        python: ['3.9', '3.10', '3.11']
+        python: ['3.10', '3.11']
         ansible:
           - stable-2.15
           - stable-2.16
           - stable-2.17
           - devel
         exclude:
-          - ansible: stable-2.16
-            python: '3.9'
-          - ansible: stable-2.17
-            python: '3.9'
           - ansible: devel
-            python: '3.9'
+            python: '3.10'
 
     runs-on: ubuntu-latest
     steps:
@@ -113,16 +105,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11"]
         ansible-version: [stable-2.15, stable-2.16, stable-2.17, devel]
         exclude:
         # Ansible-core 2.16 is supported only from Python 3.10 onwards
-          - ansible-version: stable-2.16
-            python-version: '3.9'
-          - ansible-version: stable-2.17
-            python-version: '3.9'
           - ansible-version: devel
-            python-version: '3.9'
+            python-version: '3.10'
 
     steps:
       # Important: This sets up your GITHUB_WORKSPACE environment variable
@@ -143,7 +131,7 @@ jobs:
         run: pip install ansible-lint --disable-pip-version-check
 
       - name: Download migrated collection artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.8
         with:
           name: collection
           path: .cache/collection-tarballs
