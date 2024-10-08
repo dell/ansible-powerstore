@@ -705,6 +705,7 @@ class PowerstoreRemoteSupport(object):
 
     def modify_remote_support_required(self, remote_support_details):
         """ To check if modification is required or not"""
+        existing_gateway = []
         remote_support_servers = self.module.params['remote_support_servers']
         server_state = self.module.params['server_state']
         modify_remote_support_dict = {
