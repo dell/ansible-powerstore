@@ -1,6 +1,6 @@
-# Copyright: (c) 2022, Dell Technologies
+# Copyright: (c) 2022-2024, Dell Technologies
 
-# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 """Mock Api response for Unit tests of Network module for PowerStore"""
 
@@ -15,6 +15,9 @@ class MockNetworkApi:
     mg_address = "10.xx.xx.xx"
     network_name = "Default Management Network"
     system_time = "2022-02-04T11:18:37.441Z"
+    STATE_P = "present"
+    NW_1 = "NW_1"
+    VLAN_ID1 = "vlan_1"
 
     NETWORK_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
@@ -55,7 +58,7 @@ class MockNetworkApi:
             "system_time": system_time
         },
         "gateway": mg_address,
-        "id": "NW1",
+        "id": "NW_1",
         "ip_version": "IPv4",
         "ip_version_l10n": "IPv4",
         "member_ips": [
@@ -65,7 +68,7 @@ class MockNetworkApi:
                 "id": "IP1",
                 "ip_port_id": "0",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Cluster_Floating"
@@ -80,7 +83,7 @@ class MockNetworkApi:
                 "id": "IP2",
                 "ip_port_id": "1",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Appliance_Floating"
@@ -127,7 +130,7 @@ class MockNetworkApi:
             "system_time": system_time
         },
         "gateway": mg_address,
-        "id": "NW1",
+        "id": "NW_1",
         "ip_version": "IPv4",
         "ip_version_l10n": "IPv4",
         "member_ips": [
@@ -137,7 +140,7 @@ class MockNetworkApi:
                 "id": "IP1",
                 "ip_port_id": "0",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Cluster_Floating"
@@ -152,7 +155,7 @@ class MockNetworkApi:
                 "id": "IP2",
                 "ip_port_id": "1",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Appliance_Floating"
@@ -199,7 +202,7 @@ class MockNetworkApi:
             "system_time": system_time
         },
         "gateway": mg_address,
-        "id": "NW1",
+        "id": "NW_1",
         "ip_version": "IPv4",
         "ip_version_l10n": "IPv4",
         "member_ips": [
@@ -209,7 +212,7 @@ class MockNetworkApi:
                 "id": "IP1",
                 "ip_port_id": "0",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Cluster_Floating"
@@ -224,7 +227,7 @@ class MockNetworkApi:
                 "id": "IP2",
                 "ip_port_id": "1",
                 "name": network_name,
-                "network_id": "NW1",
+                "network_id": "NW_1",
                 "node_id": None,
                 "purposes": [
                     "Mgmt_Appliance_Floating"

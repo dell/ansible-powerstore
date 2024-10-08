@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2024, Dell Technologies
-# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
 
@@ -513,11 +513,16 @@ class PowerStoreNetwork(object):
 
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=False,
+            supports_check_mode=True,
             mutually_exclusive=mut_ex_args,
             required_one_of=required_one_of,
             required_together=required_together
         )
+        # result is a dictionary to contain end state and network details
+        self.result = dict(
+            changed=False,
+            network_details={},
+            diff={})
 
         LOG.info('HAS_PY4PS = %s , IMPORT_ERROR = %s', HAS_PY4PS,
                  IMPORT_ERROR)
@@ -610,6 +615,7 @@ class PowerStoreNetwork(object):
         """ Add IP ports to the storage network """
 
         existing_ports = []
+        add_flag = False
 
         if network_details['member_ips']:
             for ip in network_details['member_ips']:
@@ -622,20 +628,27 @@ class PowerStoreNetwork(object):
             return False
 
         try:
-            LOG.info("Ports to add: %s", ports_to_add)
-            self.configuration.add_remove_ports(network_details['id'],
-                                                add_port_ids=ports_to_add)
-            return True
+            if not self.module.check_mode:
+                LOG.info("Ports to add: %s", ports_to_add)
+                self.configuration.add_remove_ports(network_details['id'],
+                                                    add_port_ids=ports_to_add)
+            add_flag = True
+
         except Exception as e:
             errormsg = "Add existing IP ports to storage network {0} failed" \
                        " with error {1}".format(network_details['id'], str(e))
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
+        if self.module._diff:
+            self.result.update({"diff": {"before": network_details, "after": ports_to_add}})
+        return add_flag
+
     def remove_ports_from_network(self, network_details, ports):
         """ Remove IP ports from the storage network """
 
         existing_ports = []
+        remove_flag = False
 
         if network_details['member_ips']:
             for ip in network_details['member_ips']:
@@ -648,10 +661,11 @@ class PowerStoreNetwork(object):
             return False
 
         try:
-            LOG.info("Ports to remove: %s", ports_to_remove)
-            self.configuration.add_remove_ports(
-                network_details['id'], remove_port_ids=ports_to_remove)
-            return True
+            if not self.module.check_mode:
+                LOG.info("Ports to remove: %s", ports_to_remove)
+                self.configuration.add_remove_ports(
+                    network_details['id'], remove_port_ids=ports_to_remove)
+            remove_flag = True
         except Exception as e:
             errormsg = "Remove existing IP ports from storage network {0} " \
                        "failed with error {1}".format(network_details['id'],
@@ -659,8 +673,13 @@ class PowerStoreNetwork(object):
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
+        if self.module._diff:
+            self.result.update({"diff": {"before": network_details, "after": ports_to_remove}})
+
+        return remove_flag
+
     def modify_network(self, network_id, wait_for_completion,
-                       network_modify_dict):
+                       network_modify_dict, network_details):
         """Modify network properties"""
 
         if wait_for_completion:
@@ -668,16 +687,24 @@ class PowerStoreNetwork(object):
         else:
             is_async = True
 
+        modify_flag = False
+        job_dict = dict()
         try:
             LOG.info("Modify network properties")
-            job_dict = self.configuration.modify_network(
-                network_id, network_modify_dict, is_async)
-            return True, job_dict
+            if not self.module.check_mode:
+                job_dict = self.configuration.modify_network(
+                    network_id, network_modify_dict, is_async)
+                modify_flag = True
+
         except Exception as e:
             errormsg = "Modify operation of network with id: {0}, failed " \
                        "with error {1}".format(network_id, str(e))
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+        if self.module._diff:
+            self.result.update({"diff": {"before": network_details, "after": network_modify_dict}})
+        return modify_flag, job_dict
 
     def register_vasa_provider(self, vcenter_id, vasa_provider_credentials):
         """Register VASA provider"""
@@ -717,6 +744,47 @@ class PowerStoreNetwork(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
+    def validate_address(self, addresses):
+        """
+        Validate the input addresses
+        :param addresses: List of addresses
+        """
+        if addresses:
+            for address_dict in addresses:
+                if 'current_address' in address_dict and \
+                        address_dict['current_address'] is not None and \
+                        len(address_dict['current_address'].strip()) == 0:
+                    error_msg = "Please provide valid current address."
+                    self.module.fail_json(msg=error_msg)
+
+                if 'new_address' in address_dict and \
+                        address_dict['new_address'] is not None and \
+                        len(address_dict['new_address'].strip()) == 0:
+                    error_msg = "Please provide valid new address."
+                    self.module.fail_json(msg=error_msg)
+
+    def validate_create_delete_network(self, state, network_details,
+                                       vasa_provider_credentials):
+        """Validate create and delete network operations"""
+
+        if state == 'present' and not network_details:
+            error_message = 'Network not found - Creation of network is ' \
+                            'not allowed through Ansible module.'
+            LOG.error(error_message)
+            self.module.fail_json(msg=error_message)
+
+        if state == 'absent' and network_details:
+            error_message = 'Deletion of network is not allowed through ' \
+                            'Ansible module.'
+            LOG.error(error_message)
+            self.module.fail_json(msg=error_message)
+
+        if state == 'present' and not network_details['vcenter_details'] and \
+                vasa_provider_credentials:
+            error_message = "Please configure the vCenter server."
+            LOG.error(error_message)
+            self.module.fail_json(msg=error_message)
+
     def validate_parameters(self):
         """Validate the input parameters"""
 
@@ -739,19 +807,7 @@ class PowerStoreNetwork(object):
 
         # Check for valid addresses
         addresses = self.module.params['addresses']
-        if addresses:
-            for address_dict in addresses:
-                if 'current_address' in address_dict and \
-                        address_dict['current_address'] is not None and \
-                        len(address_dict['current_address'].strip()) == 0:
-                    error_msg = "Please provide valid current address."
-                    self.module.fail_json(msg=error_msg)
-
-                if 'new_address' in address_dict and \
-                        address_dict['new_address'] is not None and \
-                        len(address_dict['new_address'].strip()) == 0:
-                    error_msg = "Please provide valid new address."
-                    self.module.fail_json(msg=error_msg)
+        self.validate_address(addresses)
 
     def perform_module_operation(self):
         """
@@ -777,12 +833,6 @@ class PowerStoreNetwork(object):
         wait_for_completion = self.module.params['wait_for_completion']
         state = self.module.params['state']
 
-        # result is a dictionary to contain end state and network details
-        result = dict(
-            changed=False,
-            network_details=None
-        )
-
         self.check_array_version(network_name)
 
         self.validate_parameters()
@@ -792,23 +842,8 @@ class PowerStoreNetwork(object):
         if not network_id and network_details:
             network_id = network_details['id']
 
-        if state == 'present' and not network_details:
-            error_message = 'Network not found - Creation of network is ' \
-                            'not allowed through Ansible module.'
-            LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
-
-        if state == 'absent' and network_details:
-            error_message = 'Deletion of network is not allowed through ' \
-                            'Ansible module.'
-            LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
-
-        if state == 'present' and not network_details['vcenter_details'] and \
-                vasa_provider_credentials:
-            error_message = "Please configure the vCenter server."
-            LOG.error(error_message)
-            self.module.fail_json(msg=error_message)
+        self.validate_create_delete_network(state, network_details,
+                                            vasa_provider_credentials)
 
         # Check if modification to the network is required
         if state == 'present' and network_details:
@@ -828,12 +863,12 @@ class PowerStoreNetwork(object):
         # Check if IP ports can be added to storage network
         if state == 'present' and port_state == 'present-in-network' \
                 and network_details and ports:
-            result['changed'] = self.add_ports_to_network(network_details,
-                                                          ports)
+            self.result['changed'] = self.add_ports_to_network(network_details,
+                                                               ports)
         # Check if IP ports can be removed from storage network
         elif state == 'present' and port_state == 'absent-in-network' \
                 and network_details and ports:
-            result['changed'] = self.remove_ports_from_network(
+            self.result['changed'] = self.remove_ports_from_network(
                 network_details, ports)
 
         # Register VASA provider
@@ -841,24 +876,24 @@ class PowerStoreNetwork(object):
                 'vendor_provider_status' in \
                 network_details['vcenter_details'] and \
                 network_details['vcenter_details']['vendor_provider_status'] \
-                == 'Not_Registered':
-            result['changed'] = self.register_vasa_provider(
+                == 'Not_Registered' and vasa_provider_credentials is not None:
+            self.result['changed'] = self.register_vasa_provider(
                 network_details['vcenter_details']['id'],
                 vasa_provider_credentials)
 
         # Modify Network Properties
         if state == 'present' and network_details and network_modify_dict:
-            result['changed'], job_dict = self.modify_network(
-                network_id, wait_for_completion, network_modify_dict)
+            self.result['changed'], job_dict = self.modify_network(
+                network_id, wait_for_completion, network_modify_dict, network_details)
 
         # Finally update the module result!
-        if state == 'present' and result['changed'] and network_modify_dict \
+        if state == 'present' and self.result['changed'] and network_modify_dict \
                 and not wait_for_completion:
-            result['job_details'] = job_dict
+            self.result['job_details'] = job_dict
         else:
-            result['network_details'] = self.get_network_details(
+            self.result['network_details'] = self.get_network_details(
                 network_name, network_id)
-        self.module.exit_json(**result)
+        self.module.exit_json(**self.result)
 
 
 def check_network_modified(network_details, new_network_param_dict=None,
@@ -871,11 +906,8 @@ def check_network_modified(network_details, new_network_param_dict=None,
     LOG.info("Checking if modification is required for network")
     modify_param = dict()
 
-    for key in new_network_param_dict.keys():
-        if key in network_details and \
-                new_network_param_dict[key] is not None and \
-                new_network_param_dict[key] != network_details[key]:
-            modify_param[key] = new_network_param_dict[key]
+    updated_param = check_new_network_param_modified(new_network_param_dict, network_details)
+    modify_param.update(updated_param)
 
     existing_address = network_details['cluster_details'][
         'storage_discovery_address']
@@ -891,22 +923,7 @@ def check_network_modified(network_details, new_network_param_dict=None,
         modify_param['cluster_mgmt_address'] = new_cluster_mgmt_address
 
     if addresses is not None:
-        existing_addresses = [ip['address'] for ip in
-                              network_details['member_ips']]
-        addresses_to_add = []
-        addresses_to_remove = []
-        for address_dict in addresses:
-            if address_dict['current_address'] and address_dict['new_address']:
-                if address_dict['current_address'] in existing_addresses:
-                    addresses_to_add.append(address_dict['new_address'])
-                    addresses_to_remove.append(address_dict['current_address']
-                                               )
-            elif address_dict['current_address'] and \
-                    address_dict['current_address'] in existing_addresses:
-                addresses_to_remove.append(address_dict['current_address'])
-            elif address_dict['new_address'] and \
-                    address_dict['new_address'] not in existing_addresses:
-                addresses_to_add.append(address_dict['new_address'])
+        addresses_to_add, addresses_to_remove = check_address_modified(network_details, addresses)
 
         if addresses_to_add:
             modify_param['add_addresses'] = addresses_to_add
@@ -920,6 +937,46 @@ def check_network_modified(network_details, new_network_param_dict=None,
         modify_param['esxi_credentials'] = esxi_credentials
 
     return modify_param
+
+
+def check_new_network_param_modified(new_network_param_dict, network_details):
+    """
+    Check if new network parameters are modified
+    :param new_network_param_dict: New network parameters passed by the user
+    :param network_details: Network details
+    :return: updated_param_dict
+    """
+    updated_param_dict = dict()
+    for key in new_network_param_dict.keys():
+        if key in network_details and \
+                new_network_param_dict[key] is not None and \
+                new_network_param_dict[key] != network_details[key]:
+            updated_param_dict[key] = new_network_param_dict[key]
+    return updated_param_dict
+
+
+def check_address_modified(network_details, addresses):
+    """
+    Check if IP addresses need to be added or removed from the network
+    :param network_details: Network details
+    :param addresses: List of addresses passed by the user in playbook
+    :return: addresses_to_add, addresses_to_remove
+    """
+    existing_addresses = [ip['address'] for ip in network_details['member_ips']]
+    add_to_addresses = []
+    remove_from_addresses = []
+    for address_dict in addresses:
+        if address_dict['current_address'] and address_dict['new_address']:
+            if address_dict['current_address'] in existing_addresses:
+                add_to_addresses.append(address_dict['new_address'])
+                remove_from_addresses.append(address_dict['current_address'])
+        elif address_dict['current_address'] and \
+                address_dict['current_address'] in existing_addresses:
+            remove_from_addresses.append(address_dict['current_address'])
+        elif address_dict['new_address'] and \
+                address_dict['new_address'] not in existing_addresses:
+            add_to_addresses.append(address_dict['new_address'])
+    return add_to_addresses, remove_from_addresses
 
 
 def get_powerstore_network_parameters():
