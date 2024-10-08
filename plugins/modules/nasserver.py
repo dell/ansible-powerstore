@@ -414,6 +414,8 @@ class PowerStoreNasServer(object):
                   ' {0}'.format(protection_policy)
 
             LOG.info(msg)
+            LOG.info(msg)
+            pp_id = None
             id_or_name = utils.name_or_id(val=protection_policy)
             if id_or_name == self.IS_NAME:
                 resp = self.protection.get_protection_policy_by_name(
