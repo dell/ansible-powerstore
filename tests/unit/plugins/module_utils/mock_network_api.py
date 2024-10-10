@@ -18,6 +18,9 @@ class MockNetworkApi:
     STATE_P = "present"
     NW_1 = "NW_1"
     VLAN_ID1 = "vlan_1"
+    VASA_ID = "0d330"
+    CURRENT_ADDR_ERR = "Please provide valid current address."
+    NEW_ADDR_ERR = "Please provide valid new address."
 
     NETWORK_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
