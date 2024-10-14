@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright: (c) 2024, Dell Technologies
-# Apache License version 2.0 (see MODULE-LICENSE or http://www.apache.org/licenses/LICENSE-2.0.txt)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 """ Ansible module for managing NAS server on PowerStore"""
 from __future__ import (absolute_import, division, print_function)
@@ -414,6 +414,8 @@ class PowerStoreNasServer(object):
                   ' {0}'.format(protection_policy)
 
             LOG.info(msg)
+            LOG.info(msg)
+            pp_id = None
             id_or_name = utils.name_or_id(val=protection_policy)
             if id_or_name == self.IS_NAME:
                 resp = self.protection.get_protection_policy_by_name(

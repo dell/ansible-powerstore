@@ -119,4 +119,4 @@ The modules are written in such a way that all requests are idempotent and hence
 
 
 ## License
-The Ansible collection for PowerStore is released and licensed under the GPL-3.0 license. See [LICENSE](https://github.com/dell/ansible-powerstore/blob/main/LICENSE) for the full terms. Ansible modules and modules utilities that are part of the Ansible collection for PowerStore are released and licensed under the Apache 2.0 license. See [MODULE-LICENSE](https://github.com/dell/ansible-powerstore/blob/main/MODULE-LICENSE) for the full terms.
+The Ansible collection for PowerStore is released and licensed under the GPL-3.0 license. See [LICENSE](https://github.com/dell/ansible-powerstore/blob/main/LICENSE) for the full terms.
