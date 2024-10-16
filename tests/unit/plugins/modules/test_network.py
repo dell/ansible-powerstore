@@ -17,7 +17,8 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock
     import MockApiException
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.powerstore_unit_base \
     import PowerStoreUnitBase
-from ansible_collections.dellemc.powerstore.plugins.modules.network import PowerStoreNetwork
+from ansible_collections.dellemc.powerstore.plugins.modules.network \
+    import PowerStoreNetwork, check_new_network_param_modified, check_network_modified, main
 
 
 class TestPowerstoreNetwork(PowerStoreUnitBase):
@@ -166,25 +167,20 @@ class TestPowerstoreNetwork(PowerStoreUnitBase):
             network_details, ports)
 
     def test_modify_network(self, powerstore_module_mock):
-        # Mock the necessary inputs
         network_id = MockNetworkApi.NW_1
         wait_for_completion = True
         network_modify_dict = {'name': 'new_name', 'description': 'new_description'}
         network_details = MockNetworkApi.NETWORK_DETAILS
 
-        # Mock the necessary return values
         powerstore_module_mock.configuration.modify_network.return_value = {'id': MockNetworkApi.NW_1, 'name': 'new_name', 'description': 'new_description'}
 
-        # Call the function
         result, job_dict = powerstore_module_mock.modify_network(network_id, wait_for_completion, network_modify_dict, network_details)
 
-        # Assert the expected behavior
         assert result is True
         assert job_dict == {'id': MockNetworkApi.NW_1, 'name': 'new_name', 'description': 'new_description'}
         powerstore_module_mock.configuration.modify_network.assert_called()
 
     def test_modify_network_exception(self, powerstore_module_mock):
-        # Mock the necessary inputs
         network_id = MockNetworkApi.NW_1
         wait_for_completion = True
         network_modify_dict = {'name': 'new_name', 'description': 'new_description'}
@@ -217,10 +213,8 @@ class TestPowerstoreNetwork(PowerStoreUnitBase):
         network_name = MockNetworkApi.NW_1
         release_version = '2.1.0.0'
 
-        # Mock the necessary return values
         powerstore_module_mock.provisioning.get_array_version.return_value = release_version
 
-        # Call the function
         powerstore_module_mock.check_array_version(network_name)
         powerstore_module_mock.provisioning.get_array_version.assert_called()
 
@@ -262,3 +256,100 @@ class TestPowerstoreNetwork(PowerStoreUnitBase):
             expected_value,
             powerstore_module_mock, "validate_address",
             addresses=addresses)
+
+    @pytest.mark.parametrize("assert_data", [
+        {
+            "net_details": None,
+            "vasa_provider": None,
+            "state": MockNetworkApi.STATE_P,
+            "expected_value": "Network not found - Creation of network is not allowed through Ansible module."
+        },
+        {
+            "net_details": MockNetworkApi.NETWORK_DETAILS,
+            "vasa_provider": None,
+            "state": "absent",
+            "expected_value": "Deletion of network is not allowed through Ansible module."
+        },
+        {
+            "net_details": MockNetworkApi.VCENTER_DETAILS,
+            "vasa_provider": MockNetworkApi.VASA_DETAILS,
+            "state": MockNetworkApi.STATE_P,
+            "expected_value": "Please configure the vCenter server."
+        }
+    ])
+    def test_validate_create_detate_vasa_exception(self, powerstore_module_mock, assert_data):
+        network_details = assert_data["net_details"]
+        vasa_provider_credentials = assert_data["vasa_provider"]
+        state = assert_data["state"]
+        expected_value = assert_data["expected_value"]
+        self.capture_fail_json_method(
+            expected_value,
+            powerstore_module_mock, "validate_create_delete_network",
+            state=state,
+            network_details=network_details,
+            vasa_provider_credentials=vasa_provider_credentials)
+
+    def test_validate_names(self, powerstore_module_mock):
+        self.get_module_args.update({
+            "network_name": " "
+        })
+        powerstore_module_mock.module.params = self.get_module_args
+        self.capture_fail_json_method(
+            "Please provide valid network_name",
+            powerstore_module_mock, "validate_parameters")
+
+    def test_validate_empty_addr(self, powerstore_module_mock):
+        self.get_module_args.update({
+            "network_id": " nw 1 "
+        })
+        powerstore_module_mock.module.params = self.get_module_args
+        self.capture_fail_json_method(
+            "Please provide valid network_id",
+            powerstore_module_mock, "validate_parameters")
+
+    def test_check_new_network_param_modified(self):
+        new_network_param_dict = {"name": "new_name"}
+        network_details = MockNetworkApi.NETWORK_DETAILS
+        result = check_new_network_param_modified(
+            new_network_param_dict, network_details)
+        assert result == new_network_param_dict
+
+    def test_check_network_modified_with_changes(self):
+        network_details = MockNetworkApi.NETWORK_DETAILS
+
+        new_network_param_dict = {
+            "some_key": "some_value",
+        }
+        new_cluster_mgmt_address = "2.3.4.5"
+        storage_discovery_address = "2.3.4.6"
+        addresses = [
+            {"current_address": MockNetworkApi.CURRENT_ADDR_1, "new_address": "1.2.3.7"},
+            {"current_address": MockNetworkApi.CURRENT_ADDR_2, "new_address": ""},
+            {"current_address": "", "new_address": "1.2.3.8"}]
+        vasa_provider_credentials = MockNetworkApi.VASA_DETAILS
+        esxi_credentials = MockNetworkApi.VASA_DETAILS
+
+        result = check_network_modified(
+            network_details,
+            new_network_param_dict,
+            new_cluster_mgmt_address,
+            storage_discovery_address,
+            addresses,
+            vasa_provider_credentials,
+            esxi_credentials,
+        )
+        assert result == {
+            "cluster_mgmt_address": "2.3.4.5",
+            "storage_discovery_address": "2.3.4.6",
+            "add_addresses": ["1.2.3.7", "1.2.3.8"],
+            "remove_addresses": [MockNetworkApi.CURRENT_ADDR_1, MockNetworkApi.CURRENT_ADDR_2],
+            "vasa_provider_credentials": MockNetworkApi.VASA_DETAILS,
+            "esxi_credentials": MockNetworkApi.VASA_DETAILS,
+        }
+
+    def test_main(self, powerstore_module_mock, mocker):
+        mock_obj = mocker.patch(MockNetworkApi.MODULE_PATH,
+                                new=PowerStoreNetwork)
+        mock_obj.perform_module_operation = MagicMock(
+            return_value=None)
+        main()
