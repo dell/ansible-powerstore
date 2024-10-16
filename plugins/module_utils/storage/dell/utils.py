@@ -21,7 +21,7 @@ except ImportError:
 check if pkg_resources can be imported or not
 '''
 try:
-    from pkg_resources import parse_version
+    from packaging.version import parse as parse_version
     PKG_RSRC_IMPORTED = True
 except ImportError:
     PKG_RSRC_IMPORTED = False
