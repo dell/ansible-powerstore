@@ -138,7 +138,15 @@ options:
     required: true
     choices: ['absent', 'present']
     type: str
-
+attributes:
+  check_mode:
+    description:
+    - Runs task to validate without performing action on the target machine.
+    support: full
+  diff_mode:
+    description:
+    - Runs the task to report the changes made or to be made.
+    support: full
 notes:
 - It is recommended to perform task asynchronously while changing cluster
   management address.
@@ -146,7 +154,6 @@ notes:
   I(esxi_credentials).
 - For PowerStore X model, I(vasa_provider_credentials) has to be specified
   along with I(new_cluster_mgmt_address).
-- The I(check_mode) is not supported.
 '''
 
 EXAMPLES = r'''
@@ -484,6 +491,7 @@ network_details:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.compat.version import LooseVersion
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import utils
 
@@ -731,8 +739,8 @@ class PowerStoreNetwork(object):
             release_version = self.provisioning.get_array_version()
 
             if release_version and network_name and (
-                    utils.parse_version(release_version) <
-                    utils.parse_version(foot_hill_version)):
+                    LooseVersion(release_version) <
+                    LooseVersion(foot_hill_version)):
                 error_message = 'Please provide network_id. Network name ' \
                                 'can be used with PowerStore ' \
                                 'release >= 2.0.0.0.'

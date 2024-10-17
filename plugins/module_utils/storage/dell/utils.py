@@ -21,7 +21,7 @@ except ImportError:
 check if pkg_resources can be imported or not
 '''
 try:
-    from packaging.version import parse as parse_version
+    from ansible.module_utils.compat.version import LooseVersion
     PKG_RSRC_IMPORTED = True
 except ImportError:
     PKG_RSRC_IMPORTED = False
@@ -71,7 +71,7 @@ def py4ps_version_check():
                                           "by this module. Minimum supported" \
                                           " version is : {1} " \
                                           "".format(curr_version, min_ver)
-            supported_version = parse_version(curr_version) >= parse_version(min_ver)
+            supported_version = LooseVersion(curr_version) >= LooseVersion(min_ver)
 
         if supported_version:
             py4ps_version = dict(supported_version=supported_version,
