@@ -366,6 +366,7 @@ try:
 except ImportError:
     HAS_IPADDRESS = False
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.compat.version import LooseVersion
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import utils
 
@@ -743,8 +744,8 @@ class PowerStoreNfsExport(object):
             release_version = self.provisioning.get_array_version()
 
             if release_version and (
-                    utils.parse_version(release_version) >=
-                    utils.parse_version(foot_hill_prime_version)):
+                    LooseVersion(release_version) >=
+                    LooseVersion(foot_hill_prime_version)):
                 return True
             return False
         except Exception as e:
