@@ -640,13 +640,16 @@ class PowerStoreNetwork(object):
                 LOG.info("Ports to add: %s", ports_to_add)
                 self.configuration.add_remove_ports(network_details['id'],
                                                     add_port_ids=ports_to_add)
-            add_flag = True
+                add_flag = True
 
         except Exception as e:
             errormsg = "Add existing IP ports to storage network {0} failed" \
                        " with error {1}".format(network_details['id'], str(e))
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+        if self.module.check_mode:
+            add_flag = True
 
         if self.module._diff:
             self.result.update({"diff": {"before": network_details, "after": ports_to_add}})
@@ -673,7 +676,7 @@ class PowerStoreNetwork(object):
                 LOG.info("Ports to remove: %s", ports_to_remove)
                 self.configuration.add_remove_ports(
                     network_details['id'], remove_port_ids=ports_to_remove)
-            remove_flag = True
+                remove_flag = True
         except Exception as e:
             errormsg = "Remove existing IP ports from storage network {0} " \
                        "failed with error {1}".format(network_details['id'],
@@ -681,6 +684,8 @@ class PowerStoreNetwork(object):
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
+        if self.module.check_mode:
+            remove_flag = True
         if self.module._diff:
             self.result.update({"diff": {"before": network_details, "after": ports_to_remove}})
 
@@ -709,6 +714,9 @@ class PowerStoreNetwork(object):
                        "with error {1}".format(network_id, str(e))
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
+
+        if self.module.check_mode:
+            modify_flag = True
 
         if self.module._diff:
             self.result.update({"diff": {"before": network_details, "after": network_modify_dict}})
