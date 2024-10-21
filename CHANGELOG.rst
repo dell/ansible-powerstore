@@ -4,6 +4,15 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.5.0
+======
+
+Minor Changes
+-------------
+
+- Fixed the idempotency issue for Network module.
+- Added support for check_mode and diff_mode for Network module.
+
 
 v3.4.0
 ======

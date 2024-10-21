@@ -259,3 +259,10 @@ releases:
         - Added the support for ACL in the SMB Share module.
         - Info module is enhanced to list acls.
     release_date: '2024-05-31'
+
+  3.5.0:
+    changes:
+      minor_changes:
+        - Fixed the idempotency issue for Network module.
+        - Added support for check_mode and diff_mode for Network module.
+    release_date: '2024-10-28'
