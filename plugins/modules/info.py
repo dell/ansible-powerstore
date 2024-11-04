@@ -25,8 +25,8 @@ description:
 - Virtualization module includes vCenters and virtual volumes.
 - Configuration module includes cluster nodes, networks, roles, local users,
   appliances, discovered appliances, security configs, certificates.
-- Configureation modules also includes AD/LDAP servers, LDAP accounts,
-  LDAP domain, and service configs.
+- Configuration modules also includes AD/LDAP servers, LDAP accounts,
+  LDAP domain, service configs and SNMP server.
 - It also includes DNS/NTP servers, smtp configs, email destinations,
   remote support, and remote support contacts.
 author:
@@ -85,6 +85,7 @@ options:
     - File DNS - C(file_dns).
     - File NIS - C(file_nis).
     - Service configs - C(service_configs).
+    - SNMP servers - C(snmp_server).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -95,7 +96,7 @@ options:
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
-              smb_server, nfs_server, file_dns, file_nis, service_config]
+              smb_server, nfs_server, file_dns, file_nis, service_config, snmp_server]
     type: list
   filters:
     description:
@@ -408,6 +409,15 @@ EXAMPLES = r'''
     password: "{{password}}"
     gather_subset:
       - service_config
+
+- name: Get list of SNMP servers
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - snmp_server
 '''
 
 RETURN = r'''
@@ -1527,6 +1537,51 @@ SnapshotRules:
             "name": "Snapshot Rule Test"
           }
     ]
+SNMPServers:
+    description: Provides details of all SNMP servers.
+    type: list
+    returned: When C(snmp_server) is in a given I(gather_subset)
+    contains:
+          alert_severity:
+            description: Possible severities.
+            type: str
+          auth_protocol:
+            description: Authentication protocol, relevant only for SNMPv3.
+            type: str
+          id:
+            description: Unique identifier of the SNMP server.
+            type: str
+          ip_address:
+            description: IPv4 address, IPv6 address, or FQDN of the SNMP server.
+            type: str
+          port:
+            description: Port number to use with the address of the SNMP server.
+            type: int
+          privacy_protocol:
+            description: Privacy protocol, relevant only for SNMPv3.
+            type: str
+          trap_community:
+            description: The security level, relevant only for SNMPv2c.
+            type: str
+          user_name:
+            description: User name, relevant only for SNMPv3.
+            type: str
+          version:
+            description: Supported SNMP protocol versions
+            type: str
+    sample: [
+        {
+            "alert_severity": "Info",
+            "auth_protocol": null,
+            "id": "2edf1175-c2e3-4b9d-99c8-06b9b20968d1",
+            "ip_address": "172.0.0.8",
+            "port": 162,
+            "privacy_protocol": null,
+            "trap_community": "abc",
+            "user_name": null,
+            "version": "V2c"
+        }
+    ]
 StorageContainers:
     description: Provide details of all storage containers.
     type: list
@@ -1951,6 +2006,7 @@ class PowerstoreInfo(object):
         self.nfs_server = self.conn.nfs_server
         self.file_dns = self.conn.file_dns
         self.file_nis = self.conn.file_nis
+        self.snmp_server = self.conn.snmp_server
 
         self.subset_mapping = {
             'vol': {
@@ -2124,6 +2180,10 @@ class PowerstoreInfo(object):
             'service_config': {
                 'func': self.configuration.get_service_configs,
                 'display_as': 'ServiceConfigs'
+            },
+            'snmp_server': {
+                'func': self.snmp_server.get_snmp_server_list,
+                'display_as': 'SNMPServers'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -2301,7 +2361,7 @@ def get_powerstore_info_parameters():
                      'replication_rule', 'replication_session',
                      'remote_system', 'network', 'role', 'user', 'appliance',
                      'ad', 'ldap', 'security_config', 'certificate', 'dns',
-                     'ntp', 'smtp_config', 'email_notification',
+                     'ntp', 'smtp_config', 'email_notification', 'snmp_server',
                      'remote_support', 'remote_support_contact',
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',

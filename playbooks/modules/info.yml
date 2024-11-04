@@ -5,8 +5,8 @@
   vars:
     array_ip: "10.**.**.**"
     validate_certs: false
-    user: "user"
-    password: "Password"
+    user: "admin"
+    password: "Pinkballoon082$"
 
   tasks:
     - name: Get the facts for a given Powerstore Storage System
@@ -507,3 +507,25 @@
         password: "{{ password }}"
         gather_subset:
           - service_config
+
+    - name: Get list of SNMP servers
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - snmp_server
+
+    - name: Get list of SNMP servers with filter
+      dellemc.powerstore.info:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        gather_subset:
+          - snmp_server
+        filters:
+          - filter_key: trap_community
+            filter_operator: like
+            filter_value: "ab*"
