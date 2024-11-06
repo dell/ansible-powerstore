@@ -26,7 +26,7 @@ description:
 - Configuration module includes cluster nodes, networks, roles, local users,
   appliances, discovered appliances, security configs, certificates.
 - Configuration modules also includes AD/LDAP servers, LDAP accounts,
-  LDAP domain, service configs and SNMP server.
+  LDAP domain, service configs and SNMP manager.
 - It also includes DNS/NTP servers, smtp configs, email destinations,
   remote support, and remote support contacts.
 author:
@@ -85,7 +85,7 @@ options:
     - File DNS - C(file_dns).
     - File NIS - C(file_nis).
     - Service configs - C(service_configs).
-    - SNMP servers - C(snmp_server).
+    - SNMP managers - C(snmp_manager).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -96,7 +96,7 @@ options:
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
-              smb_server, nfs_server, file_dns, file_nis, service_config, snmp_server]
+              smb_server, nfs_server, file_dns, file_nis, service_config, snmp_manager]
     type: list
   filters:
     description:
@@ -410,14 +410,14 @@ EXAMPLES = r'''
     gather_subset:
       - service_config
 
-- name: Get list of SNMP servers
+- name: Get list of SNMP managers
   dellemc.powerstore.info:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
     user: "{{user}}"
     password: "{{password}}"
     gather_subset:
-      - snmp_server
+      - snmp_manager
 '''
 
 RETURN = r'''
@@ -426,12 +426,6 @@ changed:
     returned: always
     type: bool
     sample: 'false'
-
-Array_Software_Version:
-    description: API version of PowerStore array.
-    returned: always
-    type: str
-    sample: "3.0.0.0"
 ActiveDirectory:
     description: Provides details of all active directories.
     type: list
@@ -450,65 +444,65 @@ Appliance:
     type: list
     returned: When C(appliance) is in a given I(gather_subset)
     contains:
-        id:
-            description: ID of the appliance.
-            type: str
-        name:
-            description: Name of the appliance.
-            type: str
-        service_tag:
-            description: Dell service tag of the appliance.
-            type: str
-        express_service_code:
-            description: Express service code.
-            type: str
-        model:
-            description: Model type of the PowerStore.
-            type: str
-        node_count:
-            description: Number of nodes deployed on an appliance. It was added
-                         in version 3.0.0.0.
-            type: int
         drive_failure_tolerance_level:
             description: Drive failure tolerance level.
             type: str
+        eth_be_ports:
+            description: Provides details of all eth_be_ports. It was added in
+                         version 3.0.0.0.
+            type: list
+        eth_ports:
+            description: Provides details of all Ethernet ports.
+            type: list
+        express_service_code:
+            description: Express service code.
+            type: str
+        fc_ports:
+            description: Provides details of all FC ports.
+            type: list
+        hardware:
+            description: Provides details of all hardware.
+            type: list
+        id:
+            description: ID of the appliance.
+            type: str
+        ip_pool_addresses:
+            description: Provides details of all IP pool addresses.
+            type: list
         is_hyper_converged:
             description: Whether the appliance is a hyper-converged appliance.
                          It was added in version 3.2.0.0.
             type: bool
+        maintenance_windows:
+            description: Provides details of all maintenance windows.
+            type: list
+        model:
+            description: Model type of the PowerStore.
+            type: str
+        name:
+            description: Name of the appliance.
+            type: str
         nodes:
             description: Provides details of all nodes.
             type: list
-        ip_pool_addresses:
-            description: Provides details of all IP pool addresses.
+        node_count:
+            description: Number of nodes deployed on an appliance. It was added
+                         in version 3.0.0.0.
+            type: int
+        sas_ports:
+            description: Provides details of all SAS ports.
+            type: list
+        service_tag:
+            description: Dell service tag of the appliance.
+            type: str
+        software_installed:
+            description: Provides details of all software installed.
             type: list
         veth_ports:
             description: Provides details of all veth ports.
             type: list
         virtual_volumes:
             description: Provides details of all virtual volumes.
-            type: list
-        maintenance_windows:
-            description: Provides details of all maintenance windows.
-            type: list
-        fc_ports:
-            description: Provides details of all FC ports.
-            type: list
-        sas_ports:
-            description: Provides details of all SAS ports.
-            type: list
-        eth_ports:
-            description: Provides details of all Ethernet ports.
-            type: list
-        eth_be_ports:
-            description: Provides details of all eth_be_ports. It was added in
-                         version 3.0.0.0.
-            type: list
-        software_installed:
-            description: Provides details of all software installed.
-            type: list
-        hardware:
-            description: Provides details of all hardware.
             type: list
         volumes:
             description: Provides details of all volumes.
@@ -537,6 +531,11 @@ Appliance:
             "volumes": []
         }
     ]
+Array_Software_Version:
+    description: API version of PowerStore array.
+    returned: always
+    type: str
+    sample: "3.0.0.0"
 Certificate:
     description: Provides details of all certificates.
     type: list
@@ -574,13 +573,57 @@ DiscoveredAppliances:
     type: list
     returned: When C(discovered_appliance) is in a given I(gather_subset)
     contains:
+        build_id:
+            description: Build ID.
+            type: str
+        build_version:
+            description: Build version of the installed software package
+                         release.
+            type: str
+        drive_failure_tolerance_level_and_availability:
+            description: Drive failure tolerance level and availability.
+            type: list
+        express_service_code:
+            description: Express service code for the appliance.
+            type: str
         id:
             description: ID of a discovered appliance. The local discovered
                          appliance has the id "0".
             type: str
+        is_hyper_converged:
+            description: Indicates whether the appliance is a hyper converged
+                         or not. It was added in version 3.2.0.0.
+            type: bool
+        is_local:
+            description: Indicates whether appliance is local or not.
+            type: bool
+        is_unified_capable:
+            description: Indicates whether the appliance is capable of unified
+                         configuration.
+            type: bool
         link_local_address:
             description: Link local IPv4 address of the discovered appliance.
             type: str
+        management_service_ready:
+            description: Indicates whether the management services are ready.
+            type: bool
+        software_version_compatibility:
+            description: Compatibility of the software version on an appliance
+                         compared to the software version on the appliance
+                         running the request.
+            type: str
+        mode:
+            description: Storage access mode supported by the appliance.
+            type: str
+        model:
+            description: The model of the appliance.
+            type: str
+        node_count:
+            description: Number of nodes deployed on an appliance.
+            type: int
+        power_score:
+            description: Power rating of the appliance.
+            type: int
         service_name:
             description: Service name of the discovered appliance.
             type: str
@@ -590,50 +633,6 @@ DiscoveredAppliances:
         state:
             description: Possible unmanaged appliance states.
             type: str
-        mode:
-            description: Storage access mode supported by the appliance.
-            type: str
-        model:
-            description: The model of the appliance.
-            type: str
-        express_service_code:
-            description: Express service code for the appliance.
-            type: str
-        is_local:
-            description: Indicates whether appliance is local or not.
-            type: bool
-        management_service_ready:
-            description: Indicates whether the management services are ready.
-            type: bool
-        software_version_compatibility:
-            description: Compatibility of the software version on an appliance
-                         compared to the software version on the appliance
-                         running the request.
-            type: str
-        build_version:
-            description: Build version of the installed software package
-                         release.
-            type: str
-        build_id:
-            description: Build ID.
-            type: str
-        power_score:
-            description: Power rating of the appliance.
-            type: int
-        node_count:
-            description: Number of nodes deployed on an appliance.
-            type: int
-        is_unified_capable:
-            description: Indicates whether the appliance is capable of unified
-                         configuration.
-            type: bool
-        drive_failure_tolerance_level_and_availability:
-            description: Drive failure tolerance level and availability.
-            type: list
-        is_hyper_converged:
-            description: Indicates whether the appliance is a hyper converged
-                         or not. It was added in version 3.2.0.0.
-            type: bool
     sample: [
         {
             "id": "A1",
@@ -674,12 +673,12 @@ EmailNotification:
     type: list
     returned: When C(email_notification) is in a given I(gather_subset)
     contains:
-        id:
-            description: ID of the email.
-            type: str
-            returned: always
         email_address:
             description: Email address.
+            type: str
+            returned: always
+        id:
+            description: ID of the email.
             type: str
             returned: always
     sample: [
@@ -882,23 +881,23 @@ LDAPAccounts:
     type: list
     returned: When C(ldap_account) is in a given I(gather_subset)
     contains:
+        dn:
+            description: Types of directory service protocol.
+            type: str
+        domain_id:
+            description: Unique identifier of the LDAP domain to which LDAP user or group belongs.
+            type: int
         id:
             description: ID of the LDAP account.
+            type: str
+        name:
+            description: Name of the LDAP account.
             type: str
         role_id:
             description: Unique identifier of the role to which the LDAP account is mapped.
             type: int
-        domain_id:
-            description: Unique identifier of the LDAP domain to which LDAP user or group belongs.
-            type: int
-        name:
-            description: Name of the LDAP account.
-            type: str
         type:
             description: Type of LDAP account.
-            type: str
-        dn:
-            description: Types of directory service protocol.
             type: str
     sample: [
         {
@@ -916,47 +915,17 @@ LDAPDomain:
     type: list
     returned: When C(ldap_domain) configuration is in a given I(gather_subset)
     contains:
-        id:
-            description: Unique identifier of the new LDAP server configuration.
+        bind_user:
+            description: Distinguished Name (DN) of the user to be used when binding.
             type: str
         domain_name:
             description: Name of the LDAP authority to construct the LDAP server configuration.
             type: str
-        ldap_servers:
-            description: List of IP addresses of the LDAP servers for the domain. IP addresses are in IPv4 format.
-            type: list
-        port:
-            description: Port number used to connect to the LDAP server(s).
-            type: int
-        ldap_server_type:
-            description: Types of LDAP server.
-            type: str
-        protocol:
-            description: Types of directory service protocol.
-            type: str
-        bind_user:
-            description: Distinguished Name (DN) of the user to be used when binding.
-            type: str
-        ldap_timeout:
-            description: Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
-            type: int
-        is_global_catalog:
-            description: Whether or not the catalog is global. Default value is C(false).
-            type: bool
-        user_id_attribute:
-            description: Name of the LDAP attribute whose value indicates the unique identifier of the user.
-            type: str
-        user_object_class:
-            description: LDAP object class for users.
-            type: str
-        user_search_path:
-            description: Path used to search for users on the directory server.
+        group_member_attribute:
+            description: Name of the LDAP attribute whose value contains the names of group members within a group.
             type: str
         group_name_attribute:
             description: Name of the LDAP attribute whose value indicates the group name.
-            type: str
-        group_member_attribute:
-            description: Name of the LDAP attribute whose value contains the names of group members within a group.
             type: str
         group_object_class:
             description: LDAP object class for groups.
@@ -967,11 +936,41 @@ LDAPDomain:
         group_search_level:
             description: Nested search level for performing group search.
             type: int
+        id:
+            description: Unique identifier of the new LDAP server configuration.
+            type: str
+        is_global_catalog:
+            description: Whether or not the catalog is global. Default value is C(false).
+            type: bool
+        ldap_servers:
+            description: List of IP addresses of the LDAP servers for the domain. IP addresses are in IPv4 format.
+            type: list
+        ldap_server_type:
+            description: Types of LDAP server.
+            type: str
         ldap_server_type_l10n:
             description: Localized message string corresponding to ldap_server_type.
             type: str
+        ldap_timeout:
+            description: Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
+            type: int
+        port:
+            description: Port number used to connect to the LDAP server(s).
+            type: int
+        protocol:
+            description: Types of directory service protocol.
+            type: str
         protocol_l10n:
             description: Localized message string corresponding to protocol.
+            type: str
+        user_id_attribute:
+            description: Name of the LDAP attribute whose value indicates the unique identifier of the user.
+            type: str
+        user_object_class:
+            description: LDAP object class for users.
+            type: str
+        user_search_path:
+            description: Path used to search for users on the directory server.
             type: str
     sample: [
         {
@@ -1074,11 +1073,11 @@ NFSServers:
         credentials_cache_TTL:
             description: Sets the Time-To-Live (in minutes) expiration timestamp for a Windows entry in the credentials cache.
             type: int
-        id:
-            description: The unique identifier of the NFS server.
-            type: str
         host_name:
             description: The name that will be used by NFS clients to connect to this NFS server.
+            type: str
+        id:
+            description: The unique identifier of the NFS server.
             type: str
         is_extended_credentials_enabled:
             description: Indicates whether the NFS server supports more than 16 Unix groups in a Unix credential.
@@ -1092,19 +1091,18 @@ NFSServers:
         is_nfsv4_enabled:
             description: Indicates whether NFSv4 is enabled on the NAS server.
             type: bool
-        nas_server_id:
-            description: Unique identifier of the NAS server.
-            type: str
         is_secure_enabled:
             description: Indicates whether secure NFS is enabled on the NFS server.
             type: bool
         is_use_smb_config_enabled:
             description: Indicates whether SMB authentication is used to authenticate to the KDC.
             type: bool
+        nas_server_id:
+            description: Unique identifier of the NAS server.
+            type: str
         service_principal_name:
             description: The Service Principal Name (SPN) for the NFS server.
             type: str
-
     sample: [
           {
             "credentials_cache_TTL": 120,
@@ -1202,31 +1200,31 @@ ReplicationGroups:
     type: list
     returned: when C(replication_group) is in a given I(gather_subset).
     contains:
-        id:
-            description: ID of the replication group.
-            type: str
-        name:
-            description: Name of the replication group.
-            type: str
-        storage_container_id:
-            description: ID of the storage container.
-            type: str
-        description:
-            description: Description of the replication group.
+        creation_timestamp:
+            description: Timestamp when given replication group was created.
             type: str
         creator_type:
             description: Creator type of the storage resource.
             type: str
-        creation_timestamp:
-            description: Timestamp when given replication group was created.
+        creator_type_l10n:
+            description: Localized message string corresponding to
+                         creator_type.
+            type: str
+        description:
+            description: Description of the replication group.
+            type: str
+        id:
+            description: ID of the replication group.
             type: str
         is_replication_destination:
             description: Indicates whether replication group is replication
                          destination or not.
             type: bool
-        creator_type_l10n:
-            description: Localized message string corresponding to
-                         creator_type.
+        name:
+            description: Name of the replication group.
+            type: str
+        storage_container_id:
+            description: ID of the storage container.
             type: str
     sample: [
         {
@@ -1342,15 +1340,15 @@ ServiceConfigs:
     type: list
     returned: When C(service_config) is in a given I(gather_subset)
     contains:
-          id:
-            description: ID of the service config.
-            type: str
-          appliance_id:
-            description: ID of the appliance.
-            type: str
-          is_ssh_enabled:
-            description: Indicates whether ssh is enabled or not on the appliance.
-            type: bool
+        appliance_id:
+          description: ID of the appliance.
+          type: str
+        id:
+          description: ID of the service config.
+          type: str
+        is_ssh_enabled:
+          description: Indicates whether ssh is enabled or not on the appliance.
+          type: bool
     sample: [
           {
               "id": "A1",
@@ -1366,14 +1364,14 @@ SMBServers:
         computer_name:
             description: DNS name of the associated computer account when the SMB server is joined to an Active Directory domain.
             type: str
-        id:
-            description: The unique identifier of the SMB server.
-            type: str
         description:
             description: Description of the SMB server.
             type: str
         domain:
             description: Domain name where SMB server is registered in Active Directory, if applicable.
+            type: str
+        id:
+            description: The unique identifier of the SMB server.
             type: str
         is_joined:
             description: Indicates whether the SMB server is joined to the Active Directory.
@@ -1381,16 +1379,15 @@ SMBServers:
         is_standalone:
             description: Indicates whether the SMB server is standalone.
             type: bool
-        netbios_name:
-            description: NetBIOS name is the network name of the standalone SMB server.
-            type: str
         nas_server_id:
             description: Unique identifier of the NAS server.
+            type: str
+        netbios_name:
+            description: NetBIOS name is the network name of the standalone SMB server.
             type: str
         workgroup:
             description: Windows network workgroup for the SMB server.
             type: str
-
     sample: [
           {
             "computer_name": null,
@@ -1409,39 +1406,6 @@ SMBShares:
     type: list
     returned: When C(smb_share) is in a given I(gather_subset)
     contains:
-        id:
-          description: ID of the smb share.
-          type: str
-        name:
-          description: name of the smb share.
-          type: str
-        description:
-          description: description of the smb share.
-          type: str
-        file_system:
-          description: file system details of the smb share.
-          type: dict
-        is_ABE_enabled:
-          description: indicates whether ABE is enabled or not.
-          type: bool
-        is_branch_cache_enabled:
-          description: indicates whether branch cache is enabled or not.
-          type: bool
-        is_continuous_availability_enabled:
-          description: indicates whether continuous availability is enabled or not.
-          type: bool
-        is_encryption_enabled:
-          description: indicates whether encryption is enabled or not.
-          type: bool
-        offline_availability:
-          description: offline availability of the smb share.
-          type: str
-        path:
-          description: path of the smb share.
-          type: str
-        umask:
-          description: umask of the smb share.
-          type: str
         aces:
           description: access control list (ACL) of the smb share.
           type: list
@@ -1458,6 +1422,39 @@ SMBShares:
             trustee_type:
               description: trustee type of the smb share.
               type: str
+        description:
+          description: description of the smb share.
+          type: str
+        file_system:
+          description: file system details of the smb share.
+          type: dict
+        id:
+          description: ID of the smb share.
+          type: str
+        is_ABE_enabled:
+          description: indicates whether ABE is enabled or not.
+          type: bool
+        is_branch_cache_enabled:
+          description: indicates whether branch cache is enabled or not.
+          type: bool
+        is_continuous_availability_enabled:
+          description: indicates whether continuous availability is enabled or not.
+          type: bool
+        is_encryption_enabled:
+          description: indicates whether encryption is enabled or not.
+          type: bool
+        name:
+          description: name of the smb share.
+          type: str
+        offline_availability:
+          description: offline availability of the smb share.
+          type: str
+        path:
+          description: path of the smb share.
+          type: str
+        umask:
+          description: umask of the smb share.
+          type: str
     sample: [
           {
             "id": "72ef39a0-09b3-5339-c8bb-16c6ac7490fc",
@@ -1537,10 +1534,10 @@ SnapshotRules:
             "name": "Snapshot Rule Test"
           }
     ]
-SNMPServers:
-    description: Provides details of all SNMP servers.
+snmp_managers:
+    description: Provides details of all SNMP managers.
     type: list
-    returned: When C(snmp_server) is in a given I(gather_subset)
+    returned: When C(snmp_manager) is in a given I(gather_subset)
     contains:
           alert_severity:
             description: Possible severities.
@@ -1549,13 +1546,13 @@ SNMPServers:
             description: Authentication protocol, relevant only for SNMPv3.
             type: str
           id:
-            description: Unique identifier of the SNMP server.
+            description: Unique identifier of the SNMP manager.
             type: str
           ip_address:
-            description: IPv4 address, IPv6 address, or FQDN of the SNMP server.
+            description: IPv4 address, IPv6 address, or FQDN of the SNMP manager.
             type: str
           port:
-            description: Port number to use with the address of the SNMP server.
+            description: Port number to use with the address of the SNMP manager.
             type: int
           privacy_protocol:
             description: Privacy protocol, relevant only for SNMPv3.
@@ -1587,14 +1584,41 @@ StorageContainers:
     type: list
     returned: When C(storage_container) is in a given I(gather_subset)
     contains:
+        datastores:
+            description: List of associated datastores.
+            type: list
+            contains:
+                id:
+                    description: Unique identifier of the datastore instance.
+                    type: str
+                name:
+                    description: User-assigned name of the datastore in vCenter.
+                    type: str
+        destinations:
+            description: A storage container destination defines replication
+                         destination for a local storage container on a remote
+                         system.
+            type: list
+            contains:
+                id:
+                    description: The unique id of the storage container
+                                 destination.
+                    type: str
+                remote_storage_container_id:
+                    description: The unique id of the destination storage
+                                 container on the remote system.
+                    type: str
+                remote_system_id:
+                    description: The unique id of the remote system.
+                    type: str
+                remote_system_name:
+                    description: The name of the remote system.
+                    type: str
         id:
             description: ID of the storage container.
             type: str
         name:
             description: Name of the storage container.
-            type: str
-        storage_protocol:
-            description: The type of storage container.
             type: str
         quota:
             description: The total number of bytes that can be
@@ -1611,6 +1635,9 @@ StorageContainers:
                 name:
                     description: Name of the Replication Group.
                     type: str
+        storage_protocol:
+            description: The type of storage container.
+            type: str
         virtual_volumes:
             description: The virtual volumes associated to the storage container.
             type: list
@@ -1620,36 +1647,6 @@ StorageContainers:
                     type: str
                 name:
                     description: The name of the virtual volume.
-                    type: str
-        destinations:
-            description: A storage container destination defines replication
-                         destination for a local storage container on a remote
-                         system.
-            type: list
-            contains:
-                id:
-                    description: The unique id of the storage container
-                                 destination.
-                    type: str
-                remote_system_id:
-                    description: The unique id of the remote system.
-                    type: str
-                remote_system_name:
-                    description: The name of the remote system.
-                    type: str
-                remote_storage_container_id:
-                    description: The unique id of the destination storage
-                                 container on the remote system.
-                    type: str
-        datastores:
-            description: List of associated datastores.
-            type: list
-            contains:
-                id:
-                    description: Unique identifier of the datastore instance.
-                    type: str
-                name:
-                    description: User-assigned name of the datastore in vCenter.
                     type: str
     sample: [
         {
@@ -1663,6 +1660,255 @@ StorageContainers:
             "storage_protocol_l10n": "NVMe",
             "virtual_volumes": []
         }
+    ]
+TreeQuotas:
+    description: Provides details of all tree quotas.
+    type: list
+    returned: When C(tree_quota) is in a given I(gather_subset)
+    contains:
+          id:
+            description: ID of the tree quota.
+            type: str
+          path:
+            description: Path of the tree quota.
+            type: str
+    sample: [
+          {
+            "id": "00000003-0fe0-0001-0000-0000e8030000"
+          }
+    ]
+UserQuotas:
+    description: Provides details of all user quotas.
+    type: list
+    returned: When C(user_quota) is in a given I(gather_subset)
+    contains:
+          id:
+            description: ID of the user quota.
+            type: str
+    sample: [
+          {
+            "id": "00000003-0708-0000-0000-000004000080"
+          }
+    ]
+vCenter:
+    description: Provide details of all vCenters.
+    type: list
+    returned: When C(vCenter) is in a given I(gather_subset)
+    contains:
+        address:
+            description: IP address of vCenter host, in IPv4, IPv6 or hostname
+                         format.
+            type: str
+        datastores:
+            description: Datastores that exists on a specific vCenter. Was
+                         added in PowerStore version 3.0.0.0.
+            type: list
+        id:
+            description: Unique identifier of vCenter.
+            type: str
+        instance_uuid:
+            description: UUID instance of vCenter.
+            type: str
+        username:
+            description: Username to login to vCenter.
+            type: str
+        vendor_provider_status:
+            description: General status of the VASA vendor provider in vCenter.
+            type: str
+        vendor_provider_status_l10n:
+            description: Localized message string corresponding to
+                         vendor_provider_status.
+            type: str
+        version:
+            description: Version of vCenter including its build number. Was
+                         added in PowerStore version 3.0.0.0.
+            type: str
+        virtual_machines:
+            description: Virtual Machine associated with vCenter.
+            type: list
+        vsphere_hosts:
+            description: All vSphere hosts that exists on a specific vCenter.
+                         Was added in PowerStore version 3.0.0.0.
+            type: list
+    sample: [
+        {
+            "id": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
+            "instance_uuid": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
+            "address": "10.x.x.x",
+            "username": "administrator",
+            "version": "7.0.3",
+            "vendor_provider_status": "Online",
+            "vendor_provider_status_l10n": "Online",
+            "virtual_machines": [],
+            "datastores": [],
+            "vsphere_hosts": []
+        }
+    ]
+VirtualVolume:
+    description: Provides details of all virtual volumes.
+    type: list
+    returned: When C(virtual_volume) is in a given I(gather_subset)
+    contains:
+        appliance_id:
+            description: The appliance where the virtual volume resides.
+            type: str
+        creation_timestamp:
+            description: Timestamp of the moment virtual volume was created at.
+            type: str
+        creator_type:
+            description:
+            - Creator type of the storage resource.
+            - User - A resource created by a user.
+            - System - A resource created by the replication engine.
+            - Scheduler - A resource created by the snapshot scheduler.
+            type: str
+        creator_type_l10n:
+            description: Localized message string corresponding to creator_type.
+            type: str
+        family_id:
+            description: Family id of the virtual volume.
+            type: str
+        host_virtual_volume_mappings:
+            description: Virtual volume mapping details.
+            type: complex
+            contains:
+                host_group_id:
+                    description: Unique identifier of a host group attached to a virtual volume.
+                    type: str
+                host_id:
+                    description: Unique identifier of a host attached to a virtual volume.
+                    type: str
+                id:
+                    description: Unique identifier of a mapping between a host and a virtual volume.
+                    type: str
+                virtual_volume_id:
+                    description: Unique identifier of the virtual volume to which the host is attached.
+                    type: str
+        io_priority:
+            description: The I/O priority for quality of service rules.
+            type: str
+        io_priority_l10n:
+            description: Localized message string corresponding to io_priority.
+            type: str
+        id:
+            description: The unique identifier of the virtual volume.
+            type: str
+        is_readonly:
+            description: Indicates whether the virtual volume is read-only.
+            type: bool
+        is_replication_destination:
+            description: Indicates whether virtual volume is replication destination or not.
+            type: bool
+        location_history:
+            description: Storage resource location history.
+            type: complex
+            contains:
+                from_appliance_id:
+                    description: Unique identifier of the appliance from which the volume was relocated.
+                    type: str
+                migrated_on:
+                    description: Time when the storage resource location changed.
+                    type: str
+                reason:
+                    description:
+                    - Reason for storage resource relocation.
+                    - Initial - Initial placement.
+                    - Manual - Manual migration operation initiated by user.
+                    - Recommended - Storage system recommended migration.
+                    type: str
+                reason_l10n:
+                    description: Localized message string corresponding to reason.
+                    type: str
+                to_appliance_id:
+                    description: Unique identifier of the appliance to which the volume was relocated.
+                    type: str
+        migration_session_id:
+            description: If the virtual volume is part of a migration activity, the session ID for that migration.
+            type: str
+        naa_name:
+            description: The NAA name used by hosts for I/O.
+            type: str
+        name:
+            description: The name of the virtual volume, based on metadata provided by vSphere.
+            type: str
+        nguid:
+            description: NVMe Namespace globally unique identifier.
+            type: str
+        nsid:
+            description: NVMe Namespace unique identifier in the NVMe subsystem.
+            type: str
+        parent_id:
+            description: For snapshots and clones, the ID of the parent virtual volume.
+            type: str
+        profile_id:
+            description: The ID of the storage profile governing this virtual volume.
+            type: str
+        protection_policy_id:
+            description: The unique identifier of the protection policy applied to this virtual volume.
+            type: str
+        replication_group_id:
+            description: The unique identifier of the replication group object that this virtual volume belongs to.
+            type: str
+        size:
+            description: The size of the virtual volume in bytes.
+            type: int
+        source_id:
+            description: Id of the virtual volume from which the content has been sourced.
+            type: str
+        source_timestamp:
+            description: The source data time-stamp of the virtual volume.
+            type: str
+        storage_container_id:
+            description: The storage container where the virtual volume resides.
+            type: str
+        type:
+            description: The logical type of a virtual volume.
+            type: str
+        type_l10n:
+            description: Localized message string corresponding to type.
+            type: str
+        usage_type:
+            description: VMware's usage of the vVol.
+            type: str
+        usage_type_l10n:
+            description: Localized message string corresponding to usage_type.
+            type: str
+        virtual_machine_uuid:
+            description: UUID of the virtual machine that owns this virtual volume.
+            type: str
+    sample: [
+        {
+            "id": "85643b54-9429-49ee-b7c3-b061fcdaab7c",
+            "name": "test-centos_2.vmdk",
+            "size": 17179869184,
+            "type": "Primary",
+            "usage_type": "Data",
+            "appliance_id": "A1",
+            "storage_container_id": "4dff1460-4d1e-48b6-98d8-cae8d7bf63b5",
+            "io_priority": "Medium",
+            "profile_id": "f4e5bade-15a2-4805-bf8e-52318c4ce443",
+            "replication_group_id": null,
+            "creator_type": "User",
+            "is_readonly": false,
+            "migration_session_id": null,
+            "virtual_machine_uuid": "503629e5-8677-b26f-bf2d-e9f639bcc77f",
+            "family_id": "9ce8d828-14e3-44f8-bde1-a97f440a7259",
+            "parent_id": null,
+            "source_id": null,
+            "source_timestamp": null,
+            "creation_timestamp": "2022-12-27T10:01:32.622+00:00",
+            "naa_name": "naa.68ccf09800918d7f008769d29bc6a43a",
+            "is_replication_destination": false,
+            "location_history": null,
+            "protection_policy_id": null,
+            "nsid": 5114,
+            "nguid": "nguid.918d7f008769d29b8ccf096800c6a43a",
+            "type_l10n": "Primary",
+            "usage_type_l10n": "Data",
+            "io_priority_l10n": "Medium",
+            "creator_type_l10n": "User",
+            "host_virtual_volume_mappings": []
+}
     ]
 VolumeGroups:
     description: Provides details of all volume groups.
@@ -1698,256 +1944,6 @@ Volumes:
             "name": "test_vol"
           }
         ]
-TreeQuotas:
-    description: Provides details of all tree quotas.
-    type: list
-    returned: When C(tree_quota) is in a given I(gather_subset)
-    contains:
-          id:
-            description: ID of the tree quota.
-            type: str
-          path:
-            description: Path of the tree quota.
-            type: str
-    sample: [
-          {
-            "id": "00000003-0fe0-0001-0000-0000e8030000"
-          }
-    ]
-UserQuotas:
-    description: Provides details of all user quotas.
-    type: list
-    returned: When C(user_quota) is in a given I(gather_subset)
-    contains:
-          id:
-            description: ID of the user quota.
-            type: str
-    sample: [
-          {
-            "id": "00000003-0708-0000-0000-000004000080"
-          }
-    ]
-vCenter:
-    description: Provide details of all vCenters.
-    type: list
-    returned: When C(vCenter) is in a given I(gather_subset)
-    contains:
-        id:
-            description: Unique identifier of vCenter.
-            type: str
-        instance_uuid:
-            description: UUID instance of vCenter.
-            type: str
-        address:
-            description: IP address of vCenter host, in IPv4, IPv6 or hostname
-                         format.
-            type: str
-        username:
-            description: Username to login to vCenter.
-            type: str
-        version:
-            description: Version of vCenter including its build number. Was
-                         added in PowerStore version 3.0.0.0.
-            type: str
-        vendor_provider_status:
-            description: General status of the VASA vendor provider in vCenter.
-            type: str
-        vendor_provider_status_l10n:
-            description: Localized message string corresponding to
-                         vendor_provider_status.
-            type: str
-        virtual_machines:
-            description: Virtual Machine associated with vCenter.
-            type: list
-        datastores:
-            description: Datastores that exists on a specific vCenter. Was
-                         added in PowerStore version 3.0.0.0.
-            type: list
-        vsphere_hosts:
-            description: All vSphere hosts that exists on a specific vCenter.
-                         Was added in PowerStore version 3.0.0.0.
-            type: list
-    sample: [
-        {
-            "id": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
-            "instance_uuid": "0d330d6c-3fe6-41c6-8023-5bd3fa7c61cd",
-            "address": "10.x.x.x",
-            "username": "administrator",
-            "version": "7.0.3",
-            "vendor_provider_status": "Online",
-            "vendor_provider_status_l10n": "Online",
-            "virtual_machines": [],
-            "datastores": [],
-            "vsphere_hosts": []
-        }
-    ]
-VirtualVolume:
-    description: Provides details of all virtual volumes.
-    type: list
-    returned: When C(virtual_volume) is in a given I(gather_subset)
-    contains:
-        id:
-            description: The unique identifier of the virtual volume.
-            type: str
-        name:
-            description: The name of the virtual volume, based on metadata provided by vSphere.
-            type: str
-        size:
-            description: The size of the virtual volume in bytes.
-            type: int
-        type:
-            description: The logical type of a virtual volume.
-            type: str
-        usage_type:
-            description: VMware's usage of the vVol.
-            type: str
-        appliance_id:
-            description: The appliance where the virtual volume resides.
-            type: str
-        storage_container_id:
-            description: The storage container where the virtual volume resides.
-            type: str
-        io_priority:
-            description: The I/O priority for quality of service rules.
-            type: str
-        profile_id:
-            description: The ID of the storage profile governing this virtual volume.
-            type: str
-        replication_group_id:
-            description: The unique identifier of the replication group object that this virtual volume belongs to.
-            type: str
-        creator_type:
-            description:
-            - Creator type of the storage resource.
-            - User - A resource created by a user.
-            - System - A resource created by the replication engine.
-            - Scheduler - A resource created by the snapshot scheduler.
-            type: str
-        is_readonly:
-            description: Indicates whether the virtual volume is read-only.
-            type: bool
-        migration_session_id:
-            description: If the virtual volume is part of a migration activity, the session ID for that migration.
-            type: str
-        virtual_machine_uuid:
-            description: UUID of the virtual machine that owns this virtual volume.
-            type: str
-        family_id:
-            description: Family id of the virtual volume.
-            type: str
-        parent_id:
-            description: For snapshots and clones, the ID of the parent virtual volume.
-            type: str
-        source_id:
-            description: Id of the virtual volume from which the content has been sourced.
-            type: str
-        source_timestamp:
-            description: The source data time-stamp of the virtual volume.
-            type: str
-        creation_timestamp:
-            description: Timestamp of the moment virtual volume was created at.
-            type: str
-        naa_name:
-            description: The NAA name used by hosts for I/O.
-            type: str
-        is_replication_destination:
-            description: Indicates whether virtual volume is replication destination or not.
-            type: bool
-        location_history:
-            description: Storage resource location history.
-            type: complex
-            contains:
-                from_appliance_id:
-                    description: Unique identifier of the appliance from which the volume was relocated.
-                    type: str
-                to_appliance_id:
-                    description: Unique identifier of the appliance to which the volume was relocated.
-                    type: str
-                reason:
-                    description:
-                    - Reason for storage resource relocation.
-                    - Initial - Initial placement.
-                    - Manual - Manual migration operation initiated by user.
-                    - Recommended - Storage system recommended migration.
-                    type: str
-                migrated_on:
-                    description: Time when the storage resource location changed.
-                    type: str
-                reason_l10n:
-                    description: Localized message string corresponding to reason.
-                    type: str
-        protection_policy_id:
-            description: The unique identifier of the protection policy applied to this virtual volume.
-            type: str
-        nsid:
-            description: NVMe Namespace unique identifier in the NVMe subsystem.
-            type: str
-        nguid:
-            description: NVMe Namespace globally unique identifier.
-            type: str
-        type_l10n:
-            description: Localized message string corresponding to type.
-            type: str
-        usage_type_l10n:
-            description: Localized message string corresponding to usage_type.
-            type: str
-        io_priority_l10n:
-            description: Localized message string corresponding to io_priority.
-            type: str
-        creator_type_l10n:
-            description: Localized message string corresponding to creator_type.
-            type: str
-        host_virtual_volume_mappings:
-            description: Virtual volume mapping details.
-            type: complex
-            contains:
-                id:
-                    description: Unique identifier of a mapping between a host and a virtual volume.
-                    type: str
-                host_id:
-                    description: Unique identifier of a host attached to a virtual volume.
-                    type: str
-                host_group_id:
-                    description: Unique identifier of a host group attached to a virtual volume.
-                    type: str
-                virtual_volume_id:
-                    description: Unique identifier of the virtual volume to which the host is attached.
-                    type: str
-
-    sample: [
-        {
-            "id": "85643b54-9429-49ee-b7c3-b061fcdaab7c",
-            "name": "test-centos_2.vmdk",
-            "size": 17179869184,
-            "type": "Primary",
-            "usage_type": "Data",
-            "appliance_id": "A1",
-            "storage_container_id": "4dff1460-4d1e-48b6-98d8-cae8d7bf63b5",
-            "io_priority": "Medium",
-            "profile_id": "f4e5bade-15a2-4805-bf8e-52318c4ce443",
-            "replication_group_id": null,
-            "creator_type": "User",
-            "is_readonly": false,
-            "migration_session_id": null,
-            "virtual_machine_uuid": "503629e5-8677-b26f-bf2d-e9f639bcc77f",
-            "family_id": "9ce8d828-14e3-44f8-bde1-a97f440a7259",
-            "parent_id": null,
-            "source_id": null,
-            "source_timestamp": null,
-            "creation_timestamp": "2022-12-27T10:01:32.622+00:00",
-            "naa_name": "naa.68ccf09800918d7f008769d29bc6a43a",
-            "is_replication_destination": false,
-            "location_history": null,
-            "protection_policy_id": null,
-            "nsid": 5114,
-            "nguid": "nguid.918d7f008769d29b8ccf096800c6a43a",
-            "type_l10n": "Primary",
-            "usage_type_l10n": "Data",
-            "io_priority_l10n": "Medium",
-            "creator_type_l10n": "User",
-            "host_virtual_volume_mappings": []
-}
-    ]
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -2006,7 +2002,7 @@ class PowerstoreInfo(object):
         self.nfs_server = self.conn.nfs_server
         self.file_dns = self.conn.file_dns
         self.file_nis = self.conn.file_nis
-        self.snmp_server = self.conn.snmp_server
+        self.snmp_manager = self.conn.snmp_server
 
         self.subset_mapping = {
             'vol': {
@@ -2181,9 +2177,9 @@ class PowerstoreInfo(object):
                 'func': self.configuration.get_service_configs,
                 'display_as': 'ServiceConfigs'
             },
-            'snmp_server': {
-                'func': self.snmp_server.get_snmp_server_list,
-                'display_as': 'SNMPServers'
+            'snmp_manager': {
+                'func': self.snmp_manager.get_snmp_server_list,
+                'display_as': 'snmp_managers'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -2361,7 +2357,7 @@ def get_powerstore_info_parameters():
                      'replication_rule', 'replication_session',
                      'remote_system', 'network', 'role', 'user', 'appliance',
                      'ad', 'ldap', 'security_config', 'certificate', 'dns',
-                     'ntp', 'smtp_config', 'email_notification', 'snmp_server',
+                     'ntp', 'smtp_config', 'email_notification', 'snmp_manager',
                      'remote_support', 'remote_support_contact',
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',

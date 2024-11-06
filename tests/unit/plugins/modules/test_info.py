@@ -402,10 +402,10 @@ class TestPowerstoreInfo():
 
     def test_get_snmp_servers(self, info_module_mock):
         self.get_module_args.update({
-            'gather_subset': ['snmp_server'],
+            'gather_subset': ['snmp_manager'],
             'filters': None,
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
-        info_module_mock.snmp_server.get_snmp_server_list.assert_called()
+        info_module_mock.snmp_manager.get_snmp_server_list.assert_called()

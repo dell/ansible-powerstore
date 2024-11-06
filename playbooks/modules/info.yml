@@ -508,23 +508,23 @@
         gather_subset:
           - service_config
 
-    - name: Get list of SNMP servers
+    - name: Get list of SNMP managers
       dellemc.powerstore.info:
         array_ip: "{{ array_ip }}"
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
         gather_subset:
-          - snmp_server
+          - snmp_manager
 
-    - name: Get list of SNMP servers with filter
+    - name: Get list of SNMP managers with filter
       dellemc.powerstore.info:
         array_ip: "{{ array_ip }}"
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
         gather_subset:
-          - snmp_server
+          - snmp_manager
         filters:
           - filter_key: trap_community
             filter_operator: like
