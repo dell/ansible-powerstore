@@ -1,0 +1,57 @@
+---
+- name: SNMP Manager operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "admin"
+    password: "*****"
+
+  tasks:
+    - name: Create SNMP Manager with V2 SNMP protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: 127.**.**.**
+        snmp_port: 49151
+        version: "V2c"
+        alert_severity: Critical
+        trap_community: test
+        state: present
+
+    - name: Create SNMP Manager with V3 SNMP protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: 127.**.**.**
+        snmp_port: 253
+        version: "V3"
+        alert_severity: Critical
+        trap_community: test
+        snmp_username: test
+        auth_protocol: MD5
+        auth_privacy: TDES
+        auth_pass: Password123!
+        state: present
+
+    - name: Get SNMP Manager
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: 127.**.**.**
+
+    - name: Delete SNMP Manager
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ip_address: 127.**.**.**
+        state: absent
