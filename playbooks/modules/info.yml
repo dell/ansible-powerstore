@@ -5,8 +5,8 @@
   vars:
     array_ip: "10.**.**.**"
     validate_certs: false
-    user: "admin"
-    password: "Pinkballoon082$"
+    user: "user"
+    password: "password"
 
   tasks:
     - name: Get the facts for a given Powerstore Storage System
