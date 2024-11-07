@@ -35,7 +35,7 @@ Parameters
   auth_privacy (optional, str, None)
     Supported SNMP privacy protocol.
 
-    \ :literal:`None`\  - No encryption on the wire.
+    \ :literal:`Nil`\  - No encryption on the wire.
 
     \ :literal:`AES256`\  - means Encryption class for AES 256.
 
@@ -45,14 +45,14 @@ Parameters
   auth_protocol (optional, str, None)
     Relevant only for SNMPv3. Supported SNMP authentication protocols.
 
-    \ :literal:`None`\  - No authorization.
+    \ :literal:`Nil`\  - No authorization.
 
     \ :literal:`MD5`\  - The AuthMD5 class implements the MD5 authentication protocol.
 
     \ :literal:`SHA256`\  - The Secure Hash Authentication.
 
 
-  ip_address (optional, str, None)
+  ip_address (True, str, None)
     IP address or FQDN of the SNMP server.
 
     IPv4 and IPv6 are supported.
@@ -86,7 +86,7 @@ Parameters
     \ :emphasis:`trap\_community`\  is required when \ :emphasis:`version`\  is \ :literal:`V2c`\ .
 
 
-  update_password (optional, str, None)
+  update_password (optional, str, always)
     Update password applicable only to fir update case.
 
 

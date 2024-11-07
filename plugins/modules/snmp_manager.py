@@ -32,24 +32,25 @@ options:
   auth_privacy:
     description:
     - Supported SNMP privacy protocol.
-    - C(None) - No encryption on the wire.
+    - C(Nil) - No encryption on the wire.
     - C(AES256) - means Encryption class for AES 256.
     - C(TDES) - Encryption class for Triple Data Encryption.
     type: str
-    choices: ['None', 'AES256', 'TDES']
+    choices: ['Nil', 'AES256', 'TDES']
   auth_protocol:
     description:
     - Relevant only for SNMPv3. Supported SNMP authentication protocols.
-    - C(None) - No authorization.
+    - C(Nil) - No authorization.
     - C(MD5) - The AuthMD5 class implements the MD5 authentication protocol.
     - C(SHA256) - The Secure Hash Authentication.
-    choices: ['None', 'MD5', 'SHA256']
+    choices: ['Nil', 'MD5', 'SHA256']
     type: str
   ip_address:
     description:
     - IP address or FQDN of the SNMP server.
     - IPv4 and IPv6 are supported.
     type: str
+    required: true
     aliases:
       - network_name
   new_ip_address:
@@ -83,6 +84,7 @@ options:
     - Update password applicable only to fir update case.
     choices: ['always', 'on_create']
     type: str
+    default: 'always'
   version:
     description:
     - Supported SNMP protocol versions.
@@ -248,10 +250,10 @@ class PowerStoreSNMPManager(PowerStoreBase):
         )
         self.snmp_manager = self.conn.snmp_server
 
-    def get_snmp_manager(self, snmp_server_id):
+    def get_snmp_manager(self, snmp_manager_id):
         """Get the details of NAS Server of a given Powerstore storage
         system"""
-        return self.snmp_manager.get_snmp_server_details(snmp_server_id=snmp_server_id)
+        return self.snmp_manager.get_snmp_server_details(snmp_server_id=snmp_manager_id)
 
     def getting_snmp_manager_id(self, ip_address):
         """Get the id of the SNMP manager"""
@@ -275,25 +277,30 @@ class PowerStoreSNMPManager(PowerStoreBase):
         }
         if version == 'V3':
             payload['user_name'] = create_params.get('snmp_username')
-            payload['auth_protocol'] = auth_protocol if auth_protocol else "None"
-            payload['privacy_protocol'] = privacy_protocol if privacy_protocol else "None"
+            if auth_protocol == "Nil" or auth_protocol is None:
+                payload['auth_protocol'] = "None"
+            else:
+                payload['auth_protocol'] = auth_protocol
+
+            if privacy_protocol == "Nil" or privacy_protocol is None:
+                payload['privacy_protocol'] = "None"
+            else:
+                payload['privacy_protocol'] = privacy_protocol
 
         if auth_protocol != "None" and version == 'V3':
             payload['authpass'] = create_params.get('snmp_password')
-
         return payload
 
     def create_snmp_manager(self, create_params):
         """Create SNMP Server"""
         try:
-            self.validate_create(create_params)
             msg = 'Attempting to create SNMP Server'
             LOG.info(msg)
+            self.validate_create(create_params)
             snmp_manager_details = {}
             if not self.module.check_mode:
                 create_dict = dict()
                 create_dict = self.prepare_snmp_manager_create_payload(create_params)
-                LOG.info(create_dict)
                 resp = self.snmp_manager.create_snmp_server(payload=create_dict)
                 if resp:
                     snmp_manager_details = self.get_snmp_manager(resp['id'])
@@ -307,39 +314,49 @@ class PowerStoreSNMPManager(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def delete_snmp_manager(self, snmp_server_id):
+    def delete_snmp_manager(self, snmp_manager_id):
         """ Delete SNMP Manager """
         try:
             msg = f'Deleting SNMP Manager:' \
-                  f' {snmp_server_id}'
+                  f' {snmp_manager_id}'
             LOG.info(msg)
             if not self.module.check_mode:
-                self.snmp_manager.delete_snmp_server(snmp_server_id=snmp_server_id)
+                self.snmp_manager.delete_snmp_server(snmp_server_id=snmp_manager_id)
                 return None
-            return self.get_snmp_manager(snmp_server_id)
+            return self.get_snmp_manager(snmp_manager_id)
         except Exception as e:
-            msg = (f'Deletion of the SNMP Manager {snmp_server_id}'
+            msg = (f'Deletion of the SNMP Manager {snmp_manager_id}'
                    f' failed with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def validate_create(self, create_params):
         """Perform validation of create SNMP Manager parameters"""
-        errors = []
         if not create_params['ip_address']:
-            errors.append("Creation of SNMP Manager needs ip_address/network_name.")
-        if create_params['snmp_port']:
-            if not (162 <= create_params['snmp_port'] <= 49151):
-                errors.append("Provide a valid snmp_port value. Valid value ranges between 162-49151.")
-        if create_params['version'] == 'V2c' and not create_params['trap_community']:
-            errors.append("Trap community is required parameter for creating SNMP Manager with version V2c.")
-        if create_params['trap_community'] and len(create_params['trap_community']) > 256:
-            errors.append("The maximum length of trap community parameter is 256")
-        if create_params['version'] == 'V3' and not create_params['snmp_username']:
-            errors.append("snmp_username is required parameter for creating SNMP Manager with version V3.")
-
-        if errors:
-            self.module.fail_json(msg=', '.join(errors))
+            errormsg = "Provide alid value for ip_address\network_name."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if create_params['version'] == 'V2c' and not (create_params['trap_community'] and len(create_params['trap_community'].strip()) > 0):
+            errormsg = "Trap community is required parameter for creating SNMP Manager with version V2c."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if create_params['version'] == 'V3' and not (create_params['snmp_username'] and len(create_params['snmp_username'].strip()) > 0):
+            errormsg = "snmp_username is required parameter for creating SNMP Manager with version V3."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if (create_params['version'] == 'V3' and create_params['auth_protocol']) and \
+                not (create_params['snmp_password'] and len(create_params['snmp_password'].strip()) > 0):
+            errormsg = "snmp_password/auth_pass required parameter for creating SNMP Manager with version V3 and auth_protocol."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if create_params['version'] == 'V3' and not create_params['auth_protocol'] and create_params['auth_privacy']:
+            errormsg = "For V3 SNMP auth_protocol with None value must have privacy_protocol with None value."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if create_params['version'] == 'V3' and not create_params['auth_protocol'] and not create_params['auth_privacy'] and create_params['snmp_password']:
+            errormsg = "V3 with no authenticaton should not use snmp_password/authpass"
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
 
 
 def get_powerstore_snmp_manager_parameters():
@@ -347,15 +364,15 @@ def get_powerstore_snmp_manager_parameters():
     SNMP modules on PowerStore"""
     return dict(
         alert_severity=dict(type='str', choices=['Info', 'Minor', 'Major', 'Critical']),
-        auth_privacy=dict(type='str', choices=['None', 'AES256', 'TDES']),
-        auth_protocol=dict(type='str', choices=['None', 'MD5', 'SHA256']),
-        ip_address=dict(type='str', aliases=['network_name']),
+        auth_privacy=dict(type='str', choices=['Nil', 'AES256', 'TDES']),
+        auth_protocol=dict(type='str', choices=['Nil', 'MD5', 'SHA256']),
+        ip_address=dict(type='str', aliases=['network_name'], required=True),
         new_ip_address=dict(type='str'),
         snmp_port=dict(type='int'),
         snmp_password=dict(type='str', aliases=['auth_pass'], no_log=True),
         snmp_username=dict(type='str'),
         trap_community=dict(type='str'),
-        update_password=dict(type='str', choices=['always', 'on_create'], no_log=True),
+        update_password=dict(default='always', type='str', choices=['always', 'on_create']),
         version=dict(type='str', choices=['V2c', 'V3']),
         state=dict(default='present', type='str', choices=['present', 'absent'])
     )
@@ -400,10 +417,8 @@ class SNMPManagerHandler():
     def handle(self, snmp_obj, snmp_manager_params):
         snmp_manager_details = None
         snmp_manager_id = snmp_obj.getting_snmp_manager_id(snmp_manager_params['ip_address'])
-        LOG.info("snmp_manager_id %s", snmp_manager_id)
         if snmp_manager_id:
             snmp_manager_details = snmp_obj.get_snmp_manager(snmp_manager_id)
-            LOG.info("snmp_manager_details %s", snmp_manager_details)
 
         SNMPManagerCreateHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
 
