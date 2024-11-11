@@ -289,6 +289,7 @@ class PowerStoreSNMPManager(PowerStoreBase):
 
         if auth_protocol != "None" and version == 'V3':
             payload['authpass'] = create_params.get('snmp_password')
+
         return payload
 
     def create_snmp_manager(self, create_params):
@@ -304,7 +305,7 @@ class PowerStoreSNMPManager(PowerStoreBase):
                 resp = self.snmp_manager.create_snmp_server(payload=create_dict)
                 if resp:
                     snmp_manager_details = self.get_snmp_manager(resp['id'])
-                msg = (f'Successfully created SNMP Server with details'
+                msg = (f'Successfully created SNMP Manager with details'
                        f' {snmp_manager_details}')
                 LOG.info(msg)
             return snmp_manager_details
@@ -330,10 +331,71 @@ class PowerStoreSNMPManager(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def validate_version_change(self, snmp_manager_params, snmp_manager_details):
+        if snmp_manager_params.get('version') != snmp_manager_details.get('version'):
+            msg = (f"Version cannot be changed from {snmp_manager_details.get('version')} to {snmp_manager_params.get('version')}")
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+
+    def is_modify_required(self, snmp_manager_params, snmp_manager_details):
+        param_dict = dict()
+
+        self.validate_version_change(snmp_manager_params, snmp_manager_details)
+        self.validate_create(snmp_manager_params)
+
+        params_to_check = {
+            'ip_address': 'new_ip_address',
+            'port': 'snmp_port',
+            'alert_severity': 'alert_severity'
+        }
+        for key, value in params_to_check.items():
+            if snmp_manager_params.get(value) and snmp_manager_params.get(value) != snmp_manager_details.get(key):
+                param_dict[key] = snmp_manager_params.get(value)
+
+        if snmp_manager_details['version'] == 'V3':
+            if snmp_manager_params.get('snmp_username') != snmp_manager_details.get('user_name'):
+                param_dict['user_name'] = snmp_manager_params.get('snmp_username')
+
+            auth_protocol = snmp_manager_params.get('auth_protocol')
+            if auth_protocol is None or auth_protocol == "Nil":
+                auth_protocol = "None"
+
+            privacy_protocol = snmp_manager_params.get('auth_privacy')
+            if privacy_protocol is None or privacy_protocol == "Nil":
+                privacy_protocol = "None"
+
+            if auth_protocol != snmp_manager_details['auth_protocol'] or privacy_protocol != snmp_manager_details['privacy_protocol']:
+                param_dict['auth_protocol'] = auth_protocol
+                param_dict['privacy_protocol'] = privacy_protocol
+
+        if snmp_manager_details['version'] == 'V2c':
+            trap_community = snmp_manager_params.get('trap_community')
+            if trap_community and trap_community != snmp_manager_details.get('trap_community'):
+                param_dict['trap_community'] = snmp_manager_params.get('trap_community')
+
+        if snmp_manager_params.get('snmp_password') and snmp_manager_params.get('update_password') == "always":
+            param_dict['authpass'] = snmp_manager_params.get('snmp_password')
+
+        return param_dict
+
+    def modify_snmp_manager_details(self, modify_dict, snmp_manager_id):
+        """Modify SNMP Manager details"""
+        snmp_manager_details = {}
+        if not self.module.check_mode:
+            self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_id, modify_parameters=modify_dict)
+            snmp_manager_details = self.get_snmp_manager(snmp_manager_id)
+            msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
+            LOG.info(msg)
+        return snmp_manager_details
+
     def validate_create(self, create_params):
         """Perform validation of create SNMP Manager parameters"""
         if not create_params['ip_address']:
-            errormsg = "Provide alid value for ip_address\network_name."
+            errormsg = "Provide valid value for ip_address\network_name."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+        if not create_params['snmp_port']:
+            errormsg = "snmp_port is required parameter for creating SNMP Manager."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
         if create_params['version'] == 'V2c' and not (create_params['trap_community'] and len(create_params['trap_community'].strip()) > 0):
@@ -395,11 +457,11 @@ class SNMPManagerDeleteHandler():
 
 class SNMPManagerModifyHandler():
     def handle(self, snmp_obj, snmp_manager_params, snmp_manager_details):
-        # if snmp_manager_params['state'] == 'present' and snmp_manager_details:
-        #     modify_dict = snmp_obj.is_modify_required(snmp_manager_details, snmp_manager_params)
-        #     if modify_dict:
-        #         snmp_manager_details = snmp_obj.modify_snmp_manager_details()
-        #         snmp_obj.result['changed'] = True
+        if snmp_manager_params['state'] == 'present' and snmp_manager_details:
+            modify_dict = snmp_obj.is_modify_required(snmp_manager_params, snmp_manager_details)
+            if modify_dict:
+                snmp_manager_details = snmp_obj.modify_snmp_manager_details(modify_dict, snmp_manager_details['id'])
+                snmp_obj.result['changed'] = True
 
         SNMPManagerDeleteHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
 
