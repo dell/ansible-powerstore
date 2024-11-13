@@ -8,14 +8,12 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-
 module: snmp_manager
 version_added: '3.6.0'
 short_description: Manage SNMP Managers for PowerStore
 description:
 - Managing SNMP Managers on PowerStore Storage System includes creating
-  a SNMP Manager, getting details of SNMP Manager, modifying a
-  SNMP Manager and deleting a SNMP Manager.
+  SNMP Manager, modifying SNMP Manager and deleting SNMP Manager.
 
 author:
 - Meenakshi Dembi (@dembim) <ansible.team@dell.com>
@@ -29,6 +27,7 @@ options:
     - Possible severities.
     choices: ['Info', 'Minor', 'Major', 'Critical']
     type: str
+    default: 'Info'
   auth_privacy:
     description:
     - Supported SNMP privacy protocol.
@@ -47,7 +46,7 @@ options:
     type: str
   ip_address:
     description:
-    - IP address or FQDN of the SNMP server.
+    - IP address or FQDN of the SNMP manager.
     - IPv4 and IPv6 are supported.
     type: str
     required: true
@@ -55,13 +54,9 @@ options:
       - network_name
   new_ip_address:
     description:
-    - IP address or FQDN of the SNMP server to update.
+    - IP address or FQDN of the SNMP manager to update.
     - IPv4 and IPv6 are supported.
     type: str
-  snmp_port:
-    description:
-    - Port number to use with the address of the SNMP server.
-    type: int
   snmp_password:
     description:
     - Passphrase, used for both Authentication and Privacy protocols.
@@ -69,6 +64,11 @@ options:
     type: str
     aliases:
       - auth_pass
+  snmp_port:
+    description:
+    - Port number to use with the address of the SNMP manager.
+    type: int
+    default: 162
   snmp_username:
     description:
     -  User name for SNMP auth.
@@ -92,6 +92,7 @@ options:
     - C(V3) - SNMP version 3
     choices: ['V3', 'V2c']
     type: str
+    default: 'V3'
   state:
     description:
     - Define whether the file DNS should be enabled or not.
@@ -135,14 +136,6 @@ EXAMPLES = r'''
     auth_privacy: TDES
     auth_pass: Password123!
     state: present
-
-- name: Get SNMP Manager
-  dellemc.powerstore.snmp_manager:
-    array_ip: "{{ array_ip }}"
-    validate_certs: "{{ validate_certs }}"
-    user: "{{ user }}"
-    password: "{{ password }}"
-    network_name: 127.**.**.**
 
 - name: Modify SNMP Manager
   dellemc.powerstore.snmp_manager:
@@ -244,14 +237,15 @@ class PowerStoreSNMPManager(PowerStoreBase):
         }
         super().__init__(AnsibleModule, ansible_module_params)
 
-        self.result = dict(
-            changed=False,
-            snmp_manager_details={}
-        )
+        self.result = {
+            "changed": False,
+            "snmp_manager_details": {},
+            "diff": {}
+        }
         self.snmp_manager = self.conn.snmp_server
 
     def get_snmp_manager(self, snmp_manager_id):
-        """Get the details of NAS Server of a given Powerstore storage
+        """Get the details of SNMP Manager of a given Powerstore storage
         system"""
         return self.snmp_manager.get_snmp_server_details(snmp_server_id=snmp_manager_id)
 
@@ -293,9 +287,9 @@ class PowerStoreSNMPManager(PowerStoreBase):
         return payload
 
     def create_snmp_manager(self, create_params):
-        """Create SNMP Server"""
+        """Create SNMP Manager"""
         try:
-            msg = 'Attempting to create SNMP Server'
+            msg = 'Attempting to create SNMP Manager'
             LOG.info(msg)
             self.validate_create(create_params)
             snmp_manager_details = {}
@@ -308,10 +302,12 @@ class PowerStoreSNMPManager(PowerStoreBase):
                 msg = (f'Successfully created SNMP Manager with details'
                        f' {snmp_manager_details}')
                 LOG.info(msg)
+            if self.module._diff:
+                self.result.update({"diff": {"before": {}, "after": snmp_manager_details}})
             return snmp_manager_details
 
         except Exception as e:
-            msg = (f'Creation of SNMP Server on PowerStore array failed with error {str(e)} ')
+            msg = (f'Creation of SNMP Manager on PowerStore array failed with error {str(e)} ')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -321,6 +317,9 @@ class PowerStoreSNMPManager(PowerStoreBase):
             msg = f'Deleting SNMP Manager:' \
                   f' {snmp_manager_id}'
             LOG.info(msg)
+            to_be_deleted = self.get_snmp_manager(snmp_manager_id)
+            if self.module._diff:
+                self.result.update({"diff": {"before": to_be_deleted, "after": {}}})
             if not self.module.check_mode:
                 self.snmp_manager.delete_snmp_server(snmp_server_id=snmp_manager_id)
                 return None
@@ -378,24 +377,32 @@ class PowerStoreSNMPManager(PowerStoreBase):
 
         return param_dict
 
-    def modify_snmp_manager_details(self, modify_dict, snmp_manager_id):
+    def modify_snmp_manager_details(self, modify_dict, snmp_manager_id, snmp_manager_details):
         """Modify SNMP Manager details"""
-        snmp_manager_details = {}
-        if not self.module.check_mode:
-            self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_id, modify_parameters=modify_dict)
-            snmp_manager_details = self.get_snmp_manager(snmp_manager_id)
-            msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
-            LOG.info(msg)
-        return snmp_manager_details
+        try:
+            existing = snmp_manager_details
+            msg = 'Attempting to modify SNMP Manager'
+
+            if not self.module.check_mode:
+                self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_id, modify_parameters=modify_dict)
+                snmp_manager_details = self.get_snmp_manager(snmp_manager_id)
+                msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
+                LOG.info(msg)
+
+            if self.module._diff:
+                self.result.update({"diff": {"before": existing, "after": modify_dict}})
+
+            return snmp_manager_details
+        except Exception as e:
+            msg = (f'Updation of the SNMP Manager {snmp_manager_id}'
+                   f' failed with error {str(e)}')
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def validate_create(self, create_params):
         """Perform validation of create SNMP Manager parameters"""
         if not create_params['ip_address']:
-            errormsg = "Provide valid value for ip_address\network_name."
-            LOG.error(errormsg)
-            self.module.fail_json(msg=errormsg)
-        if not create_params['snmp_port']:
-            errormsg = "snmp_port is required parameter for creating SNMP Manager."
+            errormsg = "Provide valid value for ip_address/network_name."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
         if create_params['version'] == 'V2c' and not (create_params['trap_community'] and len(create_params['trap_community'].strip()) > 0):
@@ -425,17 +432,17 @@ def get_powerstore_snmp_manager_parameters():
     """This method provides the parameters required for the ansible
     SNMP modules on PowerStore"""
     return dict(
-        alert_severity=dict(type='str', choices=['Info', 'Minor', 'Major', 'Critical']),
+        alert_severity=dict(default='Info', type='str', choices=['Info', 'Minor', 'Major', 'Critical']),
         auth_privacy=dict(type='str', choices=['Nil', 'AES256', 'TDES']),
         auth_protocol=dict(type='str', choices=['Nil', 'MD5', 'SHA256']),
         ip_address=dict(type='str', aliases=['network_name'], required=True),
         new_ip_address=dict(type='str'),
-        snmp_port=dict(type='int'),
+        snmp_port=dict(default=162, type='int'),
         snmp_password=dict(type='str', aliases=['auth_pass'], no_log=True),
         snmp_username=dict(type='str'),
         trap_community=dict(type='str'),
         update_password=dict(default='always', type='str', choices=['always', 'on_create']),
-        version=dict(type='str', choices=['V2c', 'V3']),
+        version=dict(default='V3', type='str', choices=['V2c', 'V3']),
         state=dict(default='present', type='str', choices=['present', 'absent'])
     )
 
@@ -460,7 +467,7 @@ class SNMPManagerModifyHandler():
         if snmp_manager_params['state'] == 'present' and snmp_manager_details:
             modify_dict = snmp_obj.is_modify_required(snmp_manager_params, snmp_manager_details)
             if modify_dict:
-                snmp_manager_details = snmp_obj.modify_snmp_manager_details(modify_dict, snmp_manager_details['id'])
+                snmp_manager_details = snmp_obj.modify_snmp_manager_details(modify_dict, snmp_manager_details['id'], snmp_manager_details)
                 snmp_obj.result['changed'] = True
 
         SNMPManagerDeleteHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
@@ -481,7 +488,6 @@ class SNMPManagerHandler():
         snmp_manager_id = snmp_obj.getting_snmp_manager_id(snmp_manager_params['ip_address'])
         if snmp_manager_id:
             snmp_manager_details = snmp_obj.get_snmp_manager(snmp_manager_id)
-
         SNMPManagerCreateHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
 
 
