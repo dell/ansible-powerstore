@@ -57,6 +57,8 @@ options:
     - IP address or FQDN of the SNMP manager to update.
     - IPv4 and IPv6 are supported.
     type: str
+    aliases:
+      - new_network_name
   snmp_password:
     description:
     - Passphrase, used for both Authentication and Privacy protocols.
@@ -88,8 +90,8 @@ options:
   version:
     description:
     - Supported SNMP protocol versions.
-    - C(V2c) - SNMP version 2c
-    - C(V3) - SNMP version 3
+    - C(V2c) - SNMP version 2c.
+    - C(V3) - SNMP version 3.
     choices: ['V3', 'V2c']
     type: str
     default: 'V3'
@@ -114,7 +116,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     network_name: 127.**.**.**
-    snmp_port: 49151
+    snmp_port: 162
     version: "V2c"
     alert_severity: Critical
     trap_community: test
@@ -127,7 +129,7 @@ EXAMPLES = r'''
     user: "{{ user }}"
     password: "{{ password }}"
     network_name: 127.**.**.**
-    snmp_port: 253
+    snmp_port: 1024
     version: "V3"
     alert_severity: Critical
     trap_community: test
@@ -143,7 +145,8 @@ EXAMPLES = r'''
     validate_certs: "{{ validate_certs }}"
     user: "{{ user }}"
     password: "{{ password }}"
-    network_name: 127.**.**.**
+    ip_address: 127.**.**.**
+    new_ip_address: 192.**.**.**
     alert_severity: Info
     trap_community: test
     snmp_username: test
@@ -172,7 +175,7 @@ changed:
 snmp_details:
     description: Details of the SNMP manager.
     returned: When SNMP exists.
-    type: complex
+    type: dict
     contains:
         id:
             description: Unique identifier of the SNMP manager.
@@ -418,12 +421,14 @@ class PowerStoreSNMPManager(PowerStoreBase):
             errormsg = "snmp_password/auth_pass required parameter for creating SNMP Manager with version V3 and auth_protocol."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
-        if create_params['version'] == 'V3' and not create_params['auth_protocol'] and create_params['auth_privacy']:
+        if create_params['version'] == 'V3' and (create_params['auth_privacy'] and create_params['auth_privacy'] != "Nil") \
+                and (not create_params['auth_protocol'] or create_params['auth_protocol'] == "Nil"):
             errormsg = "For V3 SNMP auth_protocol with None value must have privacy_protocol with None value."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
-        if create_params['version'] == 'V3' and not create_params['auth_protocol'] and not create_params['auth_privacy'] and create_params['snmp_password']:
-            errormsg = "V3 with no authenticaton should not use snmp_password/authpass"
+        if create_params['version'] == 'V3' and (not create_params['auth_protocol'] or create_params['auth_protocol'] == "Nil") \
+                and (not create_params['auth_privacy'] or create_params['auth_privacy'] == "Nil") and create_params['snmp_password']:
+            errormsg = "V3 with no authenticaton should not use snmp_password/authpass."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
 
@@ -436,7 +441,7 @@ def get_powerstore_snmp_manager_parameters():
         auth_privacy=dict(type='str', choices=['Nil', 'AES256', 'TDES']),
         auth_protocol=dict(type='str', choices=['Nil', 'MD5', 'SHA256']),
         ip_address=dict(type='str', aliases=['network_name'], required=True),
-        new_ip_address=dict(type='str'),
+        new_ip_address=dict(type='str', aliases=['new_network_name']),
         snmp_port=dict(default=162, type='int'),
         snmp_password=dict(type='str', aliases=['auth_pass'], no_log=True),
         snmp_username=dict(type='str'),
@@ -484,7 +489,7 @@ class SNMPManagerCreateHandler():
 
 class SNMPManagerHandler():
     def handle(self, snmp_obj, snmp_manager_params):
-        snmp_manager_details = None
+        snmp_manager_details = dict()
         snmp_manager_id = snmp_obj.getting_snmp_manager_id(snmp_manager_params['ip_address'])
         if snmp_manager_id:
             snmp_manager_details = snmp_obj.get_snmp_manager(snmp_manager_id)

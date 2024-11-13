@@ -12,7 +12,7 @@ snmp_manager -- Manage SNMP Managers for PowerStore
 Synopsis
 --------
 
-Managing SNMP Managers on PowerStore Storage System includes creating a SNMP Manager, getting details of SNMP Manager, modifying a SNMP Manager and deleting a SNMP Manager.
+Managing SNMP Managers on PowerStore Storage System includes creating SNMP Manager, modifying SNMP Manager and deleting SNMP Manager.
 
 
 
@@ -28,7 +28,7 @@ The below requirements are needed on the host that executes this module.
 Parameters
 ----------
 
-  alert_severity (optional, str, None)
+  alert_severity (optional, str, Info)
     Possible severities.
 
 
@@ -53,25 +53,25 @@ Parameters
 
 
   ip_address (True, str, None)
-    IP address or FQDN of the SNMP server.
+    IP address or FQDN of the SNMP manager.
 
     IPv4 and IPv6 are supported.
 
 
   new_ip_address (optional, str, None)
-    IP address or FQDN of the SNMP server to update.
+    IP address or FQDN of the SNMP manager to update.
 
     IPv4 and IPv6 are supported.
-
-
-  snmp_port (optional, int, None)
-    Port number to use with the address of the SNMP server.
 
 
   snmp_password (optional, str, None)
     Passphrase, used for both Authentication and Privacy protocols.
 
     \ :emphasis:`snmp\_password`\  is only applicable when \ :emphasis:`version`\  is \ :literal:`V3`\  and to set the security level to authentication only and authentication and privacy.
+
+
+  snmp_port (optional, int, 162)
+    Port number to use with the address of the SNMP manager.
 
 
   snmp_username (optional, str, None)
@@ -90,12 +90,12 @@ Parameters
     Update password applicable only to fir update case.
 
 
-  version (optional, str, None)
+  version (optional, str, V3)
     Supported SNMP protocol versions.
 
-    \ :literal:`V2c`\  - SNMP version 2c
+    \ :literal:`V2c`\  - SNMP version 2c.
 
-    \ :literal:`V3`\  - SNMP version 3
+    \ :literal:`V3`\  - SNMP version 3.
 
 
   state (optional, str, present)
@@ -163,7 +163,7 @@ Examples
         user: "{{ user }}"
         password: "{{ password }}"
         network_name: 127.**.**.**
-        snmp_port: 49151
+        snmp_port: 162
         version: "V2c"
         alert_severity: Critical
         trap_community: test
@@ -176,7 +176,7 @@ Examples
         user: "{{ user }}"
         password: "{{ password }}"
         network_name: 127.**.**.**
-        snmp_port: 253
+        snmp_port: 1024
         version: "V3"
         alert_severity: Critical
         trap_community: test
@@ -186,21 +186,14 @@ Examples
         auth_pass: Password123!
         state: present
 
-    - name: Get SNMP Manager
-      dellemc.powerstore.snmp_manager:
-        array_ip: "{{ array_ip }}"
-        validate_certs: "{{ validate_certs }}"
-        user: "{{ user }}"
-        password: "{{ password }}"
-        network_name: 127.**.**.**
-
     - name: Modify SNMP Manager
       dellemc.powerstore.snmp_manager:
         array_ip: "{{ array_ip }}"
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        network_name: 127.**.**.**
+        ip_address: 127.**.**.**
+        new_ip_address: 192.**.**.**
         alert_severity: Info
         trap_community: test
         snmp_username: test
@@ -227,7 +220,7 @@ changed (always, bool, false)
   Whether or not the resource has changed.
 
 
-snmp_details (When SNMP exists., complex, {'id': '967ffb5d-5059-43a6-8377-1b83b99e6470', 'ip_address': '127.0.0.1', 'port': 162, 'version': 'V3', 'trap_community': None, 'alert_severity': 'Info', 'user_name': 'admin', 'auth_protocol': 'MD5', 'privacy_protocol': 'AES256'})
+snmp_details (When SNMP exists., dict, {'id': '967ffb5d-5059-43a6-8377-1b83b99e6470', 'ip_address': '127.0.0.1', 'port': 162, 'version': 'V3', 'trap_community': None, 'alert_severity': 'Info', 'user_name': 'admin', 'auth_protocol': 'MD5', 'privacy_protocol': 'AES256'})
   Details of the SNMP manager.
 
 

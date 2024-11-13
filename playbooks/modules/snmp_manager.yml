@@ -15,8 +15,8 @@
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        network_name: 127.**.**.**
-        snmp_port: 49151
+        ip_address: 127.**.**.**
+        snmp_port: 162
         version: "V2c"
         alert_severity: Critical
         trap_community: test
@@ -28,24 +28,34 @@
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        network_name: 127.**.**.**
-        snmp_port: 253
+        network_name: pi227.**.**.**.com
+        snmp_port: 1024
         version: "V3"
         alert_severity: Critical
         trap_community: test
         snmp_username: test
         auth_protocol: MD5
         auth_privacy: TDES
-        auth_pass: Password123!
+        snmp_password: Password123!
         state: present
 
-    - name: Get SNMP Manager
+    - name: Modify SNMP Manager 
       dellemc.powerstore.snmp_manager:
         array_ip: "{{ array_ip }}"
         validate_certs: "{{ validate_certs }}"
         user: "{{ user }}"
         password: "{{ password }}"
-        network_name: 127.**.**.**
+        ip_address: 127.**.**.**
+        new_ip_address: 192.**.**.**
+        snmp_port: 162
+        version: "V3"
+        alert_severity: Info
+        snmp_username: testuser
+        auth_protocol: MD5
+        auth_privacy: TDES
+        snmp_password: Password123!
+        update_password: "on_create"
+        state: present
 
     - name: Delete SNMP Manager
       dellemc.powerstore.snmp_manager:
