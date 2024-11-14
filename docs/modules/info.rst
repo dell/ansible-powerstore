@@ -24,7 +24,7 @@ Virtualization module includes vCenters and virtual volumes.
 
 Configuration module includes cluster nodes, networks, roles, local users, appliances, discovered appliances, security configs, certificates.
 
-Configureation modules also includes AD/LDAP servers, LDAP accounts, LDAP domain, and service configs.
+Configuration modules also includes AD/LDAP servers, LDAP accounts, LDAP domain, service configs and SNMP manager.
 
 It also includes DNS/NTP servers, smtp configs, email destinations, remote support, and remote support contacts.
 
@@ -45,97 +45,99 @@ Parameters
   gather_subset (True, list, None)
     A list of string variables which specify the PowerStore system entities requiring information.
 
-    Volumes - ``vol``.
+    Volumes - \ :literal:`vol`\ .
 
-    All the nodes - ``node``.
+    All the nodes - \ :literal:`node`\ .
 
-    Volume groups - ``vg``.
+    Volume groups - \ :literal:`vg`\ .
 
-    Protection policies - ``protection_policy``.
+    Protection policies - \ :literal:`protection\_policy`\ .
 
-    Hosts - ``host``.
+    Hosts - \ :literal:`host`\ .
 
-    Host groups - ``hg``.
+    Host groups - \ :literal:`hg`\ .
 
-    Snapshot rules - ``snapshot_rule``.
+    Snapshot rules - \ :literal:`snapshot\_rule`\ .
 
-    NAS servers - ``nas_server``.
+    NAS servers - \ :literal:`nas\_server`\ .
 
-    NFS exports - ``nfs_export``.
+    NFS exports - \ :literal:`nfs\_export`\ .
 
-    SMB shares - ``smb_share``.
+    SMB shares - \ :literal:`smb\_share`\ .
 
-    Tree quotas - ``tree_quota``.
+    Tree quotas - \ :literal:`tree\_quota`\ .
 
-    User quotas - ``user_quota``.
+    User quotas - \ :literal:`user\_quota`\ .
 
-    File systems - ``file_system``.
+    File systems - \ :literal:`file\_system`\ .
 
-    Replication rules - ``replication_rule``.
+    Replication rules - \ :literal:`replication\_rule`\ .
 
-    Replication sessions - ``replication_session``.
+    Replication sessions - \ :literal:`replication\_session`\ .
 
-    Remote systems - ``remote_system``.
+    Remote systems - \ :literal:`remote\_system`\ .
 
-    Various networks - ``network``.
+    Various networks - \ :literal:`network`\ .
 
-    Roles - ``role``.
+    Roles - \ :literal:`role`\ .
 
-    Local users - ``user``.
+    Local users - \ :literal:`user`\ .
 
-    Appliances - ``appliance``.
+    Appliances - \ :literal:`appliance`\ .
 
-    Security configurations - ``security_config``.
+    Security configurations - \ :literal:`security\_config`\ .
 
-    Certificates - ``certificate``.
+    Certificates - \ :literal:`certificate`\ .
 
-    Active directories - ``ad``.
+    Active directories - \ :literal:`ad`\ .
 
-    LDAPs - ``ldap``.
+    LDAPs - \ :literal:`ldap`\ .
 
-    DNS servers - ``dns``.
+    DNS servers - \ :literal:`dns`\ .
 
-    NTP servers - ``ntp``.
+    NTP servers - \ :literal:`ntp`\ .
 
-    Email notification destinations - ``email_notification``.
+    Email notification destinations - \ :literal:`email\_notification`\ .
 
-    SMTP configurations - ``smtp_config``.
+    SMTP configurations - \ :literal:`smtp\_config`\ .
 
-    Remote Support - ``remote_support``.
+    Remote Support - \ :literal:`remote\_support`\ .
 
-    Remote support contacts - ``remote_support_contact``.
+    Remote support contacts - \ :literal:`remote\_support\_contact`\ .
 
-    LDAP accounts - ``ldap_account``.
+    LDAP accounts - \ :literal:`ldap\_account`\ .
 
-    LDAP domain - ``ldap_domain``.
+    LDAP domain - \ :literal:`ldap\_domain`\ .
 
-    All vCenters - ``vcenter``.
+    All vCenters - \ :literal:`vcenter`\ .
 
-    Virtual volumes - ``virtual_volume``.
+    Virtual volumes - \ :literal:`virtual\_volume`\ .
 
-    Storage containers - ``storage_container``.
+    Storage containers - \ :literal:`storage\_container`\ .
 
-    Replication groups - ``replication_group``.
+    Replication groups - \ :literal:`replication\_group`\ .
 
-    Discovered appliances - ``discovered_appliance``.
+    Discovered appliances - \ :literal:`discovered\_appliance`\ .
 
-    File interfaces - ``file_interface``.
+    File interfaces - \ :literal:`file\_interface`\ .
 
-    SMB servers - ``smb_server``.
+    SMB servers - \ :literal:`smb\_server`\ .
 
-    NFS servers - ``nfs_server``.
+    NFS servers - \ :literal:`nfs\_server`\ .
 
-    File DNS - ``file_dns``.
+    File DNS - \ :literal:`file\_dns`\ .
 
-    File NIS - ``file_nis``.
+    File NIS - \ :literal:`file\_nis`\ .
 
-    Service configs - ``service_configs``.
+    Service configs - \ :literal:`service\_configs`\ .
+
+    SNMP managers - \ :literal:`snmp\_manager`\ .
 
 
   filters (optional, list, None)
     A list of filters to support filtered output for storage entities.
 
-    Each filter is a list of *filter_key*, *filter_operator*, *filter_value*.
+    Each filter is a list of \ :emphasis:`filter\_key`\ , \ :emphasis:`filter\_operator`\ , \ :emphasis:`filter\_value`\ .
 
     Supports passing of multiple filters.
 
@@ -156,7 +158,7 @@ Parameters
   all_pages (optional, bool, False)
     Indicates whether to return all available entities on the storage system.
 
-    If set to ``true``, the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
+    If set to \ :literal:`true`\ , the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
 
 
   array_ip (True, str, None)
@@ -166,9 +168,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -198,8 +200,8 @@ Notes
 -----
 
 .. note::
-   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If *all_pages* is passed, it will be ignored.
-   - The *check_mode* is supported.
+   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If \ :emphasis:`all\_pages`\  is passed, it will be ignored.
+   - The \ :emphasis:`check\_mode`\  is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -482,6 +484,15 @@ Examples
         gather_subset:
           - service_config
 
+    - name: Get list of SNMP managers
+      dellemc.powerstore.info:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        gather_subset:
+          - snmp_manager
+
 
 
 Return Values
@@ -489,10 +500,6 @@ Return Values
 
 changed (always, bool, false)
   Shows whether or not the resource has changed.
-
-
-Array_Software_Version (always, str, 3.0.0.0)
-  API version of PowerStore array.
 
 
 ActiveDirectory (When C(ad) is in a given I(gather_subset), list, [{'id': '60866158-5d00-3d7a-971b-5adabf42d82c'}])
@@ -508,44 +515,72 @@ Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1',
   Provides details of all appliances.
 
 
-  id (, str, )
-    ID of the appliance.
+  drive_failure_tolerance_level (, str, )
+    Drive failure tolerance level.
 
 
-  name (, str, )
-    Name of the appliance.
+  eth_be_ports (, list, )
+    Provides details of all eth\_be\_ports. It was added in version 3.0.0.0.
 
 
-  service_tag (, str, )
-    Dell service tag of the appliance.
+  eth_ports (, list, )
+    Provides details of all Ethernet ports.
 
 
   express_service_code (, str, )
     Express service code.
 
 
-  model (, str, )
-    Model type of the PowerStore.
+  fc_ports (, list, )
+    Provides details of all FC ports.
 
 
-  node_count (, int, )
-    Number of nodes deployed on an appliance. It was added in version 3.0.0.0.
+  hardware (, list, )
+    Provides details of all hardware.
 
 
-  drive_failure_tolerance_level (, str, )
-    Drive failure tolerance level.
+  id (, str, )
+    ID of the appliance.
+
+
+  ip_pool_addresses (, list, )
+    Provides details of all IP pool addresses.
 
 
   is_hyper_converged (, bool, )
     Whether the appliance is a hyper-converged appliance. It was added in version 3.2.0.0.
 
 
+  maintenance_windows (, list, )
+    Provides details of all maintenance windows.
+
+
+  model (, str, )
+    Model type of the PowerStore.
+
+
+  name (, str, )
+    Name of the appliance.
+
+
   nodes (, list, )
     Provides details of all nodes.
 
 
-  ip_pool_addresses (, list, )
-    Provides details of all IP pool addresses.
+  node_count (, int, )
+    Number of nodes deployed on an appliance. It was added in version 3.0.0.0.
+
+
+  sas_ports (, list, )
+    Provides details of all SAS ports.
+
+
+  service_tag (, str, )
+    Dell service tag of the appliance.
+
+
+  software_installed (, list, )
+    Provides details of all software installed.
 
 
   veth_ports (, list, )
@@ -556,37 +591,13 @@ Appliance (When C(appliance) is in a given I(gather_subset), list, [{'id': 'A1',
     Provides details of all virtual volumes.
 
 
-  maintenance_windows (, list, )
-    Provides details of all maintenance windows.
-
-
-  fc_ports (, list, )
-    Provides details of all FC ports.
-
-
-  sas_ports (, list, )
-    Provides details of all SAS ports.
-
-
-  eth_ports (, list, )
-    Provides details of all Ethernet ports.
-
-
-  eth_be_ports (, list, )
-    Provides details of all eth_be_ports. It was added in version 3.0.0.0.
-
-
-  software_installed (, list, )
-    Provides details of all software installed.
-
-
-  hardware (, list, )
-    Provides details of all hardware.
-
-
   volumes (, list, )
     Provides details of all volumes.
 
+
+
+Array_Software_Version (always, str, 3.0.0.0)
+  API version of PowerStore array.
 
 
 Certificate (When C(certificates) is in a given I(gather_subset), list, [{'id': 'e940144f-393f-4e9c-8f54-9a4d57b38c48'}])
@@ -615,12 +626,64 @@ DiscoveredAppliances (When C(discovered_appliance) is in a given I(gather_subset
   Provides details of all discovered appliances.
 
 
+  build_id (, str, )
+    Build ID.
+
+
+  build_version (, str, )
+    Build version of the installed software package release.
+
+
+  drive_failure_tolerance_level_and_availability (, list, )
+    Drive failure tolerance level and availability.
+
+
+  express_service_code (, str, )
+    Express service code for the appliance.
+
+
   id (, str, )
     ID of a discovered appliance. The local discovered appliance has the id "0".
 
 
+  is_hyper_converged (, bool, )
+    Indicates whether the appliance is a hyper converged or not. It was added in version 3.2.0.0.
+
+
+  is_local (, bool, )
+    Indicates whether appliance is local or not.
+
+
+  is_unified_capable (, bool, )
+    Indicates whether the appliance is capable of unified configuration.
+
+
   link_local_address (, str, )
     Link local IPv4 address of the discovered appliance.
+
+
+  management_service_ready (, bool, )
+    Indicates whether the management services are ready.
+
+
+  software_version_compatibility (, str, )
+    Compatibility of the software version on an appliance compared to the software version on the appliance running the request.
+
+
+  mode (, str, )
+    Storage access mode supported by the appliance.
+
+
+  model (, str, )
+    The model of the appliance.
+
+
+  node_count (, int, )
+    Number of nodes deployed on an appliance.
+
+
+  power_score (, int, )
+    Power rating of the appliance.
 
 
   service_name (, str, )
@@ -633,58 +696,6 @@ DiscoveredAppliances (When C(discovered_appliance) is in a given I(gather_subset
 
   state (, str, )
     Possible unmanaged appliance states.
-
-
-  mode (, str, )
-    Storage access mode supported by the appliance.
-
-
-  model (, str, )
-    The model of the appliance.
-
-
-  express_service_code (, str, )
-    Express service code for the appliance.
-
-
-  is_local (, bool, )
-    Indicates whether appliance is local or not.
-
-
-  management_service_ready (, bool, )
-    Indicates whether the management services are ready.
-
-
-  software_version_compatibility (, str, )
-    Compatibility of the software version on an appliance compared to the software version on the appliance running the request.
-
-
-  build_version (, str, )
-    Build version of the installed software package release.
-
-
-  build_id (, str, )
-    Build ID.
-
-
-  power_score (, int, )
-    Power rating of the appliance.
-
-
-  node_count (, int, )
-    Number of nodes deployed on an appliance.
-
-
-  is_unified_capable (, bool, )
-    Indicates whether the appliance is capable of unified configuration.
-
-
-  drive_failure_tolerance_level_and_availability (, list, )
-    Drive failure tolerance level and availability.
-
-
-  is_hyper_converged (, bool, )
-    Indicates whether the appliance is a hyper converged or not. It was added in version 3.2.0.0.
 
 
 
@@ -701,12 +712,12 @@ EmailNotification (When C(email_notification) is in a given I(gather_subset), li
   Provides details of all emails to which notifications will be sent.
 
 
-  id (always, str, )
-    ID of the email.
-
-
   email_address (always, str, )
     Email address.
+
+
+  id (always, str, )
+    ID of the email.
 
 
 
@@ -865,28 +876,28 @@ LDAPAccounts (When C(ldap_account) is in a given I(gather_subset), list, [{'id':
   Provides details of all LDAP accounts.
 
 
-  id (, str, )
-    ID of the LDAP account.
-
-
-  role_id (, int, )
-    Unique identifier of the role to which the LDAP account is mapped.
+  dn (, str, )
+    Types of directory service protocol.
 
 
   domain_id (, int, )
     Unique identifier of the LDAP domain to which LDAP user or group belongs.
 
 
+  id (, str, )
+    ID of the LDAP account.
+
+
   name (, str, )
     Name of the LDAP account.
 
 
+  role_id (, int, )
+    Unique identifier of the role to which the LDAP account is mapped.
+
+
   type (, str, )
     Type of LDAP account.
-
-
-  dn (, str, )
-    Types of directory service protocol.
 
 
 
@@ -894,60 +905,20 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
   Provides details of the LDAP domain configurations.
 
 
-  id (, str, )
-    Unique identifier of the new LDAP server configuration.
+  bind_user (, str, )
+    Distinguished Name (DN) of the user to be used when binding.
 
 
   domain_name (, str, )
     Name of the LDAP authority to construct the LDAP server configuration.
 
 
-  ldap_servers (, list, )
-    List of IP addresses of the LDAP servers for the domain. IP addresses are in IPv4 format.
-
-
-  port (, int, )
-    Port number used to connect to the LDAP server(s).
-
-
-  ldap_server_type (, str, )
-    Types of LDAP server.
-
-
-  protocol (, str, )
-    Types of directory service protocol.
-
-
-  bind_user (, str, )
-    Distinguished Name (DN) of the user to be used when binding.
-
-
-  ldap_timeout (, int, )
-    Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
-
-
-  is_global_catalog (, bool, )
-    Whether or not the catalog is global. Default value is ``false``.
-
-
-  user_id_attribute (, str, )
-    Name of the LDAP attribute whose value indicates the unique identifier of the user.
-
-
-  user_object_class (, str, )
-    LDAP object class for users.
-
-
-  user_search_path (, str, )
-    Path used to search for users on the directory server.
+  group_member_attribute (, str, )
+    Name of the LDAP attribute whose value contains the names of group members within a group.
 
 
   group_name_attribute (, str, )
     Name of the LDAP attribute whose value indicates the group name.
-
-
-  group_member_attribute (, str, )
-    Name of the LDAP attribute whose value contains the names of group members within a group.
 
 
   group_object_class (, str, )
@@ -962,12 +933,52 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
     Nested search level for performing group search.
 
 
+  id (, str, )
+    Unique identifier of the new LDAP server configuration.
+
+
+  is_global_catalog (, bool, )
+    Whether or not the catalog is global. Default value is \ :literal:`false`\ .
+
+
+  ldap_servers (, list, )
+    List of IP addresses of the LDAP servers for the domain. IP addresses are in IPv4 format.
+
+
+  ldap_server_type (, str, )
+    Types of LDAP server.
+
+
   ldap_server_type_l10n (, str, )
-    Localized message string corresponding to ldap_server_type.
+    Localized message string corresponding to ldap\_server\_type.
+
+
+  ldap_timeout (, int, )
+    Timeout for establishing a connection to an LDAP server. Default value is 30000 (30 seconds).
+
+
+  port (, int, )
+    Port number used to connect to the LDAP server(s).
+
+
+  protocol (, str, )
+    Types of directory service protocol.
 
 
   protocol_l10n (, str, )
     Localized message string corresponding to protocol.
+
+
+  user_id_attribute (, str, )
+    Name of the LDAP attribute whose value indicates the unique identifier of the user.
+
+
+  user_object_class (, str, )
+    LDAP object class for users.
+
+
+  user_search_path (, str, )
+    Path used to search for users on the directory server.
 
 
 
@@ -1031,12 +1042,12 @@ NFSServers (When C(nfs_server) is in a given I(gather_subset), list, [{'credenti
     Sets the Time-To-Live (in minutes) expiration timestamp for a Windows entry in the credentials cache.
 
 
-  id (, str, )
-    The unique identifier of the NFS server.
-
-
   host_name (, str, )
     The name that will be used by NFS clients to connect to this NFS server.
+
+
+  id (, str, )
+    The unique identifier of the NFS server.
 
 
   is_extended_credentials_enabled (, bool, )
@@ -1055,16 +1066,16 @@ NFSServers (When C(nfs_server) is in a given I(gather_subset), list, [{'credenti
     Indicates whether NFSv4 is enabled on the NAS server.
 
 
-  nas_server_id (, str, )
-    Unique identifier of the NAS server.
-
-
   is_secure_enabled (, bool, )
     Indicates whether secure NFS is enabled on the NFS server.
 
 
   is_use_smb_config_enabled (, bool, )
     Indicates whether SMB authentication is used to authenticate to the KDC.
+
+
+  nas_server_id (, str, )
+    Unique identifier of the NAS server.
 
 
   service_principal_name (, str, )
@@ -1129,8 +1140,28 @@ ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., li
   Provide details of all replication group.
 
 
+  creation_timestamp (, str, )
+    Timestamp when given replication group was created.
+
+
+  creator_type (, str, )
+    Creator type of the storage resource.
+
+
+  creator_type_l10n (, str, )
+    Localized message string corresponding to creator\_type.
+
+
+  description (, str, )
+    Description of the replication group.
+
+
   id (, str, )
     ID of the replication group.
+
+
+  is_replication_destination (, bool, )
+    Indicates whether replication group is replication destination or not.
 
 
   name (, str, )
@@ -1139,26 +1170,6 @@ ReplicationGroups (when C(replication_group) is in a given I(gather_subset)., li
 
   storage_container_id (, str, )
     ID of the storage container.
-
-
-  description (, str, )
-    Description of the replication group.
-
-
-  creator_type (, str, )
-    Creator type of the storage resource.
-
-
-  creation_timestamp (, str, )
-    Timestamp when given replication group was created.
-
-
-  is_replication_destination (, bool, )
-    Indicates whether replication group is replication destination or not.
-
-
-  creator_type_l10n (, str, )
-    Localized message string corresponding to creator_type.
 
 
 
@@ -1223,12 +1234,12 @@ ServiceConfigs (When C(service_config) is in a given I(gather_subset), list, [{'
   Provides details of all service configurations.
 
 
-  id (, str, )
-    ID of the service config.
-
-
   appliance_id (, str, )
     ID of the appliance.
+
+
+  id (, str, )
+    ID of the service config.
 
 
   is_ssh_enabled (, bool, )
@@ -1244,16 +1255,16 @@ SMBServers (When C(smb_server) is in a given I(gather_subset), list, [{'computer
     DNS name of the associated computer account when the SMB server is joined to an Active Directory domain.
 
 
-  id (, str, )
-    The unique identifier of the SMB server.
-
-
   description (, str, )
     Description of the SMB server.
 
 
   domain (, str, )
     Domain name where SMB server is registered in Active Directory, if applicable.
+
+
+  id (, str, )
+    The unique identifier of the SMB server.
 
 
   is_joined (, bool, )
@@ -1264,12 +1275,12 @@ SMBServers (When C(smb_server) is in a given I(gather_subset), list, [{'computer
     Indicates whether the SMB server is standalone.
 
 
-  netbios_name (, str, )
-    NetBIOS name is the network name of the standalone SMB server.
-
-
   nas_server_id (, str, )
     Unique identifier of the NAS server.
+
+
+  netbios_name (, str, )
+    NetBIOS name is the network name of the standalone SMB server.
 
 
   workgroup (, str, )
@@ -1277,16 +1288,73 @@ SMBServers (When C(smb_server) is in a given I(gather_subset), list, [{'computer
 
 
 
-SMBShares (When C(smb_share) is in a given I(gather_subset), list, [{'id': '72ef39a0-09b3-5339-c8bb-16c6ac7490fc', 'name': 'test_smb'}])
+SMBShares (When C(smb_share) is in a given I(gather_subset), list, [{'id': '72ef39a0-09b3-5339-c8bb-16c6ac7490fc', 'name': 'test_smb', 'description': 'description of the SMB share', 'file_system': {'filesystem_type': 'Primary', 'id': '66062da4-26f9-0d0e-90e7-aa3bc4047c46', 'name': 'nfs-test', 'nas_server': {'id': '66062cf7-f969-de58-2e33-aa3bc4047c46', 'name': 'vsi_nas_1'}}, 'is_ABE_enabled': False, 'is_branch_cache_enabled': False, 'is_continuous_availability_enabled': False, 'is_encryption_enabled': False, 'offline_availability': 'Documents', 'path': '/nfs-test', 'umask': '022', 'aces': [{'access_level': 'Read', 'access_type': 'Deny', 'trustee_name': 'S-1-5-21-843271493-548684746-1849754324-32', 'trustee_type': 'SID'}, {'access_level': 'Read', 'access_type': 'Allow', 'trustee_name': 'TEST-56\\Guest', 'trustee_type': 'User'}, {'access_level': 'Read', 'access_type': 'Allow', 'trustee_name': 'S-1-5-21-843271493-548684746-1849754324-33', 'trustee_type': 'SID'}, {'access_level': 'Full', 'access_type': 'Allow', 'trustee_name': 'Everyone', 'trustee_type': 'WellKnown'}]}])
   Provides details of all smb shares.
+
+
+  aces (, list, )
+    access control list (ACL) of the smb share.
+
+
+    access_level (, str, )
+      access level of the smb share.
+
+
+    access_type (, str, )
+      access type of the smb share.
+
+
+    trustee_name (, str, )
+      trustee name of the smb share.
+
+
+    trustee_type (, str, )
+      trustee type of the smb share.
+
+
+
+  description (, str, )
+    description of the smb share.
+
+
+  file_system (, dict, )
+    file system details of the smb share.
 
 
   id (, str, )
     ID of the smb share.
 
 
+  is_ABE_enabled (, bool, )
+    indicates whether ABE is enabled or not.
+
+
+  is_branch_cache_enabled (, bool, )
+    indicates whether branch cache is enabled or not.
+
+
+  is_continuous_availability_enabled (, bool, )
+    indicates whether continuous availability is enabled or not.
+
+
+  is_encryption_enabled (, bool, )
+    indicates whether encryption is enabled or not.
+
+
   name (, str, )
     name of the smb share.
+
+
+  offline_availability (, str, )
+    offline availability of the smb share.
+
+
+  path (, str, )
+    path of the smb share.
+
+
+  umask (, str, )
+    umask of the smb share.
 
 
 
@@ -1312,8 +1380,83 @@ SnapshotRules (When C(snapshot_rule) is in a given I(gather_subset), list, [{'id
 
 
 
+snmp_managers (When C(snmp_manager) is in a given I(gather_subset), list, [{'alert_severity': 'Info', 'auth_protocol': None, 'id': '2edf1175-c2e3-4b9d-99c8-06b9b20968d1', 'ip_address': '172.0.0.8', 'port': 162, 'privacy_protocol': None, 'trap_community': 'abc', 'user_name': None, 'version': 'V2c'}])
+  Provides details of all SNMP managers.
+
+
+  alert_severity (, str, )
+    Possible severities.
+
+
+  auth_protocol (, str, )
+    Authentication protocol, relevant only for SNMPv3.
+
+
+  id (, str, )
+    Unique identifier of the SNMP manager.
+
+
+  ip_address (, str, )
+    IPv4 address, IPv6 address, or FQDN of the SNMP manager.
+
+
+  port (, int, )
+    Port number to use with the address of the SNMP manager.
+
+
+  privacy_protocol (, str, )
+    Privacy protocol, relevant only for SNMPv3.
+
+
+  trap_community (, str, )
+    The security level, relevant only for SNMPv2c.
+
+
+  user_name (, str, )
+    User name, relevant only for SNMPv3.
+
+
+  version (, str, )
+    Supported SNMP protocol versions
+
+
+
 StorageContainers (When C(storage_container) is in a given I(gather_subset), list, [{'datastores': [], 'destinations': [], 'id': 'e0ccd953-5650-41d8-9bce-f36d876d6a2a', 'name': 'Ansible_storage_container_1', 'quota': 21474836480, 'replication_groups': [], 'storage_protocol': 'NVMe', 'storage_protocol_l10n': 'NVMe', 'virtual_volumes': []}])
   Provide details of all storage containers.
+
+
+  datastores (, list, )
+    List of associated datastores.
+
+
+    id (, str, )
+      Unique identifier of the datastore instance.
+
+
+    name (, str, )
+      User-assigned name of the datastore in vCenter.
+
+
+
+  destinations (, list, )
+    A storage container destination defines replication destination for a local storage container on a remote system.
+
+
+    id (, str, )
+      The unique id of the storage container destination.
+
+
+    remote_storage_container_id (, str, )
+      The unique id of the destination storage container on the remote system.
+
+
+    remote_system_id (, str, )
+      The unique id of the remote system.
+
+
+    remote_system_name (, str, )
+      The name of the remote system.
+
 
 
   id (, str, )
@@ -1322,10 +1465,6 @@ StorageContainers (When C(storage_container) is in a given I(gather_subset), lis
 
   name (, str, )
     Name of the storage container.
-
-
-  storage_protocol (, str, )
-    The type of storage container.
 
 
   quota (, int, )
@@ -1345,6 +1484,10 @@ StorageContainers (When C(storage_container) is in a given I(gather_subset), lis
 
 
 
+  storage_protocol (, str, )
+    The type of storage container.
+
+
   virtual_volumes (, list, )
     The virtual volumes associated to the storage container.
 
@@ -1356,66 +1499,6 @@ StorageContainers (When C(storage_container) is in a given I(gather_subset), lis
     name (, str, )
       The name of the virtual volume.
 
-
-
-  destinations (, list, )
-    A storage container destination defines replication destination for a local storage container on a remote system.
-
-
-    id (, str, )
-      The unique id of the storage container destination.
-
-
-    remote_system_id (, str, )
-      The unique id of the remote system.
-
-
-    remote_system_name (, str, )
-      The name of the remote system.
-
-
-    remote_storage_container_id (, str, )
-      The unique id of the destination storage container on the remote system.
-
-
-
-  datastores (, list, )
-    List of associated datastores.
-
-
-    id (, str, )
-      Unique identifier of the datastore instance.
-
-
-    name (, str, )
-      User-assigned name of the datastore in vCenter.
-
-
-
-
-VolumeGroups (When C(vg) is in a given I(gather_subset), list, [{'id': 'faaa8370-c62e-4fa2-b8ca-7f54419a5b40', 'name': 'Volume Group Test'}])
-  Provides details of all volume groups.
-
-
-  id (, str, )
-    ID of the volume group.
-
-
-  name (, str, )
-    Name of the volume group.
-
-
-
-Volumes (When C(vol) is in a given I(gather_subset), list, [{'id': '01854336-94ef-4df9-b1e7-0a729ca7c944', 'name': 'test_vol'}])
-  Provides details of all volumes.
-
-
-  id (, str, )
-    ID of the volume.
-
-
-  name (, str, )
-    Name of the volume.
 
 
 
@@ -1445,6 +1528,14 @@ vCenter (When C(vCenter) is in a given I(gather_subset), list, [{'id': '0d330d6c
   Provide details of all vCenters.
 
 
+  address (, str, )
+    IP address of vCenter host, in IPv4, IPv6 or hostname format.
+
+
+  datastores (, list, )
+    Datastores that exists on a specific vCenter. Was added in PowerStore version 3.0.0.0.
+
+
   id (, str, )
     Unique identifier of vCenter.
 
@@ -1453,16 +1544,8 @@ vCenter (When C(vCenter) is in a given I(gather_subset), list, [{'id': '0d330d6c
     UUID instance of vCenter.
 
 
-  address (, str, )
-    IP address of vCenter host, in IPv4, IPv6 or hostname format.
-
-
   username (, str, )
     Username to login to vCenter.
-
-
-  version (, str, )
-    Version of vCenter including its build number. Was added in PowerStore version 3.0.0.0.
 
 
   vendor_provider_status (, str, )
@@ -1470,15 +1553,15 @@ vCenter (When C(vCenter) is in a given I(gather_subset), list, [{'id': '0d330d6c
 
 
   vendor_provider_status_l10n (, str, )
-    Localized message string corresponding to vendor_provider_status.
+    Localized message string corresponding to vendor\_provider\_status.
+
+
+  version (, str, )
+    Version of vCenter including its build number. Was added in PowerStore version 3.0.0.0.
 
 
   virtual_machines (, list, )
     Virtual Machine associated with vCenter.
-
-
-  datastores (, list, )
-    Datastores that exists on a specific vCenter. Was added in PowerStore version 3.0.0.0.
 
 
   vsphere_hosts (, list, )
@@ -1490,44 +1573,12 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
   Provides details of all virtual volumes.
 
 
-  id (, str, )
-    The unique identifier of the virtual volume.
-
-
-  name (, str, )
-    The name of the virtual volume, based on metadata provided by vSphere.
-
-
-  size (, int, )
-    The size of the virtual volume in bytes.
-
-
-  type (, str, )
-    The logical type of a virtual volume.
-
-
-  usage_type (, str, )
-    VMware's usage of the vVol.
-
-
   appliance_id (, str, )
     The appliance where the virtual volume resides.
 
 
-  storage_container_id (, str, )
-    The storage container where the virtual volume resides.
-
-
-  io_priority (, str, )
-    The I/O priority for quality of service rules.
-
-
-  profile_id (, str, )
-    The ID of the storage profile governing this virtual volume.
-
-
-  replication_group_id (, str, )
-    The unique identifier of the replication group object that this virtual volume belongs to.
+  creation_timestamp (, str, )
+    Timestamp of the moment virtual volume was created at.
 
 
   creator_type (, str, )
@@ -1540,40 +1591,49 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
     Scheduler - A resource created by the snapshot scheduler.
 
 
-  is_readonly (, bool, )
-    Indicates whether the virtual volume is read-only.
-
-
-  migration_session_id (, str, )
-    If the virtual volume is part of a migration activity, the session ID for that migration.
-
-
-  virtual_machine_uuid (, str, )
-    UUID of the virtual machine that owns this virtual volume.
+  creator_type_l10n (, str, )
+    Localized message string corresponding to creator\_type.
 
 
   family_id (, str, )
     Family id of the virtual volume.
 
 
-  parent_id (, str, )
-    For snapshots and clones, the ID of the parent virtual volume.
+  host_virtual_volume_mappings (, complex, )
+    Virtual volume mapping details.
 
 
-  source_id (, str, )
-    Id of the virtual volume from which the content has been sourced.
+    host_group_id (, str, )
+      Unique identifier of a host group attached to a virtual volume.
 
 
-  source_timestamp (, str, )
-    The source data time-stamp of the virtual volume.
+    host_id (, str, )
+      Unique identifier of a host attached to a virtual volume.
 
 
-  creation_timestamp (, str, )
-    Timestamp of the moment virtual volume was created at.
+    id (, str, )
+      Unique identifier of a mapping between a host and a virtual volume.
 
 
-  naa_name (, str, )
-    The NAA name used by hosts for I/O.
+    virtual_volume_id (, str, )
+      Unique identifier of the virtual volume to which the host is attached.
+
+
+
+  io_priority (, str, )
+    The I/O priority for quality of service rules.
+
+
+  io_priority_l10n (, str, )
+    Localized message string corresponding to io\_priority.
+
+
+  id (, str, )
+    The unique identifier of the virtual volume.
+
+
+  is_readonly (, bool, )
+    Indicates whether the virtual volume is read-only.
 
 
   is_replication_destination (, bool, )
@@ -1588,8 +1648,8 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
       Unique identifier of the appliance from which the volume was relocated.
 
 
-    to_appliance_id (, str, )
-      Unique identifier of the appliance to which the volume was relocated.
+    migrated_on (, str, )
+      Time when the storage resource location changed.
 
 
     reason (, str, )
@@ -1602,62 +1662,111 @@ VirtualVolume (When C(virtual_volume) is in a given I(gather_subset), list, [{'i
       Recommended - Storage system recommended migration.
 
 
-    migrated_on (, str, )
-      Time when the storage resource location changed.
-
-
     reason_l10n (, str, )
       Localized message string corresponding to reason.
 
 
+    to_appliance_id (, str, )
+      Unique identifier of the appliance to which the volume was relocated.
 
-  protection_policy_id (, str, )
-    The unique identifier of the protection policy applied to this virtual volume.
 
 
-  nsid (, str, )
-    NVMe Namespace unique identifier in the NVMe subsystem.
+  migration_session_id (, str, )
+    If the virtual volume is part of a migration activity, the session ID for that migration.
+
+
+  naa_name (, str, )
+    The NAA name used by hosts for I/O.
+
+
+  name (, str, )
+    The name of the virtual volume, based on metadata provided by vSphere.
 
 
   nguid (, str, )
     NVMe Namespace globally unique identifier.
 
 
+  nsid (, str, )
+    NVMe Namespace unique identifier in the NVMe subsystem.
+
+
+  parent_id (, str, )
+    For snapshots and clones, the ID of the parent virtual volume.
+
+
+  profile_id (, str, )
+    The ID of the storage profile governing this virtual volume.
+
+
+  protection_policy_id (, str, )
+    The unique identifier of the protection policy applied to this virtual volume.
+
+
+  replication_group_id (, str, )
+    The unique identifier of the replication group object that this virtual volume belongs to.
+
+
+  size (, int, )
+    The size of the virtual volume in bytes.
+
+
+  source_id (, str, )
+    Id of the virtual volume from which the content has been sourced.
+
+
+  source_timestamp (, str, )
+    The source data time-stamp of the virtual volume.
+
+
+  storage_container_id (, str, )
+    The storage container where the virtual volume resides.
+
+
+  type (, str, )
+    The logical type of a virtual volume.
+
+
   type_l10n (, str, )
     Localized message string corresponding to type.
 
 
+  usage_type (, str, )
+    VMware's usage of the vVol.
+
+
   usage_type_l10n (, str, )
-    Localized message string corresponding to usage_type.
+    Localized message string corresponding to usage\_type.
 
 
-  io_priority_l10n (, str, )
-    Localized message string corresponding to io_priority.
+  virtual_machine_uuid (, str, )
+    UUID of the virtual machine that owns this virtual volume.
 
 
-  creator_type_l10n (, str, )
-    Localized message string corresponding to creator_type.
+
+VolumeGroups (When C(vg) is in a given I(gather_subset), list, [{'id': 'faaa8370-c62e-4fa2-b8ca-7f54419a5b40', 'name': 'Volume Group Test'}])
+  Provides details of all volume groups.
 
 
-  host_virtual_volume_mappings (, complex, )
-    Virtual volume mapping details.
+  id (, str, )
+    ID of the volume group.
 
 
-    id (, str, )
-      Unique identifier of a mapping between a host and a virtual volume.
+  name (, str, )
+    Name of the volume group.
 
 
-    host_id (, str, )
-      Unique identifier of a host attached to a virtual volume.
+
+Volumes (When C(vol) is in a given I(gather_subset), list, [{'id': '01854336-94ef-4df9-b1e7-0a729ca7c944', 'name': 'test_vol'}])
+  Provides details of all volumes.
 
 
-    host_group_id (, str, )
-      Unique identifier of a host group attached to a virtual volume.
+  id (, str, )
+    ID of the volume.
 
 
-    virtual_volume_id (, str, )
-      Unique identifier of the virtual volume to which the host is attached.
-
+  name (, str, )
+    Name of the volume.
 
 
 
