@@ -250,14 +250,24 @@ class PowerStoreSNMPManager(PowerStoreBase):
     def get_snmp_manager(self, snmp_manager_id):
         """Get the details of SNMP Manager of a given Powerstore storage
         system"""
-        return self.snmp_manager.get_snmp_server_details(snmp_server_id=snmp_manager_id)
+        try:
+            return self.snmp_manager.get_snmp_server_details(snmp_server_id=snmp_manager_id)
+        except Exception as err:
+            msg = (f'Got error while trying to get SNMP Manager details error: {str(err)} ')
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(err))
 
     def getting_snmp_manager_id(self, ip_address):
         """Get the id of the SNMP manager"""
-        all_snmp_managers = self.snmp_manager.get_snmp_server_list()
-        for items in all_snmp_managers:
-            if items['ip_address'] == ip_address:
-                return items['id']
+        try:
+            all_snmp_managers = self.snmp_manager.get_snmp_server_list()
+            for items in all_snmp_managers:
+                if items['ip_address'] == ip_address:
+                    return items['id']
+        except Exception as err:
+            msg = (f'Got error while trying to get SNMP Manager id error: {str(err)} ')
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(err))
 
     def prepare_snmp_manager_create_payload(self, create_params):
         """Prepare payload for SNMP manager creation"""
@@ -292,9 +302,9 @@ class PowerStoreSNMPManager(PowerStoreBase):
     def create_snmp_manager(self, create_params):
         """Create SNMP Manager"""
         try:
-            msg = 'Attempting to create SNMP Manager'
-            LOG.info(msg)
+            changed = False
             self.validate_create(create_params)
+            self.common_validations(create_params)
             snmp_manager_details = {}
             if not self.module.check_mode:
                 create_dict = dict()
@@ -302,33 +312,46 @@ class PowerStoreSNMPManager(PowerStoreBase):
                 resp = self.snmp_manager.create_snmp_server(payload=create_dict)
                 if resp:
                     snmp_manager_details = self.get_snmp_manager(resp['id'])
+                    changed = True
                 msg = (f'Successfully created SNMP Manager with details'
                        f' {snmp_manager_details}')
                 LOG.info(msg)
+
             if self.module._diff:
                 self.result.update({"diff": {"before": {}, "after": snmp_manager_details}})
-            return snmp_manager_details
+
+            if self.module.check_mode:
+                changed, snmp_manager_details = True, {}
+
+            return changed, snmp_manager_details
 
         except Exception as e:
             msg = (f'Creation of SNMP Manager on PowerStore array failed with error {str(e)} ')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def delete_snmp_manager(self, snmp_manager_id):
+    def delete_snmp_manager(self, snmp_manager_details):
         """ Delete SNMP Manager """
         try:
             msg = f'Deleting SNMP Manager:' \
-                  f' {snmp_manager_id}'
+                  f' {snmp_manager_details}'
             LOG.info(msg)
-            to_be_deleted = self.get_snmp_manager(snmp_manager_id)
+            changed = False
+
+            if self.module.check_mode and snmp_manager_details:
+                changed = True
+
             if self.module._diff:
-                self.result.update({"diff": {"before": to_be_deleted, "after": {}}})
-            if not self.module.check_mode:
-                self.snmp_manager.delete_snmp_server(snmp_server_id=snmp_manager_id)
-                return None
-            return self.get_snmp_manager(snmp_manager_id)
+                self.result.update({"diff": {"before": snmp_manager_details, "after": {}}})
+
+            if not self.module.check_mode and snmp_manager_details:
+                self.snmp_manager.delete_snmp_server(snmp_server_id=snmp_manager_details['id'])
+                snmp_manager_details = {}
+                changed = True
+
+            return changed, snmp_manager_details
         except Exception as e:
-            msg = (f'Deletion of the SNMP Manager {snmp_manager_id}'
+            msg = (f'Deletion of the SNMP Manager {snmp_manager_details}'
                    f' failed with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
@@ -343,7 +366,7 @@ class PowerStoreSNMPManager(PowerStoreBase):
         param_dict = dict()
 
         self.validate_version_change(snmp_manager_params, snmp_manager_details)
-        self.validate_create(snmp_manager_params)
+        self.common_validations(snmp_manager_params)
 
         params_to_check = {
             'ip_address': 'new_ip_address',
@@ -380,24 +403,30 @@ class PowerStoreSNMPManager(PowerStoreBase):
 
         return param_dict
 
-    def modify_snmp_manager_details(self, modify_dict, snmp_manager_id, snmp_manager_details):
+    def modify_snmp_manager_details(self, modify_dict, snmp_manager_details):
         """Modify SNMP Manager details"""
         try:
-            existing = snmp_manager_details
-            msg = 'Attempting to modify SNMP Manager'
-
+            changed = False
+            existing_details = snmp_manager_details
+            modified_details = snmp_manager_details.copy()
+            modified_details.update(modify_dict)
             if not self.module.check_mode:
-                self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_id, modify_parameters=modify_dict)
-                snmp_manager_details = self.get_snmp_manager(snmp_manager_id)
-                msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
-                LOG.info(msg)
+                if modify_dict:
+                    self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_details["id"], modify_parameters=modify_dict)
+                    snmp_manager_details = self.get_snmp_manager(snmp_manager_details["id"])
+                    changed = True
+                    msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
+                    LOG.info(msg)
+
+            if self.module.check_mode:
+                changed = True
 
             if self.module._diff:
-                self.result.update({"diff": {"before": existing, "after": modify_dict}})
+                self.result.update({"diff": {"before": existing_details, "after": modified_details}})
 
-            return snmp_manager_details
+            return changed, snmp_manager_details
         except Exception as e:
-            msg = (f'Updation of the SNMP Manager {snmp_manager_id}'
+            msg = (f'Updation of the SNMP Manager {snmp_manager_details["id"]}'
                    f' failed with error {str(e)}')
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
@@ -418,9 +447,11 @@ class PowerStoreSNMPManager(PowerStoreBase):
             self.module.fail_json(msg=errormsg)
         if (create_params['version'] == 'V3' and create_params['auth_protocol']) and \
                 not (create_params['snmp_password'] and len(create_params['snmp_password'].strip()) > 0):
-            errormsg = "snmp_password/auth_pass required parameter for creating SNMP Manager with version V3 and auth_protocol."
+            errormsg = "snmp_password/auth_pass required parameter for creating or modifying SNMP Manager with version V3 and auth_protocol."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
+
+    def common_validations(self, create_params):
         if create_params['version'] == 'V3' and (create_params['auth_privacy'] and create_params['auth_privacy'] != "Nil") \
                 and (not create_params['auth_protocol'] or create_params['auth_protocol'] == "Nil"):
             errormsg = "For V3 SNMP auth_protocol with None value must have privacy_protocol with None value."
@@ -460,9 +491,9 @@ class SNMPManagerExitHandler():
 
 class SNMPManagerDeleteHandler():
     def handle(self, snmp_obj, snmp_manager_params, snmp_manager_details):
-        if snmp_manager_params['state'] == 'absent' and snmp_manager_details:
-            snmp_manager_details = snmp_obj.delete_snmp_manager(snmp_manager_details['id'])
-            snmp_obj.result['changed'] = True
+        if snmp_manager_params['state'] == 'absent':
+            changed, snmp_manager_details = snmp_obj.delete_snmp_manager(snmp_manager_details)
+            snmp_obj.result['changed'] = changed
 
         SNMPManagerExitHandler().handle(snmp_obj, snmp_manager_details)
 
@@ -471,9 +502,8 @@ class SNMPManagerModifyHandler():
     def handle(self, snmp_obj, snmp_manager_params, snmp_manager_details):
         if snmp_manager_params['state'] == 'present' and snmp_manager_details:
             modify_dict = snmp_obj.is_modify_required(snmp_manager_params, snmp_manager_details)
-            if modify_dict:
-                snmp_manager_details = snmp_obj.modify_snmp_manager_details(modify_dict, snmp_manager_details['id'], snmp_manager_details)
-                snmp_obj.result['changed'] = True
+            changed, snmp_manager_details = snmp_obj.modify_snmp_manager_details(modify_dict, snmp_manager_details)
+            snmp_obj.result['changed'] = changed
 
         SNMPManagerDeleteHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
 
@@ -481,8 +511,9 @@ class SNMPManagerModifyHandler():
 class SNMPManagerCreateHandler():
     def handle(self, snmp_obj, snmp_manager_params, snmp_manager_details):
         if snmp_manager_params['state'] == 'present' and not snmp_manager_details:
-            snmp_manager_details = snmp_obj.create_snmp_manager(create_params=snmp_manager_params)
-            snmp_obj.result['changed'] = True
+            changed, snmp_manager_details = snmp_obj.create_snmp_manager(create_params=snmp_manager_params)
+            snmp_obj.result['changed'] = changed
+            SNMPManagerExitHandler().handle(snmp_obj, snmp_manager_details)
 
         SNMPManagerModifyHandler().handle(snmp_obj, snmp_manager_params, snmp_manager_details)
 

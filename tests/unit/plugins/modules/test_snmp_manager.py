@@ -45,6 +45,31 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
         powerstore_module_mock.snmp_manager.get_snmp_server_details.assert_called()
         assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is False
 
+    def test_get_snmp_manager_list_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock, self.get_module_args,
+            {
+                "ip_address": "127.0.0.1"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.snmp_manager.get_snmp_server_list = MagicMock(side_effect=MockApiException)
+        self.capture_fail_json_call(
+            MockSNMPManagerApi.get_snmp_manager_exception_response('get_snmp_manager_list_exception'),
+            powerstore_module_mock, SNMPManagerHandler)
+
+    def test_get_snmp_manager_id_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock, self.get_module_args,
+            {
+                "ip_address": "127.0.0.1"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.snmp_manager.get_snmp_server_list = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_LIST)
+        powerstore_module_mock.snmp_manager.get_snmp_server_details = MagicMock(side_effect=MockApiException)
+        self.capture_fail_json_call(
+            MockSNMPManagerApi.get_snmp_manager_exception_response('get_snmp_manager_id_exception'),
+            powerstore_module_mock, SNMPManagerHandler)
+
     def test_create_snmp_manager(self, powerstore_module_mock):
         self.set_module_params(
             powerstore_module_mock, self.get_module_args,

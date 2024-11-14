@@ -107,6 +107,10 @@ class MockSNMPManagerApi:
             return "Deletion of the SNMP Manager"
         elif response_type == "modify_snmp_manager_exception":
             return "Updation of the SNMP Manager"
+        elif response_type == "get_snmp_manager_list_exception":
+            return "Got error while trying to get SNMP Manager id error:"
+        elif response_type == "get_snmp_manager_id_exception":
+            return "Got error while trying to get SNMP Manager details error:"
 
     @staticmethod
     def get_snmp_validation_error_response(response_type):
@@ -121,7 +125,7 @@ class MockSNMPManagerApi:
         if response_type == "create_without_snmp_username":
             return "snmp_username is required parameter for creating SNMP Manager with version V3."
         if response_type == "create_without_snmp_password":
-            return "snmp_password/auth_pass required parameter for creating SNMP Manager with version V3 and auth_protocol."
+            return "snmp_password/auth_pass required parameter for creating or modifying SNMP Manager with version V3 and auth_protocol."
         if response_type == "create_without_auth_protocol":
             return "For V3 SNMP auth_protocol with None value must have privacy_protocol with None value."
         if response_type == "create_without_protocol":
