@@ -14,6 +14,7 @@ class MockSNMPManagerApi:
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     IP_ADDRESS = '1.1.1.1'
+    PASSWORD = "D@ngerous1"
 
     SNMP_MANAGER_COMMON_ARGS = {
         "array_ip": IP_ADDRESS,
@@ -26,7 +27,7 @@ class MockSNMPManagerApi:
         "snmp_username": "test123",
         "auth_protocol": "MD5",
         "auth_privacy": "AES256",
-        "snmp_password": "D@ngerous1",
+        "snmp_password": PASSWORD,
         "update_password": "on_create"
     }
 

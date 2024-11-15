@@ -247,7 +247,7 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
                 "version": "V3",
                 "auth_protocol": "Nil",
                 "auth_privacy": "AES256",
-                "snmp_password": "D@ngerous1"
+                "snmp_password": MockSNMPManagerApi.PASSWORD
             })
         powerstore_module_mock.module.params = self.get_module_args
         self.capture_fail_json_call(
@@ -262,7 +262,7 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
                 "version": "V3",
                 "auth_protocol": "Nil",
                 "auth_privacy": "Nil",
-                "snmp_password": "D@ngerous1"
+                "snmp_password": MockSNMPManagerApi.PASSWORD
             })
         powerstore_module_mock.module.params = self.get_module_args
         self.capture_fail_json_call(
