@@ -82,6 +82,19 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
         SNMPManagerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
 
+    def test_create_snmp_manager_check_mode(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock, self.get_module_args,
+            {
+                "ip_address": "127.0.0.1"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.module.check_mode = True
+        powerstore_module_mock.get_snmp_manager = MagicMock(return_value=None)
+        powerstore_module_mock.snmp_manager.create_snmp_server = MagicMock(return_value=MockSNMPManagerApi.CREATE_SNMP_MANAGER_DETAILS)
+        SNMPManagerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+
     def test_create_snmp_manager_exception(self, powerstore_module_mock):
         self.set_module_params(
             powerstore_module_mock, self.get_module_args,

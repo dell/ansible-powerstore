@@ -362,6 +362,15 @@ class PowerStoreSNMPManager(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
+    def validate_trap_community_change(self, snmp_manager_params, snmp_manager_details):
+        trap_community = snmp_manager_params['trap_community']
+        if trap_community and trap_community != snmp_manager_details.get('trap_community'):
+            return snmp_manager_params.get('trap_community')
+        elif trap_community == "":
+            errormsg = "Trap community is required parameter for updating SNMP Manager with version V2c."
+            LOG.error(errormsg)
+            self.module.fail_json(msg=errormsg)
+
     def is_modify_required(self, snmp_manager_params, snmp_manager_details):
         param_dict = dict()
 
@@ -394,9 +403,9 @@ class PowerStoreSNMPManager(PowerStoreBase):
                 param_dict['privacy_protocol'] = privacy_protocol
 
         if snmp_manager_details['version'] == 'V2c':
-            trap_community = snmp_manager_params.get('trap_community')
-            if trap_community and trap_community != snmp_manager_details.get('trap_community'):
-                param_dict['trap_community'] = snmp_manager_params.get('trap_community')
+            trap_community = self.validate_trap_community_change(snmp_manager_params, snmp_manager_details)
+            if trap_community:
+                param_dict['trap_community'] = trap_community
 
         if snmp_manager_params.get('snmp_password') and snmp_manager_params.get('update_password') == "always":
             param_dict['authpass'] = snmp_manager_params.get('snmp_password')
