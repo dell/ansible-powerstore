@@ -102,9 +102,14 @@ options:
     choices: ['absent', 'present']
     type: str
     default: 'present'
-
-notes:
-- The I(check_mode) is supported.
+attributes:
+  check_mode:
+    description: Runs task to validate without performing action on the target
+                 machine.
+    support: full
+  diff_mode:
+    description: Runs the task to report the changes made or to be made.
+    support: full
 '''
 
 EXAMPLES = r'''
@@ -171,12 +176,17 @@ changed:
     returned: always
     type: bool
     sample: "false"
-
 snmp_details:
     description: Details of the SNMP manager.
-    returned: When SNMP exists.
     type: dict
+    returned: When SNMP exists.
     contains:
+        alert_severity:
+            description: Possible severities.
+            type: str
+        auth_protocol:
+            description: Relevant only for SNMPv3. Supported SNMP authentication protocols.
+            type: str
         id:
             description: Unique identifier of the SNMP manager.
             type: str
@@ -186,34 +196,28 @@ snmp_details:
         port:
             description: Port number to use with the address of the SNMP manager.
             type: int
-        version:
-            description: Supported SNMP protocol versions.
+        privacy_protocol:
+            description: Relevant only for SNMPv3. Supported SNMP privacy protocols.
             type: str
         trap_community:
             description: Trap Community string. Usually describes the security level.
             type: str
-        alert_severity:
-            description: Possible severities.
-            type: str
         user_name:
             description: User name relevant only for SNMPv3.
             type: str
-        auth_protocol:
-            description: Relevant only for SNMPv3. Supported SNMP authentication protocols.
-            type: str
-        privacy_protocol:
-            description: Relevant only for SNMPv3. Supported SNMP privacy protocols.
+        version:
+            description: Supported SNMP protocol versions.
             type: str
     sample: {
-        "id": "967ffb5d-5059-43a6-8377-1b83b99e6470",
-        "ip_address": "127.0.0.1",
-        "port": 162,
-        "version": "V3",
-        "trap_community": null,
-        "alert_severity": "Info",
-        "user_name": "admin",
-        "auth_protocol": "MD5",
-        "privacy_protocol": "AES256"
+      "alert_severity": "Info",
+      "auth_protocol": "MD5",
+      "id": "967ffb5d-5059-43a6-8377-1b83b99e6470",
+      "ip_address": "127.0.0.1",
+      "port": 162,
+      "privacy_protocol": "AES256",
+      "trap_community": null,
+      "user_name": "admin",
+      "version": "V3"
     }
 '''
 
@@ -386,6 +390,19 @@ class PowerStoreSNMPManager(PowerStoreBase):
             if snmp_manager_params.get(value) and snmp_manager_params.get(value) != snmp_manager_details.get(key):
                 param_dict[key] = snmp_manager_params.get(value)
 
+        self.validation_for_v3(snmp_manager_params, snmp_manager_details, param_dict)
+
+        if snmp_manager_details['version'] == 'V2c':
+            trap_community = self.validate_trap_community_change(snmp_manager_params, snmp_manager_details)
+            if trap_community:
+                param_dict['trap_community'] = trap_community
+
+        if snmp_manager_params.get('snmp_password') and snmp_manager_params.get('update_password') == "always":
+            param_dict['authpass'] = snmp_manager_params.get('snmp_password')
+
+        return param_dict
+
+    def validation_for_v3(self, snmp_manager_params, snmp_manager_details, param_dict):
         if snmp_manager_details['version'] == 'V3':
             if snmp_manager_params.get('snmp_username') != snmp_manager_details.get('user_name'):
                 param_dict['user_name'] = snmp_manager_params.get('snmp_username')
@@ -402,16 +419,6 @@ class PowerStoreSNMPManager(PowerStoreBase):
                 param_dict['auth_protocol'] = auth_protocol
                 param_dict['privacy_protocol'] = privacy_protocol
 
-        if snmp_manager_details['version'] == 'V2c':
-            trap_community = self.validate_trap_community_change(snmp_manager_params, snmp_manager_details)
-            if trap_community:
-                param_dict['trap_community'] = trap_community
-
-        if snmp_manager_params.get('snmp_password') and snmp_manager_params.get('update_password') == "always":
-            param_dict['authpass'] = snmp_manager_params.get('snmp_password')
-
-        return param_dict
-
     def modify_snmp_manager_details(self, modify_dict, snmp_manager_details):
         """Modify SNMP Manager details"""
         try:
@@ -419,13 +426,12 @@ class PowerStoreSNMPManager(PowerStoreBase):
             existing_details = snmp_manager_details
             modified_details = snmp_manager_details.copy()
             modified_details.update(modify_dict)
-            if not self.module.check_mode:
-                if modify_dict:
-                    self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_details["id"], modify_parameters=modify_dict)
-                    snmp_manager_details = self.get_snmp_manager(snmp_manager_details["id"])
-                    changed = True
-                    msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
-                    LOG.info(msg)
+            if not self.module.check_mode and modify_dict:
+                self.snmp_manager.modify_snmp_server(snmp_server_id=snmp_manager_details["id"], modify_parameters=modify_dict)
+                snmp_manager_details = self.get_snmp_manager(snmp_manager_details["id"])
+                changed = True
+                msg = (f'Successfully modified SNMP Manager with details {snmp_manager_details}')
+                LOG.info(msg)
 
             if self.module.check_mode:
                 changed = True
@@ -443,7 +449,7 @@ class PowerStoreSNMPManager(PowerStoreBase):
     def validate_create(self, create_params):
         """Perform validation of create SNMP Manager parameters"""
         if not create_params['ip_address']:
-            errormsg = "Provide valid value for ip_address/network_name."
+            errormsg = "Provide valid value for ip_address or network_name."
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg)
         if create_params['version'] == 'V2c' and not (create_params['trap_community'] and len(create_params['trap_community'].strip()) > 0):
@@ -477,18 +483,18 @@ def get_powerstore_snmp_manager_parameters():
     """This method provides the parameters required for the ansible
     SNMP modules on PowerStore"""
     return dict(
-        alert_severity=dict(default='Info', type='str', choices=['Info', 'Minor', 'Major', 'Critical']),
-        auth_privacy=dict(type='str', choices=['Nil', 'AES256', 'TDES']),
-        auth_protocol=dict(type='str', choices=['Nil', 'MD5', 'SHA256']),
-        ip_address=dict(type='str', aliases=['network_name'], required=True),
-        new_ip_address=dict(type='str', aliases=['new_network_name']),
+        alert_severity=dict(default='Info', choices=['Info', 'Minor', 'Major', 'Critical']),
+        auth_privacy=dict(choices=['Nil', 'AES256', 'TDES']),
+        auth_protocol=dict(choices=['Nil', 'MD5', 'SHA256']),
+        ip_address=dict(aliases=['network_name'], required=True),
+        new_ip_address=dict(aliases=['new_network_name']),
         snmp_port=dict(default=162, type='int'),
-        snmp_password=dict(type='str', aliases=['auth_pass'], no_log=True),
-        snmp_username=dict(type='str'),
-        trap_community=dict(type='str'),
-        update_password=dict(default='always', type='str', choices=['always', 'on_create']),
-        version=dict(default='V3', type='str', choices=['V2c', 'V3']),
-        state=dict(default='present', type='str', choices=['present', 'absent'])
+        snmp_password=dict(aliases=['auth_pass'], no_log=True),
+        snmp_username=dict(),
+        trap_community=dict(),
+        update_password=dict(default='always', choices=['always', 'on_create']),
+        version=dict(default='V3', choices=['V2c', 'V3']),
+        state=dict(default='present', choices=['present', 'absent'])
     )
 
 

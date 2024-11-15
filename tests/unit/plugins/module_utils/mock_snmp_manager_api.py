@@ -14,7 +14,7 @@ class MockSNMPManagerApi:
     MODULE_UTILS_PATH = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils'
 
     IP_ADDRESS = '1.1.1.1'
-    PASSWORD = "D@ngerous1"
+    DANGEROUS_STR = "D@ngerous1"
 
     SNMP_MANAGER_COMMON_ARGS = {
         "array_ip": IP_ADDRESS,
@@ -27,7 +27,7 @@ class MockSNMPManagerApi:
         "snmp_username": "test123",
         "auth_protocol": "MD5",
         "auth_privacy": "AES256",
-        "snmp_password": PASSWORD,
+        "snmp_password": DANGEROUS_STR,
         "update_password": "on_create"
     }
 
@@ -55,7 +55,7 @@ class MockSNMPManagerApi:
         "privacy_protocol": "AES256"
     }
 
-    GET_SNMP_MANAGER_DETAILS_V2c = {
+    GET_SNMP_MANAGER_DETAILS_V2 = {
         "id": "967ffb5d-5059-43a6-8377-1b83553e6470",
         "ip_address": "127.0.0.6",
         "port": 162,
@@ -116,7 +116,7 @@ class MockSNMPManagerApi:
     @staticmethod
     def get_snmp_validation_error_response(response_type):
         if response_type == "create_without_ip_exception":
-            return "Provide valid value for ip_address/network_name."
+            return "Provide valid value for ip_address or network_name."
         if response_type == "create_without_snmp_port":
             return "snmp_port is required parameter for creating SNMP Manager."
         if response_type == "create_without_alert_severity":

@@ -166,8 +166,8 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
                 "state": "present"
             })
         powerstore_module_mock.module.params = self.get_module_args
-        powerstore_module_mock.getting_snmp_manager_id = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2c['id'])
-        powerstore_module_mock.get_snmp_manager = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2c)
+        powerstore_module_mock.getting_snmp_manager_id = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2['id'])
+        powerstore_module_mock.get_snmp_manager = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2)
         powerstore_module_mock.snmp_manager.modify_snmp_server = MagicMock(return_value=True)
         SNMPManagerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
@@ -247,7 +247,7 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
                 "version": "V3",
                 "auth_protocol": "Nil",
                 "auth_privacy": "AES256",
-                "snmp_password": MockSNMPManagerApi.PASSWORD
+                "snmp_password": MockSNMPManagerApi.DANGEROUS_STR
             })
         powerstore_module_mock.module.params = self.get_module_args
         self.capture_fail_json_call(
@@ -262,7 +262,7 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
                 "version": "V3",
                 "auth_protocol": "Nil",
                 "auth_privacy": "Nil",
-                "snmp_password": MockSNMPManagerApi.PASSWORD
+                "snmp_password": MockSNMPManagerApi.DANGEROUS_STR
             })
         powerstore_module_mock.module.params = self.get_module_args
         self.capture_fail_json_call(
