@@ -170,6 +170,23 @@ class TestPowerStoreSNMPManager(PowerStoreUnitBase):
         SNMPManagerHandler().handle(powerstore_module_mock, powerstore_module_mock.module.params)
         assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
 
+    def test_modify_snmp_manager_v2c_error(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock, self.get_module_args,
+            {
+                'version': 'V2c',
+                "trap_community": "",
+                "auth_protocol": "Nil",
+                "auth_privacy": "Nil",
+                "state": "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.getting_snmp_manager_id = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2['id'])
+        powerstore_module_mock.get_snmp_manager = MagicMock(return_value=MockSNMPManagerApi.GET_SNMP_MANAGER_DETAILS_V2)
+        self.capture_fail_json_call(
+            MockSNMPManagerApi.get_snmp_validation_error_response('modify_without_trap_community'),
+            powerstore_module_mock, SNMPManagerHandler)
+
     def test_modify_snmp_manager_exception(self, powerstore_module_mock):
         self.set_module_params(
             powerstore_module_mock, self.get_module_args,

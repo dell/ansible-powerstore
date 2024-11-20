@@ -143,7 +143,6 @@ Notes
 -----
 
 .. note::
-   - The \ :emphasis:`check\_mode`\  is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -220,8 +219,16 @@ changed (always, bool, false)
   Whether or not the resource has changed.
 
 
-snmp_details (When SNMP exists., dict, {'id': '967ffb5d-5059-43a6-8377-1b83b99e6470', 'ip_address': '127.0.0.1', 'port': 162, 'version': 'V3', 'trap_community': None, 'alert_severity': 'Info', 'user_name': 'admin', 'auth_protocol': 'MD5', 'privacy_protocol': 'AES256'})
+snmp_details (When SNMP exists., dict, {'alert_severity': 'Info', 'auth_protocol': 'MD5', 'id': '967ffb5d-5059-43a6-8377-1b83b99e6470', 'ip_address': '127.0.0.1', 'port': 162, 'privacy_protocol': 'AES256', 'trap_community': None, 'user_name': 'admin', 'version': 'V3'})
   Details of the SNMP manager.
+
+
+  alert_severity (, str, )
+    Possible severities.
+
+
+  auth_protocol (, str, )
+    Relevant only for SNMPv3. Supported SNMP authentication protocols.
 
 
   id (, str, )
@@ -236,28 +243,20 @@ snmp_details (When SNMP exists., dict, {'id': '967ffb5d-5059-43a6-8377-1b83b99e6
     Port number to use with the address of the SNMP manager.
 
 
-  version (, str, )
-    Supported SNMP protocol versions.
+  privacy_protocol (, str, )
+    Relevant only for SNMPv3. Supported SNMP privacy protocols.
 
 
   trap_community (, str, )
     Trap Community string. Usually describes the security level.
 
 
-  alert_severity (, str, )
-    Possible severities.
-
-
   user_name (, str, )
     User name relevant only for SNMPv3.
 
 
-  auth_protocol (, str, )
-    Relevant only for SNMPv3. Supported SNMP authentication protocols.
-
-
-  privacy_protocol (, str, )
-    Relevant only for SNMPv3. Supported SNMP privacy protocols.
+  version (, str, )
+    Supported SNMP protocol versions.
 
 
 

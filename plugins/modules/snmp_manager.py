@@ -92,7 +92,7 @@ options:
     - Supported SNMP protocol versions.
     - C(V2c) - SNMP version 2c.
     - C(V3) - SNMP version 3.
-    choices: ['V3', 'V2c']
+    choices: ['V2c', 'V3']
     type: str
     default: 'V3'
   state:

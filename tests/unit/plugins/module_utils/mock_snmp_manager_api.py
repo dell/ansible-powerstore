@@ -133,3 +133,5 @@ class MockSNMPManagerApi:
             return "V3 with no authenticaton should not use snmp_password/authpass."
         if response_type == "modify_version_error_message":
             return "Version cannot be changed from"
+        if response_type == "modify_without_trap_community":
+            return "Trap community is required parameter for updating SNMP Manager with version V2c."
