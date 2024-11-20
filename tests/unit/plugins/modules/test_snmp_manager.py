@@ -2,7 +2,7 @@
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"""Unit Tests for storage container module for PowerStore"""
+"""Unit Tests for SNMP Manager module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
@@ -16,8 +16,6 @@ from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_snmp_manager_api import MockSNMPManagerApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
-    import utils
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.powerstore_unit_base \
     import PowerStoreUnitBase
 from ansible_collections.dellemc.powerstore.plugins.modules.snmp_manager import PowerStoreSNMPManager, SNMPManagerHandler

@@ -1,8 +1,8 @@
-# Copyright: (c) 2022, Dell Technologies
+# Copyright: (c) 2024, Dell Technologies
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"""Mock Api response for Unit tests of DNS module for PowerStore"""
+"""Mock Api response for Unit tests of SMNP Manager module for PowerStore"""
 
 from __future__ import (absolute_import, division, print_function)
 
