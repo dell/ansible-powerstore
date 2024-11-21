@@ -10,7 +10,7 @@
 
 The Ansible Modules for Dell Technologies (Dell) PowerStore allow Data Center and IT administrators to use RedHat Ansible to automate and orchestrate the configuration and management of Dell PowerStore arrays.
 
-The capabilities of the Ansible modules are managing volumes, volume groups, vCenters, hosts, host groups, snapshots, snapshot rules, replication rules, replication sessions, protection policies, file systems, NAS servers, SMB shares, user and tree quotas, file system snapshots, NFS exports, Clusters, Networks, Local users, Jobs, Roles, Certificates, Remote systems, security configuration, DNS server, Email notification destination, NTP server, Remote support configuration, Remote support contacts, SMTP configuration, LDAP accounts, LDAP domain configuration, storage containers, File DNS, File interface, File NIS, NFS server, SMB Server and service config. It also allows gathering high level info from the array. The options available for each are list, show, create, modify and delete. These tasks can be executed by running simple playbooks written in yaml syntax. The modules are written so that all the operations are idempotent, so making multiple identical requests has the same effect as making a single request.
+The capabilities of the Ansible modules are managing volumes, volume groups, vCenters, hosts, host groups, snapshots, snapshot rules, replication rules, replication sessions, protection policies, file systems, NAS servers, SMB shares, user and tree quotas, file system snapshots, NFS exports, Clusters, Networks, Local users, Jobs, Roles, Certificates, Remote systems, security configuration, DNS server, Email notification destination, NTP server, Remote support configuration, Remote support contacts, SMTP configuration, LDAP accounts, LDAP domain configuration, storage containers, File DNS, File interface, File NIS, NFS server, SMB Server, Service config and SNMP Manager. It also allows gathering high level info from the array. The options available for each are list, show, create, modify and delete. These tasks can be executed by running simple playbooks written in yaml syntax. The modules are written so that all the operations are idempotent, so making multiple identical requests has the same effect as making a single request.
 
 ## Table of contents
 
@@ -34,7 +34,7 @@ The capabilities of the Ansible modules are managing volumes, volume groups, vCe
 
    | **Ansible Modules** | **PowerStore Version** | **SDK version** | **Python version** | **Ansible**              |
 |---------------------|-----------------------|-----------------|--------------------|--------------------------|
-| v3.5.0              | 2.9.x <br> 3.2.x <br> 3.5.x <br> 3.6.x <br> 4.0.x | 3.3.0          | 3.9.x <br> 3.10.x <br> 3.11.x <br> 3.12.x | 2.15 <br> 2.16 <br> 2.17 |
+| v3.6.0              | 2.9.x <br> 3.2.x <br> 3.5.x <br> 3.6.x <br> 4.0.x | 3.3.0          | 3.9.x <br> 3.10.x <br> 3.11.x <br> 3.12.x | 2.15 <br> 2.16 <br> 2.17 |
 
 
   * Please follow PyPowerStore installation instructions on [PyPowerStore Documentation](https://github.com/dell/python-powerstore)
@@ -116,6 +116,7 @@ The modules are written in such a way that all requests are idempotent and hence
 * [SMB server module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/smb_server.rst)
 * [NFS server module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/nfs_server.rst)
 * [Service config module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/service_config.rst)
+* [SNMP Manager module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/snmp_manager.rst)
 
 
 ## License

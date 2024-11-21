@@ -259,10 +259,18 @@ releases:
         - Added the support for ACL in the SMB Share module.
         - Info module is enhanced to list acls.
     release_date: '2024-05-31'
-
   3.5.0:
     changes:
       minor_changes:
         - Fixed the idempotency issue for Network module.
         - Added support for check_mode and diff_mode for Network module.
     release_date: '2024-10-28'
+  3.6.0:
+    changes:
+      minor_changes:
+        - Info module is enhanced to list SNMP managers.
+    modules:
+      - description: Manage SNMP Managers on Dell PowerStore.
+        name: snmp_manager
+        namespace: ''
+    release_date: '2024-11-29'
