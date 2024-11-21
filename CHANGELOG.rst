@@ -4,6 +4,19 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.6.0
+======
+
+Minor Changes
+-------------
+
+- Info module is enhanced to list SNMP Managers.
+
+New Modules
+-----------
+
+- dellemc.powerstore.snmp_manager - Manage SNMP Managers on Dell PowerStore.
+
 v3.5.0
 ======
 
