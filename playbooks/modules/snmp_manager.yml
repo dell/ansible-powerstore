@@ -1,0 +1,97 @@
+---
+- name: SNMP Manager operations on Powerstore Storage System
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "admin"
+    password: "*****"
+
+  tasks:
+    - name: Create SNMP Manager with V2 SNMP protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ip_address: 127.**.**.**
+        snmp_port: 162
+        version: "V2c"
+        alert_severity: Critical
+        trap_community: test
+        state: present
+
+    - name: Create SNMP Manager with V3 and Auth with privacy protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: pi227.**.**.**.com
+        snmp_port: 1024
+        version: "V3"
+        alert_severity: Critical
+        trap_community: test
+        snmp_username: test
+        auth_protocol: MD5
+        auth_privacy: TDES
+        snmp_password: Password123!
+        state: present
+
+    - name: Create SNMP Manager with V3 and no Auth protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: pi227.**.**.**.com
+        snmp_port: 1024
+        version: "V3"
+        alert_severity: Critical
+        trap_community: test
+        snmp_username: test
+        state: present
+
+    - name: Create SNMP Manager with V3 and Auth protocol
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        network_name: pi227.**.**.**.com
+        snmp_port: 1024
+        version: "V3"
+        alert_severity: Critical
+        trap_community: test
+        snmp_username: test
+        auth_protocol: MD5
+        snmp_password: Password123!
+        state: present
+
+    - name: Modify SNMP Manager
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ip_address: 127.**.**.**
+        new_ip_address: 192.**.**.**
+        snmp_port: 162
+        version: "V3"
+        alert_severity: Info
+        snmp_username: testuser
+        auth_protocol: MD5
+        auth_privacy: TDES
+        snmp_password: Password123!
+        update_password: "on_create"
+        state: present
+
+    - name: Delete SNMP Manager
+      dellemc.powerstore.snmp_manager:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        ip_address: 127.**.**.**
+        state: absent
