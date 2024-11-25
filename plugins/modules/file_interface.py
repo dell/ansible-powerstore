@@ -389,6 +389,15 @@ class PowerStoreFileInterface(PowerStoreBase):
             err_msg = "file_interface_id is mutually exclusive with nas_server and ip_address."
             self.module.fail_json(msg=err_msg)
 
+    def validate_get(self, file_interface_params):
+        """Perform validation of parameters of a File interface"""
+        if file_interface_params['nas_server'] is None and \
+                file_interface_params['ip_address'] is None and \
+                file_interface_params['file_interface_id'] is None:
+            err_msg = "Either file_interface_id or nas_server and ip_address is required" \
+                      " to get file interface details."
+            self.module.fail_json(msg=err_msg)
+
 
 def get_powerstore_file_interface_parameters():
     """This method provides the parameters required for the ansible
@@ -418,7 +427,7 @@ class FileInterfaceExitHandler():
 class FileInterfaceDeleteHandler():
     def handle(self, file_interface_obj, file_interface_params, file_interface_details):
         if file_interface_params['state'] == 'absent' and file_interface_details:
-            file_interface_details = file_interface_obj.delete_file_interface(file_interface_params['file_interface_id'])
+            file_interface_details = file_interface_obj.delete_file_interface(file_interface_details['id'])
             file_interface_obj.result['changed'] = True
 
         FileInterfaceExitHandler().handle(file_interface_obj, file_interface_details)
@@ -426,10 +435,11 @@ class FileInterfaceDeleteHandler():
 
 class FileInterfaceModifyHandler():
     def handle(self, file_interface_obj, file_interface_params, file_interface_details):
+        file_interface_obj.validate_get(file_interface_params=file_interface_params)
         if file_interface_params['state'] == 'present' and file_interface_details:
             modify_dict = file_interface_obj.is_modify_required(file_interface_details, file_interface_params)
             if modify_dict:
-                file_interface_details = file_interface_obj.modify_file_interface_details(file_interface_id=file_interface_params['file_interface_id'],
+                file_interface_details = file_interface_obj.modify_file_interface_details(file_interface_id=file_interface_details['id'],
                                                                                           modify_params=modify_dict)
                 file_interface_obj.result['changed'] = True
 
