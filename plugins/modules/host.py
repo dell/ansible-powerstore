@@ -571,6 +571,7 @@ class PowerStoreHost(object):
                     and (set(initiators).issubset(set(existing_inits))):
                 LOG.info('Initiators are already present in host %s',
                          host['name'])
+
                 return modify_dict
 
             initiator_list = []
@@ -633,6 +634,7 @@ class PowerStoreHost(object):
 
             if len(add_list_with_type) > 0:
                 modify_dict["add_initiators"] = add_list_with_type
+            return modify_dict
         except Exception as e:
             error_msg = ("Adding initiators {0} to host {1} failed with error"
                          " {2}".format(add_list, host['name'], str(e)))
@@ -822,6 +824,7 @@ class PowerStoreHost(object):
         if host_connectivity is not None and \
                 host['host_connectivity'] != host_connectivity:
             modify_dict["host_connectivity"] = host_connectivity
+
         modify_dict = self.check_initiators(
             host=host, host_params=host_params, modify_dict=modify_dict)
         return modify_dict
