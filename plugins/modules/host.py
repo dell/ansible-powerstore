@@ -447,9 +447,7 @@ class PowerStoreHost(object):
 
     def get_host_id_by_name(self, host_name):
         try:
-            LOG.info(host_name)
             host_info = self.conn.provisioning.get_host_by_name(host_name)
-            LOG.info('Host info: %s', host_info)
             if host_info:
                 if len(host_info) > 1:
                     error_msg = 'Multiple hosts by the same name found'
@@ -558,7 +556,6 @@ class PowerStoreHost(object):
         initiators = self.module.params['initiators']
         detailed_initiators = self.module.params['detailed_initiators']
         add_list = None
-
         try:
             existing_inits = []
             if 'host_initiators' in host:
@@ -566,7 +563,6 @@ class PowerStoreHost(object):
                 if current_initiators:
                     for initiator in current_initiators:
                         existing_inits.append(initiator['port_name'])
-
             if initiators \
                     and (set(initiators).issubset(set(existing_inits))):
                 LOG.info('Initiators are already present in host %s',
@@ -763,7 +759,7 @@ class PowerStoreHost(object):
 
     def _create_result_dict(self, changed, host_id):
         self.result['changed'] = changed
-        if self.module.params['state'] == 'absent' or host_id is None:
+        if (self.module.params['state'] == 'absent' and not self.module.check_mode) or host_id is None:
             self.result['host_details'] = dict()
         else:
             self.result['host_details'] = self.get_host(host_id)
@@ -790,18 +786,46 @@ class PowerStoreHost(object):
                     "host_connectivity": host_params["os_type"],
                     "os_type_l10n": host_params["os_type"]
                 }
+                if 'initiators' in host_params:
+                    diff_dict['host_initiators'] = host_params['initiators']
+                elif 'detailed_initiators' in host_params:
+                    diff_dict['host_initiators'] = host_params['detailed_initiators']
+
             else:
                 diff_dict = copy.deepcopy(host_details)
                 modify_dict = self.is_modify_required(host=diff_dict, host_params=host_params)
                 for key in modify_dict.keys():
                     diff_dict[key] = modify_dict[key]
+                diff_dict = self.initiator_difference(
+                    host_params=host_params,
+                    host_details=host_details,
+                    diff_dict=diff_dict)
             return diff_dict
+
+    def initiator_difference(self, host_params, host_details, diff_dict):
+        refined_init = []
+        for initiator in diff_dict['host_initiators']:
+            refined_init.append(initiator['port_name'])
+        diff_dict['host_initiators'] = refined_init
+
+        if 'add_initiators' in diff_dict and len(diff_dict['add_initiators']) > 0:
+            add_initiators = []
+            for initiator in diff_dict['add_initiators']:
+                add_initiators.append(initiator['port_name'])
+
+        if 'add_initiators' in diff_dict:
+            diff_dict['host_initiators'] = diff_dict['host_initiators'] + add_initiators
+            del diff_dict['add_initiators']
+        if 'remove_initiators' in diff_dict:
+            diff_dict['host_initiators'] = list(set(diff_dict['host_initiators']) - set(diff_dict['remove_initiators']))
+            del diff_dict['remove_initiators']
+        return diff_dict
 
     def check_initiators(self, host, host_params, modify_dict):
         if (host_params['initiator_state'] == 'present-in-host'
                 and (host_params['initiators'] or host_params['detailed_initiators'])):
             LOG.info('Adding initiators to host')
-            modify_dict = self.add_host_initiators(host, modify_dict)
+            modify_dict = self.add_host_initiators(host=host, modify_dict=modify_dict)
 
         if (host_params['initiator_state'] == 'absent-in-host'
                 and (host_params['initiators'] or host_params['detailed_initiators'])):
@@ -816,7 +840,7 @@ class PowerStoreHost(object):
         host_connectivity = host_params["host_connectivity"]
         description = host_params["description"]
         modify_dict = dict()
-        modify_flag = False
+
         if new_name is not None and host['name'] != new_name:
             modify_dict["name"] = new_name
         if description is not None and host['description'] != description:
@@ -824,7 +848,6 @@ class PowerStoreHost(object):
         if host_connectivity is not None and \
                 host['host_connectivity'] != host_connectivity:
             modify_dict["host_connectivity"] = host_connectivity
-
         modify_dict = self.check_initiators(
             host=host, host_params=host_params, modify_dict=modify_dict)
         return modify_dict
@@ -909,30 +932,6 @@ class HostModifyHandler:
         HostDeleteHandler().handle(host_obj, host_params, host_details, host_id, changed)
 
 
-# class HostRemoveInitiatorHandler:
-#     def handle(self, host_obj, host_params, host_details, host_id, changed):
-#         if (host_params['state'] == 'present' and host_details
-#                 and host_params['initiator_state'] == 'absent-in-host'
-#                 and (host_params['initiators'] or host_params['detailed_initiators'])):
-#             LOG.info('Removing initiators from host %s', host_id)
-#             changed = (host_obj.remove_host_initiators(host=host_details) or changed)
-#         LOG.info(host_id)
-#         LOG.info("This was host_id 3")
-#         HostModifyHandler().handle(host_obj, host_params, host_details, host_id, changed)
-
-
-# class HostAddInitiatorHandler:
-#     def handle(self, host_obj, host_params, host_details, host_id, changed):
-#         if (host_params['state'] == 'present' and host_details
-#                 and host_params['initiator_state'] == 'present-in-host'
-#                 and (host_params['initiators'] or host_params['detailed_initiators'])):
-#             LOG.info('Adding initiators to host %s', host_id)
-#             changed = (host_obj.add_host_initiators(host=host_details) or changed)
-#         LOG.info(host_id)
-#         LOG.info("This was host_id 2")
-#         HostRemoveInitiatorHandler().handle(host_obj, host_params, host_details, host_id, changed)
-
-
 class HostCreateHandler:
     def handle(self, host_obj, host_params, host_details, host_id, changed):
         if host_params['state'] == 'present' and not host_details and host_params['host_name']:
@@ -965,10 +964,16 @@ class HostHandler:
         before_dict = {}
         diff_dict = {}
         diff_dict = host_obj.get_diff_after(host_params=host_params, host_details=host_details)
+
         if host_details is None:
             before_dict = {}
         else:
-            before_dict = host_details
+            before_dict = copy.deepcopy(host_details)
+            if len(before_dict['host_initiators']) > 0:
+                refined_init = []
+                for initiator in before_dict['host_initiators']:
+                    refined_init.append(initiator['port_name'])
+                before_dict['host_initiators'] = refined_init
         if host_obj.module._diff:
             host_obj.result['diff'] = dict(before=before_dict, after=diff_dict)
 
