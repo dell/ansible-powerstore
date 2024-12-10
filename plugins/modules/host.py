@@ -540,6 +540,18 @@ class PowerStoreHost(object):
         rem_inits = list(set(existing).intersection(set(requested)))
         return rem_inits
 
+    def _update_chap_details(self, init, current_init, detailed_init):
+
+        chap_parms = [
+            'chap_single_username', 'chap_single_password',
+            'chap_mutual_username', 'chap_mutual_password']
+
+        if init.startswith('iqn'):
+            for param in chap_parms:
+                current_init[param] = detailed_init[param]
+
+        return current_init
+
     def _prepare_add_list_with_type(self, add_list, detailed_initiators):
         add_list_with_type = []
         for init in add_list:
@@ -549,16 +561,10 @@ class PowerStoreHost(object):
                     if init == detailed_init['port_name']:
                         current_initiator = {}
                         current_initiator['port_name'] = init
-                        # iSCSI
-                        if init.startswith('iqn'):
-                            current_initiator['chap_single_username'] \
-                                = detailed_init['chap_single_username']
-                            current_initiator['chap_single_password'] \
-                                = detailed_init['chap_single_password']
-                            current_initiator['chap_mutual_username'] \
-                                = detailed_init['chap_mutual_username']
-                            current_initiator['chap_mutual_password'] \
-                                = detailed_init['chap_mutual_password']
+                        current_initiator = self._update_chap_details(
+                            init=init,
+                            current_init=current_initiator,
+                            detailed_init=detailed_init)
                         current_initiator['port_type'] = self._get_port_type(initiator=init)
                         add_list_with_type.append(current_initiator)
             # when initiators param is used to add new initiators
@@ -788,7 +794,8 @@ class PowerStoreHost(object):
                 diff_dict['host_initiators'] = diff_dict['host_initiators'] + add_initiators
                 del diff_dict['add_initiators']
             if 'remove_initiators' in diff_dict:
-                diff_dict['host_initiators'] = list(set(diff_dict['host_initiators']) - set(diff_dict['remove_initiators']))
+                diff_dict['host_initiators'] = list(
+                    set(diff_dict['host_initiators']) - set(diff_dict['remove_initiators']))
                 del diff_dict['remove_initiators']
         return diff_dict
 
