@@ -16,7 +16,7 @@ from mock.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_host_api import MockHostApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
-from ansible_collections.dellemc.powerstore.plugins.modules.host import PowerStoreHost
+from ansible_collections.dellemc.powerstore.plugins.modules.host import PowerStoreHost, HostHandler
 
 
 class TestPowerstoreHost():
@@ -32,6 +32,7 @@ class TestPowerstoreHost():
         mocker.patch(MockHostApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
         host_module_mock = PowerStoreHost()
         host_module_mock.module = MagicMock()
+        host_module_mock.module.check_mode = False
         return host_module_mock
 
     def test_get_host_response(self, host_module_mock):
@@ -42,7 +43,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert self.get_module_args['host_id'] == host_module_mock.module.exit_json.call_args[1]['host_details']['id']
         host_module_mock.conn.provisioning.get_host_details.assert_called()
 
@@ -54,7 +55,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert self.get_module_args['host_name'] == host_module_mock.module.exit_json.call_args[1]['host_details']['name']
         host_module_mock.conn.provisioning.get_host_by_name.assert_called()
 
@@ -69,7 +70,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_TWO)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.get_host_more_than_one_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -89,7 +90,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_wo_port_type_iscsi(self, host_module_mock):
@@ -107,7 +108,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_wo_port_type_nvme_wo_port_type(self, host_module_mock):
@@ -125,7 +126,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_wo_port_type_nvme(self, host_module_mock):
@@ -143,7 +144,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.create_host.assert_called()
 
     def test_create_host_fc_detailed_initiator_wo_port_type(self, host_module_mock):
@@ -161,7 +162,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.create_host.assert_called()
 
     def test_create_host_fc_detailed_initiator(self, host_module_mock):
@@ -179,7 +180,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.create_host.assert_called()
 
     def test_create_host_with_fc_initiators(self, host_module_mock):
@@ -193,7 +194,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_wo_initiator_state(self, host_module_mock):
@@ -206,7 +207,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_wo_initiator_state_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -222,7 +223,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_with_new_name_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -236,7 +237,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_wo_initiator_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -251,7 +252,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_with_nvme_initiators(self, host_module_mock):
@@ -265,7 +266,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_create_host_with_mixed_initiators(self, host_module_mock):
@@ -281,7 +282,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_mixed_initiators_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -295,7 +296,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_by_name = MagicMock(
             return_value=None)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_without_os_type_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -309,7 +310,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.modify_os_type_failed_msg() in \
             host_module_mock.module.fail_json.call_args[1]['msg']
 
@@ -323,7 +324,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_add_iscsi_initiator_detailed_initiator(self, host_module_mock):
@@ -342,7 +343,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_add_nvme_initiator_detailed_initiator(self, host_module_mock):
@@ -361,7 +362,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.modify_host.assert_called()
 
     def test_add_nvme_initiator(self, host_module_mock):
@@ -374,7 +375,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_4)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.modify_host.assert_called()
 
     def test_add_fc_initiator_detailed_initiator(self, host_module_mock):
@@ -393,7 +394,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.modify_host.assert_called()
 
     def test_add_fc_initiator(self, host_module_mock):
@@ -406,7 +407,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_5)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.modify_host.assert_called()
 
     def test_remove_initiator_detailed_initiator(self, host_module_mock):
@@ -425,7 +426,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_2)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_remove_non_existing_initiator_detailed_initiator(self, host_module_mock):
@@ -444,7 +445,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_2)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is False
 
     def test_add_existing_initiator_detailed_initiator(self, host_module_mock):
@@ -463,7 +464,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is False
 
     def test_add_existing_initiator(self, host_module_mock):
@@ -476,7 +477,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is False
 
     def test_remove_initiator(self, host_module_mock):
@@ -489,7 +490,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_2)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_remove_initiator_no_init(self, host_module_mock):
@@ -502,7 +503,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS_3)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is False
 
     def test_rename_host(self, host_module_mock):
@@ -514,7 +515,7 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_delete_host(self, host_module_mock):
@@ -525,5 +526,5 @@ class TestPowerstoreHost():
         host_module_mock.module.params = self.get_module_args
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
-        host_module_mock.perform_module_operation()
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
         host_module_mock.conn.provisioning.delete_host.assert_called()

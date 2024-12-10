@@ -1,4 +1,4 @@
-# Copyright: (c) 2021, Dell Technologies
+# Copyright: (c) 2024, Dell Technologies
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -24,7 +24,8 @@ class MockHostApi:
         'initiator_state': None,
         'new_name': None,
         'os_type': None,
-        'host_connectivity': None
+        'host_connectivity': None,
+        'description': None
     }
     HOST_NAME_1 = "Sample_host_1"
     HOST_DETAILS = {
@@ -197,7 +198,7 @@ class MockHostApi:
 
     @staticmethod
     def create_host_wo_initiator_failed_msg():
-        return "failed with error"
+        return "initiators or detailed_initiators are mandatory along with initiator_state"
 
     @staticmethod
     def create_host_with_new_name_failed_msg():
