@@ -136,8 +136,8 @@ options:
     - Define whether the host should exist or not.
     - Value C(present) - indicates that the host should exist in system.
     - Value C(absent) - indicates that the host should not exist in system.
-    required: true
     choices: ['absent', 'present']
+    default: 'present'
     type: str
 attributes:
   check_mode:
@@ -466,15 +466,16 @@ class PowerStoreHost(object):
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_host(self, host_name):
-        '''
+        """
         Create host with given initiators
-        '''
+        """
         try:
-            initiators = self.module.params['initiators']
-            detailed_initiators = self.module.params['detailed_initiators']
-            host_connectivity = self.module.params['host_connectivity']
+            params = self.module.params
+            initiators = params.get('initiators')
+            detailed_initiators = params.get('detailed_initiators')
+            host_connectivity = params.get('host_connectivity')
+            os_type = params.get('os_type')
 
-            os_type = self.module.params['os_type']
             if os_type is None:
                 error_msg = "Create host {0} failed as os_type is not " \
                             "specified".format(host_name)
@@ -482,59 +483,38 @@ class PowerStoreHost(object):
                 self.module.fail_json(msg=error_msg)
 
             if initiators:
-                list_of_initiators = []
-                initiator_type = []
-                for initiator in initiators:
-                    current_initiator = {}
-                    current_initiator['port_name'] = initiator
-                    if initiator.startswith('iqn'):
-                        current_initiator['port_type'] = PORT_TYPES[0]  # iSCSI
-                        initiator_type.append(PORT_TYPES[0])
-                    elif initiator.startswith('nqn'):
-                        current_initiator['port_type'] = PORT_TYPES[2]  # NVMe
-                        initiator_type.append(PORT_TYPES[2])
-                    else:
-                        current_initiator['port_type'] = PORT_TYPES[1]  # FC
-                        initiator_type.append(PORT_TYPES[1])
-                    list_of_initiators.append(current_initiator)
+                list_of_initiators = [
+                    {
+                        'port_name': i,
+                        'port_type': self._get_port_type(i)
+                    } for i in initiators
+                ]
+            else:
+                list_of_initiators = detailed_initiators
 
-                if 'iSCSI' in initiator_type and 'FC' in initiator_type \
-                        and 'NVMe' in initiator_type:
+            if list_of_initiators:
+                port_types = set(i['port_type'] for i in list_of_initiators)
+                if len(port_types) > 1:
+                    inits = [i['port_name'] for i in list_of_initiators]
                     error_msg = ('Invalid initiators. Cannot add IQN, WWN and'
                                  ' NQN as part of host. Connect either fiber '
-                                 'channel or iSCSI or NVMe.'
-                                 )
+                                 'channel or iSCSI or NVMe. Initiators: {0}'.format(inits))
                     LOG.error(error_msg)
                     self.module.fail_json(msg=error_msg)
 
-                if not self.module.check_mode:
-                    LOG.info("Creating host %s with initiators %s", host_name,
-                             list_of_initiators)
-                    resp = self.conn.provisioning.create_host(
-                        name=host_name, os_type=os_type,
-                        initiators=list_of_initiators,
-                        host_connectivity=host_connectivity,
-                        description=self.module.params['description'])
-                return True
-            else:
-                for initiator in detailed_initiators:
-                    if initiator['port_type'] is None:
-                        if initiator['port_name'].startswith('iqn'):
-                            initiator['port_type'] = PORT_TYPES[0]  # iSCSI
-                        elif initiator['port_name'].startswith('nqn'):
-                            initiator['port_type'] = PORT_TYPES[2]  # NVMe
-                        else:
-                            initiator['port_type'] = PORT_TYPES[1]  # FC
+            payload = {
+                'name': host_name,
+                'os_type': os_type,
+                'initiators': list_of_initiators,
+                'host_connectivity': host_connectivity,
+                'description': params.get('description')
+            }
 
-                if not self.module.check_mode:
-                    LOG.info("Creating host %s with initiators %s", host_name,
-                             detailed_initiators)
-                    resp = self.conn.provisioning.create_host(
-                        name=host_name, os_type=os_type,
-                        initiators=detailed_initiators,
-                        host_connectivity=host_connectivity)
-                    LOG.info("The response is %s", resp)
-                return True
+            if not self.module.check_mode:
+                LOG.info("Creating host %s with initiators %s", host_name,
+                         list_of_initiators)
+                self.conn.provisioning.create_host(**payload)
+            return True
 
         except Exception as e:
             error_msg = 'Create host {0} failed with error {1}'.format(
@@ -542,6 +522,14 @@ class PowerStoreHost(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
         return None
+
+    def _get_port_type(self, initiator):
+        if initiator.startswith('iqn'):
+            return PORT_TYPES[0]
+        elif initiator.startswith('nqn'):
+            return PORT_TYPES[2]
+        else:
+            return PORT_TYPES[1]
 
     def _get_add_initiators(self, existing, requested):
         all_inits = existing + requested
@@ -552,90 +540,75 @@ class PowerStoreHost(object):
         rem_inits = list(set(existing).intersection(set(requested)))
         return rem_inits
 
+    def _prepare_add_list_with_type(self, add_list, detailed_initiators):
+        add_list_with_type = []
+        for init in add_list:
+            # when detailed_initiators param is used to add new initiators
+            if detailed_initiators:
+                for detailed_init in detailed_initiators:
+                    if init == detailed_init['port_name']:
+                        current_initiator = {}
+                        current_initiator['port_name'] = init
+                        # iSCSI
+                        if init.startswith('iqn'):
+                            current_initiator['chap_single_username'] \
+                                = detailed_init['chap_single_username']
+                            current_initiator['chap_single_password'] \
+                                = detailed_init['chap_single_password']
+                            current_initiator['chap_mutual_username'] \
+                                = detailed_init['chap_mutual_username']
+                            current_initiator['chap_mutual_password'] \
+                                = detailed_init['chap_mutual_password']
+                        current_initiator['port_type'] = self._get_port_type(initiator=init)
+                        add_list_with_type.append(current_initiator)
+            # when initiators param is used to add new initiators
+            else:
+                current_initiator = {}
+                current_initiator['port_name'] = init
+                current_initiator['port_type'] = self._get_port_type(initiator=init)
+                add_list_with_type.append(current_initiator)
+
+        return add_list_with_type
+
     def add_host_initiators(self, host, modify_dict):
         initiators = self.module.params['initiators']
         detailed_initiators = self.module.params['detailed_initiators']
         add_list = None
-        try:
-            existing_inits = []
-            if 'host_initiators' in host:
-                current_initiators = host['host_initiators']
-                if current_initiators:
-                    for initiator in current_initiators:
-                        existing_inits.append(initiator['port_name'])
-            if initiators \
-                    and (set(initiators).issubset(set(existing_inits))):
-                LOG.info('Initiators are already present in host %s',
-                         host['name'])
+        existing_inits = []
+        if 'host_initiators' in host:
+            current_initiators = host['host_initiators']
+            if current_initiators:
+                for initiator in current_initiators:
+                    existing_inits.append(initiator['port_name'])
+        if initiators \
+                and (set(initiators).issubset(set(existing_inits))):
+            LOG.info('Initiators are already present in host %s',
+                     host['name'])
 
-                return modify_dict
-
-            initiator_list = []
-            if detailed_initiators is not None:
-                initiator_list = [p_name['port_name'] for p_name in
-                                  detailed_initiators]
-
-            if detailed_initiators and \
-                    (set(initiator_list).issubset(set(existing_inits))):
-                LOG.info('Initiators are already present in host %s',
-                         host['name'])
-                return modify_dict
-
-            if detailed_initiators:
-                initiators = []
-                for initiator in detailed_initiators:
-                    initiators.append(initiator['port_name'])
-
-            add_list = self._get_add_initiators(existing_inits, initiators)
-            add_list_with_type = []
-            for init in add_list:
-                # when detailed_initiators param is used to add new initiators
-                if detailed_initiators:
-                    for detailed_init in detailed_initiators:
-                        if init == detailed_init['port_name']:
-                            current_initiator = {}
-                            current_initiator['port_name'] = init
-                            # iSCSI
-                            if init.startswith('iqn'):
-                                current_initiator['port_type'] = PORT_TYPES[0]
-                                current_initiator['chap_single_username'] \
-                                    = detailed_init['chap_single_username']
-                                current_initiator['chap_single_password'] \
-                                    = detailed_init['chap_single_password']
-                                current_initiator['chap_mutual_username'] \
-                                    = detailed_init['chap_mutual_username']
-                                current_initiator['chap_mutual_password'] \
-                                    = detailed_init['chap_mutual_password']
-                            # NVMe
-                            elif init.startswith('nqn'):
-                                current_initiator['port_type'] = PORT_TYPES[2]
-                            # FC
-                            else:
-                                current_initiator['port_type'] = PORT_TYPES[1]
-                            add_list_with_type.append(current_initiator)
-                # when initiators param is used to add new initiators
-                else:
-                    current_initiator = {}
-                    current_initiator['port_name'] = init
-                    # iSCSI
-                    if init.startswith('iqn'):
-                        current_initiator['port_type'] = PORT_TYPES[0]
-                    # NVMe
-                    elif init.startswith('nqn'):
-                        current_initiator['port_type'] = PORT_TYPES[2]
-                    # FC
-                    else:
-                        current_initiator['port_type'] = PORT_TYPES[1]
-                    add_list_with_type.append(current_initiator)
-
-            if len(add_list_with_type) > 0:
-                modify_dict["add_initiators"] = add_list_with_type
             return modify_dict
-        except Exception as e:
-            error_msg = ("Adding initiators {0} to host {1} failed with error"
-                         " {2}".format(add_list, host['name'], str(e)))
-            LOG.error(error_msg)
-            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
+        initiator_list = []
+        if detailed_initiators is not None:
+            initiator_list = [p_name['port_name'] for p_name in
+                              detailed_initiators]
+
+        if detailed_initiators and \
+                (set(initiator_list).issubset(set(existing_inits))):
+            LOG.info('Initiators are already present in host %s',
+                     host['name'])
+            return modify_dict
+
+        if detailed_initiators:
+            initiators = []
+            for initiator in detailed_initiators:
+                initiators.append(initiator['port_name'])
+
+        add_list = self._get_add_initiators(existing_inits, initiators)
+        add_list_with_type = self._prepare_add_list_with_type(
+            add_list=add_list, detailed_initiators=detailed_initiators)
+        if len(add_list_with_type) > 0:
+            modify_dict["add_initiators"] = add_list_with_type
+        return modify_dict
 
     def remove_host_initiators(self, host, modify_dict):
         initiators = self.module.params['initiators']
@@ -796,29 +769,27 @@ class PowerStoreHost(object):
                 modify_dict = self.is_modify_required(host=diff_dict, host_params=host_params)
                 for key in modify_dict.keys():
                     diff_dict[key] = modify_dict[key]
-                diff_dict = self.initiator_difference(
-                    host_params=host_params,
-                    host_details=host_details,
-                    diff_dict=diff_dict)
+                diff_dict = self.initiator_difference(diff_dict=diff_dict)
             return diff_dict
 
-    def initiator_difference(self, host_params, host_details, diff_dict):
+    def initiator_difference(self, diff_dict):
         refined_init = []
-        for initiator in diff_dict['host_initiators']:
-            refined_init.append(initiator['port_name'])
-        diff_dict['host_initiators'] = refined_init
+        if diff_dict['host_initiators']:
+            for initiator in diff_dict['host_initiators']:
+                refined_init.append(initiator['port_name'])
+            diff_dict['host_initiators'] = refined_init
 
-        if 'add_initiators' in diff_dict and len(diff_dict['add_initiators']) > 0:
-            add_initiators = []
-            for initiator in diff_dict['add_initiators']:
-                add_initiators.append(initiator['port_name'])
+            if 'add_initiators' in diff_dict and len(diff_dict['add_initiators']) > 0:
+                add_initiators = []
+                for initiator in diff_dict['add_initiators']:
+                    add_initiators.append(initiator['port_name'])
 
-        if 'add_initiators' in diff_dict:
-            diff_dict['host_initiators'] = diff_dict['host_initiators'] + add_initiators
-            del diff_dict['add_initiators']
-        if 'remove_initiators' in diff_dict:
-            diff_dict['host_initiators'] = list(set(diff_dict['host_initiators']) - set(diff_dict['remove_initiators']))
-            del diff_dict['remove_initiators']
+            if 'add_initiators' in diff_dict:
+                diff_dict['host_initiators'] = diff_dict['host_initiators'] + add_initiators
+                del diff_dict['add_initiators']
+            if 'remove_initiators' in diff_dict:
+                diff_dict['host_initiators'] = list(set(diff_dict['host_initiators']) - set(diff_dict['remove_initiators']))
+                del diff_dict['remove_initiators']
         return diff_dict
 
     def check_initiators(self, host, host_params, modify_dict):
@@ -876,8 +847,7 @@ def get_powerstore_host_parameters():
                                                    required=False,
                                                    no_log=True))
         ),
-        state=dict(required=True, choices=['present', 'absent'],
-                   type='str'),
+        state=dict(choices=['present', 'absent'], default='present'),
         initiator_state=dict(required=False, choices=['absent-in-host',
                                                       'present-in-host'],
                              type='str'),
@@ -951,7 +921,6 @@ class HostHandler:
             host_id = host_obj.get_host_id_by_name(host_name=host_params['host_name'])
         if host_id:
             host_details = host_obj.get_host(host_id=host_id)
-            host_name = host_details['name']
         else:
             host_details = None
         changed = False
@@ -969,7 +938,7 @@ class HostHandler:
             before_dict = {}
         else:
             before_dict = copy.deepcopy(host_details)
-            if len(before_dict['host_initiators']) > 0:
+            if before_dict['host_initiators'] and len(before_dict['host_initiators']) > 0:
                 refined_init = []
                 for initiator in before_dict['host_initiators']:
                     refined_init.append(initiator['port_name'])

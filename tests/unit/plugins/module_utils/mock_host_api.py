@@ -198,7 +198,7 @@ class MockHostApi:
 
     @staticmethod
     def create_host_wo_initiator_failed_msg():
-        return "failed with error"
+        return "initiators or detailed_initiators are mandatory along with initiator_state"
 
     @staticmethod
     def create_host_with_new_name_failed_msg():
