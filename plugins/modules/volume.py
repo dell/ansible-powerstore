@@ -23,6 +23,8 @@ author:
 - Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
 - Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
 - Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
+- Trisha Datta(@trisha-dell) <ansible.team@dell.com>
+
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 options:
@@ -259,7 +261,14 @@ options:
     - Whether to delete the remote volume during removal of metro session.
     - This is parameter is added in the PowerStore version 3.0.0.0.
     type: bool
-
+attributes:
+  check_mode:
+    description: Runs task to validate without performing action on the target
+                 machine.
+    support: full
+  diff_mode:
+    description: Runs the task to report the changes made or to be made.
+    support: full
 notes:
 - To create a new volume, I(vol_name) and I(size) is required. I(cap_unit),
   I(description), I(vg_name), I(performance_policy), and I(protection_policy) are
@@ -272,7 +281,6 @@ notes:
   group cannot be deleted.
 - If volume in metro session, volume can only be modified, refreshed and
   restored when session is in the pause state.
-- The I(Check_mode) is not supported.
 - I(performance_policy) and I(host_group) details are not in the return values for
   PowerStore 4.0.0.0.
 '''
@@ -621,6 +629,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell\
     import utils
 import logging
+import copy
 
 LOG = utils.get_logger('volume', log_devel=logging.INFO)
 
@@ -650,7 +659,7 @@ class PowerStoreVolume(object):
         # initialize the ansible module
         self.module = AnsibleModule(
             argument_spec=self.module_params,
-            supports_check_mode=False,
+            supports_check_mode=True,
             mutually_exclusive=mutually_exclusive,
             required_one_of=required_one_of,
             required_by=required_by
@@ -667,7 +676,11 @@ class PowerStoreVolume(object):
 
         # result is a dictionary that contains changed status and
         # volume details
-        self.result = {"changed": False, "volume_details": {}}
+        self.result = {
+            "changed": False,
+            "volume_details": {},
+            "diff": {}
+        }
         self.conn = utils.get_powerstore_connection(
             self.module.params)
         self.provisioning = self.conn.provisioning
@@ -687,6 +700,7 @@ class PowerStoreVolume(object):
             if vol_id is not None:
                 return self.provisioning.get_volume_details(vol_id)
             else:
+                LOG.info("Get volume: %s", vol_name)
                 volume_info = self.provisioning.get_volume_by_name(vol_name)
                 if volume_info:
                     if len(volume_info) > 1:
@@ -729,23 +743,24 @@ class PowerStoreVolume(object):
         """Create PowerStore volume"""
 
         try:
-            msg = ("Creating volume {0} of size {1} with performance policy"
-                   " {2}, protection_policy {3}, description {4} and"
-                   " volume_group {5}" .format(vol_name, size,
-                                               performance_policy,
-                                               protection_policy_id,
-                                               description, volume_group_id))
-            LOG.info(msg)
-            self.provisioning.create_volume(
-                name=vol_name,
-                size=size,
-                description=description,
-                performance_policy_id=performance_policy,
-                protection_policy_id=protection_policy_id,
-                volume_group_id=volume_group_id,
-                app_type=app_type,
-                app_type_other=app_type_other,
-                appliance_id=appliance_id)
+            if not self.module.check_mode:
+                msg = ("Creating volume {0} of size {1} with performance policy"
+                       " {2}, protection_policy {3}, description {4} and"
+                       " volume_group {5}" .format(vol_name, size,
+                                                   performance_policy,
+                                                   protection_policy_id,
+                                                   description, volume_group_id))
+                LOG.info(msg)
+                self.provisioning.create_volume(
+                    name=vol_name,
+                    size=size,
+                    description=description,
+                    performance_policy_id=performance_policy,
+                    protection_policy_id=protection_policy_id,
+                    volume_group_id=volume_group_id,
+                    app_type=app_type,
+                    app_type_other=app_type_other,
+                    appliance_id=appliance_id)
             return True
         except Exception as e:
             msg = 'Create volume {0} failed with error {1}'.format(
@@ -766,25 +781,26 @@ class PowerStoreVolume(object):
         # old_volume_name and name can be same if a new name is not passed
         # old_volume_name added for logging purpose
         try:
-            msg = (
-                "Modifying volume {0} with size {1}, performance policy {2}, "
-                "protection_policy {3}, description {4} and name {5}".format(
-                    old_volume_name,
-                    size,
-                    performance_policy,
-                    protection_policy_id,
-                    description,
-                    name))
-            LOG.info(msg)
-            self.provisioning.modify_volume(
-                volume_id=vol_id,
-                name=name,
-                size=size,
-                description=description,
-                performance_policy_id=performance_policy,
-                protection_policy_id=protection_policy_id,
-                app_type=app_type,
-                app_type_other=app_type_other)
+            if not self.module.check_mode:
+                msg = (
+                    "Modifying volume {0} with size {1}, performance policy {2}, "
+                    "protection_policy {3}, description {4} and name {5}".format(
+                        old_volume_name,
+                        size,
+                        performance_policy,
+                        protection_policy_id,
+                        description,
+                        name))
+                LOG.info(msg)
+                self.provisioning.modify_volume(
+                    volume_id=vol_id,
+                    name=name,
+                    size=size,
+                    description=description,
+                    performance_policy_id=performance_policy,
+                    protection_policy_id=protection_policy_id,
+                    app_type=app_type,
+                    app_type_other=app_type_other)
             return True
         except Exception as e:
             msg = 'Modify volume {0} failed with error {1}'.format(
@@ -809,10 +825,11 @@ class PowerStoreVolume(object):
             LOG.info('Mapping volume %s to host %s with HLU %s', vol['name'],
                      host_identifier, hlu)
             try:
-                self.provisioning.map_volume_to_host(
-                    volume_id=vol['id'],
-                    host_id=host,
-                    logical_unit_number=hlu)
+                if not self.module.check_mode:
+                    self.provisioning.map_volume_to_host(
+                        volume_id=vol['id'],
+                        host_id=host,
+                        logical_unit_number=hlu)
                 return True
             except Exception as e:
                 error_msg = ('Mapping volume {0} to host {1} failed with'
@@ -830,8 +847,10 @@ class PowerStoreVolume(object):
             LOG.info('Unmapping volume %s from host %s', vol['name'],
                      host_identifier)
             try:
-                self.provisioning.unmap_volume_from_host(volume_id=vol['id'],
-                                                         host_id=host)
+                if not self.module.check_mode:
+                    self.provisioning.unmap_volume_from_host(
+                        volume_id=vol['id'],
+                        host_id=host)
                 return True
             except Exception as e:
                 error_msg = ('Unmapping volume {0} from host {1} failed with'
@@ -881,8 +900,9 @@ class PowerStoreVolume(object):
             LOG.info('Unmapping volume %s from hostgroup %s', vol['name'],
                      host_group_identifier)
             try:
-                self.provisioning.unmap_volume_from_host_group(
-                    volume_id=vol['id'], host_group_id=hostgroup_details['id'])
+                if not self.module.check_mode:
+                    self.provisioning.unmap_volume_from_host_group(
+                        volume_id=vol['id'], host_group_id=hostgroup_details['id'])
                 return True
             except Exception as e:
                 error_msg = (
@@ -898,8 +918,9 @@ class PowerStoreVolume(object):
         Delete volume from system
         """
         try:
-            LOG.info('Deleting volume %s', volume['name'])
-            self.provisioning.delete_volume(volume['id'])
+            if not self.module.check_mode:
+                LOG.info('Deleting volume %s', volume['name'])
+                self.provisioning.delete_volume(volume['id'])
             return True
         except Exception as e:
             error_msg = 'Delete volume {0} failed with error {1}'.format(
@@ -944,18 +965,19 @@ class PowerStoreVolume(object):
             if vol_details:
                 return False
             clone_details = self.validate_clone_details(clone_details)
-            clone_payload = {
-                'volume_id': vol_id,
-                'name': clone_details['name'],
-                'description': clone_details['description'],
-                'host_id': clone_details['host_id'],
-                'host_group_id': clone_details['host_group_id'],
-                'logical_unit_number': clone_details['logical_unit_number'],
-                'protection_policy_id': clone_details['protection_policy_id'],
-                'performance_policy_id': clone_details['performance_policy_id']
-            }
-            clone_result = self.provisioning.clone_volume(**clone_payload)
-            LOG.debug(clone_result)
+            if not self.module.check_mode:
+                clone_payload = {
+                    'volume_id': vol_id,
+                    'name': clone_details['name'],
+                    'description': clone_details['description'],
+                    'host_id': clone_details['host_id'],
+                    'host_group_id': clone_details['host_group_id'],
+                    'logical_unit_number': clone_details['logical_unit_number'],
+                    'protection_policy_id': clone_details['protection_policy_id'],
+                    'performance_policy_id': clone_details['performance_policy_id']
+                }
+                clone_result = self.provisioning.clone_volume(**clone_payload)
+                LOG.debug(clone_result)
             return True
         except Exception as e:
             errormsg = "Cloning volume %s failed with error %s" % (vol_id, str(e))
@@ -1067,14 +1089,15 @@ class PowerStoreVolume(object):
                 if exists:
                     return False
             refresh_details = self.validate_refresh_restore_details('refresh', refresh_details)
-            refresh_payload = {
-                'volume_id': vol_id,
-                'volume_id_to_refresh_from': refresh_details['source_volume_id'],
-                'create_backup_snap': refresh_details['create_backup_snap']
-            }
-            refresh_payload.update(get_backupsnap_profile_details(refresh_details))
-            refresh_result = self.provisioning.refresh_volume(**refresh_payload)
-            LOG.debug(refresh_result)
+            if not self.module.check_mode:
+                refresh_payload = {
+                    'volume_id': vol_id,
+                    'volume_id_to_refresh_from': refresh_details['source_volume_id'],
+                    'create_backup_snap': refresh_details['create_backup_snap']
+                }
+                refresh_payload.update(get_backupsnap_profile_details(refresh_details))
+                refresh_result = self.provisioning.refresh_volume(**refresh_payload)
+                LOG.debug(refresh_result)
             return True
         except Exception as e:
             errormsg = "Refreshing volume %s failed with error %s" % (vol_id, str(e))
@@ -1100,14 +1123,15 @@ class PowerStoreVolume(object):
                 if exists:
                     return False
             restore_details = self.validate_refresh_restore_details('restore', restore_details)
-            restore_payload = {
-                'volume_id': vol_id,
-                'snap_id_to_restore_from': restore_details['source_snap_id'],
-                'create_backup_snap': restore_details['create_backup_snap']
-            }
-            restore_payload.update(get_backupsnap_profile_details(restore_details))
-            restore_result = self.provisioning.restore_volume(**restore_payload)
-            LOG.debug(restore_result)
+            if not self.module.check_mode:
+                restore_payload = {
+                    'volume_id': vol_id,
+                    'snap_id_to_restore_from': restore_details['source_snap_id'],
+                    'create_backup_snap': restore_details['create_backup_snap']
+                }
+                restore_payload.update(get_backupsnap_profile_details(restore_details))
+                restore_result = self.provisioning.restore_volume(**restore_payload)
+                LOG.debug(restore_result)
             return True
         except Exception as e:
             errormsg = "Restoring volume %s failed with error %s" % (vol_id, str(e))
@@ -1129,12 +1153,13 @@ class PowerStoreVolume(object):
         :rtype: bool
         """
         try:
-            msg = "Establish a metro configuration for volume {0} to remote" \
-                  " system {1}".format(volume['name'], remote_system)
-            LOG.info(msg)
-            self.provisioning.configure_metro_volume(
-                volume_id=volume['id'], remote_system_id=remote_system,
-                remote_appliance_id=remote_appliance_id)
+            if not self.module.check_mode:
+                msg = "Establish a metro configuration for volume {0} to remote" \
+                    " system {1}".format(volume['name'], remote_system)
+                LOG.info(msg)
+                self.provisioning.configure_metro_volume(
+                    volume_id=volume['id'], remote_system_id=remote_system,
+                    remote_appliance_id=remote_appliance_id)
             return True
         except Exception as e:
             err_msg = "Failed to configure metro for volume {0} with error" \
@@ -1153,290 +1178,18 @@ class PowerStoreVolume(object):
         :rtype: bool
         """
         try:
-            msg = "Removing the metro configuration for volume %s" % volume['name']
-            LOG.info(msg)
-            self.provisioning.end_volume_metro_config(
-                volume_id=volume['id'],
-                delete_remote_volume=delete_remote_volume)
+            if not self.module.check_mode:
+                msg = "Removing the metro configuration for volume %s" % volume['name']
+                LOG.info(msg)
+                self.provisioning.end_volume_metro_config(
+                    volume_id=volume['id'],
+                    delete_remote_volume=delete_remote_volume)
             return True
         except Exception as e:
             err_msg = "Failed to remove the metro configuration for volume " \
                       "{0} with error {1}".format(volume['name'], str(e))
             LOG.error(err_msg)
             self.module.fail_json(msg=err_msg, **utils.failure_codes(e))
-
-    def perform_module_operation(self):
-        """
-        Perform different actions on volume based on user parameters
-        chosen in playbook
-        """
-        size = self.module.params['size']
-        cap_unit = self.module.params['cap_unit']
-        state = self.module.params['state']
-        new_name = self.module.params['new_name']
-        vol_id = self.module.params['vol_id']
-        vol_name = self.module.params['vol_name']
-        volume_group_id = self.get_volume_group_id_by_name(
-            self.module.params['vg_name'])
-        protection_policy_id = self.get_protection_policy_id_by_name(
-            self.module.params['protection_policy'])
-        performance_policy = self.get_performance_policy(
-            self.module.params['performance_policy'])
-        description = self.module.params['description']
-        mapping_state = self.module.params['mapping_state']
-        host = self.get_host_id_by_name(self.module.params['host'])
-        hostgroup_details = self.get_host_group_id_by_name(
-            self.module.params['hostgroup'])
-        hostgroup = None
-        if hostgroup_details:
-            hostgroup = hostgroup_details['id']
-        hlu = self.module.params['hlu']
-        clone_volume = self.module.params['clone_volume']
-        source_volume = self.module.params['source_volume']
-        source_snap = self.module.params['source_snap']
-        create_backup_snap = self.module.params['create_backup_snap']
-        backup_snap_profile = self.module.params['backup_snap_profile']
-        remote_system = self.get_remote_system_id(
-            self.module.params['remote_system'])
-        remote_appliance_id = self.get_remote_appliance_id(
-            remote_system, self.module.params['remote_appliance_id'])
-        end_metro_config = self.module.params['end_metro_config']
-        delete_remote_volume = self.module.params['delete_remote_volume']
-        app_type = self.module.params['app_type']
-        app_type_other = self.module.params['app_type_other']
-        appliance_id = self.module.params['appliance_id']
-        if self.module.params['appliance_name']:
-            appliance_id = self.get_appliance_id_by_name(
-                self.module.params['appliance_name'])
-
-        changed = False
-        is_volume_refreshed = False
-        is_volume_cloned = False
-        is_volume_restored = False
-        volume = self.get_volume(vol_id, vol_name)
-        # fetching the volume id from volume details
-        if volume is not None:
-            vol_id = volume['id']
-
-        if size:
-            if cap_unit:
-                size = int(utils.get_size_bytes(size, cap_unit))
-            else:
-                size = int(utils.get_size_bytes(size, 'GB'))
-
-        if (cap_unit is not None) and not size:
-            self.module.fail_json(msg="cap_unit can be specified along "
-                                      "with size. Please enter a valid size.")
-
-        if app_type_other is not None and len(app_type_other) > 32:
-            self.module.fail_json(msg="Max Length for option "
-                                      "'app_type_other' is 32. "
-                                      "Enter a valid string.")
-
-        # Call to create volume
-        if state == 'present' and volume is None:
-            if vol_name is None or len(vol_name.strip()) == 0:
-                self.module.fail_json(msg="Please provide valid volume name.")
-
-            if new_name:
-                msg = 'new_name specified for non-existing volume'
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-
-            if size is None:
-                msg = 'Size is a required parameter while creating volume'
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-
-            changed = self.create_volume(
-                vol_name=vol_name,
-                size=size,
-                volume_group_id=volume_group_id,
-                protection_policy_id=protection_policy_id,
-                performance_policy=performance_policy,
-                description=description,
-                app_type=app_type,
-                app_type_other=app_type_other,
-                appliance_id=appliance_id)
-            if changed:
-                vol_id = self.get_volume_id_by_name(vol_name)
-                volume = self.get_volume(vol_id=vol_id)
-
-        if state == 'present' and volume:
-            if host and hostgroup:
-                msg = 'Only one of host or hostgroup can be mapped to a' \
-                      ' volume in one call'
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-            hlu_mod_flag = True
-            if appliance_id != volume['appliance_id'] and appliance_id:
-                error_msg = f"Modifying the appliance of a volume to {appliance_id} is not allowed."
-                LOG.error(error_msg)
-                self.module.fail_json(msg=error_msg)
-            if host and hlu:
-                hlu_mod_flag, error = check_for_hlu_modification(
-                    volume, host=host, hlu=hlu)
-            if hostgroup and hlu:
-                hlu_mod_flag, error = check_for_hlu_modification(
-                    volume, hostgroup=hostgroup, hlu=hlu)
-            if hlu_mod_flag is False:
-                msg = 'Modification of HLU is not supported. {0}'.format(
-                    error)
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-            vg_mod_flag = True
-            if volume['volume_groups']:
-                # check for modification of VG
-                if len(volume['volume_groups']) > 0 and \
-                        volume_group_id is not None and \
-                        volume_group_id != volume['volume_groups'][0]['id']:
-                    vg_mod_flag = False
-                # check for assignment of a VG to an already existing volume
-            elif volume_group_id is not None:
-                vg_mod_flag = False
-            if not vg_mod_flag:
-                msg = ("Modification or assignment of Volume Group for an "
-                       "already present Volume is not supported using Volume "
-                       "module. Use Volume Group module instead.")
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-
-            name = new_name if new_name is not None else vol_name
-            current_size = volume['size']
-            if size is not None:
-                if current_size > size:
-                    msg = ("Current volume size {0} B is greater than {1} B"
-                           " specified. Only expansion of volume size is"
-                           " allowed".format(current_size, size))
-                    LOG.info(msg)
-                    self.module.fail_json(msg=msg)
-
-                if current_size == size:
-                    # passing the same size to the API results in a error,
-                    # hence
-                    # sending None instead which indicates no change
-                    msg = ('Current volume size {0} B is same as {1} B'
-                           ' specified'.format(current_size, size))
-                    LOG.info(msg)
-                    size = None
-
-            new_volume_dict = {
-                'name': name,
-                'description': description,
-                'protection_policy_id': protection_policy_id,
-                'performance_policy_id': performance_policy,
-                'size': size,
-                'app_type': app_type,
-                'app_type_other': app_type_other,
-                'appliance_id': appliance_id
-            }
-
-            # In update_dict parameters which are to be updated will have
-            # values and other parameter's value will be set to None
-            modify_flag, update_dict = \
-                check_modify_volume_required(volume, new_volume_dict)
-            if modify_flag:
-                if mapping_state is not None or hlu is not None:
-                    msg = 'Volume modification and host mapping cannot be' \
-                          ' done in the same call'
-                    LOG.info(msg)
-                    self.module.fail_json(msg=msg)
-                changed = self.modify_volume(
-                    vol_id=vol_id,
-                    old_volume_name=volume['name'],
-                    name=update_dict['name'],
-                    size=update_dict['size'],
-                    protection_policy_id=update_dict['protection_policy_id'],
-                    performance_policy=update_dict['performance_policy_id'],
-                    description=update_dict['description'],
-                    app_type=update_dict['app_type'],
-                    app_type_other=update_dict['app_type_other']) or changed
-
-        if state == 'present' and volume and mapping_state in [
-                None, 'unmapped'] and hlu:
-            error_msg = 'Invalid paramter HLU provided'
-            LOG.info(error_msg)
-            self.module.fail_json(msg=error_msg)
-
-        if (host or hostgroup) and state == 'present' and volume and \
-                mapping_state is None:
-            error_msg = 'Mapping state not provided, mandatory for mapping'
-            LOG.info(error_msg)
-            self.module.fail_json(msg=error_msg)
-
-        if state == 'present' and volume and mapping_state:
-            if not host and not hostgroup:
-                msg = 'Specify either host or hostgroup to be mapped to a' \
-                      ' volume'
-                LOG.info(msg)
-                self.module.fail_json(msg=msg)
-
-            if host:
-                changed = self.map_unmap_volume_to_host(
-                    volume, host, mapping_state) or changed
-            if hostgroup:
-                changed = self.map_unmap_volume_to_hostgroup(
-                    volume, hostgroup_details, mapping_state) or changed
-
-        if state == 'present' and clone_volume is not None:
-            changed = self.clone_volume(vol_id, clone_volume)
-            is_volume_cloned = changed
-
-        if state == 'present' and source_volume is not None:
-            refresh_details = {
-                'source_volume': source_volume,
-                'create_backup_snap': create_backup_snap,
-                'backup_snap_profile': backup_snap_profile
-            }
-            changed = self.refresh_volume(volume, refresh_details)
-            is_volume_refreshed = changed
-
-        if state == 'present' and source_snap is not None:
-            restore_details = {
-                'source_snap': source_snap,
-                'create_backup_snap': create_backup_snap,
-                'backup_snap_profile': backup_snap_profile
-            }
-            changed = self.restore_volume(volume, restore_details)
-            is_volume_restored = changed
-
-        if state == "present" and volume and remote_system is not None:
-            if 'metro_replication_session_id' in volume \
-                    and volume['metro_replication_session_id'] is not None:
-                session_id = volume['metro_replication_session_id']
-                is_metro_exists = self.is_metro_configured(
-                    session_id, remote_system)
-                changed = is_metro_exists
-            elif 'metro_replication_session_id' in volume and \
-                    volume['metro_replication_session_id'] is None:
-                changed = self.configure_metro_volume(
-                    volume, remote_system, remote_appliance_id)
-
-        if state == "present" and volume and end_metro_config is not None \
-                and end_metro_config and \
-                'metro_replication_session_id' in volume and \
-                volume['metro_replication_session_id'] is not None:
-            changed = self.end_metro_volume(volume, delete_remote_volume)
-
-        if state == 'absent' and volume:
-            LOG.info('Deleting volume %s ', volume['name'])
-            changed = self.delete_volume(volume) or changed
-
-        '''
-        Finally update the module changed state and volume details
-        '''
-
-        self.result["changed"] = changed
-        self.result["is_volume_cloned"] = is_volume_cloned
-        self.result["is_volume_refreshed"] = is_volume_refreshed
-        self.result["is_volume_restored"] = is_volume_restored
-        if state == 'present':
-            self.result["volume_details"] = self.get_volume(vol_id=vol_id)
-            if self.result["volume_details"]:
-                self.result["volume_details"].update(
-                    snapshots=self.get_volume_snapshots(self.result["volume_details"]['id'], all_snapshots=True)[1])
-                self.result["volume_details"].update(appliance_name=self.update_volume_details(self.result["volume_details"]))
-        self.module.exit_json(**self.result)
 
     def is_metro_configured(self, session_id, remote_system):
         """Check whether metro is configured for volume"""
@@ -1670,6 +1423,197 @@ class PowerStoreVolume(object):
         else:
             return self.performance_policy_dict.get(performance_policy)
 
+    def validate_create(self):
+        if self.module.params['vol_name'] is None or len(self.module.params['vol_name'].strip()) == 0:
+            self.module.fail_json(msg="Please provide valid volume name.")
+
+        if self.module.params['new_name']:
+            msg = 'new_name specified for non-existing volume'
+            LOG.info(msg)
+            self.module.fail_json(msg=msg)
+
+        if self.module.params['size'] is None:
+            msg = 'Size is a required parameter while creating volume'
+            LOG.info(msg)
+            self.module.fail_json(msg=msg)
+
+    def validate_modify(self, volume_details, volume_params, fetched_params):
+        if volume_params['state'] == 'present' and volume_details:
+            if fetched_params['host'] and fetched_params['hostgroup']:
+                msg = 'Only one of host or hostgroup can be mapped to a' \
+                      ' volume in one call'
+                LOG.info(msg)
+                self.module.fail_json(msg=msg)
+
+            hlu_mod_flag = True
+            if fetched_params['appliance_id'] != volume_details['appliance_id'] and fetched_params['appliance_id']:
+                error_msg = f"Modifying the appliance of a volume to {fetched_params['appliance_id']} is not allowed."
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+
+            if fetched_params['host'] and volume_params['hlu']:
+                hlu_mod_flag, error = check_for_hlu_modification(
+                    volume=volume_details, host=fetched_params['host'], hlu=volume_params['hlu'])
+
+            if fetched_params['hostgroup'] and volume_params['hlu']:
+                hlu_mod_flag, error = check_for_hlu_modification(
+                    volume=volume_details, hostgroup=fetched_params['hostgroup'], hlu=volume_params['hlu'])
+
+            if hlu_mod_flag is False:
+                msg = 'Modification of HLU is not supported. {0}'.format(
+                    error)
+                LOG.info(msg)
+                self.module.fail_json(msg=msg)
+
+    def check_modify_volume_required(self, volume_params, volume_details, fetched_params):
+        """Check if modification is required for volume"""
+        vg_mod_flag = True
+        if volume_details['volume_groups']:
+            # check for modification of VG
+            if len(volume_details['volume_groups']) > 0 and \
+                    fetched_params['volume_group_id'] is not None and \
+                    fetched_params['volume_group_id'] != volume_details['volume_groups'][0]['id']:
+                vg_mod_flag = False
+            # check for assignment of a VG to an already existing volume
+        elif fetched_params['volume_group_id'] is not None:
+            vg_mod_flag = False
+        if not vg_mod_flag:
+            msg = ("Modification or assignment of Volume Group for an "
+                   "already present Volume is not supported using Volume "
+                   "module. Use Volume Group module instead.")
+            LOG.info(msg)
+            self.module.fail_json(msg=msg)
+
+        name = volume_params['new_name'] if volume_params['new_name'] is not None else volume_params['vol_name']
+        current_size = volume_details['size']
+        if fetched_params['size'] is not None:
+            if current_size > fetched_params['size']:
+                msg = ("Current volume size {0} B is greater than {1} B"
+                       " specified. Only expansion of volume size is"
+                       " allowed".format(current_size, fetched_params['size']))
+                LOG.info(msg)
+                self.module.fail_json(msg=msg)
+
+            if current_size == fetched_params['size']:
+                # passing the same size to the API results in a error,
+                # hence
+                # sending None instead which indicates no change
+                msg = ('Current volume size {0} B is same as {1} B'
+                       ' specified'.format(current_size, fetched_params['size']))
+                LOG.info(msg)
+                fetched_params['size'] = None
+
+        new_volume_dict = {
+            'name': name,
+            'description': volume_params['description'],
+            'protection_policy_id': fetched_params['protection_policy_id'],
+            'performance_policy_id': fetched_params['performance_policy'],
+            'size': fetched_params['size'],
+            'app_type': volume_params['app_type'],
+            'app_type_other': volume_params['app_type_other'],
+            'appliance_id': volume_params['appliance_id']
+        }
+
+        vol_dict1 = {
+            'name': volume_details['name'],
+            'description': volume_details['description'],
+            'protection_policy_id': volume_details['protection_policy_id'],
+            'performance_policy_id': volume_details['performance_policy_id'],
+            'size': volume_details['size'],
+            'app_type': volume_details['app_type'],
+            'app_type_other': volume_details['app_type_other']
+        }
+
+        update_dict = {}
+        modify_flag = False
+        """to compare two volumes"""
+        for key in vol_dict1.keys():
+            if key in new_volume_dict.keys():
+                update_dict[key] = None
+                if new_volume_dict[key] is not None and vol_dict1[key] !=\
+                        new_volume_dict[key]:
+                    if key == 'protection_policy_id' and vol_dict1[key] is None\
+                            and new_volume_dict[key] == '':
+                        continue
+                    LOG.debug("Key %s in vol_dict1=%s,vol_dict2=%s", key,
+                              vol_dict1[key], new_volume_dict[key])
+                    update_dict[key] = new_volume_dict[key]
+                    modify_flag = True
+        return modify_flag, update_dict
+
+    def get_diff_after(self, volume_params, volume_details, fetched_params):
+        """Get diff between playbook input and host details
+        :param volume_params: Dictionary of parameters input from playbook
+        :param volume_details: Dictionary of volume details
+        :return: Dictionary of parameters of differences"""
+
+        if volume_params["state"] == "absent":
+            return {}
+        else:
+            diff_dict = {}
+            if volume_details is None:
+                diff_dict = {
+                    "app_type": volume_params['app_type'],
+                    "app_type_l10n": volume_params['app_type'],
+                    "app_type_other": volume_params['app_type_other'],
+                    "appliance_id": volume_params['appliance_id'],
+                    "appliance_name": volume_params['appliance_name'],
+                    "creation_timestamp": "",
+                    "description": volume_params['description'],
+                    "hlu_details": [],
+                    "host_group": [],
+                    "id": "",
+                    "is_host_access_available": True,
+                    "is_replication_destination": False,
+                    "location_history": None,
+                    "logical_used": None,
+                    "mapped_volumes": [],
+                    "metro_replication_session_id": None,
+                    "migration_session_id": None,
+                    "name": volume_params['vol_name'],
+                    "nguid": "",
+                    "node_affinity": "System_Select_At_Attach",
+                    "node_affinity_l10n": "System Select At Attach",
+                    "protection_data": {
+                        "copy_signature": None,
+                        "created_by_rule_id": None,
+                        "created_by_rule_name": None,
+                        "creator_type": "User",
+                        "creator_type_l10n": "User",
+                        "expiration_timestamp": None,
+                        "family_id": "",
+                        "is_app_consistent": False,
+                        "parent_id": None,
+                        "source_id": None,
+                        "source_timestamp": None
+                    },
+                    "protection_policy": {
+                        "id": "",
+                        "name": volume_params['protection_policy']
+                    },
+                    "protection_policy_id": "",
+                    "size": fetched_params['size'],
+                    "snapshots": [],
+                    "state": "Ready",
+                    "state_l10n": "Ready",
+                    "type": "Primary",
+                    "type_l10n": "Primary",
+                    "volume_groups": [],
+                    "wwn": "naa.68ccf09800f637b92d1c2289688f128d"
+                }
+
+            else:
+                diff_dict = copy.deepcopy(volume_details)
+                modify_flag, modify_dict = \
+                    self.check_modify_volume_required(
+                        volume_params=volume_params,
+                        volume_details=diff_dict,
+                        fetched_params=fetched_params)
+                if modify_flag:
+                    for key in modify_dict.keys():
+                        diff_dict[key] = modify_dict[key]
+            return diff_dict
+
 
 def prepare_host_list(vol, current_hosts, current_host_ids):
     if 'host' in vol:
@@ -1687,33 +1631,6 @@ def prepare_host_list(vol, current_hosts, current_host_ids):
             current_host_ids.append(host_t['id'])
         else:
             current_host_ids.append(host_t)
-
-
-def check_modify_volume_required(vol, vol_dict2):
-    """Check if modification is required for volume"""
-    vol_dict1 = {'name': vol['name'], 'description': vol['description'],
-                 'protection_policy_id': vol['protection_policy_id'],
-                 'performance_policy_id': vol['performance_policy_id'],
-                 'size': vol['size'], 'app_type': vol['app_type'],
-                 'app_type_other': vol['app_type_other']
-                 }
-
-    update_dict = {}
-    modify_flag = False
-    """to compare two volumes"""
-    for key in vol_dict1.keys():
-        if key in vol_dict2.keys():
-            update_dict[key] = None
-            if vol_dict2[key] is not None and vol_dict1[key] !=\
-                    vol_dict2[key]:
-                if key == 'protection_policy_id' and vol_dict1[key] is None\
-                        and vol_dict2[key] == '':
-                    continue
-                LOG.debug("Key %s in vol_dict1=%s,vol_dict2=%s", key,
-                          vol_dict1[key], vol_dict2[key])
-                update_dict[key] = vol_dict2[key]
-                modify_flag = True
-    return modify_flag, update_dict
 
 
 def check_for_hlu_modification(volume, hlu, host=None, hostgroup=None):
@@ -1839,11 +1756,301 @@ def get_powerstore_volume_parameters():
     )
 
 
+class VolumeExitHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        volume_obj.result["changed"] = changed
+        if volume_params['state'] == 'present':
+            if volume_id is not None:
+                volume_obj.result["volume_details"] = volume_obj.get_volume(vol_id=volume_id)
+            else:
+                volume_obj.result["volume_details"] = {}
+            if volume_obj.result["volume_details"]:
+                volume_obj.result["volume_details"].update(
+                    snapshots=volume_obj.get_volume_snapshots(
+                        volume_obj.result["volume_details"]['id'], all_snapshots=True)[1])
+                volume_obj.result["volume_details"].update(
+                    appliance_name=volume_obj.update_volume_details(volume_obj.result["volume_details"]))
+        volume_obj.module.exit_json(**volume_obj.result)
+
+
+class VolumeDeleteHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'absent' and volume_details:
+            LOG.info('Deleting volume %s ', volume_details['name'])
+            changed = volume_obj.delete_volume(volume=volume_details) or changed
+        VolumeExitHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeEndMetroHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == "present" and volume_details and volume_params['end_metro_config'] is not None \
+                and volume_params['end_metro_config'] and \
+                'metro_replication_session_id' in volume_details and \
+                volume_details['metro_replication_session_id'] is not None:
+            changed = volume_obj.end_metro_volume(volume=volume_details, delete_remote_volume=volume_params['delete_remote_volume'])
+        VolumeDeleteHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeConfigureMetroHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == "present" and volume_details and volume_params['remote_system'] is not None:
+            if 'metro_replication_session_id' in volume_details \
+                    and volume_details['metro_replication_session_id'] is not None:
+                session_id = volume_details['metro_replication_session_id']
+                is_metro_exists = volume_obj.is_metro_configured(
+                    session_id=session_id, remote_system=fetched_params['remote_system'])
+                changed = is_metro_exists
+            elif 'metro_replication_session_id' in volume_details and \
+                    volume_details['metro_replication_session_id'] is None:
+                changed = volume_obj.configure_metro_volume(
+                    volume=volume_details,
+                    remote_system=fetched_params['remote_system'],
+                    remote_appliance_id=fetched_params['remote_appliance_id'])
+        VolumeEndMetroHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeRestoreHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and volume_params['source_snap'] is not None:
+            restore_details = {
+                'source_snap': volume_params['source_snap'],
+                'create_backup_snap': volume_params['create_backup_snap'],
+                'backup_snap_profile': volume_params['backup_snap_profile']
+            }
+            volume_obj.result["is_volume_restored"] = False
+            changed = volume_obj.restore_volume(volume=volume_details, restore_details=restore_details)
+            volume_obj.result["is_volume_restored"] = changed
+        VolumeConfigureMetroHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeRefreshHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and volume_params['source_volume'] is not None:
+            refresh_details = {
+                'source_volume': volume_params['source_volume'],
+                'create_backup_snap': volume_params['create_backup_snap'],
+                'backup_snap_profile': volume_params['backup_snap_profile']
+            }
+            volume_obj.result["is_volume_refreshed"] = False
+            changed = volume_obj.refresh_volume(volume=volume_details, refresh_details=refresh_details)
+            volume_obj.result["is_volume_refreshed"] = changed
+        VolumeRestoreHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeCloneHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and volume_params['clone_volume'] is not None:
+            volume_obj.result["is_volume_cloned"] = False
+            changed = volume_obj.clone_volume(vol_id=volume_id, clone_details=volume_params['clone_volume'])
+            volume_obj.result["is_volume_cloned"] = changed
+        VolumeRefreshHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeMapUnmapHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and volume_details and volume_params['mapping_state'] in [
+                None, 'unmapped'] and volume_params['hlu']:
+            error_msg = 'Invalid paramter HLU provided'
+            LOG.info(error_msg)
+            volume_obj.module.fail_json(msg=error_msg)
+
+        if (fetched_params['host'] or fetched_params['hostgroup']) and volume_params['state'] == 'present' and volume_details and \
+                volume_params['mapping_state'] is None:
+            error_msg = 'Mapping state not provided, mandatory for mapping'
+            LOG.info(error_msg)
+            volume_obj.module.fail_json(msg=error_msg)
+
+        if volume_params['state'] == 'present' and volume_details and volume_params['mapping_state']:
+            if not fetched_params['host'] and not fetched_params['hostgroup']:
+                msg = 'Specify either host or hostgroup to be mapped to a' \
+                      ' volume'
+                LOG.info(msg)
+                volume_obj.module.fail_json(msg=msg)
+
+            if fetched_params['host'] :
+                changed = volume_obj.map_unmap_volume_to_host(
+                    vol=volume_details,
+                    host=fetched_params['host'],
+                    mapping_state=volume_params['mapping_state']) or changed
+            if fetched_params['hostgroup']:
+                changed = volume_obj.map_unmap_volume_to_hostgroup(
+                    vol=volume_details,
+                    hostgroup_details=fetched_params['hostgroup_details'],
+                    mapping_state=volume_params['mapping_state']) or changed
+        VolumeCloneHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeModifyHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and volume_details:
+            volume_obj.validate_modify(
+                volume_details=volume_details,
+                volume_params=volume_params,
+                fetched_params=fetched_params)
+
+            vg_mod_flag = True
+            if volume_details['volume_groups']:
+                # check for modification of VG
+                if len(volume_details['volume_groups']) > 0 and \
+                        fetched_params['volume_group_id'] is not None and \
+                        fetched_params['volume_group_id'] != volume_details['volume_groups'][0]['id']:
+                    vg_mod_flag = False
+                # check for assignment of a VG to an already existing volume
+            elif fetched_params['volume_group_id'] is not None:
+                vg_mod_flag = False
+            if not vg_mod_flag:
+                msg = ("Modification or assignment of Volume Group for an "
+                       "already present Volume is not supported using Volume "
+                       "module. Use Volume Group module instead.")
+                LOG.info(msg)
+                volume_obj.module.fail_json(msg=msg)
+
+            name = volume_params['new_name'] if volume_params['new_name'] is not None else volume_params['vol_name']
+            current_size = volume_details['size']
+            if fetched_params['size'] is not None:
+                if current_size > fetched_params['size']:
+                    msg = ("Current volume size {0} B is greater than {1} B"
+                           " specified. Only expansion of volume size is"
+                           " allowed".format(current_size, fetched_params['size']))
+                    LOG.info(msg)
+                    volume_obj.module.fail_json(msg=msg)
+
+                if current_size == fetched_params['size']:
+                    # passing the same size to the API results in a error,
+                    # hence
+                    # sending None instead which indicates no change
+                    msg = ('Current volume size {0} B is same as {1} B'
+                           ' specified'.format(current_size, fetched_params['size']))
+                    LOG.info(msg)
+                    fetched_params['size'] = None
+
+            new_volume_dict = {
+                'name': name,
+                'description': volume_params['description'],
+                'protection_policy_id': fetched_params['protection_policy_id'],
+                'performance_policy_id': fetched_params['performance_policy'],
+                'size': fetched_params['size'],
+                'app_type': volume_params['app_type'],
+                'app_type_other': volume_params['app_type_other'],
+                'appliance_id': volume_params['appliance_id']
+            }
+
+            # In update_dict parameters which are to be updated will have
+            # values and other parameter's value will be set to None
+            modify_flag, update_dict = \
+                volume_obj.check_modify_volume_required(
+                    volume_params=volume_params,
+                    volume_details=volume_details,
+                    fetched_params=fetched_params)
+            if modify_flag:
+                if volume_params['mapping_state'] is not None or volume_params['hlu'] is not None:
+                    msg = 'Volume modification and host mapping cannot be' \
+                          ' done in the same call'
+                    LOG.info(msg)
+                    volume_obj.module.fail_json(msg=msg)
+                changed = volume_obj.modify_volume(
+                    vol_id=volume_id,
+                    old_volume_name=volume_details['name'],
+                    name=update_dict['name'],
+                    size=update_dict['size'],
+                    protection_policy_id=update_dict['protection_policy_id'],
+                    performance_policy=update_dict['performance_policy_id'],
+                    description=update_dict['description'],
+                    app_type=update_dict['app_type'],
+                    app_type_other=update_dict['app_type_other']) or changed
+
+        VolumeMapUnmapHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeCreateHandler:
+    def handle(self, volume_obj, volume_params, volume_details, fetched_params, volume_id, changed):
+        if volume_params['state'] == 'present' and not volume_details:
+            volume_obj.validate_create()
+            changed = volume_obj.create_volume(
+                vol_name=volume_params['vol_name'],
+                size=fetched_params['size'],
+                volume_group_id=fetched_params['volume_group_id'],
+                protection_policy_id=fetched_params['protection_policy_id'],
+                performance_policy=fetched_params['performance_policy'],
+                description=volume_params['description'],
+                app_type=volume_params['app_type'],
+                app_type_other=volume_params['app_type_other'],
+                appliance_id=volume_params['appliance_id'])
+            if changed and not volume_obj.module.check_mode:
+                volume_id = volume_obj.get_volume_id_by_name(volume_name=volume_params['vol_name'])
+                volume_details = volume_obj.get_volume(vol_id=volume_id)
+
+        VolumeModifyHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
+class VolumeHandler:
+    def handle(self, volume_obj, volume_params):
+        fetched_params = dict()
+        fetched_params['volume_group_id'] = volume_obj.get_volume_group_id_by_name(
+            volume_params['vg_name'])
+        fetched_params['protection_policy_id'] = volume_obj.get_protection_policy_id_by_name(
+            volume_params['protection_policy'])
+        fetched_params['performance_policy'] = volume_obj.get_performance_policy(
+            volume_params['performance_policy'])
+        fetched_params['host'] = volume_obj.get_host_id_by_name(volume_params['host'])
+        fetched_params['hostgroup_details'] = volume_obj.get_host_group_id_by_name(
+            volume_params['hostgroup'])
+        fetched_params['hostgroup'] = None
+        if fetched_params['hostgroup_details']:
+            fetched_params['hostgroup'] = fetched_params['hostgroup_details']['id']
+        fetched_params['remote_system'] = volume_obj.get_remote_system_id(
+            volume_params['remote_system'])
+        fetched_params['remote_appliance_id'] = volume_obj.get_remote_appliance_id(
+            fetched_params['remote_system'], volume_params['remote_appliance_id'])
+        fetched_params['appliance_id'] = None
+        if volume_params['appliance_name']:
+            fetched_params['appliance_id'] = volume_obj.get_appliance_id_by_name(
+                volume_params['appliance_name'])
+
+        changed = False
+        volume_details = volume_obj.get_volume(vol_id=volume_params['vol_id'], vol_name=volume_params['vol_name'])
+        # fetching the volume id from volume details
+        volume_id = None
+        if volume_details is not None:
+            volume_id = volume_details['id']
+        fetched_params['size'] = None
+        if volume_params['size'] is not None:
+            if volume_params['cap_unit']:
+                fetched_params['size'] = int(utils.get_size_bytes(size=volume_params['size'], cap_units=volume_params['cap_unit']))
+            else:
+                fetched_params['size'] = int(utils.get_size_bytes(size=volume_params['size'], cap_units='GB'))
+
+        if (volume_params['cap_unit'] is not None) and not fetched_params['size']:
+            volume_obj.module.fail_json(msg="cap_unit can be specified along "
+                                            "with size. Please enter a valid size.")
+
+        if volume_params['app_type_other'] is not None and len(volume_params['app_type_other']) > 32:
+            volume_obj.module.fail_json(msg="Max Length for option "
+                                            "'app_type_other' is 32. "
+                                            "Enter a valid string.")
+
+        before_dict = {}
+        diff_dict = {}
+        diff_dict = volume_obj.get_diff_after(
+            volume_params=volume_params,
+            volume_details=volume_details,
+            fetched_params=fetched_params)
+
+        if volume_details is None:
+            before_dict = {}
+        else:
+            before_dict = copy.deepcopy(volume_details)
+        if volume_obj.module._diff:
+            volume_obj.result['diff'] = dict(before=before_dict, after=diff_dict)
+
+        VolumeCreateHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+
 def main():
     """ Create PowerStore volume object and perform action on it
         based on user input from playbook"""
     obj = PowerStoreVolume()
-    obj.perform_module_operation()
+    VolumeHandler().handle(obj, obj.module.params)
 
 
 if __name__ == '__main__':
