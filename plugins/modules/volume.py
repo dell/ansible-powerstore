@@ -23,8 +23,6 @@ author:
 - Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
 - Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
 - Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
-- Trisha Datta(@trisha-dell) <ansible.team@dell.com>
-
 extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 options:
@@ -814,7 +812,6 @@ class PowerStoreVolume(object):
         host_identifier = self.module.params['host']
 
         prepare_host_list(vol, current_hosts, current_host_ids)
-
         if mapping_state == 'mapped' and host in current_host_ids:
             LOG.info('Volume %s is already mapped to host %s', vol['name'],
                      host_identifier)
@@ -1541,14 +1538,59 @@ class PowerStoreVolume(object):
                     modify_flag = True
         return modify_flag, update_dict
 
-    def get_diff_after(self, volume_params, volume_details, fetched_params):
+    def check_host_hostgroup_modification_required(self, volume_params, volume_details, fetched_params):
+        current_hosts = []
+        current_host_ids = []
+        host_identifier = self.module.params['host']
+        host = fetched_params['host']
+
+        prepare_host_list(volume_details, current_hosts, current_host_ids)
+
+        final_hlu_details = []
+        current_hlu_details = []
+        for host_hg in volume_details['hlu_details']:
+            if host_hg['host_id'] is not None:
+                current_hlu_details.append(host_hg['host_id'])
+            elif host_hg['host_group_id'] is not None:
+                current_hlu_details.append(host_hg['host_group_id'])
+
+        final_hlu_details = copy.deepcopy(current_hlu_details)
+        if host is not None:
+            if volume_params['mapping_state'] == 'mapped' and host not in current_host_ids:
+                final_hlu_details.append(host)
+
+            if volume_params['mapping_state'] == 'unmapped' and host in current_host_ids:
+                final_hlu_details = list(set(final_hlu_details) - set([host]))
+
+        hostgroup_details = fetched_params['hostgroup_details']
+        host_group_identifier = self.module.params['hostgroup']
+        if hostgroup_details is not None:
+            current_volumes = hostgroup_details['mapped_host_groups']
+            current_volume_ids = []
+            for volume in range(len(current_volumes)):
+                current_volume_ids.append(hostgroup_details['mapped_host_groups'][volume]['volume_id'])
+
+            if hostgroup_details['mapped_host_groups'] != []:
+                if volume_params['mapping_state'] == 'mapped' and volume_details['id'] in current_volume_ids:
+                    final_hlu_details.append(hostgroup_details['id'])
+                    # current_hlu_details.append(hostgroup_details['id'])
+
+            if volume_params['mapping_state'] == 'mapped' and volume_details['id'] not in current_volume_ids:
+                final_hlu_details.append(hostgroup_details['id'])
+
+            if volume_params['mapping_state'] == 'unmapped' and volume_details['id'] in current_volume_ids:
+                final_hlu_details = set(final_hlu_details) - set([hostgroup_details['id']])
+
+        return current_hlu_details, final_hlu_details
+
+    def get_diff_after(self, volume_params, volume_details, fetched_params, before_dict):
         """Get diff between playbook input and host details
         :param volume_params: Dictionary of parameters input from playbook
         :param volume_details: Dictionary of volume details
         :return: Dictionary of parameters of differences"""
 
         if volume_params["state"] == "absent":
-            return {}
+            return {}, volume_details
         else:
             diff_dict = {}
             if volume_details is None:
@@ -1604,6 +1646,7 @@ class PowerStoreVolume(object):
 
             else:
                 diff_dict = copy.deepcopy(volume_details)
+
                 modify_flag, modify_dict = \
                     self.check_modify_volume_required(
                         volume_params=volume_params,
@@ -1611,8 +1654,15 @@ class PowerStoreVolume(object):
                         fetched_params=fetched_params)
                 if modify_flag:
                     for key in modify_dict.keys():
-                        diff_dict[key] = modify_dict[key]
-            return diff_dict
+                        if modify_dict[key] is not None:
+                            diff_dict[key] = modify_dict[key]
+                before_dict['hlu_details'], diff_dict['hlu_details'] = \
+                    self.check_host_hostgroup_modification_required(
+                        volume_params=volume_params,
+                        volume_details=volume_details,
+                        fetched_params=fetched_params)
+
+            return diff_dict, before_dict
 
 
 def prepare_host_list(vol, current_hosts, current_host_ids):
@@ -1943,11 +1993,6 @@ class VolumeModifyHandler:
                     volume_details=volume_details,
                     fetched_params=fetched_params)
             if modify_flag:
-                if volume_params['mapping_state'] is not None or volume_params['hlu'] is not None:
-                    msg = 'Volume modification and host mapping cannot be' \
-                          ' done in the same call'
-                    LOG.info(msg)
-                    volume_obj.module.fail_json(msg=msg)
                 changed = volume_obj.modify_volume(
                     vol_id=volume_id,
                     old_volume_name=volume_details['name'],
@@ -2031,15 +2076,16 @@ class VolumeHandler:
 
         before_dict = {}
         diff_dict = {}
-        diff_dict = volume_obj.get_diff_after(
-            volume_params=volume_params,
-            volume_details=volume_details,
-            fetched_params=fetched_params)
-
         if volume_details is None:
             before_dict = {}
         else:
             before_dict = copy.deepcopy(volume_details)
+
+        diff_dict, before_dict = volume_obj.get_diff_after(
+            volume_params=volume_params,
+            volume_details=volume_details,
+            fetched_params=fetched_params,
+            before_dict=before_dict)
         if volume_obj.module._diff:
             volume_obj.result['diff'] = dict(before=before_dict, after=diff_dict)
 
