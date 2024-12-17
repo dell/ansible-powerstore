@@ -1834,9 +1834,9 @@ def get_powerstore_volume_parameters():
                      "Virtualization_Virtual_Servers_VSI",
                      "Virtualization_Containers_Kubernetes",
                      "Virtualization_Virtual_Desktops_VDI", "Other"]),
-        app_type_other=dict(type='str'),
-        appliance_name=dict(type='str'),
-        appliance_id=dict(type='str')
+        app_type_other=dict(),
+        appliance_name=dict(),
+        appliance_id=dict()
     )
 
 
