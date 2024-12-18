@@ -1658,10 +1658,15 @@ class PowerStoreVolume(object):
                         "source_timestamp": None
                     },
                     "protection_policy": {
-                        "id": "",
+                        "id": fetched_params['protection_policy_id'],
                         "name": volume_params['protection_policy']
                     },
-                    "protection_policy_id": "",
+                    "protection_policy_id": fetched_params['protection_policy_id'],
+                    "performance_policy": {
+                        "id": fetched_params['performance_policy'],
+                        "name": volume_params['performance_policy']
+                    },
+                    "performance_policy_id": fetched_params['performance_policy'],
                     "size": fetched_params['size'],
                     "snapshots": [],
                     "state": "Ready",
@@ -1671,6 +1676,18 @@ class PowerStoreVolume(object):
                     "volume_groups": [],
                     "wwn": "naa.68ccf09800f637b92d1c2289688f128d"
                 }
+                if fetched_params['host']:
+                    hlu_dict = {
+                        'host_id': fetched_params['host'],
+                        'hostgroup_id': None
+                    }
+                    diff_dict['hlu_details'].append(hlu_dict)
+                if fetched_params['hostgroup_details']:
+                    hlu_dict = {
+                        'host_id': None,
+                        'hostgroup_id': fetched_params['hostgroup_details']['id']
+                    }
+                    diff_dict['hlu_details'].append(hlu_dict)
 
             else:
                 diff_dict, before_dict = self.modify_diff(volume_params, volume_details, fetched_params, before_dict)
@@ -1834,9 +1851,9 @@ def get_powerstore_volume_parameters():
                      "Virtualization_Virtual_Servers_VSI",
                      "Virtualization_Containers_Kubernetes",
                      "Virtualization_Virtual_Desktops_VDI", "Other"]),
-        app_type_other=dict(),
-        appliance_name=dict(),
-        appliance_id=dict()
+        app_type_other=dict(type='str'),
+        appliance_name=dict(type='str'),
+        appliance_id=dict(type='str')
     )
 
 
