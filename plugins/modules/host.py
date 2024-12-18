@@ -521,7 +521,6 @@ class PowerStoreHost(object):
                 host_name, str(e))
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
-        return None
 
     def _get_port_type(self, initiator):
         if initiator.startswith('iqn'):
