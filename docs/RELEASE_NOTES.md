@@ -1,6 +1,6 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 3.6.0
+### Release Notes 3.7.0
 
 >   © 2024 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
@@ -28,7 +28,7 @@ Table 1. Revision history
 
 | Revision | Date         | Description                                               |
 |----------|--------------|-----------------------------------------------------------|
-| 01       | November 2024 | Current release of Ansible Modules for Dell PowerStore 3.6.0 |
+| 01       | December 2024 | Current release of Ansible Modules for Dell PowerStore 3.7.0 |
 
 Product Description
 -------------------
@@ -38,7 +38,8 @@ New features & enhancements
 ---------------------------
 Along with the previous release deliverables, this release supports these features:
 
-- Added SNMP Manager support for PowerStore.
+- Added check and diff mode support for host module.
+- Added check and diff mode support for volume module
 
 Known issues
 ------------

@@ -4,6 +4,21 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.7.0
+======
+
+Minor Changes
+-------------
+
+- Host module is enhanced to support check and diff mode.
+- Volume module is enhanced to support check and diff mode.
+
+Bug Fixes
+-------------
+
+- Added support to modify size and host in the same task 
+  for Volume module.
+
 v3.6.0
 ======
 
