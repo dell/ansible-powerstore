@@ -1658,15 +1658,15 @@ class PowerStoreVolume(object):
                         "source_timestamp": None
                     },
                     "protection_policy": {
-                        "id": fetched_params['protection_policy_id'],
-                        "name": volume_params['protection_policy']
+                        "id": fetched_params.get('protection_policy_id'),
+                        "name": volume_params.get('protection_policy')
                     },
-                    "protection_policy_id": fetched_params['protection_policy_id'],
+                    "protection_policy_id": fetched_params.get('protection_policy_id'),
                     "performance_policy": {
-                        "id": fetched_params['performance_policy'],
-                        "name": volume_params['performance_policy']
+                        "id": fetched_params.get('performance_policy'),
+                        "name": volume_params.get('performance_policy')
                     },
-                    "performance_policy_id": fetched_params['performance_policy'],
+                    "performance_policy_id": fetched_params.get('performance_policy'),
                     "size": fetched_params['size'],
                     "snapshots": [],
                     "state": "Ready",
@@ -1676,18 +1676,18 @@ class PowerStoreVolume(object):
                     "volume_groups": [],
                     "wwn": "naa.68ccf09800f637b92d1c2289688f128d"
                 }
-                if fetched_params['host']:
+                if fetched_params.get('host'):
                     hlu_dict = {
-                        'host_id': fetched_params['host'],
+                        'host_id': fetched_params.get('host'),
                         'hostgroup_id': None
                     }
-                    diff_dict['hlu_details'].append(hlu_dict)
+                    diff_dict.get('hlu_details').append(hlu_dict)
                 if fetched_params['hostgroup_details']:
                     hlu_dict = {
                         'host_id': None,
-                        'hostgroup_id': fetched_params['hostgroup_details']['id']
+                        'hostgroup_id': fetched_params.get('hostgroup_details')['id']
                     }
-                    diff_dict['hlu_details'].append(hlu_dict)
+                    diff_dict.get('hlu_details').append(hlu_dict)
 
             else:
                 diff_dict, before_dict = self.modify_diff(volume_params, volume_details, fetched_params, before_dict)
