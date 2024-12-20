@@ -1658,10 +1658,15 @@ class PowerStoreVolume(object):
                         "source_timestamp": None
                     },
                     "protection_policy": {
-                        "id": "",
-                        "name": volume_params['protection_policy']
+                        "id": fetched_params.get('protection_policy_id'),
+                        "name": volume_params.get('protection_policy')
                     },
-                    "protection_policy_id": "",
+                    "protection_policy_id": fetched_params.get('protection_policy_id'),
+                    "performance_policy": {
+                        "id": fetched_params.get('performance_policy'),
+                        "name": volume_params.get('performance_policy')
+                    },
+                    "performance_policy_id": fetched_params.get('performance_policy'),
                     "size": fetched_params['size'],
                     "snapshots": [],
                     "state": "Ready",
@@ -1671,6 +1676,18 @@ class PowerStoreVolume(object):
                     "volume_groups": [],
                     "wwn": "naa.68ccf09800f637b92d1c2289688f128d"
                 }
+                if fetched_params.get('host'):
+                    hlu_dict = {
+                        'host_id': fetched_params.get('host'),
+                        'hostgroup_id': None
+                    }
+                    diff_dict.get('hlu_details').append(hlu_dict)
+                if fetched_params['hostgroup_details']:
+                    hlu_dict = {
+                        'host_id': None,
+                        'hostgroup_id': fetched_params.get('hostgroup_details')['id']
+                    }
+                    diff_dict.get('hlu_details').append(hlu_dict)
 
             else:
                 diff_dict, before_dict = self.modify_diff(volume_params, volume_details, fetched_params, before_dict)
@@ -1834,14 +1851,14 @@ def get_powerstore_volume_parameters():
                      "Virtualization_Virtual_Servers_VSI",
                      "Virtualization_Containers_Kubernetes",
                      "Virtualization_Virtual_Desktops_VDI", "Other"]),
-        app_type_other=dict(),
-        appliance_name=dict(),
-        appliance_id=dict()
+        app_type_other=dict(type='str'),
+        appliance_name=dict(type='str'),
+        appliance_id=dict(type='str')
     )
 
 
 class VolumeExitHandler:
-    def handle(self, volume_obj, volume_params, volume_id, changed):
+    def handle(self, volume_obj, volume_params, volume_id, volume_details, changed):
         volume_obj.result["changed"] = changed
         if volume_params['state'] == 'present':
             if volume_id is not None:
@@ -1854,6 +1871,11 @@ class VolumeExitHandler:
                         volume_obj.result["volume_details"]['id'], all_snapshots=True)[1])
                 volume_obj.result["volume_details"].update(
                     appliance_name=volume_obj.update_volume_details(volume_obj.result["volume_details"]))
+        if volume_params['state'] == 'absent':
+            if volume_obj.module.check_mode:
+                volume_obj.result['volume_details'] = volume_details
+            else:
+                volume_obj.result['volume_details'] = dict()
         volume_obj.module.exit_json(**volume_obj.result)
 
 
@@ -1862,7 +1884,7 @@ class VolumeDeleteHandler:
         if volume_params['state'] == 'absent' and volume_details:
             LOG.info('Deleting volume %s ', volume_details['name'])
             changed = volume_obj.delete_volume(volume=volume_details) or changed
-        VolumeExitHandler().handle(volume_obj, volume_params, volume_id, changed)
+        VolumeExitHandler().handle(volume_obj, volume_params, volume_id, volume_details, changed)
 
 
 class VolumeEndMetroHandler:
@@ -1904,7 +1926,8 @@ class VolumeRestoreHandler:
             }
             volume_obj.result["is_volume_restored"] = False
             changed = volume_obj.restore_volume(volume=volume_details, restore_details=restore_details)
-            volume_obj.result["is_volume_restored"] = changed
+            if not volume_obj.module.check_mode:
+                volume_obj.result["is_volume_restored"] = changed
         VolumeConfigureMetroHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id,
                                              changed)
 
@@ -1919,7 +1942,8 @@ class VolumeRefreshHandler:
             }
             volume_obj.result["is_volume_refreshed"] = False
             changed = volume_obj.refresh_volume(volume=volume_details, refresh_details=refresh_details)
-            volume_obj.result["is_volume_refreshed"] = changed
+            if not volume_obj.module.check_mode:
+                volume_obj.result["is_volume_refreshed"] = changed
         VolumeRestoreHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
 
 
@@ -1928,7 +1952,8 @@ class VolumeCloneHandler:
         if volume_params['state'] == 'present' and volume_params['clone_volume'] is not None:
             volume_obj.result["is_volume_cloned"] = False
             changed = volume_obj.clone_volume(vol_id=volume_id, clone_details=volume_params['clone_volume'])
-            volume_obj.result["is_volume_cloned"] = changed
+            if not volume_obj.module.check_mode:
+                volume_obj.result["is_volume_cloned"] = changed
         VolumeRefreshHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
 
 
