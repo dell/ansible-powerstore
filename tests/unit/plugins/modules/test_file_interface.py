@@ -168,7 +168,7 @@ class TestPowerStoreFileInterface(PowerStoreUnitBase):
         powerstore_module_mock.file_interface.modify_file_interface.assert_called()
 
     def test_modify_file_interface_exception(self, powerstore_module_mock):
-        MockApiException.HTTP_ERR = "1"
+        MockApiException.HTTP_ERR = "2"
         MockApiException.err_code = "1"
         MockApiException.status_code = "404"
         self.set_module_params(
