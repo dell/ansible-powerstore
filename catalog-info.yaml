@@ -1,0 +1,32 @@
+# nonk8s
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dell-ansible-powerstore
+  description: "Ansible Modules for Dell Technologies PowerStore"
+  tags:
+    - ansible
+    - devops
+    - automation
+    - storage
+    - dell
+    - infrastructure-as-code
+    - powerstore
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: dell/ansible-powerstore
+  links:
+    - url: 'https://galaxy.ansible.com/dellemc/powerstore'
+      title: 'Ansible Galaxy'
+      icon: 'web'
+    - url: 'https://console.redhat.com/ansible/automation-hub/repo/published/dellemc/powerstore'
+      title: 'Automation Hub'
+      icon: 'web'
+    - url: 'https://github.com/dell/ansible-powerstore/issues'
+      title: 'Contact Technical Support'
+      icon: 'help'
+spec:
+  type: service
+  lifecycle: production
+  owner: user:default/sachin.apagundi
+  visibility: all
