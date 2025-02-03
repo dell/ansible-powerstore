@@ -15,7 +15,7 @@ metadata:
   annotations:
     backstage.io/techdocs-ref: dir:.
     github.com/project-slug: dell/ansible-powerstore
-  links:   
+  links:
     - url: 'https://galaxy.ansible.com/dellemc/powerstore'
       title: 'Ansible Galaxy'
       icon: 'web'
