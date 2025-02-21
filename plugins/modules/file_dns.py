@@ -313,22 +313,18 @@ class PowerStoreFileDNS(PowerStoreBase):
 
     def modify_ip_addresses(self, file_dns_details, file_dns_params):
         modify_dict = dict()
+        add_ip_addresses = set(file_dns_params.get('add_ip_addresses') or [])
+        remove_ip_addresses = set(file_dns_params.get('remove_ip_addresses') or [])
+        # remove the common IP addresses
+        conflicting_ip_addresses = add_ip_addresses & remove_ip_addresses
+        add_ip_addresses.difference_update(conflicting_ip_addresses)
+        remove_ip_addresses.difference_update(conflicting_ip_addresses)
 
-        if file_dns_params['add_ip_addresses'] is None and file_dns_params['remove_ip_addresses'] is not None:
-            ip_addresses_list = [ip for ip in file_dns_details['ip_addresses'] if ip not in file_dns_params['remove_ip_addresses']]
-            if set(ip_addresses_list) != set(file_dns_details['ip_addresses']):
-                modify_dict['ip_addresses'] = ip_addresses_list
-
-        elif file_dns_params['add_ip_addresses'] is not None and file_dns_params['remove_ip_addresses'] is not None:
-            ip_addresses_list = list(set(file_dns_params['add_ip_addresses']) | set(file_dns_details['ip_addresses']))
-            final_ip_addresses_list = [ip for ip in ip_addresses_list if ip not in file_dns_params['remove_ip_addresses']]
-            if set(final_ip_addresses_list) != set(file_dns_details['ip_addresses']):
-                modify_dict['ip_addresses'] = final_ip_addresses_list
-
-        elif file_dns_params['add_ip_addresses'] is not None and file_dns_params['remove_ip_addresses'] is None:
-            ip_addresses_list = list(set(file_dns_params['add_ip_addresses']) | set(file_dns_details['ip_addresses']))
-            if set(ip_addresses_list) != set(file_dns_details['ip_addresses']):
-                modify_dict['ip_addresses'] = ip_addresses_list
+        ip_addresses_list = set(file_dns_details.get('ip_addresses', []))
+        ip_addresses_list.update(add_ip_addresses)
+        ip_addresses_list.difference_update(remove_ip_addresses)
+        if ip_addresses_list != set(file_dns_details.get('ip_addresses', [])):
+            modify_dict['ip_addresses'] = list(ip_addresses_list)
 
         return modify_dict
 
@@ -337,7 +333,6 @@ class PowerStoreFileDNS(PowerStoreBase):
 
         msg = f'File DNS details: {file_dns_details}'
         LOG.info(msg)
-        modify_dict = dict()
 
         modify_keys = ['domain', 'transport', 'is_destination_override_enabled']
 
