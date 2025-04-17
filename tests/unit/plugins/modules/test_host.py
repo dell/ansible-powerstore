@@ -8,7 +8,6 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
@@ -20,7 +19,6 @@ from ansible_collections.dellemc.powerstore.plugins.modules.host import PowerSto
 
 
 class TestPowerstoreHost():
-
     get_module_args = MockHostApi.HOST_COMMON_ARGS
     iscsi_initiator_1 = "iqn.1998-01.com.vmware:lgc198248-5b06fb37"
     iscsi_initiator_2 = "iqn.1998-01.com.vmware:lgc198248-5b06fb38"
@@ -56,7 +54,8 @@ class TestPowerstoreHost():
         host_module_mock.conn.provisioning.get_host_details = MagicMock(
             return_value=MockHostApi.HOST_DETAILS)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
-        assert self.get_module_args['host_name'] == host_module_mock.module.exit_json.call_args[1]['host_details']['name']
+        assert self.get_module_args['host_name'] == host_module_mock.module.exit_json.call_args[1]['host_details'][
+            'name']
         host_module_mock.conn.provisioning.get_host_by_name.assert_called()
 
     def test_get_host_details_by_name_more_than_one_host(self, host_module_mock):
@@ -72,7 +71,7 @@ class TestPowerstoreHost():
             return_value=MockHostApi.HOST_DETAILS_TWO)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.get_host_more_than_one_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_host(self, host_module_mock):
         self.get_module_args.update({
@@ -209,7 +208,7 @@ class TestPowerstoreHost():
             return_value=None)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_wo_initiator_state_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_host_with_new_name(self, host_module_mock):
         self.get_module_args.update({
@@ -225,7 +224,7 @@ class TestPowerstoreHost():
             return_value=None)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_with_new_name_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_host_wo_initiator(self, host_module_mock):
         self.get_module_args.update({
@@ -239,7 +238,7 @@ class TestPowerstoreHost():
             return_value=None)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_wo_initiator_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_host_with_iscsi_initiators(self, host_module_mock):
         self.get_module_args.update({
@@ -284,7 +283,7 @@ class TestPowerstoreHost():
             return_value=None)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_mixed_initiators_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_host_without_os_type(self, host_module_mock):
         self.get_module_args.update({
@@ -298,7 +297,7 @@ class TestPowerstoreHost():
             return_value=None)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.create_host_without_os_type_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_modify_os_type(self, host_module_mock):
         self.get_module_args.update({
@@ -312,7 +311,7 @@ class TestPowerstoreHost():
             return_value=MockHostApi.HOST_DETAILS)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert MockHostApi.modify_os_type_failed_msg() in \
-            host_module_mock.module.fail_json.call_args[1]['msg']
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_add_iscsi_initiator(self, host_module_mock):
         self.get_module_args.update({
@@ -345,6 +344,122 @@ class TestPowerstoreHost():
             return_value=MockHostApi.HOST_DETAILS)
         HostHandler().handle(host_module_mock, host_module_mock.module.params)
         assert host_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_add_iscsi_initiator_detailed_initiator_with_invalid_name(self, host_module_mock):
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': "hello world",
+                'chap_single_password': None,
+                'chap_mutual_username': None,
+                'chap_mutual_password': None}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_single_username_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
+
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': None,
+                'chap_single_password': None,
+                'chap_mutual_username': "hello world",
+                'chap_mutual_password': None}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_mutual_username_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_add_iscsi_initiator_detailed_initiator_with_invalid_password(self, host_module_mock):
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': None,
+                'chap_single_password': "hello world hello world",
+                'chap_mutual_username': None,
+                'chap_mutual_password': None}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_password_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
+
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': None,
+                'chap_single_password': None,
+                'chap_mutual_username': None,
+                'chap_mutual_password': "hello world hello world"}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_password_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
+
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': None,
+                'chap_single_password': "shortpwd",
+                'chap_mutual_username': None,
+                'chap_mutual_password': None}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_password_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
+
+        self.get_module_args.update({
+            'host_name': "Sample_host_1",
+            'detailed_initiators': [{
+                'port_name': self.iscsi_initiator_2,
+                'port_type': "iSCSI",
+                'chap_single_username': None,
+                'chap_single_password': None,
+                'chap_mutual_username': None,
+                'chap_mutual_password': "ThisIsAVeryLongPasswordThatExceedsTheMaximumLengthOfSixtyFourCharacters"}],
+            'state': 'present',
+            'initiator_state': 'present-in-host'
+        })
+        host_module_mock.module.params = self.get_module_args
+        host_module_mock.conn.provisioning.get_host_details = MagicMock(
+            return_value=MockHostApi.HOST_DETAILS)
+        HostHandler().handle(host_module_mock, host_module_mock.module.params)
+        assert MockHostApi.invalid_chap_password_failed_msg() in \
+               host_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_add_nvme_initiator_detailed_initiator(self, host_module_mock):
         self.get_module_args.update({

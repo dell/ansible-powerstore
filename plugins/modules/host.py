@@ -39,6 +39,8 @@ options:
           - CHAP password is required when the cluster CHAP mode is mutual
             authentication.
           - Minimum length is 12 and maximum length is 64 characters.
+          - 'The CHAP password must be 12 to 64 characters and can only contain English letters, numbers, and some special
+            characters (such as + : ; , / # _ @ * % $ ! ( ) [ ]).'
           type: str
         chap_mutual_username:
           description:
@@ -53,6 +55,8 @@ options:
           - CHAP password is required when the cluster CHAP mode is mutual
             authentication.
           - Minimum length is 12 and maximum length is 64 characters.
+          - 'The CHAP password must be 12 to 64 characters and can only contain English letters, numbers, and some special
+            characters (such as + : ; , / # _ @ * % $ ! ( ) [ ]).'
           type: str
         chap_single_username:
           description:
@@ -374,6 +378,7 @@ from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
 import logging
 import copy
+import re
 
 LOG = utils.get_logger('host', log_devel=logging.INFO)
 
@@ -695,11 +700,31 @@ class PowerStoreHost(object):
                                 "for FC initiator type."
                     LOG.error(error_msg)
                     self.module.fail_json(msg=error_msg)
-                elif initiator['port_type'] == PORT_TYPES[2]:  # NVMe
+                if initiator['port_type'] == PORT_TYPES[2]:  # NVMe
                     error_msg = "CHAP authentication is not supported " \
                                 "for NVMe initiator type."
                     LOG.error(error_msg)
                     self.module.fail_json(msg=error_msg)
+                if "chap_single_username" in initiator and initiator["chap_single_username"] is not None and " " in \
+                        initiator["chap_single_username"]:
+                    error_msg = "Invalid chap_single_username."
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+                if "chap_mutual_username" in initiator and initiator["chap_mutual_username"] is not None and " " in \
+                        initiator["chap_mutual_username"]:
+                    error_msg = "Invalid chap_mutual_username."
+                    LOG.error(error_msg)
+                    self.module.fail_json(msg=error_msg)
+
+            pattern = r'^[a-zA-Z0-9+:;,/#_@*%$!()[\]]{12,64}$'
+            if (("chap_single_password" in initiator and initiator['chap_single_password'] and
+                 not re.match(pattern, initiator['chap_single_password']))
+                    or ("chap_mutual_password" in initiator and initiator['chap_mutual_password'] and
+                        not re.match(pattern, initiator['chap_mutual_password']))):
+                error_msg = "Invalid CHAP password. It must be 12 to 64 characters long and can only contain " \
+                            "English letters, numbers, and special characters: + : ; , / # _ @ * % $! ( ) [ ]"
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
 
     def validate_initiators(self, initiators, detailed_initiators, initiator_state):
         if initiator_state and ((initiators is None or not len(initiators))
