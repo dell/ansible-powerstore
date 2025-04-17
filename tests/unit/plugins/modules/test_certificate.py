@@ -103,6 +103,17 @@ class TestPowerstoreCertificate():
         certificate_module_mock.perform_module_operation()
         assert certificate_module_mock.module.exit_json.call_args[1]['changed'] is True
 
+    def test_modify_management_certificate(self, certificate_module_mock):
+        self.get_module_args.update({'certificate_id': "f19b38ac-4b8b-45b1-96eb-abe4faae51ca",
+                                     'is_current': False,
+                                     'state': "present"})
+        certificate_module_mock.module.params = self.get_module_args
+        certificate_module_mock.configuration.get_certificate_details = MagicMock(
+            return_value=MockCertificateApi.get_modify_certificate_details("Management_HTTP"))
+        certificate_module_mock.perform_module_operation()
+        assert MockCertificateApi.modify_management_certificate_failed_msg() in \
+            certificate_module_mock.module.fail_json.call_args[1]['msg']
+
     def test_delete_certificate(self, certificate_module_mock):
         certificate_id = "f19b38ac-4b8b-45b1-96eb-abe4faae51ca"
         self.get_module_args.update({'certificate_id': certificate_id,
