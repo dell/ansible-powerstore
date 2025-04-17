@@ -414,6 +414,10 @@ class PowerStoreCertificate(object):
                 modify_dict['is_current'] = is_current
 
             if modify_dict:
+                if not modify_dict['is_current'] and cert_details['service'] == "Management_HTTP":
+                    msg = 'cannot disable `is_current` for Management_HTTP service'
+                    LOG.error(msg)
+                    self.module.fail_json(msg=msg)
                 return modify_dict
             else:
                 return None
