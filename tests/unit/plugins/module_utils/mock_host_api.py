@@ -207,3 +207,15 @@ class MockHostApi:
     @staticmethod
     def modify_os_type_failed_msg():
         return "os_type cannot be modified for an already existing host"
+
+    @staticmethod
+    def invalid_chap_single_username_failed_msg():
+        return "Invalid chap_single_username"
+
+    @staticmethod
+    def invalid_chap_mutual_username_failed_msg():
+        return "Invalid chap_mutual_username"
+
+    @staticmethod
+    def invalid_chap_password_failed_msg():
+        return "Invalid CHAP password"
