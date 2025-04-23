@@ -545,6 +545,8 @@ class PowerStoreQuota(object):
             if path and filesystem_id:
                 tree_quota_id = self.get_tree_quota_id(path, filesystem_id)
             uid = str(uid) if uid is not None else None
+            if win_name:
+                win_name = win_name.split('\\')[0].lower() + "\\" + win_name.split('\\')[1]
             query_params_dict = create_params_dict(
                 uid=uid, unix_name=unix_name, windows_sid=win_sid,
                 windows_name=win_name, tree_quota_id=tree_quota_id,
