@@ -131,6 +131,48 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
             MockSMBServerApi.get_smb_server_exception_response(
                 'create_smb_server_exception'), powerstore_module_mock, SMBServerHandler)
 
+    def test_create_smb_server_with_standalone_exclusive_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'nas_server': "sample_nas_server",
+                'is_standalone': True,
+                'netbios_name': "string",
+                'workgroup': "string",
+                'domain': "domain",
+                'description': "string",
+                'local_admin_password': "string",
+                'state': "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.smb_server.get_smb_server_details_by_nas_server_id = MagicMock(
+            return_value=None)
+        self.capture_fail_json_call(
+            MockSMBServerApi.get_smb_server_exception_response(
+                'create_smb_server_standalone_exclusive_exception'), powerstore_module_mock, SMBServerHandler)
+
+    def test_create_smb_server_with_joined_exclusive_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'nas_server': "sample_nas_server",
+                'is_standalone': False,
+                'workgroup': "string",
+                'domain': "domain",
+                'computer_name': "computer_name",
+                'description': "string",
+                'local_admin_password': "string",
+                'state': "present"
+            })
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.smb_server.get_smb_server_details_by_nas_server_id = MagicMock(
+            return_value=None)
+        self.capture_fail_json_call(
+            MockSMBServerApi.get_smb_server_exception_response(
+                'create_smb_server_joined_exclusive_exception'), powerstore_module_mock, SMBServerHandler)
+
     def test_modify_smb_server(self, powerstore_module_mock):
         self.set_module_params(
             powerstore_module_mock,
@@ -168,6 +210,40 @@ class TestPowerStoreSMBServer(PowerStoreUnitBase):
         self.capture_fail_json_call(
             MockSMBServerApi.get_smb_server_exception_response(
                 'modify_smb_server_exception'), powerstore_module_mock, SMBServerHandler)
+
+    def test_modify_smb_server_with_standalone_exclusive_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS[0]['id'],
+                'domain': "domain",
+                'state': "present"
+            })
+        powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS[0])
+        powerstore_module_mock.smb_server.modify_smb_server = MagicMock(
+            side_effect=MockApiException)
+        self.capture_fail_json_call(
+            MockSMBServerApi.get_smb_server_exception_response(
+                'modify_smb_server_standalone_exclusive_exception'), powerstore_module_mock, SMBServerHandler)
+
+    def test_modify_smb_server_with_joined_exclusive_exception(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'smb_server_id': MockSMBServerApi.SMB_SERVER_DETAILS_JOINED[0]['id'],
+                'workgroup': "workgroup",
+                'state': "present"
+            })
+        powerstore_module_mock.smb_server.get_smb_server_details = MagicMock(
+            return_value=MockSMBServerApi.SMB_SERVER_DETAILS_JOINED[0])
+        powerstore_module_mock.smb_server.modify_smb_server = MagicMock(
+            side_effect=MockApiException)
+        self.capture_fail_json_call(
+            MockSMBServerApi.get_smb_server_exception_response(
+                'modify_smb_server_joined_exclusive_exception'), powerstore_module_mock, SMBServerHandler)
 
     def test_delete_smb_server(self, powerstore_module_mock):
         self.set_module_params(

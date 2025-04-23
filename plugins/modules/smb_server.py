@@ -314,6 +314,8 @@ class PowerStoreSMBServer(PowerStoreBase):
     def is_modify_required(self, smb_server_details, smb_server_params):
         """To get the details of the fields to be modified."""
 
+        self.validate_update(smb_server_details, smb_server_params)
+
         msg = f'SMB server details: {smb_server_details}'
         LOG.info(msg)
         modify_dict = dict()
@@ -328,7 +330,8 @@ class PowerStoreSMBServer(PowerStoreBase):
                 modify_dict[key] = smb_server_params[key]
         for key in modify_keys_up:
             if smb_server_params[key] is not None and \
-                    smb_server_params[key].lower() != smb_server_details[key].lower():
+                    (smb_server_details[key] is None or
+                     smb_server_params[key].lower() != smb_server_details[key].lower()):
                 modify_dict[key] = smb_server_params[key]
 
         return modify_dict
@@ -350,13 +353,39 @@ class PowerStoreSMBServer(PowerStoreBase):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def validate_update(self, smb_server_details, smb_server_params):
+        """Perform validation of modify operations on an SMB server"""
+
+        if smb_server_details['is_standalone']:
+            if smb_server_params['computer_name'] or smb_server_params['domain']:
+                err_msg = "`computer_name` or `domain` should not be provided "\
+                    "when `is_standalone` is True for modification"
+                self.module.fail_json(msg=err_msg)
+        elif smb_server_params['netbios_name'] or smb_server_params['workgroup']:
+            err_msg = "`netbios_name` or `workgroup` should not be provided "\
+                "when `is_standalone` is False for modification"
+            self.module.fail_json(msg=err_msg)
+
     def validate_create(self, create_params):
         """Perform validation of create operations on an SMB server"""
 
         if create_params['nas_server'] is None or \
                 create_params['is_standalone'] is None or \
                 create_params['local_admin_password'] is None:
-            err_msg = "SMB server does not exist. Provide nas_server, is_standalone and local_admin_password for creation"
+            err_msg = "SMB server does not exist. "\
+                "Provide nas_server, is_standalone and local_admin_password for creation"
+            self.module.fail_json(msg=err_msg)
+
+        if create_params['is_standalone']:
+            if create_params['netbios_name'] is None or create_params['workgroup'] is None or\
+                    create_params['computer_name'] or create_params['domain']:
+                err_msg = "`computer_name` or `domain` should not be provided. "\
+                    "Provide `netbios_name` and `workgroup` when `is_standalone` is True for creation"
+                self.module.fail_json(msg=err_msg)
+        elif create_params['netbios_name'] or create_params['workgroup'] or\
+                create_params['computer_name'] is None or create_params['domain'] is None:
+            err_msg = "`netbios_name` or `workgroup` should not be provided. "\
+                "Provide `computer_name` and `domain` when `is_standalone` is False for creation"
             self.module.fail_json(msg=err_msg)
 
 
