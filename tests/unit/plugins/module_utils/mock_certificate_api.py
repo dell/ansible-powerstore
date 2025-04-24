@@ -54,6 +54,12 @@ class MockCertificateApi:
     }
 
     @staticmethod
+    def get_modify_certificate_details(service="Syslog_HTTP"):
+        cert_detail = MockCertificateApi.MODIFY_CERTIFICATE_DETAILS.copy()
+        cert_detail['service'] = service
+        return cert_detail
+
+    @staticmethod
     def create_certificates_wo_service_failed_msg():
         return "Please provide valid/existing certificate_id"
 
@@ -80,3 +86,7 @@ class MockCertificateApi:
     @staticmethod
     def create_certificate_certificate_id_failed_msg():
         return "certificate_id is not accepted while adding a certificate"
+
+    @staticmethod
+    def modify_management_certificate_failed_msg():
+        return "cannot disable `is_current` for Management_HTTP service"
