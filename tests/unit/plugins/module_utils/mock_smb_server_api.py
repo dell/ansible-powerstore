@@ -41,6 +41,18 @@ class MockSMBServerApi:
         "workgroup": "STRING2"
     }]
 
+    SMB_SERVER_DETAILS_JOINED = [{
+        "computer_name": "computer_name",
+        "description": "string2",
+        "domain": "domain",
+        "id": "65acede5-9ee6-c83f-ff39-62b767ad9845",
+        "is_joined": True,
+        "is_standalone": False,
+        "nas_server_id": "6581683c-61a3-76ab-f107-62b767ad9845",
+        "netbios_name": None,
+        "workgroup": None
+    }]
+
     NAS_SERVER_DETAILS = {
         "id": "6581683c-61a3-76ab-f107-62b767ad9845"
     }
@@ -58,3 +70,15 @@ class MockSMBServerApi:
             return "Getting SMB server details failed with error"
         elif response_type == "create_smb_server_wo_is_standalone_exception":
             return "Provide nas_server, is_standalone and local_admin_password for creation"
+        elif response_type == "create_smb_server_standalone_exclusive_exception":
+            return "Creation of SMB server on PowerStore array failed with error "\
+                "`computer_name` or `domain` should not be provided. "\
+                "Provide `netbios_name` and `workgroup` when `is_standalone` is True for creation"
+        elif response_type == "create_smb_server_joined_exclusive_exception":
+            return "Creation of SMB server on PowerStore array failed with error "\
+                "`netbios_name` or `workgroup` should not be provided. "\
+                "Provide `computer_name` and `domain` when `is_standalone` is False for creation"
+        elif response_type == "modify_smb_server_standalone_exclusive_exception":
+            return "`computer_name` or `domain` should not be provided when `is_standalone` is True for modification"
+        elif response_type == "modify_smb_server_joined_exclusive_exception":
+            return "`netbios_name` or `workgroup` should not be provided when `is_standalone` is False for modification"
