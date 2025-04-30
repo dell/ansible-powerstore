@@ -76,6 +76,7 @@ Parameters
 
   access_type (optional, str, None)
     Specifies whether the snapshot directory or protocol access is granted to the filesystem snapshot.
+    Value of access_type must be one of: ``SNAPSHOT``, ``PROTOCOL``
 
     For create operation, if *access_type* is not specified, snapshot will be created with ``SNAPSHOT`` access type.
 
