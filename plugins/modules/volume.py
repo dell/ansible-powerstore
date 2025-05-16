@@ -1572,11 +1572,12 @@ class PowerStoreVolume(object):
 
         final_hlu_details = []
         current_hlu_details = []
-        for host_hg in volume_details['hlu_details']:
-            if host_hg['host_id'] is not None:
-                current_hlu_details.append(host_hg['host_id'])
-            elif host_hg['host_group_id'] is not None:
-                current_hlu_details.append(host_hg['host_group_id'])
+        if 'hlu_details' in volume_details:
+            for host_hg in volume_details['hlu_details']:
+                if host_hg['host_id'] is not None:
+                    current_hlu_details.append(host_hg['host_id'])
+                elif host_hg['host_group_id'] is not None:
+                    current_hlu_details.append(host_hg['host_group_id'])
 
         final_hlu_details = copy.deepcopy(current_hlu_details)
         if host is not None:
