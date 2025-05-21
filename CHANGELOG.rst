@@ -4,6 +4,25 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.8.0
+======
+
+Minor Changes
+-------------
+
+- Added support for PowerStore v4.1.x.
+
+Bug Fixes
+-------------
+
+- Fixed response in check mode for volume module.
+- Fixed adding and removing the duplicated ip address for file_dns module.
+- Added check for CHAP username/password for host module.
+- Limited disabling of the Management_HTTP service by update for certificate module.
+- Fixed the Windows host name format for quota module.
+- Added exclusive validation for smb_server module.
+- Fixed none changed when destination is empty for storage_container module.
+
 v3.7.0
 ======
 

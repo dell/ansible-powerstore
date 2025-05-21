@@ -50,7 +50,7 @@ class ModuleDocFragment(object):
           type: int
     requirements:
       - A Dell PowerStore storage system version 3.0.0.0 or later.
-      - PyPowerStore 3.3.0.
+      - PyPowerStore 3.4.1.
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
         are built to support the Dell PowerStore storage platform.
