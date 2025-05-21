@@ -4,6 +4,24 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.7.1
+======
+
+Minor Changes
+-------------
+
+- Added support for PowerStore Victory Plus platform (4.1.x).
+
+Bug Fixes
+-------------
+
+- Fixed response in check mode for volume module.
+- Fixed adding and removing the duplicated ip address for file_dns module.
+- Added check for CHAP username/password for host module.
+- Limited disabling of the Management_HTTP service by update for certificate module.
+- Fixed the Windows host name format for quota module.
+- Added exclusive validation for smb_server module.
+
 v3.7.0
 ======
 

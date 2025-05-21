@@ -1,8 +1,8 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 3.7.0
+### Release Notes 3.7.1
 
->   © 2024 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   © 2025 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
 >   subsidiaries. Other trademarks may be trademarks of their respective
 >   owners.
@@ -28,7 +28,8 @@ Table 1. Revision history
 
 | Revision | Date         | Description                                               |
 |----------|--------------|-----------------------------------------------------------|
-| 01       | December 2024 | Current release of Ansible Modules for Dell PowerStore 3.7.0 |
+| 01       | May 2025 | Ansible Modules for Dell PowerStore 3.7.1 |
+| 02       | December 2024 | Ansible Modules for Dell PowerStore 3.7.0 |
 
 Product Description
 -------------------
@@ -36,10 +37,12 @@ The Ansible modules for Dell PowerStore are used to automate and orchestrate the
 
 New features & enhancements
 ---------------------------
-Along with the previous release deliverables, this release supports these features:
+This section describes the features or enhancements of the Ansible Modules for Dell PowerStore for this release.
 
-- Added check and diff mode support for host module.
-- Added check and diff mode support for volume module
+The Ansible Modules for Dell PowerStore release 3.7.1 provides the following enhancements:
+
+- Added support for PowerStore Victory Plus platform (4.1.x).
+- Internal defect fixes for the modules volume, file_dns, host, certificate, quota and smb_server.
 
 Known issues
 ------------
