@@ -79,6 +79,18 @@ class MockStorageContainerApi:
         "virtual_volumes": []
     }
 
+    STORAGE_CONTAINER_EMPTY_DESTINATION = {
+        "datastores": [],
+        "destinations": [],
+        "id": SC_ID,
+        "name": STORAGE_CONTAINER_NAME_1,
+        "quota": QUOTA,
+        "replication_groups": [],
+        "storage_protocol": "NVMe",
+        "storage_protocol_l10n": "NVMe",
+        "virtual_volumes": []
+    }
+
     REMOTE_SYSTEM_DETAILS = [
         {
             "id": REMOTE_SYS_ID,
