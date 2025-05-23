@@ -260,6 +260,16 @@ class TestPowerStoreStorageContainer():
         self.capture_fail_json_call(MockStorageContainerApi.get_storage_container_exception_response(
             'remote_dict_exception'), storage_container_module_mock)
 
+    def test_delete_storage_container_destination_empty_destination(self, storage_container_module_mock):
+        self.before_sc_destination_delete(storage_container_module_mock)
+        storage_container_module_mock.module.params = self.get_module_args
+        storage_container_module_mock.configuration.get_storage_container_details = MagicMock(
+            return_value=MockStorageContainerApi.STORAGE_CONTAINER_EMPTY_DESTINATION)
+        StorageContainerHandler().handle(
+            storage_container_module_mock,
+            storage_container_module_mock.module.params)
+        assert storage_container_module_mock.module.exit_json.call_args[1]['changed'] is False
+
     def test_get_remote_system_exception(self, storage_container_module_mock):
         self.before_destinations_operation(storage_container_module_mock)
         storage_container_module_mock.protection.get_remote_system_by_name = MagicMock(
