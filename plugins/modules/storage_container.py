@@ -712,6 +712,7 @@ class PowerStoreStorageContainer(object):
                         self.configuration.delete_storage_container_destination(
                             storage_container_destination_id=dest_id)
                     return True
+            return False
         except Exception as e:
             msg = f"Failed to delete a storage container destination with " \
                   f"error: {str(e)}"
