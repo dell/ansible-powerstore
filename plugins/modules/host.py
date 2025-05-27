@@ -691,40 +691,45 @@ class PowerStoreHost(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
-    def validate_detailed_initiators(self, detailed_initiators):
-        for initiator in detailed_initiators:
-            if (initiator['chap_single_username']
-                    or initiator['chap_mutual_username']):
-                if initiator['port_type'] == PORT_TYPES[1]:  # FC
-                    error_msg = "CHAP authentication is not supported " \
-                                "for FC initiator type."
-                    LOG.error(error_msg)
-                    self.module.fail_json(msg=error_msg)
-                if initiator['port_type'] == PORT_TYPES[2]:  # NVMe
-                    error_msg = "CHAP authentication is not supported " \
-                                "for NVMe initiator type."
-                    LOG.error(error_msg)
-                    self.module.fail_json(msg=error_msg)
-                if "chap_single_username" in initiator and initiator["chap_single_username"] is not None and " " in \
-                        initiator["chap_single_username"]:
-                    error_msg = "Invalid chap_single_username."
-                    LOG.error(error_msg)
-                    self.module.fail_json(msg=error_msg)
-                if "chap_mutual_username" in initiator and initiator["chap_mutual_username"] is not None and " " in \
-                        initiator["chap_mutual_username"]:
-                    error_msg = "Invalid chap_mutual_username."
-                    LOG.error(error_msg)
-                    self.module.fail_json(msg=error_msg)
-
-            pattern = r'^[a-zA-Z0-9+:;,/#_@*%$!()[\]]{12,64}$'
-            if (("chap_single_password" in initiator and initiator['chap_single_password'] and
-                 not re.match(pattern, initiator['chap_single_password']))
-                    or ("chap_mutual_password" in initiator and initiator['chap_mutual_password'] and
-                        not re.match(pattern, initiator['chap_mutual_password']))):
-                error_msg = "Invalid CHAP password. It must be 12 to 64 characters long and can only contain " \
-                            "English letters, numbers, and special characters: + : ; , / # _ @ * % $! ( ) [ ]"
+    def validate_initiator_username(self, initiator):
+        if (initiator['chap_single_username']
+                or initiator['chap_mutual_username']):
+            if initiator['port_type'] == PORT_TYPES[1]:  # FC
+                error_msg = "CHAP authentication is not supported " \
+                            "for FC initiator type."
                 LOG.error(error_msg)
                 self.module.fail_json(msg=error_msg)
+            if initiator['port_type'] == PORT_TYPES[2]:  # NVMe
+                error_msg = "CHAP authentication is not supported " \
+                            "for NVMe initiator type."
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+            if "chap_single_username" in initiator and initiator["chap_single_username"] is not None and " " in \
+                    initiator["chap_single_username"]:
+                error_msg = "Invalid chap_single_username."
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+            if "chap_mutual_username" in initiator and initiator["chap_mutual_username"] is not None and " " in \
+                    initiator["chap_mutual_username"]:
+                error_msg = "Invalid chap_mutual_username."
+                LOG.error(error_msg)
+                self.module.fail_json(msg=error_msg)
+
+    def validate_initiator_password(self, initiator):
+        pattern = r'^[a-zA-Z0-9+:;,/#_@*%$!()[\]]{12,64}$'
+        if (("chap_single_password" in initiator and initiator['chap_single_password'] and
+             not re.match(pattern, initiator['chap_single_password']))
+            or ("chap_mutual_password" in initiator and initiator['chap_mutual_password'] and
+                not re.match(pattern, initiator['chap_mutual_password']))):
+            error_msg = "Invalid CHAP password. It must be 12 to 64 characters long and can only contain " \
+                "English letters, numbers, and special characters: + : ; , / # _ @ * % $! ( ) [ ]"
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
+
+    def validate_detailed_initiators(self, detailed_initiators):
+        for initiator in detailed_initiators:
+            self.validate_initiator_username(initiator)
+            self.validate_initiator_password(initiator)
 
     def validate_initiators(self, initiators, detailed_initiators, initiator_state):
         if initiator_state and ((initiators is None or not len(initiators))
