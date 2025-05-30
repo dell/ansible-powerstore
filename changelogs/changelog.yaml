@@ -283,3 +283,16 @@ releases:
         - Added support to modify size and host in the same task
           for Volume module.
     release_date: '2024-12-24'
+  3.8.0:
+    changes:
+      minor_changes:
+        - Added support for PowerStore v4.1.x.
+      bugfixes:
+        - Fixed response in check mode for volume module.
+        - Fixed adding and removing the duplicated ip address for file_dns module.
+        - Added check for CHAP username/password for host module.
+        - Limited disabling of the Management_HTTP service by update for certificate module.
+        - Fixed the Windows host name format for quota module.
+        - Added exclusive validation for smb_server module.
+        - Fixed none changed when destination is empty for storage_container module.
+    release_date: '2025-05-30'

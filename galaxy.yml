@@ -9,7 +9,7 @@ namespace: dellemc
 name: powerstore
 
 # The version of the collection. Must be compatible with semantic versioning
-version: 3.7.0
+version: 3.8.0
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: README.md
@@ -29,6 +29,14 @@ authors:
   - Ananthu S Kuttattu <ansible.team@dell.com>
   - Pavan Mudunuri <ansible.team@dell.com>
   - Jennifer John <ansible.team@dell.com>
+  - Meenakshi Dembi <ansible.team@dell.com>
+  - Forrest Xia <ansible.team@dell.com>
+  - Yiming Bao <ansible.team@dell.com>
+  - Tao He <ansible.team@dell.com>
+  - Peter Cao <ansible.team@dell.com>
+  - Haiming Tan <ansible.team@dell.com>
+  - Ray Liu <ansible.team@dell.com>
+  - Luis Liu <ansible.team@dell.com>
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
