@@ -14,7 +14,7 @@ Synopsis
 
 Performs all snapshot rule operations on PowerStore Storage System.
 
-This modules supports get details of a snapshot rule, create new Snapshot Rule with Interval, create new Snapshot Rule with specific time and days_of_week. Modify Snapshot Rule. Delete Snapshot Rule.
+This modules supports get details of a snapshot rule, create new Snapshot Rule with Interval, create new Snapshot Rule with specific time and days\_of\_week. Modify Snapshot Rule. Delete Snapshot Rule.
 
 
 
@@ -22,8 +22,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -45,15 +45,15 @@ Parameters
 
 
   days_of_week (optional, list, None)
-    List of strings to specify days of the week on which the Snapshot rule should be applied. Must be applied for Snapshot rules where the *time_of_day* parameter is set.
+    List of strings to specify days of the week on which the Snapshot rule should be applied. Must be applied for Snapshot rules where the :emphasis:`time\_of\_day` parameter is set.
 
-    Optional for the Snapshot rule created with an interval. When *days_of_week* is not specified for a new Snapshot rule, the rule is applied on every day of the week.
+    Optional for the Snapshot rule created with an interval. When :emphasis:`days\_of\_week` is not specified for a new Snapshot rule, the rule is applied on every day of the week.
 
 
   interval (False, str, None)
     String variable. Indicates the interval between Snapshots.
 
-    When creating a Snapshot rule, specify either *interval* or *time_of_day*, but not both.
+    When creating a Snapshot rule, specify either :emphasis:`interval` or :emphasis:`time\_of\_day`\ , but not both.
 
 
   desired_retention (False, int, None)
@@ -65,23 +65,23 @@ Parameters
   time_of_day (False, str, None)
     String variable. Indicates the time of the day to take a daily Snapshot, with the format "hh:mm" in 24 hour time format.
 
-    When creating a Snapshot rule, specify either *interval* or *time_of_day* but not both.
+    When creating a Snapshot rule, specify either :emphasis:`interval` or :emphasis:`time\_of\_day` but not both.
 
 
   delete_snaps (optional, bool, False)
     Boolean variable to specify whether all Snapshots previously created by this rule should also be deleted when this rule is removed.
 
-    ``true`` specifies to delete all previously created Snapshots by this rule while deleting this rule.
+    :literal:`true` specifies to delete all previously created Snapshots by this rule while deleting this rule.
 
-    ``false`` specifies to retain all previously created Snapshots while deleting this rule.
+    :literal:`false` specifies to retain all previously created Snapshots while deleting this rule.
 
 
   state (True, str, None)
     String variable indicates the state of Snapshot rule.
 
-    For "Delete" operation only, it should be set to ``absent``.
+    For "Delete" operation only, it should be set to :literal:`absent`.
 
-    For all Create, Modify or Get details operation it should be set to ``present``.
+    For all Create, Modify or Get details operation it should be set to :literal:`present`.
 
 
   array_ip (True, str, None)
@@ -91,9 +91,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -123,7 +123,7 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

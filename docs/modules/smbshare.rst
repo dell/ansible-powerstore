@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -33,7 +33,7 @@ Parameters
 
     Required during creation of the SMB share.
 
-    For all other operations either *share_name* or *share_id* is required.
+    For all other operations either :emphasis:`share\_name` or :emphasis:`share\_id` is required.
 
 
   share_id (optional, str, None)
@@ -41,9 +41,9 @@ Parameters
 
     Should not be specified during creation. ID is auto generated.
 
-    For all other operations either *share_name* or *share_id* is required.
+    For all other operations either :emphasis:`share\_name` or :emphasis:`share\_id` is required.
 
-    If *share_id* is used then no need to pass *nas_server*/*filesystem*/*snapshot*/ *path*.
+    If :emphasis:`share\_id` is used then no need to pass :emphasis:`nas\_server`\ /\ :emphasis:`filesystem`\ /\ :emphasis:`snapshot`\ / :emphasis:`path`.
 
 
   path (optional, str, None)
@@ -59,7 +59,7 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the SMB share.
 
-    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
+    If filesystem name is specified, then :emphasis:`nas\_server` is required to uniquely identify the filesystem.
 
     If filesystem parameter is provided, then snapshot cannot be specified.
 
@@ -69,7 +69,7 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the SMB share.
 
-    If snapshot name is specified, then *nas_server* is required to uniquely identify the snapshot.
+    If snapshot name is specified, then :emphasis:`nas\_server` is required to uniquely identify the snapshot.
 
     If snapshot parameter is provided, then filesystem cannot be specified.
 
@@ -79,7 +79,7 @@ Parameters
   nas_server (optional, str, None)
     The ID/Name of the NAS Server.
 
-    It is not required if *share_id* is used.
+    It is not required if :emphasis:`share\_id` is used.
 
 
   description (optional, str, None)
@@ -93,37 +93,37 @@ Parameters
   is_abe_enabled (optional, bool, None)
     Indicates whether Access-based Enumeration (ABE) for SMB share is enabled.
 
-    During creation, if not mentioned, then the default is ``false``.
+    During creation, if not mentioned, then the default is :literal:`false`.
 
 
   is_branch_cache_enabled (optional, bool, None)
     Indicates whether Branch Cache optimization for SMB share is enabled.
 
-    During creation, if not mentioned then default is ``false``.
+    During creation, if not mentioned then default is :literal:`false`.
 
 
   is_continuous_availability_enabled (optional, bool, None)
     Indicates whether continuous availability for SMB 3.0 is enabled.
 
-    During creation, if not mentioned, then the default is ``false``.
+    During creation, if not mentioned, then the default is :literal:`false`.
 
 
   is_encryption_enabled (optional, bool, None)
     Indicates whether encryption for SMB 3.0 is enabled at the shared folder level.
 
-    During creation, if not mentioned then default is ``false``.
+    During creation, if not mentioned then default is :literal:`false`.
 
 
   offline_availability (optional, str, None)
     Defines valid states of Offline Availability.
 
-    ``MANUAL``- Only specified files will be available offline.
+    :literal:`MANUAL`\ - Only specified files will be available offline.
 
-    ``DOCUMENTS``- All files that users open will be available offline.
+    :literal:`DOCUMENTS`\ - All files that users open will be available offline.
 
-    ``PROGRAMS``- Program will preferably run from the offline cache even when connected to the network. All files that users open will be available offline.
+    :literal:`PROGRAMS`\ - Program will preferably run from the offline cache even when connected to the network. All files that users open will be available offline.
 
-    ``NONE``- Prevents clients from storing documents and programs in offline cache.
+    :literal:`NONE`\ - Prevents clients from storing documents and programs in offline cache.
 
 
   umask (optional, str, None)
@@ -137,9 +137,9 @@ Parameters
   state (True, str, None)
     Define whether the SMB share should exist or not.
 
-    Value ``present`` indicates that the share should exist on the system.
+    Value :literal:`present` indicates that the share should exist on the system.
 
-    Value ``absent`` indicates that the share should not exist on the system.
+    Value :literal:`absent` indicates that the share should not exist on the system.
 
 
   acl (optional, list, None)
@@ -149,17 +149,17 @@ Parameters
     state (True, str, None)
       Define whether the ACL should exist or not.
 
-      ``present`` indicates that the ACL should exist on the system.
+      :literal:`present` indicates that the ACL should exist on the system.
 
-      ``absent`` indicates that the ACL should not exist on the system.
+      :literal:`absent` indicates that the ACL should not exist on the system.
 
 
     trustee_name (True, str, None)
       The name of the trustee.
 
-      The *trustee_name* can be ``SID``, ``User``, ``Group`` or ``WellKnown``.
+      The :emphasis:`trustee\_name` can be :literal:`SID`\ , :literal:`User`\ , :literal:`Group` or :literal:`WellKnown`.
 
-      If *trustee_type* is ``WellKnown``, then *trustee_name* should be `Everyone`.
+      If :emphasis:`trustee\_type` is :literal:`WellKnown`\ , then :emphasis:`trustee\_name` should be \`Everyone\`.
 
 
     trustee_type (True, str, None)
@@ -182,9 +182,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -214,10 +214,10 @@ Notes
 -----
 
 .. note::
-   - When the ID of the filesystem/snapshot is passed then *nas_server* is not required. If passed, then the filesystem/snapshot should exist for the *nas_server*, else the task will fail.
+   - When the ID of the filesystem/snapshot is passed then :emphasis:`nas\_server` is not required. If passed, then the filesystem/snapshot should exist for the :emphasis:`nas\_server`\ , else the task will fail.
    - Multiple SMB shares can be created for the same local path.
    - The maximum number of Access Control List (ACL) entities that can be configured for a SMB share is approximately 600.
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -410,7 +410,7 @@ smb_share_details (When share exists., complex, {'description': 'SMB Share creat
 
 
     nas_server (, dict, )
-      nas_server of filesystem.
+      nas\_server of filesystem.
 
 
 

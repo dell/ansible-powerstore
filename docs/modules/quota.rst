@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -33,7 +33,7 @@ Parameters
 
     Path is relative to the root of the filesystem.
 
-    For user quota, if *path* is not specified, quota will be created at the root of the filesystem.
+    For user quota, if :emphasis:`path` is not specified, quota will be created at the root of the filesystem.
 
 
   quota_type (optional, str, None)
@@ -43,13 +43,13 @@ Parameters
   quota_id (optional, str, None)
     Id of the user/tree quota.
 
-    If *quota_id* is mentioned, then *path*/*nas_server*/*file_system*/*quota_type* is not required.
+    If :emphasis:`quota\_id` is mentioned, then :emphasis:`path`\ /\ :emphasis:`nas\_server`\ /\ :emphasis:`file\_system`\ /\ :emphasis:`quota\_type` is not required.
 
 
   filesystem (optional, str, None)
     The ID/Name of the filesystem for which the Tree/User Quota  will be created.
 
-    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
+    If filesystem name is specified, then :emphasis:`nas\_server` is required to uniquely identify the filesystem.
 
 
   nas_server (optional, str, None)
@@ -59,33 +59,33 @@ Parameters
   description (optional, str, None)
     Additional information that can be mentioned for a Tree Quota.
 
-    Description parameter can only be used when *quota_type* is ``tree``.
+    Description parameter can only be used when :emphasis:`quota\_type` is :literal:`tree`.
 
 
   unix_name (optional, str, None)
     The name of the unix user account for which quota operations will be performed.
 
-    Any one among ``uid``/``unix_name``/``windows_name``/``windows_sid`` is required when *quota_type* is ``user``.
+    Any one among :literal:`uid`\ /\ :literal:`unix\_name`\ /\ :literal:`windows\_name`\ /\ :literal:`windows\_sid` is required when :emphasis:`quota\_type` is :literal:`user`.
 
 
   windows_name (optional, str, None)
     The name of the Windows User for which quota operations will be performed.
 
-    The name should be mentioned along with Domain Name as 'DOMAIN_NAME\user_name' or as "DOMAIN_NAME\\user_name".
+    The name should be mentioned along with Domain Name as 'DOMAIN\_NAME\\user\_name' or as "DOMAIN\_NAME\\\\user\_name".
 
-    Any one among ``uid``/``unix_name``/``windows_name``/``windows_sid`` is required when *quota_type* is ``user``.
+    Any one among :literal:`uid`\ /\ :literal:`unix\_name`\ /\ :literal:`windows\_name`\ /\ :literal:`windows\_sid` is required when :emphasis:`quota\_type` is :literal:`user`.
 
 
   uid (optional, int, None)
     The ID of the unix user account for which quota operations will be performed.
 
-    Any one among ``uid``/``unix_name``/``windows_name``/``windows_sid`` is required when *quota_type* is ``user``.
+    Any one among :literal:`uid`\ /\ :literal:`unix\_name`\ /\ :literal:`windows\_name`\ /\ :literal:`windows\_sid` is required when :emphasis:`quota\_type` is :literal:`user`.
 
 
   windows_sid (optional, str, None)
     The SID of the Windows User account for which quota operations will be performed.
 
-    Any one among ``uid``/``unix_name``/``windows_name``/``windows_sid`` is required when *quota_type* is ``user``.
+    Any one among :literal:`uid`\ /\ :literal:`unix\_name`\ /\ :literal:`windows\_name`\ /\ :literal:`windows\_sid` is required when :emphasis:`quota\_type` is :literal:`user`.
 
 
   quota (optional, dict, None)
@@ -95,13 +95,13 @@ Parameters
     soft_limit (optional, int, None)
       Soft limit of the User/Tree quota.
 
-      No Soft limit when set to ``0``.
+      No Soft limit when set to :literal:`0`.
 
 
     hard_limit (optional, int, None)
       Hard limit of the user quota.
 
-      No hard limit when set to ``0``.
+      No hard limit when set to :literal:`0`.
 
 
     cap_unit (optional, str, GB)
@@ -114,9 +114,9 @@ Parameters
   state (True, str, None)
     Define whether the Quota should exist or not.
 
-    Value ``present``  indicates that the Quota should exist on the system.
+    Value :literal:`present`  indicates that the Quota should exist on the system.
 
-    Value ``absent``  indicates that the Quota should not exist on the system.
+    Value :literal:`absent`  indicates that the Quota should not exist on the system.
 
 
   array_ip (True, str, None)
@@ -126,9 +126,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -159,13 +159,13 @@ Notes
 
 .. note::
    - Tree quota cannot be created at the root of the filesystem.
-   - When the ID of the filesystem is passed then *nas_server* is not required. If passed, then filesystem should exist for the *nas_server*, else the task will fail.
+   - When the ID of the filesystem is passed then :emphasis:`nas\_server` is not required. If passed, then filesystem should exist for the :emphasis:`nas\_server`\ , else the task will fail.
    - If a primary directory of the current directory or a subordinate directory of the path is having a Tree Quota configured, then the quota for that path cannot be created.
    - Hierarchical tree quotas are not allowed.
    - When the first quota is created for a directory/user in a filesystem then the quotas will be enabled for that filesystem automatically.
    - If a user quota is to be created on a tree quota, then the user quotas will be enabled automatically in a tree quota.
-   - ``Delete`` User Quota operation is not supported.
-   - The *check_mode* is not supported.
+   - :literal:`Delete` User Quota operation is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -289,7 +289,7 @@ quota_details (When Quota exists., complex, {'description': 'Tree quota created 
 
 
     nas_server (, dict, )
-      nas_server of filesystem.
+      nas\_server of filesystem.
 
 
 
@@ -351,7 +351,7 @@ quota_details (When Quota exists., complex, {'description': 'Tree quota created 
 
 
   state (, str, Ok)
-    State of the user quota or tree quota record period. OK means No quota limits are exceeded. Soft_Exceeded means Soft limit is exceeded, and grace period is not expired. Soft_Exceeded_And_Expired means Soft limit is exceeded, and grace period is expired. Hard_Reached means Hard limit is reached.
+    State of the user quota or tree quota record period. OK means No quota limits are exceeded. Soft\_Exceeded means Soft limit is exceeded, and grace period is not expired. Soft\_Exceeded\_And\_Expired means Soft limit is exceeded, and grace period is expired. Hard\_Reached means Hard limit is reached.
 
 
   state_l10n (, str, Ok)

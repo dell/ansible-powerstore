@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -49,7 +49,7 @@ Parameters
 
 
   certificate (optional, str, None)
-    Concatenated PEM encoded x509_certificate string from end-entity certificate to root certificate.
+    Concatenated PEM encoded x509\_certificate string from end-entity certificate to root certificate.
 
 
   remote_address (optional, str, None)
@@ -83,9 +83,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -116,10 +116,10 @@ Notes
 
 .. note::
    - Idempotency is not supported for adding/importing certificates, exchange of certificates and the reset of certificates.
-   - Only *is_current* parameter is supported for modification of certificate.
+   - Only :emphasis:`is\_current` parameter is supported for modification of certificate.
    - Reset operation can reset more than one certificate at a time.
    - Add/import, modify and reset are supported for PowerStore versions 2.0 and above only.
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -226,7 +226,7 @@ certificate_details (When certificate exists, complex, {'id': '1f0fd938-f122-482
 
 
   members (, complex, )
-    Member certificates included in this x509_certificate.
+    Member certificates included in this x509\_certificate.
 
 
     subject (, str, )
@@ -254,7 +254,7 @@ certificate_details (When certificate exists, complex, {'id': '1f0fd938-f122-482
 
 
     subject_alternative_names (, list, )
-      Additional DNS names or IP addresses in the x509_certificate.
+      Additional DNS names or IP addresses in the x509\_certificate.
 
 
     public_key_algorithm (, str, )
@@ -282,7 +282,7 @@ certificate_details (When certificate exists, complex, {'id': '1f0fd938-f122-482
 
 
     thumbprint_algorithm_l10n (, str, )
-      Localized message string corresponding to thumbprint_algorithm.
+      Localized message string corresponding to thumbprint\_algorithm.
 
 
 

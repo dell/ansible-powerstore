@@ -31,10 +31,10 @@ This section describes the various issue templates and the expected content.
 
 Should explain what happened, what was expected and how to reproduce it together with any additional information that may help giving a complete picture of what happened such as screenshots, output and any environment related information that's applicable and/or maybe related to the reported problem:
 
- - Ansible Version: [e.g. 2.15]
- - Python Version [e.g. 3.11]
- - Ansible modules for Dell PowerStore Version: [e.g. 3.4.0]
- - PowerStore SDK version: [e.g. PyPowerStore 3.3.0]
+ - Ansible Version: [e.g. 2.19]
+ - Python Version [e.g. 3.13]
+ - Ansible modules for Dell PowerStore Version: [e.g. 3.8.0]
+ - PowerStore SDK version: [e.g. PyPowerStore 3.4.1]
  - Any other additional information...
 
 #### Feature requests

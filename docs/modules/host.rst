@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 

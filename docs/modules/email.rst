@@ -26,8 +26,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -37,13 +37,13 @@ Parameters
   email_id (optional, str, None)
     Unique identifier of the destination email address.
 
-    Mutually exclusive with *email_address*.
+    Mutually exclusive with :emphasis:`email\_address`.
 
 
   email_address (optional, str, None)
     Email address to receive notifications.
 
-    Mutually exclusive with *email_id*.
+    Mutually exclusive with :emphasis:`email\_id`.
 
 
   new_address (optional, str, None)
@@ -78,9 +78,9 @@ Parameters
   state (True, str, None)
     The state of the destination email address after the task is performed.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
-    For all Create, Modify, Test or Get details operations it should be set to ``present``.
+    For all Create, Modify, Test or Get details operations it should be set to :literal:`present`.
 
 
   array_ip (True, str, None)
@@ -90,9 +90,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -123,7 +123,7 @@ Notes
 
 .. note::
    - Idempotency is not supported for Test operation of Email module.
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
