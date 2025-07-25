@@ -22,8 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -53,9 +55,9 @@ Parameters
   state (True, str, None)
     The state of the SMTP configuration after the task is performed.
 
-    For Delete operation only, it should be set to ``absent``
+    For Delete operation only, it should be set to :literal:`absent`
 
-    For all operations it should be set to ``present``.
+    For all operations it should be set to :literal:`present`.
 
 
   array_ip (True, str, None)
@@ -65,9 +67,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -97,9 +99,9 @@ Notes
 -----
 
 .. note::
-   - Idempotency is not supported for test operation for smtp_config module.
+   - Idempotency is not supported for test operation for smtp\_config module.
    - Creation and deletion of SMTP configuration is not supported.
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

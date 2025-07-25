@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -33,7 +35,7 @@ Parameters
 
 
   nas_server (optional, str, None)
-    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the *nas_server* resource type.
+    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the :emphasis:`nas\_server` resource type.
 
 
   ip_address (optional, str, None)
@@ -59,13 +61,13 @@ Parameters
 
 
   role (optional, str, None)
-    ``Production`` type of network interface is used for all file protocols and services of a NAS server. This type of interface is inactive while a NAS server is in destination mode.
+    :literal:`Production` type of network interface is used for all file protocols and services of a NAS server. This type of interface is inactive while a NAS server is in destination mode.
 
-    ``Backup`` type of network interface is used only for NDMP/NFS backup or disaster recovery testing. This type of interface is always active in all NAS server modes.
+    :literal:`Backup` type of network interface is used only for NDMP/NFS backup or disaster recovery testing. This type of interface is always active in all NAS server modes.
 
-    ``System`` type of interface are reserved for system traffic such as for NAS server migration, they can not be used for the production traffic.
+    :literal:`System` type of interface are reserved for system traffic such as for NAS server migration, they can not be used for the production traffic.
 
-    ``System`` type is not supported during create interface.
+    :literal:`System` type is not supported during create interface.
 
 
   is_disabled (optional, bool, None)
@@ -83,7 +85,7 @@ Parameters
   state (optional, str, present)
     Define whether the file interface should exist or not.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   array_ip (True, str, None)
@@ -93,9 +95,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -125,8 +127,8 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is supported.
-   - The details of a file interface can be fetched using *file_interface_id* or *nas_server* and *ip_address*.
+   - The :emphasis:`check\_mode` is supported.
+   - The details of a file interface can be fetched using :emphasis:`file\_interface\_id` or :emphasis:`nas\_server` and :emphasis:`ip\_address`.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

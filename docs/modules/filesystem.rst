@@ -22,8 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -31,11 +33,11 @@ Parameters
 ----------
 
   filesystem_name (optional, str, None)
-    Name of the file system. Mutually exclusive with *filesystem_id*. Mandatory only for create operation.
+    Name of the file system. Mutually exclusive with :emphasis:`filesystem\_id`. Mandatory only for create operation.
 
 
   filesystem_id (optional, str, None)
-    Unique id of the file system. Mutually exclusive with *filesystem_name*.
+    Unique id of the file system. Mutually exclusive with :emphasis:`filesystem\_name`.
 
 
   description (optional, str, None)
@@ -43,7 +45,7 @@ Parameters
 
 
   nas_server (optional, str, None)
-    Name or ID of the NAS Server on which the file system is created. Mandatory parameter whenever *filesystem_name* is provided, since filesystem names are unique only within a NAS server.
+    Name or ID of the NAS Server on which the file system is created. Mandatory parameter whenever :emphasis:`filesystem\_name` is provided, since filesystem names are unique only within a NAS server.
 
 
   size (optional, int, None)
@@ -55,7 +57,7 @@ Parameters
   cap_unit (optional, str, None)
     Capacity unit for the size.
 
-    It defaults to ``GB``, if not specified.
+    It defaults to :literal:`GB`\ , if not specified.
 
 
   access_policy (optional, str, None)
@@ -65,19 +67,19 @@ Parameters
   locking_policy (optional, str, None)
     File system locking policies.
 
-    ``ADVISORY``- No lock checking for NFS and honor SMB lock range only for SMB.
+    :literal:`ADVISORY`\ - No lock checking for NFS and honor SMB lock range only for SMB.
 
-    ``MANDATORY``- Honor SMB and NFS lock range.
+    :literal:`MANDATORY`\ - Honor SMB and NFS lock range.
 
 
   folder_rename_policy (optional, str, None)
     File system folder rename policies for the file system with multi-protocol access enabled.
 
-    ``ALL_ALLOWED`` - All protocols are allowed to rename directories without any restrictions.
+    :literal:`ALL\_ALLOWED` - All protocols are allowed to rename directories without any restrictions.
 
-    ``SMB_FORBIDDEN`` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
+    :literal:`SMB\_FORBIDDEN` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
 
-    ``All_FORBIDDEN`` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
+    :literal:`All\_FORBIDDEN` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
 
 
   smb_properties (optional, dict, None)
@@ -105,7 +107,7 @@ Parameters
 
 
     smb_notify_on_change_dir_depth (optional, int, None)
-      Determines the lowest directory level to which the enabled notifications apply. minimum value is ``1``.
+      Determines the lowest directory level to which the enabled notifications apply. minimum value is :literal:`1`.
 
 
 
@@ -143,7 +145,7 @@ Parameters
   flr_attributes (optional, dict, None)
     The attributes for file retention.
 
-    Can only be provided when the *config_type* is ``GENERAL``.
+    Can only be provided when the :emphasis:`config\_type` is :literal:`GENERAL`.
 
 
     mode (optional, str, None)
@@ -194,13 +196,13 @@ Parameters
   file_events_publishing_mode (optional, str, None)
     State of the event notification services for all file systems of the NAS server.
 
-    It can only be set to ``NFS_ONLY`` when *config_typ* is set to ``VMWARE``.
+    It can only be set to :literal:`NFS\_ONLY` when :emphasis:`config\_typ` is set to :literal:`VMWARE`.
 
 
   host_io_size (optional, str, None)
     Typical size of writes from the server or other computer using the VMware file system to the storage system.
 
-    Can only be set when the *config_type* is ``VMWARE``.
+    Can only be set when the :emphasis:`config\_type` is :literal:`VMWARE`.
 
     Cannot be modified.
 
@@ -222,29 +224,29 @@ Parameters
     access_policy (optional, str, None)
       File system security access policies.
 
-      ``Native`` - Native Security.
+      :literal:`Native` - Native Security.
 
-      ``UNIX`` - UNIX Security.
+      :literal:`UNIX` - UNIX Security.
 
-      ``Windows`` - Windows Security.
+      :literal:`Windows` - Windows Security.
 
 
     locking_policy (optional, str, None)
       File system locking policies.
 
-      ``Advisory``- No lock checking for NFS and honor SMB lock range only for SMB.
+      :literal:`Advisory`\ - No lock checking for NFS and honor SMB lock range only for SMB.
 
-      ``Mandatory``- Honor SMB and NFS lock range.
+      :literal:`Mandatory`\ - Honor SMB and NFS lock range.
 
 
     folder_rename_policy (optional, str, None)
       File system folder rename policies for the file system with multi-protocol access enabled.
 
-      ``All_Allowed`` - All protocols are allowed to rename directories without any restrictions.
+      :literal:`All\_Allowed` - All protocols are allowed to rename directories without any restrictions.
 
-      ``SMB_Forbidden`` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
+      :literal:`SMB\_Forbidden` - A directory rename from the SMB protocol will be denied if at least one file is opened in the directory or in one of its child directories.
 
-      ``All_Forbidden`` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
+      :literal:`All\_Forbidden` - Any directory rename request will be denied regardless of the protocol used, if at least one file is opened in the directory or in one of its child directories.
 
 
     is_smb_sync_writes_enabled (optional, bool, None)
@@ -268,7 +270,7 @@ Parameters
 
 
     smb_notify_on_change_dir_depth (optional, int, None)
-      Determines the lowest directory level to which the enabled notifications apply. minimum value is ``1``.
+      Determines the lowest directory level to which the enabled notifications apply. minimum value is :literal:`1`.
 
 
     is_async_MTime_enabled (optional, bool, None)
@@ -278,13 +280,13 @@ Parameters
     file_events_publishing_mode (optional, str, None)
       State of the event notification services for all file systems of the NAS server.
 
-      ``None`` - File event notifications are disabled for this file system.
+      :literal:`None` - File event notifications are disabled for this file system.
 
-      ``SMB_Only`` - SMB notifications are enabled for this file system.
+      :literal:`SMB\_Only` - SMB notifications are enabled for this file system.
 
-      ``NFS_Only`` - NFS notifications are enabled for this file system.
+      :literal:`NFS\_Only` - NFS notifications are enabled for this file system.
 
-      ``All`` - SMB and NFS notifications are enabled for this file system.
+      :literal:`All` - SMB and NFS notifications are enabled for this file system.
 
 
     flr_attributes (optional, dict, None)
@@ -294,9 +296,9 @@ Parameters
       force_clone (optional, bool, None)
         Specifies whether an FLR-C file system should be cloned.
 
-        ``true`` - means cloning an FLR-C file system is allowed.
+        :literal:`true` - means cloning an FLR-C file system is allowed.
 
-        ``false`` - means cloning an FLR-C file system is not allowed. and any attempt to do so will return an error.
+        :literal:`false` - means cloning an FLR-C file system is not allowed. and any attempt to do so will return an error.
 
 
 
@@ -340,9 +342,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -373,9 +375,9 @@ Notes
 
 .. note::
    - It is recommended to remove the protection policy before deleting the filesystem.
-   - The *check_mode* is not supported.
-   - The pattern for *minimum_retention*, *default_retention* and *maximum_retention* is (^\d+[DMY])|(^infinite$).
-   - Filesystem snapshot can be created using filesystem_snapshot module.
+   - The :emphasis:`check\_mode` is not supported.
+   - The pattern for :emphasis:`minimum\_retention`\ , :emphasis:`default\_retention` and :emphasis:`maximum\_retention` is (^\\d+[DMY])\|(^infinite$).
+   - Filesystem snapshot can be created using filesystem\_snapshot module.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

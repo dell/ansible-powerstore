@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 

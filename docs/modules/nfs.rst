@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -33,7 +35,7 @@ Parameters
 
     Mandatory for create operation.
 
-    Specify either *nfs_export_name* or *nfs_export_id* but not both for any operation.
+    Specify either :emphasis:`nfs\_export\_name` or :emphasis:`nfs\_export\_id` but not both for any operation.
 
 
   nfs_export_id (optional, str, None)
@@ -45,19 +47,19 @@ Parameters
 
     Either filesystem or snapshot is required for creation of the NFS Export.
 
-    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
+    If filesystem name is specified, then :emphasis:`nas\_server` is required to uniquely identify the filesystem.
 
-    If *filesystem* parameter is provided, then *snapshot* cannot be specified.
+    If :emphasis:`filesystem` parameter is provided, then :emphasis:`snapshot` cannot be specified.
 
 
   snapshot (optional, str, None)
     The ID/Name of the Snapshot for which NFS export will be created.
 
-    Either *filesystem* or *snapshot* is required for creation of the NFS Export.
+    Either :emphasis:`filesystem` or :emphasis:`snapshot` is required for creation of the NFS Export.
 
-    If snapshot name is specified, then *nas_server* is required to uniquely identify the snapshot.
+    If snapshot name is specified, then :emphasis:`nas\_server` is required to uniquely identify the snapshot.
 
-    If *snapshot* parameter is provided, then *filesystem* cannot be specified.
+    If :emphasis:`snapshot` parameter is provided, then :emphasis:`filesystem` cannot be specified.
 
     NFS export can be created only if access type of snapshot is "protocol".
 
@@ -69,7 +71,7 @@ Parameters
   path (optional, str, None)
     Local path to export relative to the NAS server root.
 
-    With NFS, each export of a file_system or file_snap must have a unique local path.
+    With NFS, each export of a file\_system or file\_snap must have a unique local path.
 
     Mandatory while creating NFS export.
 
@@ -83,7 +85,7 @@ Parameters
 
     For hosts that need different access than the default, they can be configured by adding to the list.
 
-    If *default_access* is not mentioned during creation, then NFS export will be created with ``No_Access``.
+    If :emphasis:`default\_access` is not mentioned during creation, then NFS export will be created with :literal:`No\_Access`.
 
 
   no_access_hosts (optional, list, None)
@@ -109,7 +111,7 @@ Parameters
   min_security (optional, str, None)
     NFS enforced security type for users accessing an NFS export.
 
-    If not specified at the time of creation, it will be set to ``SYS``.
+    If not specified at the time of creation, it will be set to :literal:`SYS`.
 
 
   anonymous_uid (optional, int, None)
@@ -127,7 +129,7 @@ Parameters
   is_no_suid (optional, bool, None)
     If set, do not allow access to set SUID. Otherwise, allow access.
 
-    If not specified at the time of creation, it will be set to ``false``.
+    If not specified at the time of creation, it will be set to :literal:`false`.
 
 
   host_state (optional, str, None)
@@ -147,9 +149,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -179,7 +181,7 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

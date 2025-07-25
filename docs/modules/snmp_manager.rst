@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -35,21 +37,21 @@ Parameters
   auth_privacy (optional, str, None)
     Supported SNMP privacy protocol.
 
-    \ :literal:`Nil`\  - No encryption on the wire.
+    :literal:`Nil` - No encryption on the wire.
 
-    \ :literal:`AES256`\  - means Encryption class for AES 256.
+    :literal:`AES256` - means Encryption class for AES 256.
 
-    \ :literal:`TDES`\  - Encryption class for Triple Data Encryption.
+    :literal:`TDES` - Encryption class for Triple Data Encryption.
 
 
   auth_protocol (optional, str, None)
     Relevant only for SNMPv3. Supported SNMP authentication protocols.
 
-    \ :literal:`Nil`\  - No authorization.
+    :literal:`Nil` - No authorization.
 
-    \ :literal:`MD5`\  - The AuthMD5 class implements the MD5 authentication protocol.
+    :literal:`MD5` - The AuthMD5 class implements the MD5 authentication protocol.
 
-    \ :literal:`SHA256`\  - The Secure Hash Authentication.
+    :literal:`SHA256` - The Secure Hash Authentication.
 
 
   ip_address (True, str, None)
@@ -67,7 +69,7 @@ Parameters
   snmp_password (optional, str, None)
     Passphrase, used for both Authentication and Privacy protocols.
 
-    \ :emphasis:`snmp\_password`\  is only applicable when \ :emphasis:`version`\  is \ :literal:`V3`\  and to set the security level to authentication only and authentication and privacy.
+    :emphasis:`snmp\_password` is only applicable when :emphasis:`version` is :literal:`V3` and to set the security level to authentication only and authentication and privacy.
 
 
   snmp_port (optional, int, 162)
@@ -77,13 +79,13 @@ Parameters
   snmp_username (optional, str, None)
     User name for SNMP auth.
 
-    \ :emphasis:`snmp\_username`\  is required when \ :emphasis:`version`\  is \ :literal:`V3`\ .
+    :emphasis:`snmp\_username` is required when :emphasis:`version` is :literal:`V3`.
 
 
   trap_community (optional, str, None)
     Trap Community string describes the security level.
 
-    \ :emphasis:`trap\_community`\  is required when \ :emphasis:`version`\  is \ :literal:`V2c`\ .
+    :emphasis:`trap\_community` is required when :emphasis:`version` is :literal:`V2c`.
 
 
   update_password (optional, str, always)
@@ -93,15 +95,15 @@ Parameters
   version (optional, str, V3)
     Supported SNMP protocol versions.
 
-    \ :literal:`V2c`\  - SNMP version 2c.
+    :literal:`V2c` - SNMP version 2c.
 
-    \ :literal:`V3`\  - SNMP version 3.
+    :literal:`V3` - SNMP version 3.
 
 
   state (optional, str, present)
     Define whether the file DNS should be enabled or not.
 
-    For Delete operation only, it should be set to \ :literal:`absent`\ .
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   array_ip (True, str, None)
@@ -111,9 +113,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)

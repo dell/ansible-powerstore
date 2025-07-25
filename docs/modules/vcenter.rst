@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -45,7 +47,7 @@ Parameters
 
     Mandatory while adding a vCenter.
 
-    *vcenter_password* needs to be provided to modify the user name.
+    :emphasis:`vcenter\_password` needs to be provided to modify the user name.
 
 
   vcenter_password (optional, str, None)
@@ -74,25 +76,25 @@ Parameters
   delete_vasa_provider (optional, bool, None)
     Whether to remove VASA provider.
 
-    When ``true``, remove the VASA provider from vCenter. This will only happen if provider is not connected to any other PowerStore system.
+    When :literal:`true`\ , remove the VASA provider from vCenter. This will only happen if provider is not connected to any other PowerStore system.
 
-    ``false`` is the API default.
+    :literal:`false` is the API default.
 
 
   state (optional, str, present)
     The state of the vCenter instance after the task is performed.
 
-    For get, create, and modify operations it should be set to ``present``.
+    For get, create, and modify operations it should be set to :literal:`present`.
 
 
   update_password (optional, str, always)
-    This parameter controls the way the *vcenter_password* is updated during addition and modification of the vCenter.
+    This parameter controls the way the :emphasis:`vcenter\_password` is updated during addition and modification of the vCenter.
 
-    ``always`` will update password for each execution.
+    :literal:`always` will update password for each execution.
 
-    ``on_create`` will only set while adding a vCenter or modifying the *vcenter_username.*
+    :literal:`on\_create` will only set while adding a vCenter or modifying the :emphasis:`vcenter\_username.`
 
-    For modifying *vcenter_password*, set the *update_password* to ``always``.
+    For modifying :emphasis:`vcenter\_password`\ , set the :emphasis:`update\_password` to :literal:`always`.
 
 
   array_ip (True, str, None)
@@ -102,9 +104,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -136,7 +138,7 @@ Notes
 .. note::
    - In unified+ deployment, the one vCenter instance residing in the PowerStore cluster will be prepopulated and cannot be deleted, nor may any other vCenter be added.
    - For unified deployment, one external vCenter may be configured if desired.
-   - The *check_mode* is supported.
+   - The :emphasis:`check\_mode` is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -230,7 +232,7 @@ vcenter_details (When vCenter exists., complex, {'id': '0d330d6c-3fe6-41c6-8023-
 
 
   vendor_provider_status_l10n (, str, )
-    Localized message string corresponding to vendor_provider_status.
+    Localized message string corresponding to vendor\_provider\_status.
 
 
   virtual_machines (, list, )

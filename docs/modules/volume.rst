@@ -22,36 +22,57 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
 Parameters
 ----------
 
-  vol_name (optional, str, None)
-    Unique name of the volume. This value must contain 128 or fewer printable unicode characters.
+  appliance_id (optional, str, None)
+    ID of the appliance on which the volume is provisioned.
 
-    Required when creating a volume. All other functionalities on a volume are supported using volume name or ID.
-
-
-  vg_name (optional, str, None)
-    The name of the volume group. A volume can optionally be assigned to a volume group at the time of creation.
-
-    Use the Volume Group Module for modification of the assignment.
+    :emphasis:`appliance\_id` and :emphasis:`appliance\_name` are mutually exclusive.
 
 
-  vol_id (optional, str, None)
-    The 36 character long ID of the volume, automatically generated when a volume is created.
+  appliance_name (optional, str, None)
+    Name of the appliance on which the volume is provisioned.
 
-    Cannot be used while creating a volume. All other functionalities on a volume are supported using volume name or ID.
+    :emphasis:`appliance\_id` and :emphasis:`appliance\_name` are mutually exclusive.
 
 
-  size (optional, float, None)
-    Size of the volume. Minimum volume size is 1MB. Maximum volume size is 256TB. Size must be a multiple of 8192.
+  app_type (optional, str, None)
+    Application type to indicate the intended use of the volume.
 
-    Required in case of create and expand volume.
+
+  app_type_other (optional, str, None)
+    Application type for volume when :emphasis:`app\_type` is set to :literal:`\*Other` types.
+
+
+  backup_snap_profile (optional, dict, None)
+    Details of the backup snapshot set to be created.
+
+
+    description (optional, str, None)
+      Description of the backup snapshot set.
+
+
+    expiration_timestamp (optional, str, None)
+      Time after which the snapshot set can be auto-purged.
+
+
+    name (optional, str, None)
+      Name of the backup snapshot set to be created.
+
+      The default name of the volume snapshot is the date and time when the snapshot is taken.
+
+
+    performance_policy (optional, str, None)
+      Performance policy assigned to the snapshot.
+
 
 
   cap_unit (optional, str, None)
@@ -59,11 +80,52 @@ Parameters
 
     Used to signify unit of the size provided for creation and expansion of volume.
 
-    It defaults to ``GB``, if not specified.
+    It defaults to :literal:`GB`\ , if not specified.
 
 
-  new_name (optional, str, None)
-    The new volume name for the volume, used in case of rename functionality.
+  clone_volume (optional, dict, None)
+    Details of the volume clone.
+
+
+    description (optional, str, None)
+      Description of the clone.
+
+
+    host (optional, str, None)
+      Unique identifier or name of the host to be attached to the clone.
+
+
+    host_group (optional, str, None)
+      Unique identifier or name of the host group to be attached to the clone.
+
+
+    logical_unit_number (optional, int, None)
+      logical unit number when creating a :literal:`mapped` volume.
+
+      If no :literal:`host\_id` or :literal:`host\_group\_id` is specified, :literal:`logical\_unit\_number` is ignored.
+
+
+    name (optional, str, None)
+      Name of the clone set to be created.
+
+
+    performance_policy (optional, str, None)
+      The performance policy of the clone set to be created.
+
+
+    protection_policy (optional, str, None)
+      The protection policy of the clone set to be created.
+
+
+
+  create_backup_snap (optional, bool, None)
+    Indicates whether a backup snapshot of the target volume will be created or not.
+
+
+  delete_remote_volume (optional, bool, None)
+    Whether to delete the remote volume during removal of metro session.
+
+    This is parameter is added in the PowerStore version 3.0.0.0.
 
 
   description (optional, str, None)
@@ -74,50 +136,18 @@ Parameters
     To modify, pass the new value in description field.
 
 
-  app_type (optional, str, None)
-    Application type to indicate the intended use of the volume.
+  end_metro_config (optional, bool, False)
+    Whether to end the metro session from a volume.
+
+    This is mandatory for end metro configuration operation.
 
 
-  app_type_other (optional, str, None)
-    Application type for volume when *app_type* is set to ``*Other`` types.
+  hlu (optional, int, None)
+    Logical unit number for the host/host group volume access.
 
+    Optional parameter when mapping a volume to host/host group.
 
-  appliance_id (optional, str, None)
-    ID of the appliance on which the volume is provisioned.
-
-    *appliance_id* and *appliance_name* are mutually exclusive.
-
-
-  appliance_name (optional, str, None)
-    Name of the appliance on which the volume is provisioned.
-
-    *appliance_id* and *appliance_name* are mutually exclusive.
-
-
-  protection_policy (optional, str, None)
-    The *protection_policy* of the volume.
-
-    To represent policy, both name or ID can be used interchangably. The module will detect both.
-
-    A volume can be assigned a protection policy at the time of creation of the volume or later.
-
-    The policy can also be changed for a given volume by simply passing the new value.
-
-    The policy can be removed by passing an empty string.
-
-    Check examples for more clarity.
-
-
-  performance_policy (optional, str, None)
-    The *performance_policy* for the volume.
-
-    A volume can be assigned a performance policy at the time of creation of the volume, or later.
-
-    The policy can also be changed for a given volume, by simply passing the new value.
-
-    Check examples for more clarity.
-
-    If not given, performance policy will be ``medium``.
+    HLU modification is not supported.
 
 
   host (optional, str, None)
@@ -137,97 +167,47 @@ Parameters
   mapping_state (optional, str, None)
     Define whether the volume should be mapped to a host or hostgroup.
 
-    Value ``mapped`` - indicates that the volume should be mapped to the host or host group.
+    Value :literal:`mapped` - indicates that the volume should be mapped to the host or host group.
 
-    Value ``unmapped`` - indicates that the volume should not be mapped to the host or host group.
+    Value :literal:`unmapped` - indicates that the volume should not be mapped to the host or host group.
 
     Only one of a host or host group can be supplied in one call.
 
 
-  hlu (optional, int, None)
-    Logical unit number for the host/host group volume access.
-
-    Optional parameter when mapping a volume to host/host group.
-
-    HLU modification is not supported.
+  new_name (optional, str, None)
+    The new volume name for the volume, used in case of rename functionality.
 
 
-  clone_volume (optional, dict, None)
-    Details of the volume clone.
+  performance_policy (optional, str, None)
+    The :emphasis:`performance\_policy` for the volume.
+
+    A volume can be assigned a performance policy at the time of creation of the volume, or later.
+
+    The policy can also be changed for a given volume, by simply passing the new value.
+
+    Check examples for more clarity.
+
+    If not given, performance policy will be :literal:`medium`.
 
 
-    name (optional, str, None)
-      Name of the clone set to be created.
+  protection_policy (optional, str, None)
+    The :emphasis:`protection\_policy` of the volume.
+
+    To represent policy, both name or ID can be used interchangably. The module will detect both.
+
+    A volume can be assigned a protection policy at the time of creation of the volume or later.
+
+    The policy can also be changed for a given volume by simply passing the new value.
+
+    The policy can be removed by passing an empty string.
+
+    Check examples for more clarity.
 
 
-    description (optional, str, None)
-      Description of the clone.
+  remote_appliance_id (optional, str, None)
+    A remote system appliance ID to which volume will be assigned.
 
-
-    host (optional, str, None)
-      Unique identifier or name of the host to be attached to the clone.
-
-
-    host_group (optional, str, None)
-      Unique identifier or name of the host group to be attached to the clone.
-
-
-    logical_unit_number (optional, int, None)
-      logical unit number when creating a ``mapped`` volume.
-
-      If no ``host_id`` or ``host_group_id`` is specified, ``logical_unit_number`` is ignored.
-
-
-    protection_policy (optional, str, None)
-      The protection policy of the clone set to be created.
-
-
-    performance_policy (optional, str, None)
-      The performance policy of the clone set to be created.
-
-
-
-  source_volume (optional, str, None)
-    Unique identifier or name of the volume to refresh from.
-
-
-  source_snap (optional, str, None)
-    Unique identifier or name of the source snapshot that will be used for the restore operation.
-
-
-  create_backup_snap (optional, bool, None)
-    Indicates whether a backup snapshot of the target volume will be created or not.
-
-
-  backup_snap_profile (optional, dict, None)
-    Details of the backup snapshot set to be created.
-
-
-    name (optional, str, None)
-      Name of the backup snapshot set to be created.
-
-      The default name of the volume snapshot is the date and time when the snapshot is taken.
-
-
-    description (optional, str, None)
-      Description of the backup snapshot set.
-
-
-    performance_policy (optional, str, None)
-      Performance policy assigned to the snapshot.
-
-
-    expiration_timestamp (optional, str, None)
-      Time after which the snapshot set can be auto-purged.
-
-
-
-  state (True, str, None)
-    Define whether the volume should exist or not.
-
-    Value ``present`` - indicates that the volume should exist on the system.
-
-    Value ``absent`` - indicates that the volume should not exist on the system.
+    This parameter is added in PowerStore version 3.0.0.0.
 
 
   remote_system (optional, str, None)
@@ -242,22 +222,44 @@ Parameters
     This parameter is added in PowerStore version 3.0.0.0.
 
 
-  remote_appliance_id (optional, str, None)
-    A remote system appliance ID to which volume will be assigned.
+  size (optional, float, None)
+    Size of the volume. Minimum volume size is 1MB. Maximum volume size is 256TB. Size must be a multiple of 8192.
 
-    This parameter is added in PowerStore version 3.0.0.0.
-
-
-  end_metro_config (optional, bool, False)
-    Whether to end the metro session from a volume.
-
-    This is mandatory for end metro configuration operation.
+    Required in case of create and expand volume.
 
 
-  delete_remote_volume (optional, bool, None)
-    Whether to delete the remote volume during removal of metro session.
+  source_snap (optional, str, None)
+    Unique identifier or name of the source snapshot that will be used for the restore operation.
 
-    This is parameter is added in the PowerStore version 3.0.0.0.
+
+  source_volume (optional, str, None)
+    Unique identifier or name of the volume to refresh from.
+
+
+  state (optional, str, present)
+    Define whether the volume should exist or not.
+
+    Value :literal:`present` - indicates that the volume should exist on the system.
+
+    Value :literal:`absent` - indicates that the volume should not exist on the system.
+
+
+  vg_name (optional, str, None)
+    The name of the volume group. A volume can optionally be assigned to a volume group at the time of creation.
+
+    Use the Volume Group Module for modification of the assignment.
+
+
+  vol_id (optional, str, None)
+    The 36 character long ID of the volume, automatically generated when a volume is created.
+
+    Cannot be used while creating a volume. All other functionalities on a volume are supported using volume name or ID.
+
+
+  vol_name (optional, str, None)
+    Unique name of the volume. This value must contain 128 or fewer printable unicode characters.
+
+    Required when creating a volume. All other functionalities on a volume are supported using volume name or ID.
 
 
   array_ip (True, str, None)
@@ -267,9 +269,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -299,14 +301,13 @@ Notes
 -----
 
 .. note::
-   - To create a new volume, *vol_name* and *size* is required. *cap_unit*, *description*, *vg_name*, *performance_policy*, and *protection_policy* are optional.
-   - Parameter *new_name* should not be provided when creating a new volume.
-   - The *size*is a required parameter for expand volume.
+   - To create a new volume, :emphasis:`vol\_name` and :emphasis:`size` is required. :emphasis:`cap\_unit`\ , :emphasis:`description`\ , :emphasis:`vg\_name`\ , :emphasis:`performance\_policy`\ , and :emphasis:`protection\_policy` are optional.
+   - Parameter :emphasis:`new\_name` should not be provided when creating a new volume.
+   - The :emphasis:`size`\ is a required parameter for expand volume.
    - Clones or Snapshots of a deleted production volume or a clone are not deleted.
    - A volume that is attached to a host/host group, or that is part of a volume group cannot be deleted.
    - If volume in metro session, volume can only be modified, refreshed and restored when session is in the pause state.
-   - The *Check_mode* is not supported.
-   - *performance_policy* and *host_group* details are not in the return values for PowerStore 4.0.0.0.
+   - :emphasis:`performance\_policy` and :emphasis:`host\_group` details are not in the return values for PowerStore 4.0.0.0.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -483,7 +484,7 @@ volume_details (When volume exists, complex, {'appliance_id': 'A1', 'creation_ti
 
 
   app_type_other (, str, )
-    Application type for volume when app_type is set to *Other.
+    Application type for volume when app\_type is set to \*Other.
 
 
   id (, str, )
@@ -612,7 +613,7 @@ volume_details (When volume exists, complex, {'appliance_id': 'A1', 'creation_ti
 
 
   mapped_volumes (, complex, )
-    This is the inverse of the resource type host_volume_mapping association.
+    This is the inverse of the resource type host\_volume\_mapping association.
 
 
     id (, str, )
@@ -643,4 +644,5 @@ Authors
 - Ananthu S Kuttattu (@kuttattz) <ansible.team@dell.com>
 - Bhavneet Sharma (@Bhavneet-Sharma) <ansible.team@dell.com>
 - Pavan Mudunuri(@Pavan-Mudunuri) <ansible.team@dell.com>
+- Trisha Datta (@trisha-dell) <ansible.team@dell.com>
 

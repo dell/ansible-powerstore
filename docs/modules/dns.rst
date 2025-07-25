@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -37,13 +39,13 @@ Parameters
 
 
   dns_address_state (optional, str, None)
-    State of the addresses mentioned in *dns_addresses*.
+    State of the addresses mentioned in :emphasis:`dns\_addresses`.
 
 
   state (True, str, None)
     The state of the DNS instance after the task is performed.
 
-    For get and modify operations it should be set to ``present``.
+    For get and modify operations it should be set to :literal:`present`.
 
 
   array_ip (True, str, None)
@@ -53,9 +55,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -86,9 +88,9 @@ Notes
 
 .. note::
    - Minimum 1 and maximum 3 addresses can be associated to a DNS instance.
-   - Parameters *dns_addresses* and *dns_address_state* are required together.
+   - Parameters :emphasis:`dns\_addresses` and :emphasis:`dns\_address\_state` are required together.
    - Creation and deletion of DNS is not supported.
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

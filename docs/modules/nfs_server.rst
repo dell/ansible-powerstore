@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -33,7 +35,7 @@ Parameters
 
 
   nas_server (optional, str, None)
-    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the *nas_server* resource type.
+    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the :emphasis:`nas\_server` resource type.
 
 
   host_name (optional, str, None)
@@ -67,7 +69,7 @@ Parameters
   is_skip_unjoin (optional, bool, None)
     Allow to bypass NFS server unjoin.
 
-    If false modification will fail if secure is enabled and current kdc_type is MS Windows.
+    If false modification will fail if secure is enabled and current kdc\_type is MS Windows.
 
     If secure is enabled either unjoin NFS server before deleting or set value to true.
 
@@ -75,7 +77,7 @@ Parameters
   state (optional, str, present)
     Define whether the NFS server should be enabled or not.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   array_ip (True, str, None)
@@ -85,9 +87,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -117,9 +119,9 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is supported.
-   - The details of an NFS server can be fetched using *nfs_server_id* or *nas_server*.
-   - To set *is_use_smb_config_enabled* as ``true``, *is_secure_enabled* should be set to ``true``.
+   - The :emphasis:`check\_mode` is supported.
+   - The details of an NFS server can be fetched using :emphasis:`nfs\_server\_id` or :emphasis:`nas\_server`.
+   - To set :emphasis:`is\_use\_smb\_config\_enabled` as :literal:`true`\ , :emphasis:`is\_secure\_enabled` should be set to :literal:`true`.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

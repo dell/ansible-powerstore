@@ -20,8 +20,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -55,19 +57,19 @@ Parameters
   transport (optional, str, None)
     Transport used when connecting to the DNS Server.
 
-    ``UDP`` - DNS uses the UDP protocol.
+    :literal:`UDP` - DNS uses the UDP protocol.
 
-    ``TCP`` - DNS uses the TCP protocol.
+    :literal:`TCP` - DNS uses the TCP protocol.
 
 
   is_destination_override_enabled (optional, bool, None)
-    In order to modify any properties of this resource when the associated NAS server is a replication destination, the *is_destination_override_enabled* flag must be set to ``true``.
+    In order to modify any properties of this resource when the associated NAS server is a replication destination, the :emphasis:`is\_destination\_override\_enabled` flag must be set to :literal:`true`.
 
 
   state (optional, str, present)
     Define whether the file DNS should be enabled or not.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   array_ip (True, str, None)
@@ -77,9 +79,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -109,8 +111,8 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is supported.
-   - The details of a file DNS can be fetched using *file_dns_id* or *nas_server*.
+   - The :emphasis:`check\_mode` is supported.
+   - The details of a file DNS can be fetched using :emphasis:`file\_dns\_id` or :emphasis:`nas\_server`.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

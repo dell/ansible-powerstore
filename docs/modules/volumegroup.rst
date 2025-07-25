@@ -22,8 +22,10 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
 - PyPowerStore 3.4.1.
+- Ansible-core 2.17 or later.
+- Python 3.11, 3.12 or 3.13.
 
 
 
@@ -45,13 +47,13 @@ Parameters
 
     Either the volume ID or name must be provided for adding/removing existing volumes from a volume group.
 
-    If volumes are given, then *vol_state* should also be specified.
+    If volumes are given, then :emphasis:`vol\_state` should also be specified.
 
 
   vol_state (optional, str, None)
     String variable. Describes the state of volumes inside a volume group.
 
-    If volume is given, then *vol_state* should also be specified.
+    If volume is given, then :emphasis:`vol\_state` should also be specified.
 
 
   new_vg_name (optional, str, None)
@@ -71,7 +73,7 @@ Parameters
   is_write_order_consistent (optional, bool, None)
     A boolean flag to indicate whether Snapshot sets of the volume group will be write-order consistent.
 
-    If this parameter is not specified, the array by default sets it to ``true``.
+    If this parameter is not specified, the array by default sets it to :literal:`true`.
 
 
   source_vg (optional, str, None)
@@ -85,7 +87,7 @@ Parameters
   create_backup_snap (optional, bool, None)
     Specifies whether a backup snapshot set of the target volume group needs to be created before attempting refresh or restore.
 
-    If not specified it will be set to ``true``.
+    If not specified it will be set to :literal:`true`.
 
 
   backup_snap_profile (optional, dict, None)
@@ -133,9 +135,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -165,11 +167,11 @@ Notes
 -----
 
 .. note::
-   - Parameter *vol_state* is mandatory if volumes are provided.
+   - Parameter :emphasis:`vol\_state` is mandatory if volumes are provided.
    - A protection policy can be specified either for an volume group, or for the individual volumes inside the volume group.
    - A volume can be a member of at most one volume group.
-   - Specifying *protection_policy* as empty string or "" removes the existing protection policy from a volume group.
-   - The *check_mode* is not supported.
+   - Specifying :emphasis:`protection\_policy` as empty string or "" removes the existing protection policy from a volume group.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
