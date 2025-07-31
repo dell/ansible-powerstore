@@ -49,8 +49,8 @@ class ModuleDocFragment(object):
               - If not passed, it will take 443 as default.
           type: int
     requirements:
-      - A Dell PowerStore storage system version 3.0.0.0 or later.
-      - PyPowerStore 3.4.1.
+      - A Dell PowerStore storage system version 3.6.0.0 or later.
+      - PyPowerStore.
     notes:
       - The modules present in this collection named as 'dellemc.powerstore'
         are built to support the Dell PowerStore storage platform.

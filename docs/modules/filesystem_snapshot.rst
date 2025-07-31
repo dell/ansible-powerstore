@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -43,7 +43,7 @@ Parameters
   filesystem (optional, str, None)
     The ID/Name of the filesystem for which snapshot will be taken.
 
-    If filesystem name is specified, then *nas_server* is required to uniquely identify the filesystem.
+    If filesystem name is specified, then :emphasis:`nas\_server` is required to uniquely identify the filesystem.
 
     Mandatory for create operation.
 
@@ -59,7 +59,7 @@ Parameters
   desired_retention (optional, int, None)
     The retention value for the Snapshot.
 
-    If the *desired_retention*/*expiration_timestamp* is not mentioned during creation, snapshot will be created with unlimited retention.
+    If the :emphasis:`desired\_retention`\ /\ :emphasis:`expiration\_timestamp` is not mentioned during creation, snapshot will be created with unlimited retention.
 
     Maximum supported desired retention is 31 days.
 
@@ -77,7 +77,7 @@ Parameters
   access_type (optional, str, None)
     Specifies whether the snapshot directory or protocol access is granted to the filesystem snapshot.
 
-    For create operation, if *access_type* is not specified, snapshot will be created with ``SNAPSHOT`` access type.
+    For create operation, if :emphasis:`access\_type` is not specified, snapshot will be created with :literal:`SNAPSHOT` access type.
 
 
   state (True, str, None)
@@ -91,9 +91,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -123,7 +123,7 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is not supported.
+   - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 

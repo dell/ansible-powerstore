@@ -22,8 +22,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -43,7 +43,7 @@ Parameters
   quota (optional, int, None)
     The total number of bytes that can be provisioned/reserved against this storage container.
 
-    A value of ``0`` means there is no limit.
+    A value of :literal:`0` means there is no limit.
 
     It is possible to set the quota to a value that overprovisions the amount of space available in the system.
 
@@ -55,9 +55,9 @@ Parameters
   storage_protocol (optional, str, None)
     The type of storage container.
 
-    ``SCSI`` is set when a storage container is dedicated to ``SCSI`` usage.
+    :literal:`SCSI` is set when a storage container is dedicated to :literal:`SCSI` usage.
 
-    ``NVMe`` is set when a storage container is dedicated to ``NVMe`` usage.
+    :literal:`NVMe` is set when a storage container is dedicated to :literal:`NVMe` usage.
 
 
   high_water_mark (optional, int, None)
@@ -79,13 +79,13 @@ Parameters
   state (False, str, present)
     Define whether the storage container should exist or not.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   storage_container_destination_state (optional, str, present)
     Define whether the storage container destination should exist in the storage container.
 
-    To delete storage container destination, it should be ``absent``.
+    To delete storage container destination, it should be :literal:`absent`.
 
 
   storage_container_destination (optional, dict, None)
@@ -123,9 +123,9 @@ Parameters
     validate_certs (optional, bool, True)
       Boolean variable to specify whether to validate SSL certificate or not.
 
-      ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+      :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-      ``false`` - indicates that the SSL certificate should not be verified.
+      :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
     remote_storage_container (True, str, None)
@@ -140,9 +140,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -172,7 +172,7 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is supported.
+   - The :emphasis:`check\_mode` is supported.
    - Either storage container name or ID required while deleting the storage container destination.
    - The details of the storage container destination are embedded in the response of the storage container.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.

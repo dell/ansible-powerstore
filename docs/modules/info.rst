@@ -34,8 +34,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -45,99 +45,99 @@ Parameters
   gather_subset (True, list, None)
     A list of string variables which specify the PowerStore system entities requiring information.
 
-    Volumes - \ :literal:`vol`\ .
+    Volumes - :literal:`vol`.
 
-    All the nodes - \ :literal:`node`\ .
+    All the nodes - :literal:`node`.
 
-    Volume groups - \ :literal:`vg`\ .
+    Volume groups - :literal:`vg`.
 
-    Protection policies - \ :literal:`protection\_policy`\ .
+    Protection policies - :literal:`protection\_policy`.
 
-    Hosts - \ :literal:`host`\ .
+    Hosts - :literal:`host`.
 
-    Host groups - \ :literal:`hg`\ .
+    Host groups - :literal:`hg`.
 
-    Snapshot rules - \ :literal:`snapshot\_rule`\ .
+    Snapshot rules - :literal:`snapshot\_rule`.
 
-    NAS servers - \ :literal:`nas\_server`\ .
+    NAS servers - :literal:`nas\_server`.
 
-    NFS exports - \ :literal:`nfs\_export`\ .
+    NFS exports - :literal:`nfs\_export`.
 
-    SMB shares - \ :literal:`smb\_share`\ .
+    SMB shares - :literal:`smb\_share`.
 
-    Tree quotas - \ :literal:`tree\_quota`\ .
+    Tree quotas - :literal:`tree\_quota`.
 
-    User quotas - \ :literal:`user\_quota`\ .
+    User quotas - :literal:`user\_quota`.
 
-    File systems - \ :literal:`file\_system`\ .
+    File systems - :literal:`file\_system`.
 
-    Replication rules - \ :literal:`replication\_rule`\ .
+    Replication rules - :literal:`replication\_rule`.
 
-    Replication sessions - \ :literal:`replication\_session`\ .
+    Replication sessions - :literal:`replication\_session`.
 
-    Remote systems - \ :literal:`remote\_system`\ .
+    Remote systems - :literal:`remote\_system`.
 
-    Various networks - \ :literal:`network`\ .
+    Various networks - :literal:`network`.
 
-    Roles - \ :literal:`role`\ .
+    Roles - :literal:`role`.
 
-    Local users - \ :literal:`user`\ .
+    Local users - :literal:`user`.
 
-    Appliances - \ :literal:`appliance`\ .
+    Appliances - :literal:`appliance`.
 
-    Security configurations - \ :literal:`security\_config`\ .
+    Security configurations - :literal:`security\_config`.
 
-    Certificates - \ :literal:`certificate`\ .
+    Certificates - :literal:`certificate`.
 
-    Active directories - \ :literal:`ad`\ .
+    Active directories - :literal:`ad`.
 
-    LDAPs - \ :literal:`ldap`\ .
+    LDAPs - :literal:`ldap`.
 
-    DNS servers - \ :literal:`dns`\ .
+    DNS servers - :literal:`dns`.
 
-    NTP servers - \ :literal:`ntp`\ .
+    NTP servers - :literal:`ntp`.
 
-    Email notification destinations - \ :literal:`email\_notification`\ .
+    Email notification destinations - :literal:`email\_notification`.
 
-    SMTP configurations - \ :literal:`smtp\_config`\ .
+    SMTP configurations - :literal:`smtp\_config`.
 
-    Remote Support - \ :literal:`remote\_support`\ .
+    Remote Support - :literal:`remote\_support`.
 
-    Remote support contacts - \ :literal:`remote\_support\_contact`\ .
+    Remote support contacts - :literal:`remote\_support\_contact`.
 
-    LDAP accounts - \ :literal:`ldap\_account`\ .
+    LDAP accounts - :literal:`ldap\_account`.
 
-    LDAP domain - \ :literal:`ldap\_domain`\ .
+    LDAP domain - :literal:`ldap\_domain`.
 
-    All vCenters - \ :literal:`vcenter`\ .
+    All vCenters - :literal:`vcenter`.
 
-    Virtual volumes - \ :literal:`virtual\_volume`\ .
+    Virtual volumes - :literal:`virtual\_volume`.
 
-    Storage containers - \ :literal:`storage\_container`\ .
+    Storage containers - :literal:`storage\_container`.
 
-    Replication groups - \ :literal:`replication\_group`\ .
+    Replication groups - :literal:`replication\_group`.
 
-    Discovered appliances - \ :literal:`discovered\_appliance`\ .
+    Discovered appliances - :literal:`discovered\_appliance`.
 
-    File interfaces - \ :literal:`file\_interface`\ .
+    File interfaces - :literal:`file\_interface`.
 
-    SMB servers - \ :literal:`smb\_server`\ .
+    SMB servers - :literal:`smb\_server`.
 
-    NFS servers - \ :literal:`nfs\_server`\ .
+    NFS servers - :literal:`nfs\_server`.
 
-    File DNS - \ :literal:`file\_dns`\ .
+    File DNS - :literal:`file\_dns`.
 
-    File NIS - \ :literal:`file\_nis`\ .
+    File NIS - :literal:`file\_nis`.
 
-    Service configs - \ :literal:`service\_configs`\ .
+    Service configs - :literal:`service\_configs`.
 
-    SNMP managers - \ :literal:`snmp\_manager`\ .
+    SNMP managers - :literal:`snmp\_manager`.
 
 
   filters (optional, list, None)
     A list of filters to support filtered output for storage entities.
 
-    Each filter is a list of \ :emphasis:`filter\_key`\ , \ :emphasis:`filter\_operator`\ , \ :emphasis:`filter\_value`\ .
+    Each filter is a list of :emphasis:`filter\_key`\ , :emphasis:`filter\_operator`\ , :emphasis:`filter\_value`.
 
     Supports passing of multiple filters.
 
@@ -158,7 +158,7 @@ Parameters
   all_pages (optional, bool, False)
     Indicates whether to return all available entities on the storage system.
 
-    If set to \ :literal:`true`\ , the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
+    If set to :literal:`true`\ , the Info module will implement pagination and return all entities. Otherwise, a maximum of the first 100 entities of any type will be returned.
 
 
   array_ip (True, str, None)
@@ -168,9 +168,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    \ :literal:`true`\  - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    \ :literal:`false`\  - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -200,8 +200,8 @@ Notes
 -----
 
 .. note::
-   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If \ :emphasis:`all\_pages`\  is passed, it will be ignored.
-   - The \ :emphasis:`check\_mode`\  is supported.
+   - Pagination is not supported for role, local user, security configs, LDAP accounts, discovered appliances and LDAP domain. If :emphasis:`all\_pages` is passed, it will be ignored.
+   - The :emphasis:`check\_mode` is supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
@@ -938,7 +938,7 @@ LDAPDomain (When C(ldap_domain) configuration is in a given I(gather_subset), li
 
 
   is_global_catalog (, bool, )
-    Whether or not the catalog is global. Default value is \ :literal:`false`\ .
+    Whether or not the catalog is global. Default value is :literal:`false`.
 
 
   ldap_servers (, list, )

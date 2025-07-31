@@ -20,8 +20,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- A Dell PowerStore storage system version 3.0.0.0 or later.
-- PyPowerStore 3.4.1.
+- A Dell PowerStore storage system version 3.6.0.0 or later.
+- PyPowerStore.
 
 
 
@@ -33,15 +33,15 @@ Parameters
 
 
   nas_server (optional, str, None)
-    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the *nas_server* resource type.
+    Unique identifier/name of the NAS server to which the network interface belongs, as defined by the :emphasis:`nas\_server` resource type.
 
 
   is_standalone (optional, bool, None)
     Indicates whether the SMB server is standalone.
 
-    *true* - SMB server is standalone.
+    :emphasis:`true` - SMB server is standalone.
 
-    *false* - SMB server is joined to the Active Directory.
+    :emphasis:`false` - SMB server is joined to the Active Directory.
 
 
   computer_name (optional, str, None)
@@ -73,7 +73,7 @@ Parameters
   state (optional, str, present)
     Define whether the SMB server should be enabled or not.
 
-    For Delete operation only, it should be set to ``absent``.
+    For Delete operation only, it should be set to :literal:`absent`.
 
 
   array_ip (True, str, None)
@@ -83,9 +83,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    ``true`` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS_CA_BUNDLE to the path of the SSL certificate.
+    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    ``false`` - indicates that the SSL certificate should not be verified.
+    :literal:`false` - indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -115,8 +115,8 @@ Notes
 -----
 
 .. note::
-   - The *check_mode* is supported.
-   - The details of an SMB server can be fetched using *smb_server_id* or *nas_server*.
+   - The :emphasis:`check\_mode` is supported.
+   - The details of an SMB server can be fetched using :emphasis:`smb\_server\_id` or :emphasis:`nas\_server`.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
 
