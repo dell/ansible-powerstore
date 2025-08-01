@@ -19,7 +19,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.13
         uses: actions/setup-python@v4
         with:
           python-version: 3.13
@@ -57,15 +57,17 @@ jobs:
         exclude:
           - ansible: stable-2.17
             python: '3.13'
+          - ansible: devel
+            python: '3.11'
 
     steps:
       - name: Perform unit testing with ansible-test
-        uses: ansible-community/ansible-test-gh-action@release/v1
+        uses: ansible-community/ansible-test-gh-action@release/v1.16
         with:
           testing-type: units
           coverage: ${{ (matrix.python == '3.13' && matrix.ansible == 'stable-2.19') && 'always' ||  'never' }}
           ansible-core-version: ${{ matrix.ansible }}
-          target-python-version: ${{ matrix.python }}
+          origin-python-version: ${{ matrix.python }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
