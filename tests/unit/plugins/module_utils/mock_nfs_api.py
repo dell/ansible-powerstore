@@ -1,4 +1,4 @@
-# Copyright: (c) 2024, Dell Technologies
+# Copyright: (c) 2024, Dell Technologies 
 
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)ss
 
@@ -364,4 +364,4 @@ class MockNfsApi:
 
     @staticmethod
     def add_invalid_ipv6_hosts_failed_msg():
-        return "Along with alphanumeric characters, only special characters allowed are"
+        return "Allowed characters: a-z, A-Z, 0-9, _, /, ., -, :, @"
