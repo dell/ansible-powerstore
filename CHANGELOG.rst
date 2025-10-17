@@ -11,6 +11,7 @@ Minor Changes
 -------------
 
 - Added support for PowerStore v4.1.x.
+- Fixed regex parsing of hostnames containing hypenated characters in nfs module.
 
 Bug Fixes
 -------------
