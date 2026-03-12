@@ -560,7 +560,7 @@ class PowerStoreHost(object):
     def _prepare_add_list_with_type(self, add_list, detailed_initiators, is_add_operation):
     add_list_with_type = []
 
-    # Fast path: no detailed initiators provided -> always add with port_type
+    # Case 1: no detailed initiators -> always add with port_type
     if not detailed_initiators:
         for init in add_list:
             add_list_with_type.append({
@@ -569,27 +569,23 @@ class PowerStoreHost(object):
             })
         return add_list_with_type
 
-    # Build mapping port_name -> list[detailed_init] to preserve duplicates (original behavior)
+    # Case 2: detailed initiators provided — STRICT behavior like original:
+    # - Index every item with d['port_name'] (may raise KeyError/TypeError), just like before
+    # - Preserve duplicates: one output item per matching detailed entry
     details_by_port = {}
     for d in detailed_initiators:
-        # If UTs expect KeyError on malformed entries, replace the guard + get() with:
-        # key = d['port_name']
-        if not isinstance(d, dict) or 'port_name' not in d:
-            continue
-        key = d['port_name']
+        key = d['port_name']  # intentionally strict (restores older UT expectations)
         details_by_port.setdefault(key, []).append(d)
 
-    # For each init, append one item per matching detailed entry (no fallback if no match)
     for init in add_list:
         matches = details_by_port.get(init)
         if not matches:
-            # When detailed_initiators is provided but no matching port_name, skip (original behavior)
+            # When details are provided but no matching port_name, skip (original behavior)
             continue
 
         for detailed_init in matches:
             current_initiator = {"port_name": init}
 
-            # Update CHAP details via existing helper
             current_initiator = self._update_chap_details(
                 init=init,
                 current_init=current_initiator,
