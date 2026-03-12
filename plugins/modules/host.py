@@ -560,7 +560,7 @@ class PowerStoreHost(object):
     def _prepare_add_list_with_type(self, add_list, detailed_initiators, is_add_operation):
     add_list_with_type = []
 
-    # Fast path when only simple initiator names are provided
+    # Case 1: simple initiator list (original fast path)
     if not detailed_initiators:
         for init in add_list:
             add_list_with_type.append({
@@ -569,28 +569,28 @@ class PowerStoreHost(object):
             })
         return add_list_with_type
 
-    # Build a quick lookup from port_name -> detailed_init
-    details_by_port = {d.get("port_name") or d.get("port_name".replace("-", "_")): d
-                       for d in detailed_initiators if isinstance(d, dict)}
+    # Case 2: detailed initiators provided — must match STRICTLY by port_name
+    details_by_port = {
+        d["port_name"]: d
+        for d in detailed_initiators
+        if isinstance(d, dict) and "port_name" in d
+    }
 
-    # Iterate once over add_list and enrich when details are present
     for init in add_list:
-        detailed_init = details_by_port.get(init)
-        if not detailed_init:
-            # If a detailed mapping is not found, skip silently (keeps previous behavior:
-            # only append when a matching detailed_init exists for this branch)
+        # skip if port_name not found (matches original behavior!)
+        if init not in details_by_port:
             continue
+
+        detailed_init = details_by_port[init]
 
         current_initiator = {"port_name": init}
 
-        # Update chap details (side-effect from existing helper)
         current_initiator = self._update_chap_details(
             init=init,
             current_init=current_initiator,
             detailed_init=detailed_init
         )
 
-        # add_initiators requires port_type; modify_initiators doesn't
         if is_add_operation:
             current_initiator["port_type"] = self._get_port_type(initiator=init)
 
