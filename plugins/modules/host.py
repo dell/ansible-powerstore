@@ -558,47 +558,32 @@ class PowerStoreHost(object):
         return current_init
 
     def _prepare_add_list_with_type(self, add_list, detailed_initiators, is_add_operation):
-    add_list_with_type = []
+        add_list_with_type = []
+        if not detailed_initiators:
+            for init in add_list:
+                add_list_with_type.append({
+                    'port_name': init,
+                    'port_type': self._get_port_type(initiator=init)
+                })
+            return add_list_with_type
 
-    # Case 1: no detailed initiators -> always add with port_type
-    if not detailed_initiators:
+        detailed_initiators_map = {d['port_name']: d for d in detailed_initiators}
         for init in add_list:
-            add_list_with_type.append({
-                "port_name": init,
-                "port_type": self._get_port_type(initiator=init),
-            })
+            if init in detailed_initiators_map:
+                detailed_init = detailed_initiators_map[init]
+                current_initiator = {
+                    'port_name': init
+                }
+                current_initiator = self._update_chap_details(
+                    init=init,
+                    current_init=current_initiator,
+                    detailed_init=detailed_init
+                )
+                if is_add_operation:
+                    current_initiator['port_type'] = self._get_port_type(initiator=init)
+                add_list_with_type.append(current_initiator)
+
         return add_list_with_type
-
-    # Case 2: detailed initiators provided — STRICT behavior like original:
-    # - Index every item with d['port_name'] (may raise KeyError/TypeError), just like before
-    # - Preserve duplicates: one output item per matching detailed entry
-    details_by_port = {}
-    for d in detailed_initiators:
-        key = d['port_name']  # intentionally strict (restores older UT expectations)
-        details_by_port.setdefault(key, []).append(d)
-
-    for init in add_list:
-        matches = details_by_port.get(init)
-        if not matches:
-            # When details are provided but no matching port_name, skip (original behavior)
-            continue
-
-        for detailed_init in matches:
-            current_initiator = {"port_name": init}
-
-            current_initiator = self._update_chap_details(
-                init=init,
-                current_init=current_initiator,
-                detailed_init=detailed_init
-            )
-
-            # add_initiators requires port_type; modify_initiators doesn't
-            if is_add_operation:
-                current_initiator["port_type"] = self._get_port_type(initiator=init)
-
-            add_list_with_type.append(current_initiator)
-
-    return add_list_with_type
 
     def add_host_initiators(self, host, modify_dict):
         # get params
