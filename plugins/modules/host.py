@@ -558,30 +558,45 @@ class PowerStoreHost(object):
         return current_init
 
     def _prepare_add_list_with_type(self, add_list, detailed_initiators, is_add_operation):
-        add_list_with_type = []
-        for init in add_list:
-            # when detailed_initiators param is used to add new initiators
-            if detailed_initiators:
-                for detailed_init in detailed_initiators:
-                    if init == detailed_init['port_name']:
-                        current_initiator = {}
-                        current_initiator['port_name'] = init
-                        current_initiator = self._update_chap_details(
-                            init=init,
-                            current_init=current_initiator,
-                            detailed_init=detailed_init)
-                        if is_add_operation:
-                            # add_initiators requires port_type whereas modify_initiators doesn't
-                            current_initiator['port_type'] = self._get_port_type(initiator=init)
-                        add_list_with_type.append(current_initiator)
-            # when initiators param is used to add new initiators
-            else:
-                current_initiator = {}
-                current_initiator['port_name'] = init
-                current_initiator['port_type'] = self._get_port_type(initiator=init)
-                add_list_with_type.append(current_initiator)
+    add_list_with_type = []
 
+    # Fast path when only simple initiator names are provided
+    if not detailed_initiators:
+        for init in add_list:
+            add_list_with_type.append({
+                "port_name": init,
+                "port_type": self._get_port_type(initiator=init),
+            })
         return add_list_with_type
+
+    # Build a quick lookup from port_name -> detailed_init
+    details_by_port = {d.get("port_name") or d.get("port_name".replace("-", "_")): d
+                       for d in detailed_initiators if isinstance(d, dict)}
+
+    # Iterate once over add_list and enrich when details are present
+    for init in add_list:
+        detailed_init = details_by_port.get(init)
+        if not detailed_init:
+            # If a detailed mapping is not found, skip silently (keeps previous behavior:
+            # only append when a matching detailed_init exists for this branch)
+            continue
+
+        current_initiator = {"port_name": init}
+
+        # Update chap details (side-effect from existing helper)
+        current_initiator = self._update_chap_details(
+            init=init,
+            current_init=current_initiator,
+            detailed_init=detailed_init
+        )
+
+        # add_initiators requires port_type; modify_initiators doesn't
+        if is_add_operation:
+            current_initiator["port_type"] = self._get_port_type(initiator=init)
+
+        add_list_with_type.append(current_initiator)
+
+    return add_list_with_type
 
     def add_host_initiators(self, host, modify_dict):
         # get params
