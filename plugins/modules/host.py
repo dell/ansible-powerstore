@@ -572,9 +572,9 @@ class PowerStoreHost(object):
     # Build mapping port_name -> list[detailed_init] to preserve duplicates (original behavior)
     details_by_port = {}
     for d in detailed_initiators:
-        # If tests expect KeyError for malformed entries, replace the next two lines with:
-        # key = d['port_name']  # may raise KeyError like the original nested loop would
-        if not (isinstance(d, dict) and 'port_name' in d):
+        # If UTs expect KeyError on malformed entries, replace the guard + get() with:
+        # key = d['port_name']
+        if not isinstance(d, dict) or 'port_name' not in d:
             continue
         key = d['port_name']
         details_by_port.setdefault(key, []).append(d)
@@ -583,13 +583,13 @@ class PowerStoreHost(object):
     for init in add_list:
         matches = details_by_port.get(init)
         if not matches:
-            # original code: skip when detailed_initiators is provided but no matching port_name
+            # When detailed_initiators is provided but no matching port_name, skip (original behavior)
             continue
 
         for detailed_init in matches:
             current_initiator = {"port_name": init}
 
-            # carry over CHAP details using existing helper
+            # Update CHAP details via existing helper
             current_initiator = self._update_chap_details(
                 init=init,
                 current_init=current_initiator,
