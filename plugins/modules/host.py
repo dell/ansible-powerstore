@@ -559,26 +559,28 @@ class PowerStoreHost(object):
 
     def _prepare_add_list_with_type(self, add_list, detailed_initiators, is_add_operation):
         add_list_with_type = []
+        if not detailed_initiators:
+            for init in add_list:
+                add_list_with_type.append({
+                    'port_name': init,
+                    'port_type': self._get_port_type(initiator=init)
+                })
+            return add_list_with_type
+
+        detailed_initiators_map = {d['port_name']: d for d in detailed_initiators}
         for init in add_list:
-            # when detailed_initiators param is used to add new initiators
-            if detailed_initiators:
-                for detailed_init in detailed_initiators:
-                    if init == detailed_init['port_name']:
-                        current_initiator = {}
-                        current_initiator['port_name'] = init
-                        current_initiator = self._update_chap_details(
-                            init=init,
-                            current_init=current_initiator,
-                            detailed_init=detailed_init)
-                        if is_add_operation:
-                            # add_initiators requires port_type whereas modify_initiators doesn't
-                            current_initiator['port_type'] = self._get_port_type(initiator=init)
-                        add_list_with_type.append(current_initiator)
-            # when initiators param is used to add new initiators
-            else:
-                current_initiator = {}
-                current_initiator['port_name'] = init
-                current_initiator['port_type'] = self._get_port_type(initiator=init)
+            if init in detailed_initiators_map:
+                detailed_init = detailed_initiators_map[init]
+                current_initiator = {
+                    'port_name': init
+                }
+                current_initiator = self._update_chap_details(
+                    init=init,
+                    current_init=current_initiator,
+                    detailed_init=detailed_init
+                )
+                if is_add_operation:
+                    current_initiator['port_type'] = self._get_port_type(initiator=init)
                 add_list_with_type.append(current_initiator)
 
         return add_list_with_type
