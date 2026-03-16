@@ -4,6 +4,22 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.8.1
+======
+
+Minor Changes
+-------------
+
+- Added support for PowerStore v4.2 and v4.3.
+
+Bug Fixes
+-------------
+
+- nfs.py Hostname Regex parsing.
+- Logfile is created in Ansible directory.
+- Host detailed initiator configuration is not properly updated.
+- Ansible modules for Powerstore require the PyPowerStore python library to be installed. Please install the library before using these modules.
+
 v3.8.0
 ======
 

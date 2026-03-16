@@ -56,7 +56,7 @@ The capabilities of the Ansible modules are managing volumes, volume groups, vCe
 
    | **Ansible Modules** | **PowerStore Version** | **SDK version** | **Python version** | **Ansible**              |
 |---------------------|-----------------------|-----------------|--------------------|--------------------------|
-| v3.8.0              | 3.6.x <br> 4.0.x <br> 4.1.x | 3.4.1          | 3.11.x <br> 3.12.x <br> 3.13.x | 2.17 <br> 2.18 <br> 2.19 |
+| v3.8.1              | 3.6.x <br> 4.0.x <br> 4.1.x | 3.4.1          | 3.11.x <br> 3.12.x <br> 3.13.x | 2.17 <br> 2.18 <br> 2.19 |
 
 
   * Please follow PyPowerStore installation instructions on [PyPowerStore Documentation](https://github.com/dell/python-powerstore)
