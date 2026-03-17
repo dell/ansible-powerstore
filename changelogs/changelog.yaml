@@ -300,3 +300,14 @@ releases:
         - Fixed an issue where nothing changed when the destination was empty
           for the `storage_container` module.
     release_date: '2025-05-30'
+  3.8.1:
+    changes:
+      minor_changes:
+        - Added support for PowerStore v4.2 and v4.3.
+      bugfixes:
+        - nfs.py Hostname Regex parsing.
+        - Logfile is created in Ansible directory.
+        - Host detailed initiator configuration is not properly updated.
+        - Ansible modules for Powerstore require the PyPowerStore python library
+          to be installed. Please install the library before using these modules.
+    release_date: '2026-03-17'

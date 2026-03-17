@@ -8,28 +8,6 @@
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/dell/ansible-powerstore?include_prereleases&label=latest&style=flat-square)](https://github.com/dell/ansible-powerstore/releases)
 [![codecov](https://codecov.io/gh/dell/ansible-powerstore/branch/main/graph/badge.svg)](https://app.codecov.io/gh/dell/ansible-powerstore)
 
----
-## Warning
-
-Starting with setuptools 82.0.0+ and/or environments using Python 3.12+, users may encounter:
-
-**ModuleNotFoundError: No module named 'pkg_resources'**
-
-This can cause tasks in the affected Ansible Collections to fail at runtime. The root cause is the deprecation/removal of `pkg_resources` usage in conjunction with changes in Python packaging tooling.
-
-We are implementing a permanent fix to remove dependencies on `pkg_resources` and adopt modern Python alternatives. Until then, please follow the guidance below.
-
-Users are requested to pin setuptools to a version lower than 82.0.0 on the Ansible control machine's Python environment:
-
-```bash
-### If you use virtualenv/venv, activate it first
-python3 -m pip install --upgrade "setuptools<82.0.0"
-```
-
-Add this guidance to your environment bootstrap scripts or CI pipelines to ensure consistent behavior until the permanent fix is released.
-
-> **Note:** If your environment mandates Python 3.12+, ensure you apply the pin in the relevant virtual environment(s) used by Ansible.
----
 The Ansible Modules for Dell Technologies (Dell) PowerStore allow Data Center and IT administrators to use RedHat Ansible to automate and orchestrate the configuration and management of Dell PowerStore arrays.
 
 The capabilities of the Ansible modules are managing volumes, volume groups, vCenters, hosts, host groups, snapshots, snapshot rules, replication rules, replication sessions, protection policies, file systems, NAS servers, SMB shares, user and tree quotas, file system snapshots, NFS exports, Clusters, Networks, Local users, Jobs, Roles, Certificates, Remote systems, security configuration, DNS server, Email notification destination, NTP server, Remote support configuration, Remote support contacts, SMTP configuration, LDAP accounts, LDAP domain configuration, storage containers, File DNS, File interface, File NIS, NFS server, SMB Server, Service config and SNMP Manager. It also allows gathering high level info from the array. The options available for each are list, show, create, modify and delete. These tasks can be executed by running simple playbooks written in yaml syntax. The modules are written so that all the operations are idempotent, so making multiple identical requests has the same effect as making a single request.
@@ -56,7 +34,7 @@ The capabilities of the Ansible modules are managing volumes, volume groups, vCe
 
    | **Ansible Modules** | **PowerStore Version** | **SDK version** | **Python version** | **Ansible**              |
 |---------------------|-----------------------|-----------------|--------------------|--------------------------|
-| v3.8.0              | 3.6.x <br> 4.0.x <br> 4.1.x | 3.4.1          | 3.11.x <br> 3.12.x <br> 3.13.x | 2.17 <br> 2.18 <br> 2.19 |
+| v3.8.1              | 4.1.x <br> 4.2.x <br> 4.3.x | 3.4.2    | 3.13.x <br> 3.14.x | 2.18 <br> 2.19 <br> 2.20|
 
 
   * Please follow PyPowerStore installation instructions on [PyPowerStore Documentation](https://github.com/dell/python-powerstore)

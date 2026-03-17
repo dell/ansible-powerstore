@@ -1,8 +1,8 @@
 **Ansible Modules for Dell Technologies PowerStore**
 =========================================
-### Release Notes 3.8.0
+### Release Notes 3.8.1
 
->   © 2025 Dell Inc. or its subsidiaries. All rights reserved. Dell,
+>   © 2026 Dell Inc. or its subsidiaries. All rights reserved. Dell,
 >   and other trademarks are trademarks of Dell Inc. or its
 >   subsidiaries. Other trademarks may be trademarks of their respective
 >   owners.
@@ -15,6 +15,7 @@ Modules for Dell Technologies (Dell) PowerStore.
 -   [Revision History](#revision-history)
 -   [Product Description](#product-description)
 -   [New Features & Enhancements](#new-features--enhancements)
+-   [Bug Fixes](#bug-fixes)
 -   [Known Issues](#known-issues)
 -   [Limitations](#limitations)
 -   [Distribution](#distribution)
@@ -28,6 +29,7 @@ Table 1. Revision history
 
 | Revision | Date         | Description                                               |
 |----------|--------------|-----------------------------------------------------------|
+| 03       | March 2026 | Ansible Modules for Dell PowerStore 3.8.1 |
 | 02       | May 2025 | Ansible Modules for Dell PowerStore 3.8.0 |
 | 01       | December 2024 | Ansible Modules for Dell PowerStore 3.7.0 |
 
@@ -39,10 +41,20 @@ New features & enhancements
 ---------------------------
 This section describes the features or enhancements of the Ansible Modules for Dell PowerStore for this release.
 
-The Ansible Modules for Dell PowerStore release 3.8.0 provides the following enhancements:
+The Ansible Modules for Dell PowerStore release 3.8.1 provides the following enhancements:
 
-- Added support for PowerStore v4.1.x.
-- Internal defect fixes for the modules volume, file_dns, host, certificate, quota, smb_server and storage_container.
+- Added support for PowerStore v4.2 and v4.3.
+
+Bug fixes
+---------
+This section describes the bug fixes for the Ansible Modules for Dell PowerStore for this release.
+
+The following bugs have been fixed in version 3.8.1:
+
+- Fixed hostname regex parsing in nfs.py module.
+- Fixed issue where logfile is created in Ansible directory.
+- Fixed host detailed initiator configuration not being properly updated.
+- Added requirement notice for PyPowerStore python library installation.
 
 Known issues
 ------------
