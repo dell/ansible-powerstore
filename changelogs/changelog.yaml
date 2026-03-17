@@ -308,5 +308,6 @@ releases:
         - nfs.py Hostname Regex parsing.
         - Logfile is created in Ansible directory.
         - Host detailed initiator configuration is not properly updated.
-        - Ansible modules for Powerstore require the PyPowerStore python library to be installed. Please install the library before using these modules.
+        - Ansible modules for Powerstore require the PyPowerStore python library
+          to be installed. Please install the library before using these modules.
     release_date: '2026-03-17'
