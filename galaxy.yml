@@ -37,6 +37,7 @@ authors:
   - Haiming Tan <ansible.team@dell.com>
   - Ray Liu <ansible.team@dell.com>
   - Luis Liu <ansible.team@dell.com>
+  - Shrinidhi Rao K Katte <ansible.team@dell.com>
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
@@ -75,3 +76,9 @@ issues: https://www.dell.com/community/Automation/bd-p/Automation
 # and '.git' are always filtered
 build_ignore:
   - codecov.yml
+  - .venv*
+  - .ansible-lint
+  - .github
+  - .gitignore
+  - catalog-info.yaml
+  - .pytest_cache
