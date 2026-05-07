@@ -70,6 +70,16 @@ options:
     description:
     - The description for the Snapshot.
     type: str
+  is_secure:
+    description:
+    - Indicates whether the snapshot is a secure snapshot.
+    - Secure snapshots cannot be deleted or have their retention reduced
+      until the retention period expires.
+    - When set to C(true) during creation, either I(desired_retention) or
+      I(expiration_timestamp) must be provided.
+    - Can also be set to C(true) on an existing snapshot to mark it as
+      secure (one-way lock). This operation cannot be reverted.
+    type: bool
   state:
     description:
     - Defines whether the Snapshot should exist or not.
@@ -180,6 +190,33 @@ EXAMPLES = r'''
     snapshot_name: "{{new_snapshot_name}}"
     volume_group: "{{volume_group}}"
     state: "{{state_absent}}"
+
+- name: Create a secure volume snapshot on PowerStore
+  dellemc.powerstore.snapshot:
+    array_ip: "{{mgmt_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    snapshot_name: "secure_vol_snap"
+    volume: "{{volume}}"
+    description: "Immutable compliance snapshot"
+    is_secure: true
+    desired_retention: "7"
+    retention_unit: "days"
+    state: "present"
+
+- name: Create a secure volume group snapshot on PowerStore
+  dellemc.powerstore.snapshot:
+    array_ip: "{{mgmt_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    snapshot_name: "secure_vg_snap"
+    volume_group: "{{volume_group}}"
+    description: "Immutable VG snapshot"
+    is_secure: true
+    expiration_timestamp: "2026-06-06T00:00:00Z"
+    state: "present"
 '''
 
 RETURN = r'''
@@ -264,6 +301,9 @@ snap_details:
         type:
             description: The type of the snapshot.
             type: str
+        is_secure:
+            description: Whether the snapshot is a secure snapshot.
+            type: bool
         protection_data:
             description: The protection data of the snapshot.
             type: complex
@@ -520,6 +560,18 @@ class PowerStoreSnapshot(object):
                                       "name with error: %s"
                                       % (volume_group, str(e)), **utils.failure_codes(e))
 
+    def validate_secure_snapshot_params(self):
+        """Validates secure snapshot parameters"""
+        is_secure = self.module.params.get('is_secure')
+        desired_retention = self.module.params.get('desired_retention')
+        expiration_timestamp = self.module.params.get('expiration_timestamp')
+        if is_secure and desired_retention is None \
+                and expiration_timestamp is None:
+            self.module.fail_json(
+                msg="Secure snapshots require a retention period. "
+                    "Please provide desired_retention or "
+                    "expiration_timestamp when is_secure is true.")
+
     def create_vol_snapshot(self, snapshot_name,
                             description,
                             volume_id,
@@ -541,13 +593,15 @@ class PowerStoreSnapshot(object):
             self.module.fail_json(msg="Invalid param: new_name while "
                                       "creating a new snapshot.")
 
+        is_secure = self.module.params.get('is_secure')
         try:
             resp = \
                 self.protection.create_volume_snapshot(
                     name=snapshot_name,
                     description=description,
                     volume_id=volume_id,
-                    expiration_timestamp=expiration_timestamp)
+                    expiration_timestamp=expiration_timestamp,
+                    is_secure=is_secure)
             return True, resp
         except Exception as e:
             error_message = ('Failed to create snapshot: %s for volume %s '
@@ -578,13 +632,15 @@ class PowerStoreSnapshot(object):
             self.module.fail_json(msg="Invalid param: new_name while "
                                       "creating a new snapshot.")
 
+        is_secure = self.module.params.get('is_secure')
         try:
             resp = \
                 self.protection.create_volume_group_snapshot(
                     name=snapshot_name,
                     description=description,
                     volume_group_id=vg_id,
-                    expiration_timestamp=expiration_timestamp)
+                    expiration_timestamp=expiration_timestamp,
+                    is_secure=is_secure)
             return True, resp
         except Exception as e:
             error_message = ('Failed to create snapshot: %s for VG %s '
@@ -675,9 +731,12 @@ class PowerStoreSnapshot(object):
         snapshot_modification_details['new_description_value'] = None
         snapshot_modification_details['is_timestamp_modified'] = False
         snapshot_modification_details['new_expiration_timestamp_value'] = None
+        snapshot_modification_details['is_secure_modified'] = False
         datetime_format = "%Y-%m-%dT%H:%MZ"
 
-        if desired_retention is None and expiration_timestamp is None:
+        is_secure = self.module.params.get('is_secure')
+        if desired_retention is None and expiration_timestamp is None \
+                and is_secure is None:
             LOG.info("desired_retention and expiration_time are both "
                      "not provided, we don't check for snapshot modification "
                      "in this case. The snapshot details would be returned, "
@@ -753,7 +812,8 @@ class PowerStoreSnapshot(object):
                 'new_expiration_timestamp_value'] = expiration_timestamp
             modified = True
 
-        if (not expiration_timestamp) and snap_details and \
+        if expiration_timestamp is not None and (not expiration_timestamp) \
+                and snap_details and \
                 snap_details['protection_data']['expiration_timestamp']:
             snapshot_modification_details['is_timestamp_modified'] = True
             snapshot_modification_details['new_expiration_timestamp_value'] =\
@@ -766,6 +826,13 @@ class PowerStoreSnapshot(object):
             snapshot_modification_details['new_description_value'] = \
                 description
             modified = True
+
+        is_secure = self.module.params.get('is_secure')
+        if is_secure is not None and snap_details:
+            current_is_secure = snap_details.get('protection_data', {}).get('is_secure', False)
+            if is_secure and not current_is_secure:
+                snapshot_modification_details['is_secure_modified'] = True
+                modified = True
 
         LOG.info("Snapshot modified %s, modification details: %s",
                  modified, snapshot_modification_details)
@@ -790,6 +857,11 @@ class PowerStoreSnapshot(object):
                 self.protection.modify_volume_snapshot(
                     snapshot_id=snapshot['id'],
                     expiration_timestamp=new_timestamp)
+                changed = True
+            if snapshot_modification_details.get('is_secure_modified'):
+                self.protection.modify_volume_snapshot(
+                    snapshot_id=snapshot['id'],
+                    is_secure=True)
                 changed = True
             if changed:
                 resp = self.get_vol_snap_details(
@@ -822,6 +894,11 @@ class PowerStoreSnapshot(object):
                 self.protection.modify_volume_group_snapshot(
                     snapshot_id=snapshot['id'],
                     expiration_timestamp=new_timestamp)
+                changed = True
+            if snapshot_modification_details.get('is_secure_modified'):
+                self.protection.modify_volume_group_snapshot(
+                    snapshot_id=snapshot['id'],
+                    is_secure=True)
                 changed = True
             if changed:
                 resp = self.get_vol_group_snap_details(
@@ -927,6 +1004,9 @@ class PowerStoreSnapshot(object):
                                              expiration_timestamp)
 
         if state == 'present' and volume and not snapshot:
+            is_secure = self.module.params.get('is_secure')
+            if is_secure:
+                self.validate_secure_snapshot_params()
             LOG.info("Creating new snapshot: %s for volume: %s",
                      snapshot_name, volume)
             result['create_vol_snap'], result['snap_details'] = \
@@ -951,6 +1031,9 @@ class PowerStoreSnapshot(object):
                 self.delete_vol_snapshot(snapshot)
 
         if state == 'present' and volume_group and not snapshot:
+            is_secure = self.module.params.get('is_secure')
+            if is_secure:
+                self.validate_secure_snapshot_params()
             LOG.info("Creating new snapshot: %s for VG: %s",
                      snapshot_name, volume_group)
             result['create_vg_snap'], result['snap_details'] = \
@@ -1029,6 +1112,7 @@ def get_powerstore_snapshot_parameters():
                             type='str'),
         expiration_timestamp=dict(required=False, type='str'),
         description=dict(required=False, type='str'),
+        is_secure=dict(required=False, type='bool'),
         state=dict(required=True, choices=['present', 'absent'],
                    type='str')
     )

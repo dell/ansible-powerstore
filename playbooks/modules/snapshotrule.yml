@@ -216,3 +216,39 @@
     - name: Store snapshot rule details
       ansible.builtin.debug:
         var: snaprule_result
+
+    - name: Create a secure snapshot rule by interval
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "secure_interval_rule"
+        interval: "{{ interval }}"
+        desired_retention: "{{ desired_retention }}"
+        is_secure: true
+        state: "present"
+      register: snaprule_result
+    - name: Store secure snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result
+
+    - name: Create a secure snapshot rule by time_of_day
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        name: "secure_time_of_day_rule"
+        desired_retention: "{{ desired_retention }}"
+        days_of_week:
+          - Monday
+          - Wednesday
+          - Friday
+        time_of_day: "{{ time_of_day }}"
+        is_secure: true
+        state: "present"
+      register: snaprule_result
+    - name: Store secure snapshot rule details
+      ansible.builtin.debug:
+        var: snaprule_result

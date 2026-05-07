@@ -89,3 +89,18 @@
         snapshot_name: "sample_filesystem_snapshot"
         nas_server: "ansible_nas_server"
         state: "absent"
+
+    - name: Create a secure filesystem snapshot
+      dellemc.powerstore.filesystem_snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "secure_fs_snap"
+        nas_server: "ansible_nas_server"
+        filesystem: "sample_filesystem"
+        description: "Immutable filesystem snapshot"
+        is_secure: true
+        desired_retention: 20
+        retention_unit: "days"
+        state: "present"

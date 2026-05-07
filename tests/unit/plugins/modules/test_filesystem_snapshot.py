@@ -317,6 +317,8 @@ class TestPowerstoreFilesystemSnapshot(PowerStoreUnitBase):
         },
     ])
     def test_check_fs_snapshot_modified(self, powerstore_module_mock, params):
+        self.get_module_args.update({'is_secure': None})
+        powerstore_module_mock.module.params = self.get_module_args
         snapshot = {
             "expiration_timestamp": params.get("expiration_timestamp", None),
             "access_type": "Snapshot",
@@ -462,6 +464,167 @@ class TestPowerstoreFilesystemSnapshot(PowerStoreUnitBase):
         )
         powerstore_module_mock.perform_module_operation()
         assert powerstore_module_mock.module.exit_json.call_args[1] == params.get("ret_val")
+
+    # ---- Secure Snapshot Tests ----
+
+    def test_create_secure_fs_snap(self, powerstore_module_mock):
+        filesystem_id = "61e4947b-8992-3db7-2859-aa02b52a0308"
+        snapshot_name = "secure_fs_snap"
+        description = "secure filesystem snapshot"
+        expiration_timestamp = "2026-06-06T00:00:00Z"
+        access_type = "SNAPSHOT"
+        nas_server = "nas_server"
+        powerstore_module_mock.protection.create_filesystem_snapshot = MagicMock(
+            return_value=None
+        )
+        ret = powerstore_module_mock.create_filesystem_snapshot(
+            filesystem_id, snapshot_name, description, expiration_timestamp,
+            access_type, nas_server
+        )
+        assert ret is True
+
+    def test_create_secure_fs_snap_with_expiration(self, powerstore_module_mock):
+        filesystem_id = "61e4947b-8992-3db7-2859-aa02b52a0308"
+        snapshot_name = "secure_fs_snap"
+        description = "secure filesystem snapshot"
+        expiration_timestamp = "2026-06-06T00:00:00Z"
+        access_type = "SNAPSHOT"
+        nas_server = "nas_server"
+        powerstore_module_mock.protection.create_filesystem_snapshot = MagicMock(
+            return_value=None
+        )
+        ret = powerstore_module_mock.create_filesystem_snapshot(
+            filesystem_id, snapshot_name, description, expiration_timestamp,
+            access_type, nas_server
+        )
+        assert ret is True
+
+    def test_create_secure_fs_snap_without_retention(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'snapshot_name': 'secure_fs_snap',
+                'filesystem': 'sample_filesystem',
+                'nas_server': 'nas_server',
+                'is_secure': True,
+                'state': 'present',
+            }
+        )
+        powerstore_module_mock.validate_expiration_timestamp = MagicMock(
+            return_value=None)
+        powerstore_module_mock.validate_desired_retention = MagicMock(
+            return_value=None)
+        powerstore_module_mock.get_fs_id_from_filesystem = MagicMock(
+            return_value="61e4947b-8992-3db7-2859-aa02b52a0308")
+        powerstore_module_mock.get_fs_snapshot = MagicMock(return_value=None)
+        self.capture_fail_json_call(
+            "Secure snapshots require a retention period",
+            powerstore_module_mock, invoke_perform_module=True)
+
+    def test_get_secure_fs_snap_details(self, powerstore_module_mock):
+        snapshot_id = "61e49f3f-9b57-e69b-1038-aa02b52a030f"
+        filesystem_id = "61e4947b-8992-3db7-2859-aa02b52a0308"
+        nas_server = "nas_server"
+        powerstore_module_mock.get_nas_server = MagicMock(
+            return_value="nas_server_id")
+        powerstore_module_mock.protection.get_filesystem_snapshot_details = MagicMock(
+            return_value=MockFilesystemSnapshotApi.SECURE_FS_SNAP_DETAILS[0])
+        powerstore_module_mock.get_fs_name = MagicMock(
+            return_value=MockFilesystemSnapshotApi.SECURE_FS_SNAP_DETAILS[0]['parent_name'])
+        ret = powerstore_module_mock.get_fs_snapshot(
+            None, snapshot_id, filesystem_id, nas_server)
+        assert ret is not None
+        assert ret.get('is_secure') is True
+
+    def test_delete_secure_fs_snap_exception(self, powerstore_module_mock):
+        snapshot = {
+            "id": "61e4947b-8992-3db7-2859-aa02b52a0308", "name": "Name"}
+        powerstore_module_mock.protection.delete_filesystem_snapshot = MagicMock(
+            side_effect=MockApiException
+        )
+        self.capture_fail_json_method(
+            MockFilesystemSnapshotApi.get_error_message("del_fs_snapshot"),
+            powerstore_module_mock, "delete_filesystem_snapshot",
+            snapshot
+        )
+
+    def test_modify_secure_fs_snap_description(self, powerstore_module_mock):
+        snapshot = {"id": "61e49f3f-9b57-e69b-1038-aa02b52a030f"}
+        fs_snapshot_dict = {"description": "updated description"}
+        powerstore_module_mock.protection.modify_filesystem_snapshot = MagicMock(
+            return_value=None
+        )
+        ret = powerstore_module_mock.modify_filesystem_snapshot(
+            snapshot, fs_snapshot_dict)
+        assert ret is True
+
+    def test_create_secure_fs_snap_exception(self, powerstore_module_mock):
+        filesystem_id = "61e4947b-8992-3db7-2859-aa02b52a0308"
+        snapshot_name = "secure_fs_snap"
+        description = "secure filesystem snapshot"
+        expiration_timestamp = "2026-06-06T00:00:00Z"
+        access_type = "SNAPSHOT"
+        nas_server = "nas_server"
+        powerstore_module_mock.protection.create_filesystem_snapshot = MagicMock(
+            side_effect=MockApiException
+        )
+        self.capture_fail_json_method(
+            "Failed to create snapshot: secure_fs_snap",
+            powerstore_module_mock, "create_filesystem_snapshot",
+            filesystem_id, snapshot_name, description, expiration_timestamp,
+            access_type, nas_server
+        )
+
+    def test_create_fs_snap_is_secure_none(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'snapshot_name': 'sample_snapshot',
+                'filesystem': 'fileSystem',
+                'is_secure': None,
+                'desired_retention': '1',
+                'expiration_timestamp': '2021-07-26T10:01:33.000Z',
+                'state': 'present',
+            }
+        )
+        powerstore_module_mock.validate_expiration_timestamp = MagicMock(
+            return_value=None)
+        powerstore_module_mock.validate_desired_retention = MagicMock(
+            return_value=None)
+        powerstore_module_mock.get_fs_id_from_filesystem = MagicMock(
+            return_value="61e4947b-8992-3db7-2859-aa02b52a0308")
+        powerstore_module_mock.get_fs_snapshot = MagicMock(
+            side_effect=[None,
+                         MockFilesystemSnapshotApi.FILESYSTEM_SNAP_DETAILS[0],
+                         MockFilesystemSnapshotApi.FILESYSTEM_SNAP_DETAILS[0]])
+        powerstore_module_mock.create_filesystem_snapshot = MagicMock(
+            return_value=True)
+        powerstore_module_mock.check_fs_snapshot_modified = MagicMock(
+            return_value={})
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_mark_existing_fs_snap_as_secure(self, powerstore_module_mock):
+        self.set_module_params(
+            powerstore_module_mock,
+            self.get_module_args,
+            {
+                'snapshot_name': 'Sample_FS_Snapshot',
+                'nas_server': 'ansible_nas_server_2',
+                'is_secure': True,
+                'state': 'present',
+            }
+        )
+        powerstore_module_mock.get_fs_snapshot = MagicMock(
+            return_value=MockFilesystemSnapshotApi.FILESYSTEM_SNAP_DETAILS[0])
+        powerstore_module_mock.check_fs_snapshot_modified = MagicMock(
+            return_value={'is_secure': True})
+        powerstore_module_mock.modify_filesystem_snapshot = MagicMock(
+            return_value=True)
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
 
     def test_main(self, powerstore_module_mock, mocker):
 
