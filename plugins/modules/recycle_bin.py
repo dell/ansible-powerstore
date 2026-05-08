@@ -26,7 +26,7 @@ extends_documentation_fragment:
   - dellemc.powerstore.powerstore
 
 author:
-- Ansible Team <ansible.team@dell.com>
+- Saksham Nautiyal (@saksham-nautiyal) <ansible.team@dell.com>
 
 options:
   recycle_bin_id:
