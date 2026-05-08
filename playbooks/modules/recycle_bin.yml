@@ -1,0 +1,99 @@
+---
+- name: Recycle Bin module operations on PowerStore storage system
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: "10.**.**.**"
+    validate_certs: false
+    user: "user"
+    password: "Password"
+
+  tasks:
+    - name: Get recycle bin configuration and items
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        state: "present"
+      register: recycle_bin_details
+
+    - name: Display recycle bin configuration
+      ansible.builtin.debug:
+        var: recycle_bin_details
+
+    - name: Configure recycle bin expiration to 14 days
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        expiration_duration: 14
+        state: "present"
+
+    - name: Configure recycle bin expiration to 14 days - Idempotency
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        expiration_duration: 14
+        state: "present"
+
+    - name: Configure recycle bin expiration to 7 days
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        expiration_duration: 7
+        state: "present"
+
+    - name: Recover a volume from recycle bin by ID
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        recycle_bin_id: "{{ recycle_bin_item_id | default(omit) }}"
+        state: "present"
+      when: recycle_bin_item_id is defined
+
+    - name: Recover a volume from recycle bin by name
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        resource_name: "{{ recycle_bin_resource_name | default(omit) }}"
+        resource_type: "volume"
+        state: "present"
+      when: recycle_bin_resource_name is defined
+
+    - name: Permanently delete a specific item from recycle bin
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        recycle_bin_id: "{{ recycle_bin_delete_id | default(omit) }}"
+        state: "absent"
+      when: recycle_bin_delete_id is defined
+
+    - name: Empty the entire recycle bin
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        empty_recycle_bin: true
+        state: "absent"
+
+    - name: Empty the entire recycle bin - Idempotency
+      dellemc.powerstore.recycle_bin:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        empty_recycle_bin: true
+        state: "absent"

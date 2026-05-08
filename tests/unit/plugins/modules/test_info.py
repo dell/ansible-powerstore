@@ -409,3 +409,16 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.snmp_manager.get_snmp_server_list.assert_called()
+
+    def test_get_recycle_bin(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['recycle_bin'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock._get_recycle_bin_items = MagicMock(return_value=[])
+        info_module_mock.subset_mapping['recycle_bin']['func'] = \
+            info_module_mock._get_recycle_bin_items
+        info_module_mock.perform_module_operation()
+        info_module_mock._get_recycle_bin_items.assert_called()
