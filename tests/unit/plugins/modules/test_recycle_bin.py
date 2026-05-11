@@ -9,7 +9,11 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pytest
-from mock.mock import MagicMock
+
+try:
+    from mock.mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.initial_mock \
     import utils

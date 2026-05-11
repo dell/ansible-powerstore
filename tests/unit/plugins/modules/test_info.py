@@ -11,7 +11,11 @@ __metaclass__ = type
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
-from mock.mock import MagicMock
+
+try:
+    from mock.mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_info_api import MockInfoApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
