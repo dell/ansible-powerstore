@@ -301,9 +301,6 @@ snap_details:
         type:
             description: The type of the snapshot.
             type: str
-        is_secure:
-            description: Whether the snapshot is a secure snapshot.
-            type: bool
         protection_data:
             description: The protection data of the snapshot.
             type: complex
@@ -311,6 +308,9 @@ snap_details:
                 expiration_timestamp:
                     description: The expiration timestamp of the snapshot.
                     type: str
+                is_secure:
+                    description: Whether the snapshot is a secure snapshot.
+                    type: bool
         volumes:
             description: The volumes details of the volume group snapshot.
             type: complex
@@ -350,6 +350,7 @@ snap_details:
             "expiration_timestamp": "2022-01-06T08:41:00+00:00",
             "family_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
             "is_app_consistent": false,
+            "is_secure": false,
             "parent_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
             "source_id": "dc15650a-2af5-4398-8ae3-63fc7ae25f63",
             "source_timestamp": "2022-01-06T05:41:59.381459+00:00"

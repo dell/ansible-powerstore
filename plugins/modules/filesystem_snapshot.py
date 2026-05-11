@@ -240,6 +240,7 @@ filesystem_snap_details:
         "is_async_MTime_enabled": false,
         "is_modified": false,
         "is_quota_enabled": null,
+        "is_secure": false,
         "is_smb_no_notify_enabled": null,
         "is_smb_notify_on_access_enabled": null,
         "is_smb_notify_on_write_enabled": null,

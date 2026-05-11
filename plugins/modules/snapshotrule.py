@@ -252,6 +252,7 @@ snapshotrule_details:
         ],
         "desired_retention": 24,
         "id": "afa86b51-1171-498f-9786-2c78c33b4c14",
+        "is_secure": false,
         "interval": "Five_Minutes",
         "name": "Sample_snapshot_rule",
         "policies": [],

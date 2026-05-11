@@ -68,6 +68,14 @@ Parameters
     When creating a Snapshot rule, specify either :emphasis:`interval` or :emphasis:`time\_of\_day` but not both.
 
 
+  is_secure (optional, bool, None)
+    Indicates whether snapshots created by this rule will be secure snapshots.
+
+    Secure snapshots cannot be deleted or have their retention reduced until the retention period expires.
+
+    Once set to :literal:`true`\ , this is a one\-way operation and cannot be reverted.
+
+
   delete_snaps (optional, bool, False)
     Boolean variable to specify whether all Snapshots previously created by this rule should also be deleted when this rule is removed.
 
@@ -91,9 +99,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    :literal:`true` \- indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    :literal:`false` - indicates that the SSL certificate should not be verified.
+    :literal:`false` \- indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -216,6 +224,18 @@ Examples
         name: "{{name}}"
         state: "absent"
 
+    - name: Create a secure snapshot rule by interval
+      dellemc.powerstore.snapshotrule:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        name: "secure_snap_rule"
+        interval: "One_Hour"
+        desired_retention: 24
+        is_secure: true
+        state: "present"
+
 
 
 Return Values
@@ -225,7 +245,7 @@ changed (always, bool, true)
   Whether or not the resource has changed.
 
 
-snapshotrule_details (When snapshot rule exists, complex, {'days_of_week': ['Sunday', 'Thursday'], 'desired_retention': 24, 'id': 'afa86b51-1171-498f-9786-2c78c33b4c14', 'interval': 'Five_Minutes', 'name': 'Sample_snapshot_rule', 'policies': [], 'time_of_day': None})
+snapshotrule_details (When snapshot rule exists, complex, {'days_of_week': ['Sunday', 'Thursday'], 'desired_retention': 24, 'id': 'afa86b51-1171-498f-9786-2c78c33b4c14', 'is_secure': False, 'interval': 'Five_Minutes', 'name': 'Sample_snapshot_rule', 'policies': [], 'time_of_day': None})
   Details of the snapshot rule.
 
 
@@ -251,6 +271,10 @@ snapshotrule_details (When snapshot rule exists, complex, {'days_of_week': ['Sun
 
   desired_retention (, int, )
     Desired snapshot retention period.
+
+
+  is_secure (, bool, )
+    Whether snapshots created by this rule are secure.
 
 
   policies (, complex, )
