@@ -665,8 +665,7 @@ class TestPowerStoreSnapshot():
             'snapshot_name': 'secure_vol_snap',
             'volume': 'ansible_vol',
             'is_secure': True,
-            'desired_retention': '7',
-            'retention_unit': 'days',
+            'expiration_timestamp': '2050-07-24T11:50:20Z',
             'state': "present"
         })
         snapshot_module_mock.module.params = self.get_module_args
@@ -690,8 +689,7 @@ class TestPowerStoreSnapshot():
             'snapshot_name': 'secure_vg_snap',
             'volume_group': 'ansible_vg',
             'is_secure': True,
-            'desired_retention': '7',
-            'retention_unit': 'days',
+            'expiration_timestamp': '2050-07-24T11:50:20Z',
             'state': "present"
         })
         snapshot_module_mock.module.params = self.get_module_args

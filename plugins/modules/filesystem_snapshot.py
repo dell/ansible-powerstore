@@ -80,8 +80,8 @@ options:
     - Indicates whether the snapshot is a secure snapshot.
     - Secure snapshots cannot be deleted or have their retention reduced
       until the retention period expires.
-    - When set to C(true) during creation, either I(desired_retention) or
-      I(expiration_timestamp) must be provided.
+    - When set to C(true) during creation, I(expiration_timestamp) must be
+      provided.
     - Can also be set to C(true) on an existing snapshot to mark it as
       secure (one-way lock). This operation cannot be reverted.
     type: bool
@@ -149,8 +149,7 @@ EXAMPLES = r"""
       nas_server: "ansible_nas_server"
       filesystem: "sample_filesystem"
       is_secure: true
-      desired_retention: 20
-      retention_unit: "days"
+      expiration_timestamp: "2026-06-06T00:00:00Z"
       state: "present"
 """
 
@@ -532,14 +531,12 @@ class PowerStoreFilesystemSnapshot(object):
     def validate_secure_snapshot_params(self):
         """Validates secure snapshot parameters"""
         is_secure = self.module.params.get('is_secure')
-        desired_retention = self.module.params.get('desired_retention')
         expiration_timestamp = self.module.params.get('expiration_timestamp')
-        if is_secure and desired_retention is None \
-                and expiration_timestamp is None:
+        if is_secure and expiration_timestamp is None:
             self.module.fail_json(
-                msg="Secure snapshots require a retention period. "
-                    "Please provide desired_retention or "
-                    "expiration_timestamp when is_secure is true.")
+                msg="Secure snapshots require an expiration timestamp. "
+                    "Please provide expiration_timestamp when "
+                    "is_secure is true.")
 
     def create_filesystem_snapshot(self, filesystem_id, snapshot_name,
                                    description, expiration_timestamp,

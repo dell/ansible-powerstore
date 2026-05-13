@@ -81,7 +81,7 @@ Parameters
 
     Secure snapshots cannot be deleted or have their retention reduced until the retention period expires.
 
-    When set to :literal:`true` during creation, either :emphasis:`desired\_retention` or :emphasis:`expiration\_timestamp` must be provided.
+    When set to :literal:`true` during creation, :emphasis:`expiration\_timestamp` must be provided.
 
     Can also be set to :literal:`true` on an existing snapshot to mark it as secure (one\-way lock). This operation cannot be reverted.
 
@@ -250,8 +250,7 @@ Examples
         volume: "{{volume}}"
         description: "Immutable compliance snapshot"
         is_secure: true
-        desired_retention: "7"
-        retention_unit: "days"
+        expiration_timestamp: "2026-06-06T00:00:00Z"
         state: "present"
 
     - name: Create a secure volume group snapshot on PowerStore

@@ -214,8 +214,7 @@
         volume: "{{ volume }}"
         description: "Immutable compliance snapshot"
         is_secure: true
-        desired_retention: "{{ desired_retention }}"
-        retention_unit: "{{ retention_unit_days }}"
+        expiration_timestamp: "{{ expiration_timestamp }}"
         state: "{{ state_present }}"
 
     - name: Create a secure volume group snapshot on PowerStore

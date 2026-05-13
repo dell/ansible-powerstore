@@ -519,7 +519,7 @@ class TestPowerstoreFilesystemSnapshot(PowerStoreUnitBase):
             return_value="61e4947b-8992-3db7-2859-aa02b52a0308")
         powerstore_module_mock.get_fs_snapshot = MagicMock(return_value=None)
         self.capture_fail_json_call(
-            "Secure snapshots require a retention period",
+            "Secure snapshots require an expiration timestamp",
             powerstore_module_mock, invoke_perform_module=True)
 
     def test_get_secure_fs_snap_details(self, powerstore_module_mock):

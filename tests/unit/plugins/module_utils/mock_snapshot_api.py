@@ -313,4 +313,4 @@ class MockSnapshotApi:
 
     @staticmethod
     def get_secure_snapshot_no_retention_msg():
-        return "Secure snapshots require a retention period."
+        return "Secure snapshots require an expiration timestamp."

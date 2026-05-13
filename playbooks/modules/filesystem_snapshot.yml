@@ -101,6 +101,5 @@
         filesystem: "sample_filesystem"
         description: "Immutable filesystem snapshot"
         is_secure: true
-        desired_retention: 20
-        retention_unit: "days"
+        expiration_timestamp: "2050-07-24T11:50:20Z"
         state: "present"
