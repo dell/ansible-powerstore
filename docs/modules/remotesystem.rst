@@ -86,6 +86,30 @@ Parameters
     Setting to high will have latency of more than five milliseconds.
 
 
+  data_connection_type (optional, str, None)
+    Type of data connection from the local system to the remote system.
+
+    :literal:`iSCSI` - iSCSI connection type.
+
+    :literal:`FC` - Fibre Channel connection type.
+
+    Fibre Channel (FC) connection type requires properly configured FC fabric and zoning between the PowerStore systems as a prerequisite. The module cannot configure FC fabric.
+
+    It can be mentioned during creation or modification of the remote system.
+
+    It was added in PowerStore version 4.4.
+
+
+  fc_target_wwns (optional, list, None)
+    List of target Fibre Channel World Wide Names (WWNs) of the remote system for FC data connection.
+
+    This parameter is applicable only when :emphasis:`data\_connection\_type` is :literal:`FC`.
+
+    The WWN format is a colon-separated hexadecimal string, e.g., :literal:`58:cc:f0:98:49:21:07:02`.
+
+    It was added in PowerStore version 4.4.
+
+
   wait_for_completion (optional, bool, False)
     Flag to indicate if the operation should be run synchronously or asynchronously.
 
@@ -146,6 +170,8 @@ Notes
    - Parameters :emphasis:`remote\_user`\ , :emphasis:`remote\_port` and :emphasis:`remote\_password` are not required during modification, getting and deleting. If passed then these parameters will be ignored and the operation will be performed.
    - If :emphasis:`wait\_for\_completion` is set to :literal:`true` then the connection will be terminated after the timeout is exceeded. User can tweak timeout and pass it in the playbook task.
    - By default, the timeout is set to 120 seconds.
+   - The Ansible module cannot configure FC fabric. FC zoning and fabric configuration between the PowerStore systems must be completed before using FC data connection type. This is a prerequisite managed outside of PowerStore.
+   - Parameters :emphasis:`data\_connection\_type` and :emphasis:`fc\_target\_wwns` require PowerStore version 4.4 or later.
    - The :emphasis:`check\_mode` is not supported.
    - The modules present in this collection named as 'dellemc.powerstore' are built to support the Dell PowerStore storage platform.
 
@@ -194,6 +220,36 @@ Examples
         user: "{{user}}"
         password: "{{password}}"
         remote_id: "D7d7e7917-735b-3eef-8cc3-1302001c08e7"
+        state: "present"
+
+    - name: Add a new remote system with FC data connection type
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        remote_address: "xxx.xxx.xxx.xxx"
+        remote_user: "admin"
+        remote_password: "{{remote_password}}"
+        remote_port: 443
+        network_latency: "Low"
+        data_connection_type: "FC"
+        fc_target_wwns:
+          - "58:cc:f0:98:49:21:07:02"
+          - "58:cc:f0:98:49:21:07:01"
+        description: "Adding a new FC remote system"
+        state: "present"
+
+    - name: Modify remote system data connection type to FC
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        remote_id: "7d7e7917-735b-3eef-8cc3-1302001c08e7"
+        data_connection_type: "FC"
+        fc_target_wwns:
+          - "58:cc:f0:98:49:21:07:02"
         state: "present"
 
     - name: Delete remote system using remote_id
@@ -283,10 +339,28 @@ remote_system_details (When remote system exists, complex, {'data_connection_sta
     Challenge Handshake Authentication Protocol (CHAP) status.
 
 
+  data_connection_type (, str, )
+    Type of data connection from the local system to the remote system.
+
+    iSCSI - iSCSI connection type.
+
+    FC - Fibre Channel connection type.
+
+    It was added in PowerStore version 4.4.
+
+
   data_network_latency (, str, )
     Network latency choices for a remote system. Replication traffic can be tuned for higher efficiency depending on the expected network latency.
 
     This will only be used when the remote system type is PowerStore.
+
+
+  fc_target_wwns (, list, )
+    List of target Fibre Channel World Wide Names (WWNs) of the remote system.
+
+    Only applicable when data_connection_type is FC.
+
+    It was added in PowerStore version 4.4.
 
 
   data_connections (, complex, )

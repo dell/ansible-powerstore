@@ -72,6 +72,30 @@ options:
     - Setting to high will have latency of more than five milliseconds.
     type: str
     choices: [Low, High]
+  data_connection_type:
+    description:
+    - Type of data connection from the local system to the remote system.
+    - C(iSCSI) - iSCSI connection type.
+    - C(FC) - Fibre Channel connection type.
+    - Fibre Channel (FC) connection type requires properly configured FC
+      fabric and zoning between the PowerStore systems as a prerequisite.
+      The module cannot configure FC fabric.
+    - It can be mentioned during creation or modification of the remote system.
+    - It was added in PowerStore version 4.4.
+    type: str
+    choices: [iSCSI, FC]
+    version_added: '4.1.0'
+  fc_target_wwns:
+    description:
+    - List of target Fibre Channel World Wide Names (WWNs) of the remote
+      system for FC data connection.
+    - This parameter is applicable only when I(data_connection_type) is C(FC).
+    - The WWN format is a colon-separated hexadecimal string,
+      e.g., C(58:cc:f0:98:49:21:07:02).
+    - It was added in PowerStore version 4.4.
+    type: list
+    elements: str
+    version_added: '4.1.0'
   wait_for_completion:
     description:
     - Flag to indicate if the operation should be run synchronously or
@@ -101,6 +125,12 @@ notes:
   after the timeout is exceeded. User can tweak timeout and pass it
   in the playbook task.
 - By default, the timeout is set to 120 seconds.
+- The Ansible module cannot configure FC fabric. FC zoning and fabric
+  configuration between the PowerStore systems must be completed before
+  using FC data connection type. This is a prerequisite managed outside
+  of PowerStore.
+- Parameters I(data_connection_type) and I(fc_target_wwns) require
+  PowerStore version 4.4 or later.
 - The I(check_mode) is not supported.
 '''
 
@@ -141,6 +171,36 @@ EXAMPLES = r'''
     user: "{{user}}"
     password: "{{password}}"
     remote_id: "D7d7e7917-735b-3eef-8cc3-1302001c08e7"
+    state: "present"
+
+- name: Add a new remote system with FC data connection type
+  dellemc.powerstore.remotesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    remote_address: "xxx.xxx.xxx.xxx"
+    remote_user: "admin"
+    remote_password: "{{remote_password}}"
+    remote_port: 443
+    network_latency: "Low"
+    data_connection_type: "FC"
+    fc_target_wwns:
+      - "58:cc:f0:98:49:21:07:02"
+      - "58:cc:f0:98:49:21:07:01"
+    description: "Adding a new FC remote system"
+    state: "present"
+
+- name: Modify remote system data connection type to FC
+  dellemc.powerstore.remotesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    remote_id: "7d7e7917-735b-3eef-8cc3-1302001c08e7"
+    data_connection_type: "FC"
+    fc_target_wwns:
+      - "58:cc:f0:98:49:21:07:02"
     state: "present"
 
 - name: Delete remote system using remote_id
@@ -241,12 +301,26 @@ remote_system_details:
         session_chap_mode:
             description: Challenge Handshake Authentication Protocol (CHAP) status.
             type: str
+        data_connection_type:
+            description:
+                - Type of data connection from the local system to the remote system.
+                - iSCSI - iSCSI connection type.
+                - FC - Fibre Channel connection type.
+                - It was added in PowerStore version 4.4.
+            type: str
         data_network_latency:
             description:
                 - Network latency choices for a remote system. Replication traffic can be tuned for higher efficiency
                   depending on the expected network latency.
                 - This will only be used when the remote system type is PowerStore.
             type: str
+        fc_target_wwns:
+            description:
+                - List of target Fibre Channel World Wide Names (WWNs) of the remote system.
+                - Only applicable when data_connection_type is FC.
+                - It was added in PowerStore version 4.4.
+            type: list
+            elements: str
         data_connections:
             description:
                 - List of data connections from each appliance in the local cluster to iSCSI target IP address.
@@ -267,12 +341,15 @@ remote_system_details:
     sample: {
         "data_connection_state": "Initializing",
         "data_connection_state_l10n": "Initializing",
+        "data_connection_type": "iSCSI",
+        "data_connection_type_l10n": "iSCSI",
         "data_connections": null,
         "data_network_latency": "Low",
         "data_network_latency_l10n": "Low",
         "description": "Adding remote system",
         "discovery_chap_mode": "Disabled",
         "discovery_chap_mode_l10n": "Disabled",
+        "fc_target_wwns": [],
         "id": "aaa3cc6b-455b-4bde-aa75-a1edf61bbe0b",
         "import_sessions": [],
         "iscsi_addresses": [
@@ -418,7 +495,9 @@ class PowerstoreRemoteSystem(object):
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_remote_system(self, remote_address=None, description=None,
-                             network_latency=None):
+                             network_latency=None,
+                             data_connection_type=None,
+                             fc_target_wwns=None):
         """ Create remote system """
         try:
             LOG.info('Creating a remote system')
@@ -427,6 +506,11 @@ class PowerstoreRemoteSystem(object):
                 'description': description,
                 'data_network_latency': network_latency
             }
+            if data_connection_type is not None:
+                create_remote_sys_dict['data_connection_type'] = \
+                    data_connection_type
+            if fc_target_wwns is not None:
+                create_remote_sys_dict['fc_target_wwns'] = fc_target_wwns
             resp = self.protection.create_remote_system(
                 create_remote_sys_dict)
 
@@ -504,6 +588,8 @@ class PowerstoreRemoteSystem(object):
         new_remote_sys_address = self.module.params['new_remote_address']
         description = self.module.params['description']
         network_latency = self.module.params['network_latency']
+        data_connection_type = self.module.params['data_connection_type']
+        fc_target_wwns = self.module.params['fc_target_wwns']
         wait_for_completion = self.module.params['wait_for_completion']
         state = self.module.params['state']
 
@@ -525,6 +611,12 @@ class PowerstoreRemoteSystem(object):
             msg = "Unable to find any active cluster on this array"
             LOG.error(msg)
             self.module.fail_json(msg=msg)
+
+        # Validate fc_target_wwns requires FC data_connection_type
+        if fc_target_wwns and data_connection_type != 'FC':
+            self.module.fail_json(
+                msg="fc_target_wwns can only be specified when"
+                    " data_connection_type is set to 'FC'.")
 
         if remote_sys_name and not remote_sys_address and not remote_sys_id:
             self.module.fail_json(
@@ -563,7 +655,8 @@ class PowerstoreRemoteSystem(object):
             # creating a remote system after successful
             # exchange of certificates
             changed, remote_sys_details = self.create_remote_system(
-                remote_sys_address, description, network_latency)
+                remote_sys_address, description, network_latency,
+                data_connection_type, fc_target_wwns)
             remote_sys_id = remote_sys_details['id']
 
         # Delete a remote system
@@ -577,7 +670,9 @@ class PowerstoreRemoteSystem(object):
             modify_remote_sys_dict = {
                 'management_address': new_remote_sys_address,
                 'description': description,
-                'data_network_latency': network_latency
+                'data_network_latency': network_latency,
+                'data_connection_type': data_connection_type,
+                'fc_target_wwns': fc_target_wwns
             }
 
             to_modify = modify_remote_system_required(
@@ -626,6 +721,9 @@ def get_powerstore_remote_system_parameters():
         remote_port=dict(default=443, type='int'), description=dict(),
         network_latency=dict(required=False, type='str',
                              choices=['Low', 'High']),
+        data_connection_type=dict(required=False, type='str',
+                                  choices=['iSCSI', 'FC']),
+        fc_target_wwns=dict(required=False, type='list', elements='str'),
         wait_for_completion=dict(required=False, type='bool',
                                  choices=[True, False], default=False),
         state=dict(required=True, type='str', choices=['present', 'absent'])

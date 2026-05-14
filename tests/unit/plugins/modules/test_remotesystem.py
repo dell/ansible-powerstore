@@ -163,3 +163,241 @@ class TestPowerstoreRemoteSystem():
             return_value=(None, None))
         remotesystem_module_mock.perform_module_operation()
         remotesystem_module_mock.protection.delete_remote_system.assert_called()
+
+    # FC Replication - Create tests
+    def test_add_remotesystem_with_fc_connection_type(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'data_connection_type': "FC",
+            'fc_target_wwns': [
+                MockRemoteSystemApi.sample_wwn_1,
+                MockRemoteSystemApi.sample_wwn_2
+            ],
+            'description': "Adding FC remote system",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.conn.protection.create_remote_system = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+        call_args = remotesystem_module_mock.conn.protection.create_remote_system.call_args[0][0]
+        assert call_args['data_connection_type'] == 'FC'
+        assert call_args['fc_target_wwns'] == [
+            MockRemoteSystemApi.sample_wwn_1,
+            MockRemoteSystemApi.sample_wwn_2
+        ]
+
+    def test_add_remotesystem_with_fc_type_no_wwns(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'data_connection_type': "FC",
+            'fc_target_wwns': None,
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.conn.protection.create_remote_system = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+        call_args = remotesystem_module_mock.conn.protection.create_remote_system.call_args[0][0]
+        assert call_args['data_connection_type'] == 'FC'
+        assert 'fc_target_wwns' not in call_args
+
+    def test_add_remotesystem_with_iscsi_connection_type(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'data_connection_type': "iSCSI",
+            'fc_target_wwns': None,
+            'description': self.sample_description,
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.conn.protection.create_remote_system = MagicMock(
+            return_value=MockRemoteSystemApi.REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+        call_args = remotesystem_module_mock.conn.protection.create_remote_system.call_args[0][0]
+        assert call_args['data_connection_type'] == 'iSCSI'
+
+    # FC Replication - Validation tests (Negative)
+    def test_add_remotesystem_fc_wwns_without_fc_type_negative(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_name': None,
+            'remote_id': None,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'data_connection_type': "iSCSI",
+            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.perform_module_operation()
+        assert MockRemoteSystemApi.fc_target_wwns_without_fc_type_failed_msg() in \
+            remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_add_remotesystem_fc_wwns_without_any_type_negative(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_name': None,
+            'remote_id': None,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'data_connection_type': None,
+            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.perform_module_operation()
+        assert MockRemoteSystemApi.fc_target_wwns_without_fc_type_failed_msg() in \
+            remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+
+    # FC Replication - Modify tests
+    def test_modify_remotesystem_to_fc_connection_type(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'data_connection_type': "FC",
+            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=MockRemoteSystemApi.REMOTE_SYSTEM_DETAILS)
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.modify_remote_system.assert_called()
+
+    def test_modify_remotesystem_fc_wwns(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
+            'data_connection_type': "FC",
+            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.modify_remote_system.assert_called()
+
+    # FC Replication - Get details tests
+    def test_get_remotesystem_fc_details_response(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        result = remotesystem_module_mock.module.exit_json.call_args[1]
+        assert result['remote_system_details']['data_connection_type'] == 'FC'
+        assert result['remote_system_details']['fc_target_wwns'] == [
+            MockRemoteSystemApi.sample_wwn_1,
+            MockRemoteSystemApi.sample_wwn_2
+        ]
+
+    def test_get_remotesystem_iscsi_details_has_connection_type(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_id': "aaa3cc6b-455b-4bde-aa75-a1edf61bbe0b",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        result = remotesystem_module_mock.module.exit_json.call_args[1]
+        assert result['remote_system_details']['data_connection_type'] == 'iSCSI'
+        assert result['remote_system_details']['fc_target_wwns'] == []
+
+    # FC Replication - Idempotency test
+    def test_modify_remotesystem_fc_idempotent(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
+            'remote_name': None,
+            'remote_address': None,
+            'new_remote_address': None,
+            'description': None,
+            'network_latency': None,
+            'data_connection_type': "FC",
+            'fc_target_wwns': [
+                MockRemoteSystemApi.sample_wwn_1,
+                MockRemoteSystemApi.sample_wwn_2
+            ],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        result = remotesystem_module_mock.module.exit_json.call_args[1]
+        assert result['changed'] is False
+
+    # FC Replication - Create exception test
+    def test_add_remotesystem_fc_create_exception(self, remotesystem_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "400"
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_name': None,
+            'remote_id': None,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'data_connection_type': "FC",
+            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.module.fail_json = MagicMock(
+            side_effect=SystemExit(1))
+        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
+            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.conn.protection.create_remote_system = MagicMock(
+            side_effect=MockApiException)
+        try:
+            remotesystem_module_mock.perform_module_operation()
+        except SystemExit:
+            pass
+        remotesystem_module_mock.module.fail_json.assert_called()
+        assert 'create remote system failed' in \
+            remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+
+    # FC Replication - Delete FC remote system
+    def test_delete_fc_remotesystem(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
+            'state': "absent"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
+            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.delete_remote_system.assert_called()
