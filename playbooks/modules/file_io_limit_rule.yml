@@ -8,8 +8,6 @@
     user: 'user'
     password: 'password'
 
-  collections:
-    - dellemc.powerstore
 
   tasks:
     - name: Create a file IO limit rule
