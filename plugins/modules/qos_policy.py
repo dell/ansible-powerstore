@@ -357,7 +357,8 @@ class QosPolicyCreateHandler:
             policy_obj.validate_create(policy_params)
             if not policy_obj.module.check_mode:
                 result = policy_obj.create_qos_policy(policy_params, resolved)
-                policy_details = policy_obj.get_qos_policy_details(result['id'])
+                if result and result.get('id'):
+                    policy_details = policy_obj.get_qos_policy_details(result['id'])
             changed = True
         QosPolicyModifyHandler().handle(policy_obj, policy_params, policy_details, resolved, changed)
 

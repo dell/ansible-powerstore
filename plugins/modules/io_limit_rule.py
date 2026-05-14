@@ -385,7 +385,8 @@ class IoLimitRuleCreateHandler:
             rule_obj._validate_ranges(rule_params)
             if not rule_obj.module.check_mode:
                 result = rule_obj.create_io_limit_rule(rule_params)
-                rule_details = rule_obj.get_io_limit_rule_details(result['id'])
+                if result and result.get('id'):
+                    rule_details = rule_obj.get_io_limit_rule_details(result['id'])
             changed = True
         IoLimitRuleModifyHandler().handle(rule_obj, rule_params, rule_details, changed)
 

@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pytest
+import copy
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
@@ -26,6 +27,24 @@ class TestPowerstoreInfo():
     @pytest.fixture
     def info_module_mock(self, mocker):
         mocker.patch(MockInfoApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
+        conn = MagicMock()
+        conn.provisioning = MagicMock()
+        conn.protection = MagicMock()
+        conn.config_mgmt = MagicMock()
+        conn.file_interface = MagicMock()
+        conn.smb_server = MagicMock()
+        conn.nfs_server = MagicMock()
+        conn.file_dns = MagicMock()
+        conn.file_nis = MagicMock()
+        conn.snmp_server = MagicMock()
+        conn.provisioning.get_cluster_list.return_value = MockInfoApi.CLUSTER_DETAILS_TWO
+        conn.provisioning.get_array_version.return_value = "4.0"
+        mocker.patch(MockInfoApi.MODULE_UTILS_PATH + '.get_powerstore_connection', return_value=conn)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
+        self.get_module_args = copy.deepcopy(MockInfoApi.INFO_COMMON_ARGS)
         info_module_mock = PowerstoreInfo()
         return info_module_mock
 
@@ -432,7 +451,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_io_limit_rules.assert_called()
         assert 'io_limit_rules' in info_module_mock.module.exit_json.call_args[1]
@@ -445,7 +464,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=[])
+        info_module_mock.provisioning.get_io_limit_rules.return_value = []
         info_module_mock.perform_module_operation()
         result = info_module_mock.module.exit_json.call_args[1]
         assert result.get('io_limit_rules', None) == [] or 'io_limit_rules' in result
@@ -461,7 +480,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(side_effect=MockApiException)
+        info_module_mock.provisioning.get_io_limit_rules.side_effect = MockApiException
         info_module_mock.perform_module_operation()
         info_module_mock.module.fail_json.assert_called()
 
@@ -473,7 +492,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(return_value=self.FILE_IO_LIMIT_RULES_LIST)
+        info_module_mock.configuration.get_file_io_limit_rules.return_value = self.FILE_IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         info_module_mock.configuration.get_file_io_limit_rules.assert_called()
         assert 'file_io_limit_rules' in info_module_mock.module.exit_json.call_args[1]
@@ -486,7 +505,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(return_value=[])
+        info_module_mock.configuration.get_file_io_limit_rules.return_value = []
         info_module_mock.perform_module_operation()
         result = info_module_mock.module.exit_json.call_args[1]
         assert result.get('file_io_limit_rules', None) == [] or 'file_io_limit_rules' in result
@@ -502,7 +521,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(side_effect=MockApiException)
+        info_module_mock.configuration.get_file_io_limit_rules.side_effect = MockApiException
         info_module_mock.perform_module_operation()
         info_module_mock.module.fail_json.assert_called()
 
@@ -514,7 +533,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=[self.IO_LIMIT_RULES_LIST[0]])
+        info_module_mock.provisioning.get_io_limit_rules.return_value = [self.IO_LIMIT_RULES_LIST[0]]
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_io_limit_rules.assert_called()
 
@@ -526,7 +545,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(return_value=[self.FILE_IO_LIMIT_RULES_LIST[0]])
+        info_module_mock.configuration.get_file_io_limit_rules.return_value = [self.FILE_IO_LIMIT_RULES_LIST[0]]
         info_module_mock.perform_module_operation()
         info_module_mock.configuration.get_file_io_limit_rules.assert_called()
 
@@ -538,7 +557,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         rules = info_module_mock.module.exit_json.call_args[1].get('io_limit_rules', [])
         if rules:
@@ -554,7 +573,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(return_value=self.FILE_IO_LIMIT_RULES_LIST)
+        info_module_mock.configuration.get_file_io_limit_rules.return_value = self.FILE_IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         rules = info_module_mock.module.exit_json.call_args[1].get('file_io_limit_rules', [])
         if rules:
@@ -570,7 +589,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_volumes = MagicMock(return_value=[])
+        info_module_mock.provisioning.get_volumes.return_value = []
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_volumes.assert_called()
 
@@ -582,7 +601,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         rules = info_module_mock.module.exit_json.call_args[1].get('io_limit_rules', [])
         assert len(rules) == 3
@@ -595,8 +614,8 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
-        info_module_mock.configuration.get_file_io_limit_rules = MagicMock(return_value=self.FILE_IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
+        info_module_mock.configuration.get_file_io_limit_rules.return_value = self.FILE_IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         result = info_module_mock.module.exit_json.call_args[1]
         assert 'io_limit_rules' in result
@@ -610,7 +629,7 @@ class TestPowerstoreInfo():
             'all_pages': None
         })
         info_module_mock.module.params = self.get_module_args
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         rules = info_module_mock.module.exit_json.call_args[1].get('io_limit_rules', [])
         rule_with_policy = [r for r in rules if r.get('policies')]
@@ -625,6 +644,6 @@ class TestPowerstoreInfo():
         })
         info_module_mock.module.params = self.get_module_args
         info_module_mock.module.check_mode = True
-        info_module_mock.provisioning.get_io_limit_rules = MagicMock(return_value=self.IO_LIMIT_RULES_LIST)
+        info_module_mock.provisioning.get_io_limit_rules.return_value = self.IO_LIMIT_RULES_LIST
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_io_limit_rules.assert_called()

@@ -447,12 +447,14 @@ class TestPowerstoreVolumeGroup():
 
     QOS_POLICY_VG = {"id": "8d7f64c2-3456-7890-cdef-012345678901",
                      "name": "gold_qos", "type": "QoS"}
-    VG_WITH_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f", "name": "sample_volume_group",
-                  "description": "Volume group created",
-                  "protection_policy_id": None,
-                  "is_write_order_consistent": False,
+    VG_WITH_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f",
+                   "name": "sample_volume_group",
+                   "description": "Volume group created",
+                   "protection_policy_id": None,
+                   "is_write_order_consistent": False,
                    "qos_performance_policy_id": "8d7f64c2-3456-7890-cdef-012345678901"}
-    VG_NO_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f", "name": "sample_volume_group",
+    VG_NO_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f",
+                 "name": "sample_volume_group",
                  "description": "Volume group created",
                  "protection_policy_id": None,
                  "is_write_order_consistent": False,

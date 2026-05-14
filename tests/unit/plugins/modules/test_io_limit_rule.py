@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 import pytest
+import copy
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
@@ -26,10 +27,18 @@ class TestPowerstoreIoLimitRule():
     @pytest.fixture
     def io_limit_rule_module_mock(self, mocker):
         mocker.patch(MockIoLimitRuleApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
+        self.get_module_args = copy.deepcopy(MockIoLimitRuleApi.IO_LIMIT_RULE_COMMON_ARGS)
         io_limit_rule_module_mock = PowerStoreIoLimitRule()
         io_limit_rule_module_mock.module = MagicMock()
         io_limit_rule_module_mock.module.check_mode = False
         io_limit_rule_module_mock.module._diff = False
+        io_limit_rule_module_mock.provisioning = MagicMock()
+        io_limit_rule_module_mock.conn = MagicMock()
+        io_limit_rule_module_mock.conn.provisioning = io_limit_rule_module_mock.provisioning
         io_limit_rule_module_mock.result = {"changed": False}
         return io_limit_rule_module_mock
 

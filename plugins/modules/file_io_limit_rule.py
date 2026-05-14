@@ -293,7 +293,8 @@ class FileIoLimitRuleCreateHandler:
             rule_obj.validate_create(rule_params)
             if not rule_obj.module.check_mode:
                 result = rule_obj.create_file_io_limit_rule(rule_params)
-                rule_details = rule_obj.get_file_io_limit_rule_details(result['id'])
+                if result and result.get('id'):
+                    rule_details = rule_obj.get_file_io_limit_rule_details(result['id'])
             changed = True
         FileIoLimitRuleModifyHandler().handle(rule_obj, rule_params, rule_details, changed)
 
