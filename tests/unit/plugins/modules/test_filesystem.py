@@ -7,7 +7,9 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
+import copy
 import pytest
+from copy import deepcopy
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
@@ -22,6 +24,10 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libr
 class TestPowerStoreFileSystem(PowerStoreUnitBase):
 
     get_module_args = MockFilesystemApi.FILESYSTEM_COMMON_ARGS
+
+    @pytest.fixture(autouse=True)
+    def reset_module_args(self):
+        self.get_module_args = copy.deepcopy(MockFilesystemApi.FILESYSTEM_COMMON_ARGS)
 
     @pytest.fixture
     def module_object(self):
@@ -569,3 +575,167 @@ class TestPowerStoreFileSystem(PowerStoreUnitBase):
         self.capture_fail_json_call(MockFilesystemApi.exception_messages("restore_filesystem"),
                                     powerstore_module_mock,
                                     invoke_perform_module=True)
+
+    # ---- Performance Policy Tests (U-112 to U-121) ----
+
+    PERF_POLICY_FS = {"id": "9e8g75d3-4567-8901-defg-123456789012", "name": "file_gold_qos", "type": "File_Performance"}
+    FS_WITH_PERF = deepcopy(MockFilesystemApi.FS_DETAILS_1[0])
+    FS_WITH_PERF.update({
+        "name": "sample_fs",
+        "performance_policy_id": "9e8g75d3-4567-8901-defg-123456789012"
+    })
+    FS_NO_PERF = deepcopy(MockFilesystemApi.FS_DETAILS_1[0])
+    FS_NO_PERF.update({
+        "name": "sample_fs",
+        "performance_policy_id": None
+    })
+
+    # U-112
+    def test_create_filesystem_with_perf_policy(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "perf_fs", "nas_server": "sample_nas",
+                                "size": 3, "cap_unit": "GB",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=None)
+        powerstore_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[{"id": "6581683c-61a3-76ab-f107-62b767ad9845"}])
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.provisioning.create_filesystem = MagicMock(return_value=self.FS_WITH_PERF)
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_WITH_PERF)
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-113
+    def test_modify_filesystem_assign_perf_policy(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_NO_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_NO_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.provisioning.modify_filesystem = MagicMock(return_value=None)
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-114
+    def test_modify_filesystem_remove_perf_policy(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_WITH_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_WITH_PERF)
+        powerstore_module_mock.provisioning.modify_filesystem = MagicMock(return_value=None)
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-115
+    def test_filesystem_perf_policy_idempotent(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_WITH_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_WITH_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-116
+    def test_filesystem_perf_policy_exception(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_NO_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_NO_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.provisioning.modify_filesystem = MagicMock(side_effect=MockApiException)
+        self.capture_fail_json_call("Failed to modify filesystem id",
+                                    powerstore_module_mock,
+                                    invoke_perform_module=True)
+
+    # U-117
+    def test_filesystem_perf_policy_check_mode(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.module.check_mode = True
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_NO_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_NO_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is True
+        powerstore_module_mock.provisioning.modify_filesystem.assert_not_called()
+
+    # U-118
+    def test_filesystem_details_include_perf_policy(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs", "nas_server": "sample_nas", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_WITH_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_WITH_PERF)
+        powerstore_module_mock.perform_module_operation()
+        fs_details = powerstore_module_mock.module.exit_json.call_args[1]['filesystem_details']
+        assert 'performance_policy_id' in fs_details
+
+    # U-119
+    def test_filesystem_without_perf_policy_compat(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs", "nas_server": "sample_nas", "state": "present"})
+        self.get_module_args.pop('performance_policy', None)
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(
+            return_value=MockFilesystemApi.FS_DETAILS_1)
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(
+            return_value=MockFilesystemApi.FS_DETAILS_1[0])
+        powerstore_module_mock.perform_module_operation()
+        assert powerstore_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-120
+    def test_filesystem_perf_policy_diff_mode(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.module._diff = True
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_NO_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_NO_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.provisioning.modify_filesystem = MagicMock(return_value=None)
+        powerstore_module_mock.perform_module_operation()
+        result = powerstore_module_mock.module.exit_json.call_args[1]
+        assert 'diff' in result
+
+    # U-121
+    def test_filesystem_perf_policy_resolve_name(self, powerstore_module_mock):
+        powerstore_module_mock = self.set_cluster(powerstore_module_mock)
+        self.set_module_params(powerstore_module_mock, self.get_module_args,
+                               {"filesystem_name": "sample_fs",
+                                "nas_server": "sample_nas",
+                                "performance_policy": "file_gold_qos", "state": "present"})
+        powerstore_module_mock.module.params = self.get_module_args
+        powerstore_module_mock.provisioning.get_filesystem_by_name = MagicMock(return_value=[self.FS_NO_PERF])
+        powerstore_module_mock.provisioning.get_filesystem_details = MagicMock(return_value=self.FS_NO_PERF)
+        powerstore_module_mock.protection.get_policy_by_name = MagicMock(return_value=[self.PERF_POLICY_FS])
+        powerstore_module_mock.provisioning.modify_filesystem = MagicMock(return_value=None)
+        powerstore_module_mock.perform_module_operation()
+        powerstore_module_mock.protection.get_policy_by_name.assert_called()

@@ -86,6 +86,8 @@ options:
     - File NIS - C(file_nis).
     - Service configs - C(service_configs).
     - SNMP managers - C(snmp_manager).
+    - IO limit rules - C(io_limit_rule).
+    - File IO limit rules - C(file_io_limit_rule).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -96,7 +98,8 @@ options:
               email_notification, remote_support, remote_support_contact,
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
-              smb_server, nfs_server, file_dns, file_nis, service_config, snmp_manager]
+              smb_server, nfs_server, file_dns, file_nis, service_config, snmp_manager,
+              io_limit_rule, file_io_limit_rule]
     type: list
   filters:
     description:
@@ -2180,6 +2183,14 @@ class PowerstoreInfo(object):
             'snmp_manager': {
                 'func': self.snmp_manager.get_snmp_server_list,
                 'display_as': 'snmp_managers'
+            },
+            'io_limit_rule': {
+                'func': self.provisioning.get_io_limit_rules,
+                'display_as': 'io_limit_rules'
+            },
+            'file_io_limit_rule': {
+                'func': self.configuration.get_file_io_limit_rules,
+                'display_as': 'file_io_limit_rules'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
@@ -2362,7 +2373,8 @@ def get_powerstore_info_parameters():
                      'ldap_account', 'ldap_domain', 'vcenter',
                      'virtual_volume', 'storage_container',
                      'replication_group', 'discovered_appliance', 'file_interface',
-                     'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config']),
+                     'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config',
+                     'io_limit_rule', 'file_io_limit_rule']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

@@ -7,6 +7,7 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
+import copy
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
@@ -23,10 +24,23 @@ class TestPowerstoreVolume():
 
     @pytest.fixture
     def volume_module_mock(self, mocker):
-        mocker.patch(MockVolumeApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
+        mocker.patch(MockVolumeApi.MODULE_UTILS_PATH +
+                     '.PowerStoreException', new=MockApiException)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
+        self.get_module_args = copy.deepcopy(MockVolumeApi.VOLUME_COMMON_ARGS)
         volume_module_mock = PowerStoreVolume()
         volume_module_mock.module = MagicMock()
         volume_module_mock.module.check_mode = False
+        volume_module_mock.provisioning = MagicMock()
+        volume_module_mock.protection = MagicMock()
+        volume_module_mock.configuration = MagicMock()
+        volume_module_mock.conn = MagicMock()
+        volume_module_mock.conn.provisioning = volume_module_mock.provisioning
+        volume_module_mock.conn.protection = volume_module_mock.protection
+        volume_module_mock.conn.config_mgmt = volume_module_mock.configuration
         return volume_module_mock
 
     def test_get_volume_by_id(self, volume_module_mock):
@@ -67,7 +81,7 @@ class TestPowerstoreVolume():
             return_value=MockVolumeApi.TWO_VOL_LIST)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.get_volume_more_than_one_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_volume_with_exception(self, volume_module_mock):
         MockApiException.HTTP_ERR = "1"
@@ -154,7 +168,7 @@ class TestPowerstoreVolume():
             return_value=None)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.create_volume_without_size_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_create_volume_with_new_name(self, volume_module_mock):
         self.get_module_args.update({
@@ -171,7 +185,7 @@ class TestPowerstoreVolume():
             return_value=None)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.create_volume_with_new_name_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_modify_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -436,11 +450,13 @@ class TestPowerstoreVolume():
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_host_by_name = MagicMock(
             return_value=MockVolumeApi.HOST_DETAILS1)
+        volume_module_mock.provisioning.get_host_group_by_name = MagicMock(
+            return_value=MockVolumeApi.HG_DETAILS1)
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.VOL_DETAILS1)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.add_host_and_hg_volume_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_modify_hlu_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -459,7 +475,7 @@ class TestPowerstoreVolume():
             return_value=(False, 'Modification of HLU from'))
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.modify_hlu_volume_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_shrink_of_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -470,9 +486,11 @@ class TestPowerstoreVolume():
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.VOL_DETAILS2)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS2[0])
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.shrink_volume_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_host_to_map_volume_exception(self, volume_module_mock):
         MockApiException.HTTP_ERR = "1"
@@ -522,7 +540,7 @@ class TestPowerstoreVolume():
             return_value=MockVolumeApi.VOL_DETAILS1)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.map_without_mapping_state_failed_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_map_existing_host_group_to_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -587,7 +605,8 @@ class TestPowerstoreVolume():
         assert volume_module_mock.module.exit_json.call_args[1]['changed'] is False
 
     def perform_operation(self, volume_module_mock):
-        volume_module_mock.provisioning.get_volume_details = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1[0])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1[0])
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
 
     def operation_before_clone_volume(self, volume_module_mock):
@@ -605,16 +624,23 @@ class TestPowerstoreVolume():
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1)
-        volume_module_mock.get_volume = MagicMock(side_effect=[MockVolumeApi.VOL_DETAILS1[0], None, MockVolumeApi.VOL_DETAILS1[0]])
-        volume_module_mock.get_performance_policy = MagicMock(return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
-        volume_module_mock.get_protection_policy_id_by_name = MagicMock(return_value='PP_ID_1')
-        volume_module_mock.get_host_id_by_name = MagicMock(return_value='HD_ID_1')
-        volume_module_mock.provisioning.get_host_group_details = MagicMock(return_value=MockVolumeApi.HG_DETAILS2)
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1)
+        volume_module_mock.get_volume = MagicMock(
+            side_effect=[MockVolumeApi.VOL_DETAILS1[0], None, MockVolumeApi.VOL_DETAILS1[0]])
+        volume_module_mock.get_performance_policy = MagicMock(
+            return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
+        volume_module_mock.get_protection_policy_id_by_name = MagicMock(
+            return_value='PP_ID_1')
+        volume_module_mock.get_host_id_by_name = MagicMock(
+            return_value='HD_ID_1')
+        volume_module_mock.provisioning.get_host_group_details = MagicMock(
+            return_value=MockVolumeApi.HG_DETAILS2)
 
     def test_clone_volume(self, volume_module_mock):
         self.operation_before_clone_volume(volume_module_mock)
-        volume_module_mock.provisioning.clone_volume = MagicMock(return_value='vol_id_3')
+        volume_module_mock.provisioning.clone_volume = MagicMock(
+            return_value='vol_id_3')
         self.perform_operation(volume_module_mock)
         assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
         volume_module_mock.provisioning.clone_volume.assert_called()
@@ -624,15 +650,19 @@ class TestPowerstoreVolume():
         self.get_module_args['clone_volume']['host'] = None
         self.get_module_args['clone_volume']['host_group'] = None
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.clone_volume = MagicMock(return_value='vol_id_3')
+        volume_module_mock.provisioning.clone_volume = MagicMock(
+            return_value='vol_id_3')
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_clone_volume('log_unit_error')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_clone_volume(
+            'log_unit_error')
 
     def test_clone_volume_exception(self, volume_module_mock):
         self.operation_before_clone_volume(volume_module_mock)
-        volume_module_mock.provisioning.clone_volume = MagicMock(side_effect=MockApiException)
+        volume_module_mock.provisioning.clone_volume = MagicMock(
+            side_effect=MockApiException)
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_clone_volume('exception')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_clone_volume(
+            'exception')
 
     def operation_before_refresh_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -648,39 +678,50 @@ class TestPowerstoreVolume():
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1)
-        volume_module_mock.provisioning.get_volumes = MagicMock(return_value=MockVolumeApi.VOL1_SNAPSHOT_LIST)
-        volume_module_mock.get_volume = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1[0])
-        volume_module_mock.get_performance_policy = MagicMock(return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1)
+        volume_module_mock.provisioning.get_volumes = MagicMock(
+            return_value=MockVolumeApi.VOL1_SNAPSHOT_LIST)
+        volume_module_mock.get_volume = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1[0])
+        volume_module_mock.get_performance_policy = MagicMock(
+            return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
 
     def test_refresh_volume(self, volume_module_mock):
         self.operation_before_refresh_volume(volume_module_mock)
-        volume_module_mock.provisioning.refresh_volume = MagicMock(return_value='snap_id_3')
+        volume_module_mock.provisioning.refresh_volume = MagicMock(
+            return_value='snap_id_3')
         self.perform_operation(volume_module_mock)
         assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
         volume_module_mock.provisioning.refresh_volume.assert_called()
 
     def test_refresh_volume_exception(self, volume_module_mock):
         self.operation_before_refresh_volume(volume_module_mock)
-        volume_module_mock.provisioning.refresh_volume = MagicMock(side_effect=MockApiException)
+        volume_module_mock.provisioning.refresh_volume = MagicMock(
+            side_effect=MockApiException)
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume('exception')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume(
+            'exception')
 
     def test_refresh_volume_backup_snap_error(self, volume_module_mock):
         self.operation_before_refresh_volume(volume_module_mock)
         self.get_module_args['create_backup_snap'] = None
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.refresh_volume = MagicMock(return_value='snap_id_3')
+        volume_module_mock.provisioning.refresh_volume = MagicMock(
+            return_value='snap_id_3')
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume('backup_snap_error')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume(
+            'backup_snap_error')
 
     def test_refresh_volume_expiration_timestamp_error(self, volume_module_mock):
         self.operation_before_refresh_volume(volume_module_mock)
         self.get_module_args['backup_snap_profile']['expiration_timestamp'] = '2024-23T01:20:00Z'
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.provisioning.refresh_volume = MagicMock(return_value='snap_id_3')
+        volume_module_mock.provisioning.refresh_volume = MagicMock(
+            return_value='snap_id_3')
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume('expiration_timestamp_error')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_refresh_volume(
+            'expiration_timestamp_error')
 
     def operation_before_restore_volume(self, volume_module_mock):
         self.get_module_args.update({
@@ -696,30 +737,40 @@ class TestPowerstoreVolume():
             'state': "present"
         })
         volume_module_mock.module.params = self.get_module_args
-        volume_module_mock.get_volume = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1[0])
-        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=MockVolumeApi.VOL_DETAILS1)
-        volume_module_mock.provisioning.get_volumes = MagicMock(return_value=MockVolumeApi.VOL1_SNAPSHOT_LIST)
-        volume_module_mock.get_performance_policy = MagicMock(return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
+        volume_module_mock.get_volume = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1[0])
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1)
+        volume_module_mock.provisioning.get_volumes = MagicMock(
+            return_value=MockVolumeApi.VOL1_SNAPSHOT_LIST)
+        volume_module_mock.get_performance_policy = MagicMock(
+            return_value=MockVolumeApi.PERFORMANCE_POLICY_LOW)
 
     def test_restore_volume(self, volume_module_mock):
         self.operation_before_restore_volume(volume_module_mock)
-        volume_module_mock.provisioning.restore_volume = MagicMock(return_value='snap_id_4')
+        volume_module_mock.provisioning.restore_volume = MagicMock(
+            return_value='snap_id_4')
         self.perform_operation(volume_module_mock)
         assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
         volume_module_mock.provisioning.restore_volume.assert_called()
 
     def test_restore_volume_exception(self, volume_module_mock):
         self.operation_before_restore_volume(volume_module_mock)
-        volume_module_mock.provisioning.restore_volume = MagicMock(side_effect=MockApiException)
+        volume_module_mock.provisioning.restore_volume = MagicMock(
+            side_effect=MockApiException)
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_restore_volume('exception')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_restore_volume(
+            'exception')
 
     def test_restore_volume_snap_exception(self, volume_module_mock):
         self.operation_before_restore_volume(volume_module_mock)
-        volume_module_mock.provisioning.get_volumes = MagicMock(side_effect=[MockApiException, MockVolumeApi.VOL1_SNAPSHOT_LIST])
-        volume_module_mock.provisioning.restore_volume = MagicMock(return_value='snap_id_3')
+        volume_module_mock.provisioning.get_volumes = MagicMock(
+            side_effect=[MockApiException, MockVolumeApi.VOL1_SNAPSHOT_LIST])
+        volume_module_mock.provisioning.restore_volume = MagicMock(
+            return_value='snap_id_3')
         self.perform_operation(volume_module_mock)
-        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_restore_volume('snap_exception')
+        assert volume_module_mock.module.fail_json.call_args[1]['msg'] == MockVolumeApi.get_fail_msg_for_restore_volume(
+            'snap_exception')
 
     def operation_before_configure_metro(self, volume_module_mock):
         self.get_module_args.update({
@@ -733,6 +784,8 @@ class TestPowerstoreVolume():
             return_value=MockVolumeApi.REMOTE_SYSTEM_DETAILS)
         volume_module_mock.protection.get_remote_system_details = MagicMock(
             return_value=MockVolumeApi.REMOTE_SYSTEM_DETAILS[0])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1[0])
 
     def test_configure_metro_volume(self, volume_module_mock):
         self.operation_before_configure_metro(volume_module_mock)
@@ -755,7 +808,7 @@ class TestPowerstoreVolume():
             side_effect=MockApiException)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.configure_metro_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.provisioning.configure_metro_volume.assert_called()
 
     def test_rep_session_exception(self, volume_module_mock):
@@ -769,18 +822,20 @@ class TestPowerstoreVolume():
             side_effect=MockApiException)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.rep_session_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.protection.get_replication_session_details.assert_called()
 
     def test_existing_metro_exception(self, volume_module_mock):
         self.operation_before_configure_metro(volume_module_mock)
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.VOL_DETAILS2)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS2[0])
         volume_module_mock.protection.get_replication_session_details = MagicMock(
             return_values=MockVolumeApi.REP_SESSION_DETAILS[0])
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.exisiting_metro_session_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.protection.get_replication_session_details.assert_called()
 
     def test_multiple_remote_system_exception(self, volume_module_mock):
@@ -795,7 +850,7 @@ class TestPowerstoreVolume():
             return_value=MockVolumeApi.REMOTE_SYSTEM_DETAILS_1)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.no_appliance_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.protection.get_remote_system_by_name.assert_called()
 
     def test_remote_system_exception(self, volume_module_mock):
@@ -812,7 +867,7 @@ class TestPowerstoreVolume():
             side_effect=MockApiException)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.remote_system_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.protection.get_remote_system_details.assert_called()
 
     def test_remote_system_app_exception(self, volume_module_mock):
@@ -832,7 +887,7 @@ class TestPowerstoreVolume():
             side_effect=MockApiException)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.remote_app_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.protection.get_remote_system_appliance_details.assert_called()
 
     def test_end_metro(self, volume_module_mock):
@@ -845,6 +900,8 @@ class TestPowerstoreVolume():
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.VOL_DETAILS2)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS2[0])
         volume_module_mock.provisioning.end_volume_metro_config = MagicMock(
             return_value=True)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
@@ -864,9 +921,246 @@ class TestPowerstoreVolume():
         volume_module_mock.module.params = self.get_module_args
         volume_module_mock.provisioning.get_volume_by_name = MagicMock(
             return_value=MockVolumeApi.VOL_DETAILS2)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS2[0])
         volume_module_mock.provisioning.end_volume_metro_config = MagicMock(
             side_effect=MockApiException)
         VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
         assert MockVolumeApi.end_metro_fail_msg() in \
-               volume_module_mock.module.fail_json.call_args[1]['msg']
+            volume_module_mock.module.fail_json.call_args[1]['msg']
         volume_module_mock.provisioning.end_volume_metro_config.assert_called()
+
+    # ---- QoS Policy Assignment Tests (U-077 to U-091) ----
+
+    QOS_POLICY_DETAILS_VOL = {
+        "id": "8d7f64c2-3456-7890-cdef-012345678901",
+        "name": "gold_qos",
+        "type": "QoS"
+    }
+
+    VOL_WITH_QOS = {
+        "id": "ae20eb9a-a482-416e-aaf7-2a3fe7203630",
+        "name": "sample_volume_1",
+        "size": 1073741824,
+        "qos_performance_policy_id": "8d7f64c2-3456-7890-cdef-012345678901",
+        "volume_groups": [],
+        "description": None,
+        "protection_policy_id": None,
+        "performance_policy_id": None,
+        "app_type": None,
+        "app_type_other": None,
+        "appliance_id": None
+    }
+
+    VOL_NO_QOS = {
+        "id": "ae20eb9a-a482-416e-aaf7-2a3fe7203630",
+        "name": "sample_volume_1",
+        "size": 1073741824,
+        "qos_performance_policy_id": None,
+        "volume_groups": [],
+        "description": None,
+        "protection_policy_id": None,
+        "performance_policy_id": None,
+        "app_type": None,
+        "app_type_other": None,
+        "appliance_id": None
+    }
+
+    # U-077
+    def test_create_volume_with_qos_policy(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'qos_vol', 'size': 1, 'cap_unit': 'GB',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present', 'appliance_id': 'A1'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=[])
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        volume_module_mock.provisioning.create_volume = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-078
+    def test_modify_volume_assign_qos_policy(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            return_value=None)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-079
+    def test_modify_volume_remove_qos_policy(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': '', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_WITH_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            return_value=None)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-080
+    def test_modify_volume_qos_idempotent(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_WITH_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-081
+    def test_modify_volume_qos_exception(self, volume_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "400"
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            side_effect=MockApiException)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        volume_module_mock.module.fail_json.assert_called()
+
+    # U-082
+    def test_volume_qos_check_mode(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.module.check_mode = True
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+        volume_module_mock.provisioning.modify_volume.assert_not_called()
+
+    # U-083
+    def test_volume_qos_resolve_by_name(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            return_value=None)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        volume_module_mock.protection.get_policy_by_name.assert_called()
+
+    # U-084
+    def test_volume_qos_resolve_by_id(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': '8d7f64c2-3456-7890-cdef-012345678901', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            return_value=None)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-085
+    def test_volume_details_include_qos(self, volume_module_mock):
+        self.get_module_args.update(
+            {'vol_name': 'sample_volume_1', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_WITH_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        vol_details = volume_module_mock.module.exit_json.call_args[1]['volume_details']
+        assert 'qos_performance_policy_id' in vol_details
+
+    # U-086
+    def test_create_volume_qos_exception(self, volume_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "400"
+        self.get_module_args.update({'vol_name': 'qos_vol', 'size': 1, 'cap_unit': 'GB',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present', 'appliance_id': 'A1'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=[])
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_DETAILS_VOL])
+        volume_module_mock.provisioning.create_volume = MagicMock(
+            side_effect=MockApiException)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        volume_module_mock.module.fail_json.assert_called()
+
+    # U-087
+    def test_modify_volume_change_qos_policy(self, volume_module_mock):
+        qos_b = {"id": "new-policy-id", "name": "silver_qos", "type": "QoS"}
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'silver_qos', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_WITH_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_WITH_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(return_value=[
+                                                                     qos_b])
+        volume_module_mock.provisioning.modify_volume = MagicMock(
+            return_value=None)
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-090
+    def test_volume_without_qos_backward_compat(self, volume_module_mock):
+        self.get_module_args.update(
+            {'vol_name': 'sample_volume_1', 'state': 'present'})
+        self.get_module_args.pop('qos_performance_policy', None)
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1)
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=MockVolumeApi.VOL_DETAILS1[0])
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        assert volume_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-091
+    def test_volume_qos_invalid_policy_name(self, volume_module_mock):
+        self.get_module_args.update({'vol_name': 'sample_volume_1',
+                                     'qos_performance_policy': 'nonexistent_policy', 'state': 'present'})
+        volume_module_mock.module.params = self.get_module_args
+        volume_module_mock.provisioning.get_volume_by_name = MagicMock(return_value=[
+                                                                       self.VOL_NO_QOS])
+        volume_module_mock.provisioning.get_volume_details = MagicMock(
+            return_value=self.VOL_NO_QOS)
+        volume_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[])
+        VolumeHandler().handle(volume_module_mock, volume_module_mock.module.params)
+        volume_module_mock.module.fail_json.assert_called()

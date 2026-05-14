@@ -69,6 +69,19 @@ options:
    - Name/ID of the protection policy applied to the nas server.
    - Policy can be removed by passing an empty string in the I(protection_policy) parameter.
    type: str
+ performance_policy:
+   description:
+   - The File Performance policy name or ID for the NAS server.
+   - Associates a file IO limit rule policy with the NAS server for bandwidth control.
+   - Requires PowerStoreOS 4.1 or later.
+   - To represent policy, both name or ID can be used interchangeably.
+     The module will detect both.
+   - A NAS server can be assigned a performance policy at the time of creation or later.
+   - The policy can also be changed for a given NAS server by simply passing the
+     new value.
+   - To remove the performance policy from a NAS server, pass an empty string C('').
+   - If not specified, no performance policy is assigned.
+   type: str
  is_username_translation_enabled:
    description:
    - Enable the possibility to match a Windows account with an Unix account with different names.
@@ -342,6 +355,7 @@ class PowerStoreNasServer(object):
     cluster_global_id = None
     IS_NAME = "NAME"
     protection_policy_id = None
+    performance_policy_id = None
 
     def __init__(self):
         """Define all the parameters required by this module"""
@@ -412,7 +426,6 @@ class PowerStoreNasServer(object):
         try:
             msg = 'Getting the details of protection policy' \
                   ' {0}'.format(protection_policy)
-
             LOG.info(msg)
             LOG.info(msg)
             pp_id = None
@@ -450,6 +463,31 @@ class PowerStoreNasServer(object):
                                                     str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_performance_policy(self, performance_policy):
+        """Resolve File_Performance policy by name or ID."""
+        try:
+            if performance_policy is None:
+                return None
+            if performance_policy == "":
+                return ""
+
+            if utils.name_or_id(performance_policy) == "ID":
+                pol = self.protection.get_policy_details(performance_policy)
+                if pol:
+                    return performance_policy
+            else:
+                policies = self.protection.get_policy_by_name(performance_policy)
+                if policies and len(policies) > 0:
+                    return policies[0]['id']
+
+            msg = "No performance policy present with name or id {0}".format(performance_policy)
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+        except Exception as e:
+            msg = "Get performance policy failed with error: {0}".format(str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
 
     def get_nas_server(self, nas_server_id=None, nas_server_name=None):
         """Get the details of NAS Server of a given Powerstore storage
@@ -549,6 +587,14 @@ class PowerStoreNasServer(object):
                 modify_parameters['protection_policy_id'] = \
                     self.protection_policy_id
 
+            if self.performance_policy_id is not None and self.performance_policy_id != "" and \
+                    self.performance_policy_id != nasserver_details.get('performance_policy_id'):
+                modify_parameters['performance_policy_id'] = self.performance_policy_id
+
+            if self.performance_policy_id == "" and (
+                    nasserver_details.get('performance_policy_id') is not None):
+                modify_parameters['performance_policy_id'] = self.performance_policy_id
+
             nas_server_new_name = self.module.params['nas_server_new_name']
             if nas_server_new_name and nas_server_new_name != \
                     nasserver_details['name']:
@@ -557,7 +603,7 @@ class PowerStoreNasServer(object):
             # Node Name appears as ID in NAS Server
             node_types = ['current_node', 'preferred_node']
             for node_type in node_types:
-                node_type_val = self.module.params[node_type]
+                node_type_val = self.module.params.get(node_type)
                 if node_type_val:
                     node_id = (self.get_node_id(
                         node=node_type_val))['name']
@@ -565,9 +611,9 @@ class PowerStoreNasServer(object):
                         modify_parameters[node_type + '_id'] = node_id
 
             cur_unix_dir_ser = \
-                self.module.params['current_unix_directory_service']
+                self.module.params.get('current_unix_directory_service')
             if cur_unix_dir_ser and cur_unix_dir_ser != (
-                    nasserver_details['current_unix_directory_service']) \
+                    nasserver_details.get('current_unix_directory_service', '')) \
                     .upper():
                 modify_parameters['current_unix_directory_service'] = \
                     self.get_enum_keys(cur_unix_dir_ser)
@@ -575,16 +621,17 @@ class PowerStoreNasServer(object):
             users = ['unix', 'windows']
 
             for user in users:
-                def_user = self.module.params['default_' + user + '_user']
+                user_key = 'default_' + user + '_user'
+                def_user = self.module.params.get(user_key)
 
                 nas_details_user = ""
-                if nasserver_details['default_' + user + '_user']:
+                if nasserver_details.get(user_key):
                     nas_details_user = \
-                        nasserver_details['default_' + user + '_user']
+                        nasserver_details[user_key]
 
                 if def_user is not None and \
                         def_user != nas_details_user:
-                    modify_parameters['default_' + user + '_user'] = def_user
+                    modify_parameters[user_key] = def_user
 
             log_msg = "Modify Dict {0}".format(str(modify_parameters))
             LOG.info(log_msg)
@@ -673,6 +720,7 @@ class PowerStoreNasServer(object):
         nas_server_id = self.module.params['nas_server_id']
         state = self.module.params['state']
         protection_policy = self.module.params['protection_policy']
+        performance_policy = self.module.params.get('performance_policy')
 
         # result is a dictionary to contain end state and nasserver details
         changed = False
@@ -680,11 +728,14 @@ class PowerStoreNasServer(object):
             changed=False,
             nasserver_details=None
         )
+        if getattr(self.module, '_diff', False):
+            result['diff'] = dict(before=dict(), after=dict())
 
         nasserver_details = None
         nas_id = None
         to_modify = False
         to_modify_dict = None
+        self.performance_policy_id = None
 
         if protection_policy is not None:
             if protection_policy == "":
@@ -692,6 +743,10 @@ class PowerStoreNasServer(object):
             else:
                 self.protection_policy_id = self.get_protection_policy(
                     protection_policy=protection_policy)
+
+        if performance_policy is not None:
+            self.performance_policy_id = self.get_performance_policy(
+                performance_policy=performance_policy)
 
         if nas_server_name:
             nasserver_details = self.get_nas_server(
@@ -720,12 +775,19 @@ class PowerStoreNasServer(object):
         if not nasserver_details and state == 'present':
             nas_id = self.create_nas_server(
                 payload=create_nas_server_payload(self.module.params,
-                                                  self.protection_policy_id))
+                                                  self.protection_policy_id,
+                                                  self.performance_policy_id))
             changed = True
 
         if to_modify and state == 'present':
-            self.modify_nasserver(nasserver_id=nas_id,
-                                  modify_parameters=to_modify_dict)
+            if getattr(self.module, '_diff', False):
+                result['diff'] = {
+                    'before': {k: nasserver_details.get(k) for k in to_modify_dict.keys()},
+                    'after': to_modify_dict
+                }
+            if getattr(self.module, 'check_mode', False) is not True:
+                self.modify_nasserver(nasserver_id=nas_id,
+                                      modify_parameters=to_modify_dict)
             changed = True
 
         if state == 'absent' and nasserver_details:
@@ -756,17 +818,20 @@ def get_powerstore_nasserver_parameters():
                                                      'LOCAL_THEN_LDAP']),
         default_unix_user=dict(required=False, type='str'),
         default_windows_user=dict(required=False, type='str'),
+        performance_policy=dict(required=False, type='str'),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
 
 
-def create_nas_server_payload(params, protection_policy_id):
+def create_nas_server_payload(params, protection_policy_id, performance_policy_id=None):
     """Create a payload for creating a NAS Server.
 
     :param params: The input params
     :type params: dict
     :param protection_policy_id: The ID of the protection policy for the NAS Server
     :type protection_policy_id: str
+    :param performance_policy_id: The ID of the performance policy for the NAS Server
+    :type performance_policy_id: str
     :return: The payload for creating the NAS Server
     :rtype: dict
     """
@@ -780,6 +845,8 @@ def create_nas_server_payload(params, protection_policy_id):
         "is_auto_user_mapping_enabled": params.get('is_auto_user_mapping_enabled'),
         "protection_policy_id": protection_policy_id
     }
+    if performance_policy_id is not None:
+        payload["performance_policy_id"] = performance_policy_id
     return payload
 
 

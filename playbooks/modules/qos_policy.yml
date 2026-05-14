@@ -1,0 +1,106 @@
+---
+- name: QoS Policy Operations on PowerStore
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xxx.xxx.xxx'
+    validate_certs: false
+    user: 'user'
+    password: 'password'
+
+  collections:
+    - dellemc.powerstore
+
+  tasks:
+    - name: Create an IO limit rule for QoS policy
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "tenant_a_limits"
+        limit_type: "absolute"
+        max_iops: 5000
+        max_bw: 102400
+        max_bw_unit: "KB/s"
+        burst_percentage: 20
+        state: "present"
+
+    - name: Create a QoS policy with the IO limit rule
+      dellemc.powerstore.qos_policy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        qos_policy_name: "gold_qos"
+        description: "Gold tier QoS policy"
+        policy_type: "QoS"
+        io_limit_rule: "tenant_a_limits"
+        state: "present"
+
+    - name: Get QoS policy details
+      dellemc.powerstore.qos_policy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        qos_policy_name: "gold_qos"
+        state: "present"
+      register: policy_details
+
+    - name: Create a file IO limit rule for File_Performance policy
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        max_bw: 500
+        state: "present"
+
+    - name: Create a File_Performance policy
+      dellemc.powerstore.qos_policy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        qos_policy_name: "file_gold_qos"
+        policy_type: "File_Performance"
+        file_io_limit_rule: "file_bw_500mb"
+        state: "present"
+
+    - name: Delete QoS policy
+      dellemc.powerstore.qos_policy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        qos_policy_name: "gold_qos"
+        state: "absent"
+
+    - name: Delete File_Performance policy
+      dellemc.powerstore.qos_policy:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        qos_policy_name: "file_gold_qos"
+        state: "absent"
+
+    - name: Delete IO limit rule
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "tenant_a_limits"
+        state: "absent"
+
+    - name: Delete file IO limit rule
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        state: "absent"

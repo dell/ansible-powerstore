@@ -1,0 +1,69 @@
+---
+- name: IO Limit Rule Operations on PowerStore
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xxx.xxx.xxx'
+    validate_certs: false
+    user: 'user'
+    password: 'password'
+
+  collections:
+    - dellemc.powerstore
+
+  tasks:
+    - name: Create an IO limit rule with absolute IOPS and bandwidth limits
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "tenant_a_limits"
+        limit_type: "absolute"
+        max_iops: 5000
+        max_bw: 102400
+        max_bw_unit: "KB/s"
+        burst_percentage: 20
+        state: "present"
+
+    - name: Get IO limit rule details
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "tenant_a_limits"
+        state: "present"
+      register: rule_details
+
+    - name: Modify an IO limit rule - increase IOPS
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "tenant_a_limits"
+        max_iops: 10000
+        state: "present"
+
+    - name: Create a density-based IO limit rule
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "density_rule"
+        limit_type: "density"
+        max_iops: 100
+        max_bw: 10
+        max_bw_unit: "MB/s"
+        state: "present"
+
+    - name: Delete an IO limit rule
+      dellemc.powerstore.io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        io_limit_rule_name: "density_rule"
+        state: "absent"

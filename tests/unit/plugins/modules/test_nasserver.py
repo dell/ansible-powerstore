@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
+import copy
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
@@ -26,10 +27,26 @@ class TestPowerstoreNasServer():
 
     @pytest.fixture
     def nasserver_module_mock(self, mocker):
-        mocker.patch(MockNasServerApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
+        mocker.patch(MockNasServerApi.MODULE_UTILS_PATH +
+                     '.PowerStoreException', new=MockApiException)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
+        self.get_module_args = copy.deepcopy(MockNasServerApi.NAS_SERVER_COMMON_ARGS)
         nasserver_module_mock = PowerStoreNasServer()
         nasserver_module_mock.module = MagicMock()
-        nasserver_module_mock.get_clusters = MagicMock(return_value=MockNasServerApi.CLUSTERS)
+        nasserver_module_mock.provisioning = MagicMock()
+        nasserver_module_mock.protection = MagicMock()
+        nasserver_module_mock.configuration = MagicMock()
+        nasserver_module_mock.conn = MagicMock()
+        nasserver_module_mock.conn.provisioning = nasserver_module_mock.provisioning
+        nasserver_module_mock.conn.protection = nasserver_module_mock.protection
+        nasserver_module_mock.conn.config_mgmt = nasserver_module_mock.configuration
+        nasserver_module_mock.provisioning.get_nodes = MagicMock(
+            return_value=MockNasServerApi.NODE_DETAILS)
+        nasserver_module_mock.get_clusters = MagicMock(
+            return_value=MockNasServerApi.CLUSTERS)
         nasserver_module_mock.module.fail_json = fail_json
         return nasserver_module_mock
 
@@ -41,7 +58,8 @@ class TestPowerstoreNasServer():
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
             return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
-        nasserver_module_mock.provisioning.get_nodes = MagicMock(return_value=MockNasServerApi.NODE_DETAILS)
+        nasserver_module_mock.provisioning.get_nodes = MagicMock(
+            return_value=MockNasServerApi.NODE_DETAILS)
         nasserver_module_mock.perform_module_operation()
         assert self.get_module_args['nas_server_id'] == nasserver_module_mock.module.exit_json.call_args[1]['nasserver_details']['id']
         nasserver_module_mock.provisioning.get_nas_server_details.assert_called()
@@ -54,7 +72,8 @@ class TestPowerstoreNasServer():
         nasserver_module_mock.module.params = self.get_module_args
         nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
             return_value=MockNasServerApi.NAS_SERVER_DETAILS)
-        nasserver_module_mock.provisioning.get_nodes = MagicMock(return_value=MockNasServerApi.NODE_DETAILS)
+        nasserver_module_mock.provisioning.get_nodes = MagicMock(
+            return_value=MockNasServerApi.NODE_DETAILS)
         nasserver_module_mock.perform_module_operation()
         assert self.get_module_args['nas_server_name'] == nasserver_module_mock.module.exit_json.call_args[1]['nasserver_details']['name']
         nasserver_module_mock.provisioning.get_nas_server_by_name.assert_called()
@@ -232,7 +251,8 @@ class TestPowerstoreNasServer():
             "state": "absent"
         })
         nasserver_module_mock.module.params = self.get_module_args
-        nasserver_module_mock.provisioning.delete_nasserver = MagicMock(return_value=None)
+        nasserver_module_mock.provisioning.delete_nasserver = MagicMock(
+            return_value=None)
         nasserver_module_mock.perform_module_operation()
         nasserver_module_mock.provisioning.delete_nasserver.assert_called_once_with(
             MockNasServerApi.NAS_SERVER_ID)
@@ -255,3 +275,164 @@ class TestPowerstoreNasServer():
             nasserver_module_mock.perform_module_operation()
         except FailJsonException as fj_object:
             assert error_msg in fj_object.message
+
+    # ---- Performance Policy Tests (U-102 to U-111) ----
+
+    PERF_POLICY_NAS = {"id": "9e8g75d3-4567-8901-defg-123456789012",
+                       "name": "file_gold_qos", "type": "File_Performance"}
+    NAS_WITH_PERF = {"id": "6581683c-61a3-76ab-f107-62b767ad9845", "name": "sample_nas_server",
+                     "performance_policy_id": "9e8g75d3-4567-8901-defg-123456789012",
+                     "current_node_id": "Appliance-XXXXXXX-node-B",
+                     "preferred_node_id": "Appliance-XXXXXXX-node-B"}
+    NAS_NO_PERF = {"id": "6581683c-61a3-76ab-f107-62b767ad9845", "name": "sample_nas_server",
+                   "performance_policy_id": None,
+                   "current_node_id": "Appliance-XXXXXXX-node-B",
+                   "preferred_node_id": "Appliance-XXXXXXX-node-B"}
+
+    # U-102
+    def test_modify_nasserver_assign_perf_policy(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
+            return_value=None)
+        nasserver_module_mock.perform_module_operation()
+        assert nasserver_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-103
+    def test_modify_nasserver_remove_perf_policy(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': '', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_WITH_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_WITH_PERF)
+        nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
+            return_value=None)
+        nasserver_module_mock.perform_module_operation()
+        assert nasserver_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-104
+    def test_nasserver_perf_policy_idempotent(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_WITH_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_WITH_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.perform_module_operation()
+        assert nasserver_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-105
+    def test_nasserver_perf_policy_exception(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
+            side_effect=MockApiException)
+        self.capture_fail_json_call("Failed to modify nasserver id", nasserver_module_mock)
+
+    # U-106
+    def test_nasserver_perf_policy_check_mode(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.module.check_mode = True
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.perform_module_operation()
+        assert nasserver_module_mock.module.exit_json.call_args[1]['changed'] is True
+        nasserver_module_mock.provisioning.modify_nasserver.assert_not_called()
+
+    # U-107
+    def test_nasserver_details_include_perf_policy(self, nasserver_module_mock):
+        self.get_module_args.update(
+            {'nas_server_name': 'sample_nas_server', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_WITH_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_WITH_PERF)
+        nasserver_module_mock.perform_module_operation()
+        nas_details = nasserver_module_mock.module.exit_json.call_args[1]['nasserver_details']
+        assert 'performance_policy_id' in nas_details
+
+    # U-108
+    def test_nasserver_perf_policy_resolve_name(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
+            return_value=None)
+        nasserver_module_mock.perform_module_operation()
+        nasserver_module_mock.protection.get_policy_by_name.assert_called()
+
+    # U-109
+    def test_nasserver_without_perf_policy_compat(self, nasserver_module_mock):
+        self.get_module_args.update(
+            {'nas_server_name': 'sample_nas_server', 'state': 'present'})
+        self.get_module_args.pop('performance_policy', None)
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS)
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=MockNasServerApi.NAS_SERVER_DETAILS[0])
+        nasserver_module_mock.perform_module_operation()
+        assert nasserver_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-110
+    def test_nasserver_perf_policy_diff_mode(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'file_gold_qos', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.module._diff = True
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.PERF_POLICY_NAS])
+        nasserver_module_mock.provisioning.modify_nasserver = MagicMock(
+            return_value=None)
+        nasserver_module_mock.perform_module_operation()
+        result = nasserver_module_mock.module.exit_json.call_args[1]
+        assert 'diff' in result
+
+    # U-111
+    def test_nasserver_invalid_policy_name(self, nasserver_module_mock):
+        self.get_module_args.update({'nas_server_name': 'sample_nas_server',
+                                     'performance_policy': 'nonexistent', 'state': 'present'})
+        nasserver_module_mock.module.params = self.get_module_args
+        nasserver_module_mock.provisioning.get_nas_server_by_name = MagicMock(
+            return_value=[self.NAS_NO_PERF])
+        nasserver_module_mock.provisioning.get_nas_server_details = MagicMock(
+            return_value=self.NAS_NO_PERF)
+        nasserver_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[])
+        self.capture_fail_json_call("No performance policy present", nasserver_module_mock)

@@ -7,6 +7,7 @@
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
+import copy
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
@@ -23,9 +24,22 @@ class TestPowerstoreVolumeGroup():
 
     @pytest.fixture
     def volume_group_module_mock(self, mocker):
-        mocker.patch(MockVolumeGroupApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
+        mocker.patch(MockVolumeGroupApi.MODULE_UTILS_PATH +
+                     '.PowerStoreException', new=MockApiException)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
+        self.get_module_args = copy.deepcopy(MockVolumeGroupApi.VOLUME_GROUP_COMMON_ARGS)
         volume_group_module_mock = PowerStoreVolumeGroup()
         volume_group_module_mock.module = MagicMock()
+        volume_group_module_mock.provisioning = MagicMock()
+        volume_group_module_mock.protection = MagicMock()
+        volume_group_module_mock.configuration = MagicMock()
+        volume_group_module_mock.conn = MagicMock()
+        volume_group_module_mock.conn.provisioning = volume_group_module_mock.provisioning
+        volume_group_module_mock.conn.protection = volume_group_module_mock.protection
+        volume_group_module_mock.conn.config_mgmt = volume_group_module_mock.configuration
         return volume_group_module_mock
 
     def test_get_volume_group_by_id(self, volume_group_module_mock):
@@ -302,7 +316,7 @@ class TestPowerstoreVolumeGroup():
             side_effect=MockApiException)
         volume_group_module_mock.perform_module_operation()
         assert MockVolumeGroupApi.get_non_existing_volume_failed_msg() in \
-               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+            volume_group_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_get_non_existing_volume_to_add_volume_group(self, volume_group_module_mock):
         self.get_module_args.update({
@@ -321,7 +335,7 @@ class TestPowerstoreVolumeGroup():
             side_effect=MockApiException)
         volume_group_module_mock.perform_module_operation()
         assert MockVolumeGroupApi.get_non_existing_volume_failed_msg() in \
-               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+            volume_group_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_refresh_volume_group(self, volume_group_module_mock):
         self.get_module_args.update({
@@ -335,7 +349,8 @@ class TestPowerstoreVolumeGroup():
         volume_group_module_mock.get_volume_group_details = MagicMock(
             return_value=MockVolumeGroupApi.VG_DETAILS[0])
         volume_group_module_mock.validate_input = MagicMock(return_value=True)
-        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=(None, None))
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(
+            return_value=(None, None))
         volume_group_module_mock.perform_module_operation()
         volume_group_module_mock.provisioning.refresh_volume_group.assert_called()
 
@@ -351,11 +366,13 @@ class TestPowerstoreVolumeGroup():
         volume_group_module_mock.get_volume_group_details = MagicMock(
             return_value=MockVolumeGroupApi.VG_DETAILS[0])
         volume_group_module_mock.validate_input = MagicMock(return_value=True)
-        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=None)
-        volume_group_module_mock.provisioning.refresh_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(
+            return_value=None)
+        volume_group_module_mock.provisioning.refresh_volume_group = MagicMock(
+            side_effect=Exception)
         volume_group_module_mock.perform_module_operation()
         assert MockVolumeGroupApi.refresh_vol_group_ex() in \
-               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+            volume_group_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_restore_volume_group(self, volume_group_module_mock):
         self.get_module_args.update({
@@ -369,7 +386,8 @@ class TestPowerstoreVolumeGroup():
         volume_group_module_mock.get_volume_group_details = MagicMock(
             return_value=MockVolumeGroupApi.VG_DETAILS[0])
         volume_group_module_mock.validate_input = MagicMock(return_value=True)
-        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=[None, MagicMock()])
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(
+            return_value=[None, MagicMock()])
         volume_group_module_mock.perform_module_operation()
         volume_group_module_mock.provisioning.restore_volume_group.assert_called()
 
@@ -385,12 +403,14 @@ class TestPowerstoreVolumeGroup():
         volume_group_module_mock.get_volume_group_details = MagicMock(
             return_value=MockVolumeGroupApi.VG_DETAILS[0])
         volume_group_module_mock.validate_input = MagicMock(return_value=True)
-        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(return_value=[None, MagicMock()])
-        volume_group_module_mock.provisioning.restore_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.get_snapshots_of_volume_group = MagicMock(
+            return_value=[None, MagicMock()])
+        volume_group_module_mock.provisioning.restore_volume_group = MagicMock(
+            side_effect=Exception)
         volume_group_module_mock.perform_module_operation()
         print(volume_group_module_mock.module.fail_json.call_args[1]['msg'])
         assert MockVolumeGroupApi.restore_vol_group_ex() in \
-               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+            volume_group_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_clone_volume_group(self, volume_group_module_mock):
         self.get_module_args.update({
@@ -417,7 +437,160 @@ class TestPowerstoreVolumeGroup():
             return_value=MockVolumeGroupApi.VG_DETAILS[0])
         volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
             return_value=None)
-        volume_group_module_mock.provisioning.clone_volume_group = MagicMock(side_effect=Exception)
+        volume_group_module_mock.provisioning.clone_volume_group = MagicMock(
+            side_effect=Exception)
         volume_group_module_mock.perform_module_operation()
         assert MockVolumeGroupApi.clone_vol_group_ex() in \
-               volume_group_module_mock.module.fail_json.call_args[1]['msg']
+            volume_group_module_mock.module.fail_json.call_args[1]['msg']
+
+    # ---- QoS Policy Assignment Tests (U-092 to U-101) ----
+
+    QOS_POLICY_VG = {"id": "8d7f64c2-3456-7890-cdef-012345678901",
+                     "name": "gold_qos", "type": "QoS"}
+    VG_WITH_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f", "name": "sample_volume_group",
+                  "description": "Volume group created",
+                  "protection_policy_id": None,
+                  "is_write_order_consistent": False,
+                   "qos_performance_policy_id": "8d7f64c2-3456-7890-cdef-012345678901"}
+    VG_NO_QOS = {"id": "fd156da5-d579-43b2-a377-e98af0c6962f", "name": "sample_volume_group",
+                 "description": "Volume group created",
+                 "protection_policy_id": None,
+                 "is_write_order_consistent": False,
+                 "qos_performance_policy_id": None}
+
+    # U-092
+    def test_create_vg_with_qos_policy(self, volume_group_module_mock):
+        self.get_module_args.update(
+            {'vg_name': 'qos_vg', 'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=None)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.provisioning.create_volume_group = MagicMock(
+            return_value=self.VG_WITH_QOS)
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_WITH_QOS)
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-093
+    def test_modify_vg_assign_qos_policy(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_NO_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_NO_QOS)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.provisioning.modify_volume_group = MagicMock(
+            return_value=None)
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-094
+    def test_modify_vg_remove_qos_policy(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': '', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_WITH_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_WITH_QOS)
+        volume_group_module_mock.provisioning.modify_volume_group = MagicMock(
+            return_value=None)
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    # U-095
+    def test_vg_qos_idempotent(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_WITH_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_WITH_QOS)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-096
+    def test_vg_qos_exception(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_NO_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_NO_QOS)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.provisioning.modify_volume_group = MagicMock(
+            side_effect=Exception)
+        volume_group_module_mock.perform_module_operation()
+        volume_group_module_mock.module.fail_json.assert_called()
+
+    # U-097
+    def test_vg_qos_check_mode(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.module.check_mode = True
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_NO_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_NO_QOS)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is True
+        volume_group_module_mock.provisioning.modify_volume_group.assert_not_called()
+
+    # U-098
+    def test_vg_details_include_qos(self, volume_group_module_mock):
+        self.get_module_args.update(
+            {'vg_name': 'sample_volume_group', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_WITH_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_WITH_QOS)
+        volume_group_module_mock.perform_module_operation()
+        vg_details = volume_group_module_mock.module.exit_json.call_args[
+            1]['volume_group_details']
+        assert 'qos_performance_policy_id' in vg_details
+
+    # U-099
+    def test_vg_without_qos_backward_compat(self, volume_group_module_mock):
+        self.get_module_args.update(
+            {'vg_name': 'sample_volume_group', 'state': 'present'})
+        self.get_module_args.pop('qos_performance_policy', None)
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS)
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=MockVolumeGroupApi.VG_DETAILS[0])
+        volume_group_module_mock.perform_module_operation()
+        assert volume_group_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    # U-101
+    def test_vg_qos_diff_mode(self, volume_group_module_mock):
+        self.get_module_args.update({'vg_name': 'sample_volume_group',
+                                     'qos_performance_policy': 'gold_qos', 'state': 'present'})
+        volume_group_module_mock.module.params = self.get_module_args
+        volume_group_module_mock.module._diff = True
+        volume_group_module_mock.provisioning.get_volume_group_by_name = MagicMock(
+            return_value=[self.VG_NO_QOS])
+        volume_group_module_mock.provisioning.get_volume_group_details = MagicMock(
+            return_value=self.VG_NO_QOS)
+        volume_group_module_mock.protection.get_policy_by_name = MagicMock(
+            return_value=[self.QOS_POLICY_VG])
+        volume_group_module_mock.provisioning.modify_volume_group = MagicMock(
+            return_value=None)
+        volume_group_module_mock.perform_module_operation()
+        result = volume_group_module_mock.module.exit_json.call_args[1]
+        assert 'diff' in result
