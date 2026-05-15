@@ -44,6 +44,24 @@ options:
     - Password used in basic authentication to remote PowerStore cluster.
     - It can be mentioned only during creation of the remote system.
     type: str
+  remote_temp_user_id:
+    description:
+    - Temporary user ID used for certificate-based authentication to the
+      remote PowerStore cluster.
+    - It can be mentioned only during creation of the remote system.
+    - Parameter I(remote_temp_user_id) and I(remote_temp_user_secret)
+      are required together and mutually exclusive with I(remote_user)
+      and I(remote_password).
+    type: str
+  remote_temp_user_secret:
+    description:
+    - Temporary secret used for certificate-based authentication to the
+      remote PowerStore cluster.
+    - It can be mentioned only during creation of the remote system.
+    - Parameter I(remote_temp_user_id) and I(remote_temp_user_secret)
+      are required together and mutually exclusive with I(remote_user)
+      and I(remote_password).
+    type: str
   remote_address:
     description:
     - Management IP of the remote system.
@@ -97,6 +115,12 @@ notes:
 - Parameters I(remote_user), I(remote_port) and I(remote_password) are not required
   during modification, getting and deleting. If passed then these parameters
   will be ignored and the operation will be performed.
+- Parameters I(remote_temp_user_id) and I(remote_temp_user_secret) are
+  mutually exclusive with I(remote_user) and I(remote_password). Exactly one
+  authentication method must be provided when creating a remote system.
+- Parameters I(remote_temp_user_id) and I(remote_temp_user_secret) are not required
+  during modification, getting and deleting. If passed then these parameters
+  will be ignored and the operation will be performed.
 - If I(wait_for_completion) is set to C(true) then the connection will be terminated
   after the timeout is exceeded. User can tweak timeout and pass it
   in the playbook task.
@@ -118,6 +142,20 @@ EXAMPLES = r'''
     remote_port: 443
     network_latency: "Low"
     decription: "Adding a new remote system"
+    state: "present"
+
+- name: Add a new remote system using temporary credentials
+  dellemc.powerstore.remotesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    remote_address: "xxx.xxx.xxx.xxx"
+    remote_temp_user_id: "{{remote_temp_user_id}}"
+    remote_temp_user_secret: "{{remote_temp_user_secret}}"
+    remote_port: 443
+    network_latency: "Low"
+    description: "Adding remote system via temporary credentials"
     state: "present"
 
 - name: Modify attributes of remote system using remote_id
@@ -319,10 +357,13 @@ class PowerstoreRemoteSystem(object):
         self.module_params.update(get_powerstore_remote_system_parameters())
 
         # initialize the Ansible module
-        mut_ex_args = [['remote_id', 'remote_address']]
+        mut_ex_args = [['remote_id', 'remote_address'],
+                       ['remote_user', 'remote_temp_user_id'],
+                       ['remote_password', 'remote_temp_user_secret']]
         # in case of create remote address and remote port may also be needed.
         # These operation specific parameters validation will be done separately.
-        required_together = [['remote_user', 'remote_password']]
+        required_together = [['remote_user', 'remote_password'],
+                             ['remote_temp_user_id', 'remote_temp_user_secret']]
         self.module = AnsibleModule(
             argument_spec=self.module_params,
             supports_check_mode=False,
@@ -393,8 +434,10 @@ class PowerstoreRemoteSystem(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
-    def exchange_certificates(self, remote_user, remote_password,
-                              remote_address, remote_port):
+    def exchange_certificates(self, remote_address, remote_port,
+                              remote_user=None, remote_password=None,
+                              remote_temp_user_id=None,
+                              remote_temp_user_secret=None):
         """
         Exchange certificates for creation/addition of new
         remote system.
@@ -405,10 +448,15 @@ class PowerstoreRemoteSystem(object):
             exchange_cert_dict = {
                 'address': remote_address,
                 'port': remote_port,
-                'username': remote_user,
-                'password': remote_password,
                 'service': "Replication_HTTP"
             }
+            # Map temporary credentials to username/password for API compatibility
+            if remote_temp_user_id and remote_temp_user_secret:
+                exchange_cert_dict['username'] = remote_temp_user_id
+                exchange_cert_dict['password'] = remote_temp_user_secret
+            else:
+                exchange_cert_dict['username'] = remote_user
+                exchange_cert_dict['password'] = remote_password
             self.configuration.exchange_certificate(exchange_cert_dict)
 
         except Exception as e:
@@ -497,6 +545,8 @@ class PowerstoreRemoteSystem(object):
         """collect input"""
         remote_sys_user = self.module.params['remote_user']
         remote_sys_password = self.module.params['remote_password']
+        remote_temp_user_id = self.module.params['remote_temp_user_id']
+        remote_temp_user_secret = self.module.params['remote_temp_user_secret']
         remote_sys_port = self.module.params['remote_port']
         remote_sys_name = self.module.params['remote_name']
         remote_sys_id = self.module.params['remote_id']
@@ -556,10 +606,19 @@ class PowerstoreRemoteSystem(object):
                       " parameters for creation of remote system."
                 self.module.fail_json(msg=msg)
 
+            if not remote_sys_user and not remote_temp_user_id:
+                self.module.fail_json(
+                    msg="Either remote_user/remote_password or "
+                        "remote_temp_user_id/remote_temp_user_secret is "
+                        "required for creating a remote system.")
+
             # exchange the certificates
             self.exchange_certificates(
-                remote_sys_user, remote_sys_password,
-                remote_sys_address, remote_sys_port)
+                remote_sys_address, remote_sys_port,
+                remote_user=remote_sys_user,
+                remote_password=remote_sys_password,
+                remote_temp_user_id=remote_temp_user_id,
+                remote_temp_user_secret=remote_temp_user_secret)
             # creating a remote system after successful
             # exchange of certificates
             changed, remote_sys_details = self.create_remote_system(
@@ -622,6 +681,8 @@ def get_powerstore_remote_system_parameters():
     return dict(
         remote_id=dict(), remote_name=dict(),
         remote_user=dict(), remote_password=dict(no_log=True),
+        remote_temp_user_id=dict(),
+        remote_temp_user_secret=dict(no_log=True),
         remote_address=dict(), new_remote_address=dict(),
         remote_port=dict(default=443, type='int'), description=dict(),
         network_latency=dict(required=False, type='str',
