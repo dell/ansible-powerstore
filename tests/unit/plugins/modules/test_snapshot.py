@@ -16,6 +16,8 @@ from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
     mock_snapshot_api import MockSnapshotApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.\
     mock_api_exception import MockApiException
+from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries.\
+    fail_json import FailJsonException, fail_json
 from ansible_collections.dellemc.powerstore.plugins.modules.snapshot import PowerStoreSnapshot
 
 
@@ -427,3 +429,356 @@ class TestPowerStoreSnapshot():
             side_effect=MockApiException)
         snapshot_module_mock.perform_module_operation()
         snapshot_module_mock.provisioning.get_volume_group_by_name.assert_called()
+
+    # ---- Secure Snapshot Tests ----
+
+    def test_create_secure_vol_snap(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.get_vol_snapshot = MagicMock(return_value=None)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(return_value=None)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.create_volume_snapshot.assert_called()
+
+    def test_create_secure_vol_snap_with_expiration(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'expiration_timestamp': '2026-06-06T00:00:00Z',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.get_vol_snapshot = MagicMock(return_value=None)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(return_value=None)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.create_volume_snapshot.assert_called()
+
+    def test_create_secure_vg_snap(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vg_snap',
+            'volume_group': 'ansible_vg',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.get_vol_group_snapshot = MagicMock(return_value=None)
+        snapshot_module_mock.get_vol_group_snap_details = MagicMock(return_value=None)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.create_volume_group_snapshot.assert_called()
+
+    def test_create_secure_vol_snap_without_retention(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.module.fail_json = fail_json
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(return_value=[])
+        try:
+            snapshot_module_mock.perform_module_operation()
+        except FailJsonException as e:
+            assert MockSnapshotApi.get_secure_snapshot_no_retention_msg() in e.message
+
+    def test_create_secure_vg_snap_without_retention(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vg_snap',
+            'volume_group': 'ansible_vg',
+            'is_secure': True,
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.module.fail_json = fail_json
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(return_value=[])
+        try:
+            snapshot_module_mock.perform_module_operation()
+        except FailJsonException as e:
+            assert MockSnapshotApi.get_secure_snapshot_no_retention_msg() in e.message
+
+    def test_create_vol_snap_is_secure_none(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'ansible_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': None,
+            'desired_retention': '2',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.get_vol_snapshot = MagicMock(return_value=None)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(return_value=None)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.create_volume_snapshot.assert_called()
+
+    def test_create_vol_snap_is_secure_false(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'ansible_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': False,
+            'desired_retention': '2',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.get_vol_snapshot = MagicMock(return_value=None)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(return_value=None)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.create_volume_snapshot.assert_called()
+
+    def test_get_secure_vol_snap_details(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_id': '83314020-31b7-4e2d-98d4-535a733f35e8',
+            'volume': '3fa9cb4c-4943-4baf-a420-83019ed7f6dd',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAPS)
+        snapshot_module_mock.protection.get_volume_snapshot_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.get_volume_snapshot_details.assert_called()
+
+    def test_get_secure_vg_snap_details(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_id': 'f3baa2c7-bdef-4b83-8f71-b67c904683ab',
+            'volume_group': '1a18566b-31d4-4c00-bfce-30deeeb08acb',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VG_SNAPS)
+        snapshot_module_mock.protection.get_volume_group_snapshot_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VG_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.get_volume_group_snapshot_details.assert_called()
+
+    def test_delete_secure_vol_snap_exception(self, snapshot_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "409"
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'state': "absent"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAPS)
+        snapshot_module_mock.protection.delete_volume_snapshot = MagicMock(
+            side_effect=MockApiException)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.delete_volume_snapshot.assert_called()
+
+    def test_delete_secure_vg_snap_exception(self, snapshot_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "409"
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vg_snap',
+            'volume_group': 'ansible_vg',
+            'state': "absent"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VG_SNAPS)
+        snapshot_module_mock.protection.delete_volume_group_snapshot = MagicMock(
+            side_effect=MockApiException)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.delete_volume_group_snapshot.assert_called()
+
+    def test_modify_secure_vol_snap_description(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'description': 'updated_description',
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAPS)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.modify_volume_snapshot.assert_called()
+
+    def test_modify_secure_vol_snap_extend_retention(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'desired_retention': '700',
+            'retention_unit': 'hours',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAPS)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        snapshot_module_mock.protection.modify_volume_snapshot.assert_called()
+
+    def test_create_secure_vol_snap_exception(self, snapshot_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'expiration_timestamp': '2050-07-24T11:50:20Z',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.module.fail_json = fail_json
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(return_value=[])
+        snapshot_module_mock.protection.create_volume_snapshot = MagicMock(
+            side_effect=MockApiException)
+        try:
+            snapshot_module_mock.perform_module_operation()
+        except FailJsonException as e:
+            assert 'Failed to create snapshot' in e.message
+        snapshot_module_mock.protection.create_volume_snapshot.assert_called()
+
+    def test_create_secure_vg_snap_exception(self, snapshot_module_mock):
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vg_snap',
+            'volume_group': 'ansible_vg',
+            'is_secure': True,
+            'expiration_timestamp': '2050-07-24T11:50:20Z',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.module.fail_json = fail_json
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(return_value=[])
+        snapshot_module_mock.protection.create_volume_group_snapshot = MagicMock(
+            side_effect=MockApiException)
+        try:
+            snapshot_module_mock.perform_module_operation()
+        except FailJsonException as e:
+            assert 'Failed to create snapshot' in e.message
+        snapshot_module_mock.protection.create_volume_group_snapshot.assert_called()
+
+    def test_secure_vol_snap_idempotency(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAPS)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VOL_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        assert snapshot_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    def test_secure_vg_snap_idempotency(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'secure_vg_snap',
+            'volume_group': 'ansible_vg',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VG_SNAPS)
+        snapshot_module_mock.get_vol_group_snap_details = MagicMock(
+            return_value=MockSnapshotApi.SECURE_VG_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        assert snapshot_module_mock.module.exit_json.call_args[1]['changed'] is False
+
+    def test_mark_existing_vol_snap_as_secure(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'ansible_vol_snap',
+            'volume': 'ansible_vol',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_id_from_volume = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VOL_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_snapshots = MagicMock(
+            return_value=MockSnapshotApi.VOL_SNAPS)
+        snapshot_module_mock.get_vol_snap_details = MagicMock(
+            return_value=MockSnapshotApi.VOL_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        assert snapshot_module_mock.module.exit_json.call_args[1]['changed'] is True
+        snapshot_module_mock.protection.modify_volume_snapshot.assert_called()
+
+    def test_mark_existing_vg_snap_as_secure(self, snapshot_module_mock):
+        self.get_module_args.update({
+            'snapshot_name': 'ansible_vg_snap',
+            'volume_group': 'ansible_vg',
+            'is_secure': True,
+            'desired_retention': '7',
+            'retention_unit': 'days',
+            'state': "present"
+        })
+        snapshot_module_mock.module.params = self.get_module_args
+        snapshot_module_mock.get_vol_group_id_from_vg = MagicMock(
+            return_value=MockSnapshotApi.SOURCE_VG_DETAILS[0]['id'])
+        snapshot_module_mock.protection.get_volume_group_snapshots = MagicMock(
+            return_value=MockSnapshotApi.VG_SNAPS)
+        snapshot_module_mock.get_vol_group_snap_details = MagicMock(
+            return_value=MockSnapshotApi.VG_SNAP_DETAILS)
+        snapshot_module_mock.perform_module_operation()
+        assert snapshot_module_mock.module.exit_json.call_args[1]['changed'] is True
+        snapshot_module_mock.protection.modify_volume_group_snapshot.assert_called()

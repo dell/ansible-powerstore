@@ -57,7 +57,7 @@ Parameters
 
     To create a Snapshot, either a retention or expiration timestamp must be given.
 
-    If the Snapshot does not have any retention value - specify it as 'None'.
+    If the Snapshot does not have any retention value \- specify it as 'None'.
 
 
   retention_unit (optional, str, None)
@@ -69,11 +69,21 @@ Parameters
 
 
   expiration_timestamp (optional, str, None)
-    The expiration timestamp of the Snapshot. This should be provided in UTC format, e.g 2019-07-24T10:54:54Z.
+    The expiration timestamp of the Snapshot. This should be provided in UTC format, e.g 2019\-07\-24T10:54:54Z.
 
 
   description (optional, str, None)
     The description for the Snapshot.
+
+
+  is_secure (optional, bool, None)
+    Indicates whether the snapshot is a secure snapshot.
+
+    Secure snapshots cannot be deleted or have their retention reduced until the retention period expires.
+
+    When set to :literal:`true` during creation, :emphasis:`expiration\_timestamp` must be provided.
+
+    Can also be set to :literal:`true` on an existing snapshot to mark it as secure (one\-way lock). This operation cannot be reverted.
 
 
   state (True, str, None)
@@ -87,9 +97,9 @@ Parameters
   validate_certs (optional, bool, True)
     Boolean variable to specify whether to validate SSL certificate or not.
 
-    :literal:`true` - indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
+    :literal:`true` \- indicates that the SSL certificate should be verified. Set the environment variable REQUESTS\_CA\_BUNDLE to the path of the SSL certificate.
 
-    :literal:`false` - indicates that the SSL certificate should not be verified.
+    :literal:`false` \- indicates that the SSL certificate should not be verified.
 
 
   user (True, str, None)
@@ -230,6 +240,32 @@ Examples
         volume_group: "{{volume_group}}"
         state: "{{state_absent}}"
 
+    - name: Create a secure volume snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "secure_vol_snap"
+        volume: "{{volume}}"
+        description: "Immutable compliance snapshot"
+        is_secure: true
+        expiration_timestamp: "2026-06-06T00:00:00Z"
+        state: "present"
+
+    - name: Create a secure volume group snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{mgmt_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        snapshot_name: "secure_vg_snap"
+        volume_group: "{{volume_group}}"
+        description: "Immutable VG snapshot"
+        is_secure: true
+        expiration_timestamp: "2026-06-06T00:00:00Z"
+        state: "present"
+
 
 
 Return Values
@@ -263,7 +299,7 @@ modify_vol_snap (When value exists, bool, true)
   A boolean flag to indicate whether volume snapshot got modified.
 
 
-snap_details (When snapshot exists, complex, {'appliance_id': 'A1', 'creation_timestamp': '2022-01-06T05:41:59.381459+00:00', 'description': 'Snapshot created', 'hlu_details': [], 'host': [], 'host_group': [], 'id': '634e4b95-e7bd-49e7-957b-6dc932642464', 'is_replication_destination': False, 'location_history': None, 'mapped_volumes': [], 'migration_session_id': None, 'name': 'sample_snapshot', 'nguid': None, 'node_affinity': 'System_Select_At_Attach', 'node_affinity_l10n': 'System Select At Attach', 'nsid': None, 'performance_policy': {'id': 'default_medium', 'name': 'Medium'}, 'performance_policy_id': 'default_medium', 'protection_data': {'copy_signature': 'b9978b85-4a73-4abb-a25a-634e36f3e3d1', 'created_by_rule_id': None, 'created_by_rule_name': None, 'creator_type': 'User', 'creator_type_l10n': 'User', 'expiration_timestamp': '2022-01-06T08:41:00+00:00', 'family_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'is_app_consistent': False, 'parent_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'source_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'source_timestamp': '2022-01-06T05:41:59.381459+00:00'}, 'protection_policy': None, 'protection_policy_id': None, 'size': 1073741824, 'state': 'Ready', 'state_l10n': 'Ready', 'type': 'Snapshot', 'type_l10n': 'Snapshot', 'volume_groups': [], 'wwn': None})
+snap_details (When snapshot exists, complex, {'appliance_id': 'A1', 'creation_timestamp': '2022-01-06T05:41:59.381459+00:00', 'description': 'Snapshot created', 'hlu_details': [], 'host': [], 'host_group': [], 'id': '634e4b95-e7bd-49e7-957b-6dc932642464', 'is_replication_destination': False, 'location_history': None, 'mapped_volumes': [], 'migration_session_id': None, 'name': 'sample_snapshot', 'nguid': None, 'node_affinity': 'System_Select_At_Attach', 'node_affinity_l10n': 'System Select At Attach', 'nsid': None, 'performance_policy': {'id': 'default_medium', 'name': 'Medium'}, 'performance_policy_id': 'default_medium', 'protection_data': {'copy_signature': 'b9978b85-4a73-4abb-a25a-634e36f3e3d1', 'created_by_rule_id': None, 'created_by_rule_name': None, 'creator_type': 'User', 'creator_type_l10n': 'User', 'expiration_timestamp': '2022-01-06T08:41:00+00:00', 'family_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'is_app_consistent': False, 'is_secure': False, 'parent_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'source_id': 'dc15650a-2af5-4398-8ae3-63fc7ae25f63', 'source_timestamp': '2022-01-06T05:41:59.381459+00:00'}, 'protection_policy': None, 'protection_policy_id': None, 'size': 1073741824, 'state': 'Ready', 'state_l10n': 'Ready', 'type': 'Snapshot', 'type_l10n': 'Snapshot', 'volume_groups': [], 'wwn': None})
   Details of the snapshot.
 
 
@@ -309,6 +345,10 @@ snap_details (When snapshot exists, complex, {'appliance_id': 'A1', 'creation_ti
 
     expiration_timestamp (, str, )
       The expiration timestamp of the snapshot.
+
+
+    is_secure (, bool, )
+      Whether the snapshot is a secure snapshot.
 
 
 
