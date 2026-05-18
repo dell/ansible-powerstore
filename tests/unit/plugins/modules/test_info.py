@@ -11,7 +11,11 @@ __metaclass__ = type
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
-from mock.mock import MagicMock
+
+try:
+    from mock.mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_info_api import MockInfoApi
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.mock_api_exception \
     import MockApiException
@@ -27,7 +31,14 @@ class TestPowerstoreInfo():
     def info_module_mock(self, mocker):
         mocker.patch(MockInfoApi.MODULE_UTILS_PATH + '.PowerStoreException', new=MockApiException)
         info_module_mock = PowerstoreInfo()
-        return info_module_mock
+        # Reset get_array_version to default value for test isolation
+        info_module_mock.provisioning.get_array_version = MagicMock(return_value='4.0.0.0')
+        yield info_module_mock
+        # Cleanup after test
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
 
     def test_get_security_config_response(self, info_module_mock):
         self.get_module_args.update({
@@ -190,17 +201,24 @@ class TestPowerstoreInfo():
             side_effect=MockApiException)
         info_module_mock.perform_module_operation()
         info_module_mock.provisioning.get_array_version.assert_called()
+        # Reset MockApiException to initial state for test isolation
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
 
     def test_get_role_get_empty_subset_exception(self, info_module_mock):
         MockApiException.HTTP_ERR = "1"
         MockApiException.err_code = "1"
         MockApiException.status_code = "404"
         MockInfoApi.get_one_id_response('api')
-        self.get_module_args.update({
+        # Use a copy to avoid test isolation issues
+        test_args = self.get_module_args.copy()
+        test_args.update({
             'filters': None,
             'all_pages': None
         })
-        info_module_mock.module.params = self.get_module_args
+        info_module_mock.module.params = test_args
         info_module_mock.perform_module_operation()
         assert MockInfoApi.get_no_gather_subset_failed_msg() in \
             info_module_mock.module.fail_json.call_args[1]['msg']
@@ -409,3 +427,16 @@ class TestPowerstoreInfo():
         info_module_mock.module.params = self.get_module_args
         info_module_mock.perform_module_operation()
         info_module_mock.snmp_manager.get_snmp_server_list.assert_called()
+
+    def test_get_recycle_bin(self, info_module_mock):
+        self.get_module_args.update({
+            'gather_subset': ['recycle_bin'],
+            'filters': None,
+            'all_pages': None
+        })
+        info_module_mock.module.params = self.get_module_args
+        info_module_mock._get_recycle_bin_items = MagicMock(return_value=[])
+        info_module_mock.subset_mapping['recycle_bin']['func'] = \
+            info_module_mock._get_recycle_bin_items
+        info_module_mock.perform_module_operation()
+        info_module_mock._get_recycle_bin_items.assert_called()
