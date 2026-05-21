@@ -6,19 +6,6 @@
 # These are the default owners for the code and will
 # be requested for review when someone opens a pull request.
 # order is alphabetical for easier maintenance.
-#
-# Bhavneet Sharma (Bhavneet-Sharma)
-# Meenakshi Dembi (meenakshidembi691)
-# Trisha Datta (trisha-dell)
-# Forrest Xia (forrestxia)
-# Yiming Bao (baoy1)
-# Tao He (taohe1012)
-# Peter Cao (P-Cao)
-# Haiming Tan (tanh17)
-# Ray Liu (RayLiu7)
-# Luis Liu (vangork)
-# Sachin Apagundi (sachin-apa)
-# Gokul Srivathsan (gokul-srivathsan)
 
 # for all files:
-* @Bhavneet-Sharma @meenakshidembi691 @trisha-dell @forrestxia @baoy1 @taohe1012 @P-Cao @tanh17 @RayLiu7 @vangork @sachin-apa @gokul-srivathsan
+* @MangirishK @Krunal-Thakkar @rounak-adhikary @Saksham-Nautiyal @ShrinidhiRao15 @chronarchitect 

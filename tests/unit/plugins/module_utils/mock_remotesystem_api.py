@@ -20,6 +20,8 @@ class MockRemoteSystemApi:
         'remote_user': None,
         'state': None,
         'remote_password': None,
+        'remote_temp_user_id': None,
+        'remote_temp_user_secret': None,
         'remote_address': None,
         'new_remote_address': None,
         'remote_port': None,
@@ -68,3 +70,8 @@ class MockRemoteSystemApi:
     @staticmethod
     def create_remotesystem_with_remote_name_failed_msg():
         return "remote_id/remote_name cannot be passed"
+
+    @staticmethod
+    def no_auth_method_for_create_failed_msg():
+        return "Either remote_user/remote_password or " \
+            "remote_temp_user_id/remote_temp_user_secret is required"

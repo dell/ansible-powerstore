@@ -99,6 +99,65 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.perform_module_operation()
         remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
 
+    def test_add_remotesystem_with_temp_credentials(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': None,
+            'remote_password': None,
+            'remote_temp_user_id': "temp-id-12345",
+            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+
+    def test_add_remotesystem_no_auth_method_negative(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': None,
+            'remote_password': None,
+            'remote_temp_user_id': None,
+            'remote_temp_user_secret': None,
+            'remote_port': 443,
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.perform_module_operation()
+        assert MockRemoteSystemApi.no_auth_method_for_create_failed_msg() in \
+            remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+
+    def test_exchange_cert_uses_temp_keys(self, remotesystem_module_mock):
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': None,
+            'remote_password': None,
+            'remote_temp_user_id': "temp-id-12345",
+            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_port': 443,
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+
+        call_dict = remotesystem_module_mock.configuration.exchange_certificate.call_args[0][0]
+        # Temporary credentials are mapped to username/password for API compatibility
+        assert 'username' in call_dict
+        assert 'password' in call_dict
+        assert call_dict['username'] == "temp-id-12345"
+        assert call_dict['password'] == "temp-secret-xyz"
+        assert 'temp_user_id' not in call_dict
+        assert 'temp_user_secret' not in call_dict
+
     def test_modify_remotesystem_network_latency(self, remotesystem_module_mock):
         self.get_module_args.update({
             'remote_address': self.remote_system_sample_address,
@@ -163,3 +222,57 @@ class TestPowerstoreRemoteSystem():
             return_value=(None, None))
         remotesystem_module_mock.perform_module_operation()
         remotesystem_module_mock.protection.delete_remote_system.assert_called()
+
+    def test_temp_credential_create_flow_explicit(self, remotesystem_module_mock):
+        """Test explicit temp credential create flow"""
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': None,
+            'remote_password': None,
+            'remote_temp_user_id': "temp-id-12345",
+            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'description': "Adding remote system via temp credentials",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+        # Verify exchange_certificate is called with temp credentials mapped to username/password
+        remotesystem_module_mock.configuration.exchange_certificate.assert_called()
+        call_dict = remotesystem_module_mock.configuration.exchange_certificate.call_args[0][0]
+        assert call_dict['username'] == "temp-id-12345"
+        assert call_dict['password'] == "temp-secret-xyz"
+        assert 'temp_user_id' not in call_dict
+        assert 'temp_user_secret' not in call_dict
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+
+    def test_legacy_username_password_create_flow_explicit(self, remotesystem_module_mock):
+        """Test explicit legacy username/password create flow"""
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_temp_user_id': None,
+            'remote_temp_user_secret': None,
+            'remote_port': 443,
+            'network_latency': "Low",
+            'description': self.sample_description,
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+        # Verify exchange_certificate is called with username/password
+        remotesystem_module_mock.configuration.exchange_certificate.assert_called()
+        call_dict = remotesystem_module_mock.configuration.exchange_certificate.call_args[0][0]
+        assert call_dict['username'] == "admin"
+        assert call_dict['password'] == "remote_password"
+        assert 'temp_user_id' not in call_dict
+        assert 'temp_user_secret' not in call_dict
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
