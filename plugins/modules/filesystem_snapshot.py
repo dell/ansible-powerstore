@@ -75,11 +75,21 @@ options:
       created with C(SNAPSHOT) access type.
     choices: ['SNAPSHOT', 'PROTOCOL']
     type: str
+  is_secure:
+    description:
+    - Indicates whether the snapshot is a secure snapshot.
+    - Secure snapshots cannot be deleted or have their retention reduced
+      until the retention period expires.
+    - When set to C(true) during creation, I(expiration_timestamp) must be
+      provided.
+    - Can also be set to C(true) on an existing snapshot to mark it as
+      secure (one-way lock). This operation cannot be reverted.
+    type: bool
   state:
     description:
-    - Define whether the filesystem snapshot should exist or not.
+    - Defines whether the filesystem snapshot should exist or not.
     required: true
-    choices: ['absent', 'present']
+    choices: [absent, present]
     type: str
 notes:
 - The I(check_mode) is not supported.
@@ -128,6 +138,19 @@ EXAMPLES = r"""
       password: "{{password}}"
       snapshot_id: "{{fs_snapshot_id}}"
       state: "absent"
+
+- name: Create a secure filesystem snapshot
+  dellemc.powerstore.filesystem_snapshot:
+      array_ip: "{{array_ip}}"
+      validate_certs: "{{validate_certs}}"
+      user: "{{user}}"
+      password: "{{password}}"
+      snapshot_name: "secure_fs_snap"
+      nas_server: "ansible_nas_server"
+      filesystem: "sample_filesystem"
+      is_secure: true
+      expiration_timestamp: "2026-06-06T00:00:00Z"
+      state: "present"
 """
 
 RETURN = r"""
@@ -192,6 +215,9 @@ filesystem_snap_details:
         parent_name:
             description: Name of the filesystem on which snapshot is taken.
             type: str
+        is_secure:
+            description: Whether the snapshot is a secure snapshot.
+            type: bool
     sample: {
         "access_policy": null,
         "access_policy_l10n": null,
@@ -213,6 +239,7 @@ filesystem_snap_details:
         "is_async_MTime_enabled": false,
         "is_modified": false,
         "is_quota_enabled": null,
+        "is_secure": false,
         "is_smb_no_notify_enabled": null,
         "is_smb_notify_on_access_enabled": null,
         "is_smb_notify_on_write_enabled": null,
@@ -501,6 +528,16 @@ class PowerStoreFilesystemSnapshot(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
+    def validate_secure_snapshot_params(self):
+        """Validates secure snapshot parameters"""
+        is_secure = self.module.params.get('is_secure')
+        expiration_timestamp = self.module.params.get('expiration_timestamp')
+        if is_secure and expiration_timestamp is None:
+            self.module.fail_json(
+                msg="Secure snapshots require an expiration timestamp. "
+                    "Please provide expiration_timestamp when "
+                    "is_secure is true.")
+
     def create_filesystem_snapshot(self, filesystem_id, snapshot_name,
                                    description, expiration_timestamp,
                                    access_type, nas_server):
@@ -518,12 +555,16 @@ class PowerStoreFilesystemSnapshot(object):
         if access_type:
             access_type = access_type.title()
 
+        is_secure = self.module.params.get('is_secure')
         try:
-            self.protection.create_filesystem_snapshot(
+            create_params = dict(
                 name=snapshot_name, description=description,
                 filesystem_id=filesystem_id,
                 expiration_timestamp=expiration_timestamp,
                 access_type=access_type)
+            if is_secure is not None:
+                create_params['is_secure'] = is_secure
+            self.protection.create_filesystem_snapshot(**create_params)
             return True
         except Exception as e:
             error_message = 'Failed to create snapshot: {0} for filesystem ' \
@@ -609,6 +650,12 @@ class PowerStoreFilesystemSnapshot(object):
                 ((snapshot['description'] is None and description != "") or
                  (snapshot['description'] is not None)):
             snap_modify_dict['description'] = description
+
+        is_secure = self.module.params.get('is_secure')
+        if is_secure is not None:
+            current_is_secure = snapshot.get('is_secure', False)
+            if is_secure and not current_is_secure:
+                snap_modify_dict['is_secure'] = True
 
         LOG.info("Snapshot modification details: %s", snap_modify_dict)
 
@@ -705,6 +752,9 @@ class PowerStoreFilesystemSnapshot(object):
                     nas_server)
 
         if state == 'present' and not snapshot:
+            is_secure = self.module.params.get('is_secure')
+            if is_secure:
+                self.validate_secure_snapshot_params()
             result['create_fs_snap'] =\
                 self.create_filesystem_snapshot(
                     filesystem_id, snapshot_name, description,
@@ -755,6 +805,7 @@ def get_powerstore_filesystem_snapshot_parameters():
         expiration_timestamp=dict(required=False, type='str'),
         access_type=dict(required=False, type='str',
                          choices=['SNAPSHOT', 'PROTOCOL']),
+        is_secure=dict(required=False, type='bool'),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
 

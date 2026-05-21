@@ -88,6 +88,7 @@ options:
     - SNMP managers - C(snmp_manager).
     - IO limit rules - C(io_limit_rule).
     - File IO limit rules - C(file_io_limit_rule).
+    - Recycle bin items - C(recycle_bin).
     required: true
     elements: str
     choices: [vol, vg, host, hg, node, protection_policy, snapshot_rule,
@@ -99,7 +100,7 @@ options:
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
               smb_server, nfs_server, file_dns, file_nis, service_config, snmp_manager,
-              io_limit_rule, file_io_limit_rule]
+              io_limit_rule, file_io_limit_rule, recycle_bin]
     type: list
   filters:
     description:
@@ -421,6 +422,15 @@ EXAMPLES = r'''
     password: "{{password}}"
     gather_subset:
       - snmp_manager
+
+- name: Get list of recycle bin items
+  dellemc.powerstore.info:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    gather_subset:
+      - recycle_bin
 '''
 
 RETURN = r'''
@@ -2191,9 +2201,41 @@ class PowerstoreInfo(object):
             'file_io_limit_rule': {
                 'func': self.configuration.get_file_io_limit_rules,
                 'display_as': 'file_io_limit_rules'
+            },
+            'recycle_bin': {
+                'func': self._get_recycle_bin_items,
+                'display_as': 'RecycleBin'
             }
         }
         LOG.info('Got Py4ps connection object %s', self.conn)
+
+    def _get_recycle_bin_items(self, filter_dict=None, all_pages=False):
+        """Get all items in the recycle bin via direct REST call."""
+        url = 'https://{0}/api/rest/recycle_bin'.format(
+            self.provisioning.server_ip)
+        resp = self.provisioning.client.request(
+            'GET', url, querystring={'select': '*'})
+        if resp is None:
+            resp = []
+        if filter_dict:
+            filtered = []
+            for item in resp:
+                match = True
+                for key, val in filter_dict.items():
+                    item_val = str(item.get(key, ''))
+                    if isinstance(val, str):
+                        if val.startswith('eq.') and item_val != val[3:]:
+                            match = False
+                        elif val.startswith('neq.') and item_val == val[4:]:
+                            match = False
+                        elif val.startswith('ilike.'):
+                            pattern = val[6:].replace('*', '')
+                            if pattern.lower() not in item_val.lower():
+                                match = False
+                if match:
+                    filtered.append(item)
+            resp = filtered
+        return resp
 
     def get_acl(self, smb_share_id):
         """
@@ -2374,7 +2416,7 @@ def get_powerstore_info_parameters():
                      'virtual_volume', 'storage_container',
                      'replication_group', 'discovered_appliance', 'file_interface',
                      'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config',
-                     'io_limit_rule', 'file_io_limit_rule']),
+                     'io_limit_rule', 'file_io_limit_rule', 'recycle_bin']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

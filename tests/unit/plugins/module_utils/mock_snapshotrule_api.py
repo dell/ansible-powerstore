@@ -24,7 +24,9 @@ class MockSnapshotruleApi:
         "time_of_day": None,
         "new_name": None,
         "delete_snaps": None,
-        "snapshotrule_id": None
+        "is_secure": None,
+        "snapshotrule_id": None,
+        "state": None
     }
 
     SNAPSHOTRULE_DETAILS = {
@@ -33,6 +35,18 @@ class MockSnapshotruleApi:
         "id": "46723735-13c1-4bab-bb72-cf3b4c0dcb9b",
         "interval": "One_Day",
         "name": "snapshot_rule1",
+        "is_secure": False,
+        "policies": [],
+        "time_of_day": None
+    }
+
+    SECURE_SNAPSHOTRULE_DETAILS = {
+        "days_of_week": ["Sunday"],
+        "desired_retention": 168,
+        "id": "46723735-13c1-4bab-bb72-cf3b4c0dcb9b",
+        "interval": "One_Day",
+        "name": "secure_snap_rule",
+        "is_secure": True,
         "policies": [],
         "time_of_day": None
     }

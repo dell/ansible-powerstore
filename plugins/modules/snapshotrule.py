@@ -70,6 +70,15 @@ options:
       I(time_of_day) but not both.
     required : false
     type: str
+  is_secure:
+    description:
+    - Indicates whether snapshots created by this rule will be secure
+      snapshots.
+    - Secure snapshots cannot be deleted or have their retention reduced
+      until the retention period expires.
+    - Once set to C(true), this is a one-way operation and cannot be
+      reverted.
+    type: bool
   delete_snaps:
     description:
     - Boolean variable to specify whether all Snapshots previously created by
@@ -175,6 +184,18 @@ EXAMPLES = r'''
     password: "{{password}}"
     name: "{{name}}"
     state: "absent"
+
+- name: Create a secure snapshot rule by interval
+  dellemc.powerstore.snapshotrule:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    name: "secure_snap_rule"
+    interval: "One_Hour"
+    desired_retention: 24
+    is_secure: true
+    state: "present"
 '''
 
 RETURN = r'''
@@ -209,6 +230,9 @@ snapshotrule_details:
         desired_retention:
             description: Desired snapshot retention period.
             type: int
+        is_secure:
+            description: Whether snapshots created by this rule are secure.
+            type: bool
         policies:
             description: The protection policies details of the snapshot rule.
             type: complex
@@ -228,6 +252,7 @@ snapshotrule_details:
         ],
         "desired_retention": 24,
         "id": "afa86b51-1171-498f-9786-2c78c33b4c14",
+        "is_secure": false,
         "interval": "Five_Minutes",
         "name": "Sample_snapshot_rule",
         "policies": [],
@@ -334,16 +359,21 @@ class PowerstoreSnapshotrule(object):
             name,
             interval,
             desired_retention,
-            days_of_week=None):
+            days_of_week=None,
+            is_secure=None):
         """create snapshot rule with  name, desired_retention,
         interval and days_of_week """
 
         try:
             LOG.info('Creating snapshot rule with interval')
-            resp = self.protection.create_snapshot_rule_by_interval(
+            create_params = dict(
                 name=name, desired_retention=desired_retention,
                 days_of_week=days_of_week,
                 interval=interval)
+            if is_secure is not None:
+                create_params['is_secure'] = is_secure
+            resp = self.protection.create_snapshot_rule_by_interval(
+                **create_params)
 
             res = self.protection.get_snapshot_rule_details(resp.get('id'))
             LOG.info('Successfully created snapshot rule by interval , id: %s'
@@ -360,13 +390,19 @@ class PowerstoreSnapshotrule(object):
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
     def create_snapshot_rule_by_time_of_day(self, name, desired_retention,
-                                            time_of_day, days_of_week=None):
+                                            time_of_day, days_of_week=None,
+                                            is_secure=None):
         """create snapshot rule by days_of_week and time_of_day """
 
         try:
             LOG.info('create snapshot rule by time_of_day ')
+            create_params = dict(
+                name=name, desired_retention=desired_retention,
+                time_of_day=time_of_day, days_of_week=days_of_week)
+            if is_secure is not None:
+                create_params['is_secure'] = is_secure
             resp = self.protection.create_snapshot_rule_by_time_of_day(
-                name, desired_retention, time_of_day, days_of_week)
+                **create_params)
             result = self.protection.get_snapshot_rule_details(resp.get('id'))
             LOG.info(
                 'Successfully created snapshot rule by by time_of_day %s'
@@ -383,7 +419,8 @@ class PowerstoreSnapshotrule(object):
 
     def modify_snapshot_rule(self, snapshot_rule_id, new_name=None,
                              desired_retention=None, interval=None,
-                             time_of_day=None, days_of_week=None):
+                             time_of_day=None, days_of_week=None,
+                             is_secure=None):
         """modify an existing snapshot rule of a given PowerStore storage
         system"""
 
@@ -393,7 +430,8 @@ class PowerstoreSnapshotrule(object):
                 snapshot_rule_id=snapshot_rule_id, name=new_name,
                 desired_retention=desired_retention,
                 interval=interval, time_of_day=time_of_day,
-                days_of_week=days_of_week)
+                days_of_week=days_of_week,
+                is_secure=is_secure)
 
             LOG.info('Successfully modified snapshot rule id %s of powerstore'
                      ' array name : %s,global id : %s', snapshot_rule_id,
@@ -495,16 +533,18 @@ class PowerstoreSnapshotrule(object):
                 LOG.error(msg)
                 self.module.fail_json(msg=msg)
 
+            is_secure = self.module.params['is_secure']
             if interval is not None:
                 result['changed'], result['snapshotrule_details'] = self.\
                     create_snapshot_rule_by_interval(
-                    name, interval, desired_retention, days_of_week)
+                    name, interval, desired_retention, days_of_week,
+                    is_secure)
 
             elif time_of_day is not None:
                 result['changed'], result['snapshotrule_details'] = self. \
                     create_snapshot_rule_by_time_of_day(
                     name, desired_retention, time_of_day,
-                    days_of_week)
+                    days_of_week, is_secure)
 
             self.module.exit_json(**result)
 
@@ -525,11 +565,13 @@ class PowerstoreSnapshotrule(object):
 
             name = new_name if new_name is not None else name
 
+            is_secure = self.module.params['is_secure']
             new_snaprule_dict = {'name': name,
                                  'days_of_week': days_of_week,
                                  'interval': interval,
                                  'time_of_day': time_of_day,
-                                 'desired_retention': desired_retention
+                                 'desired_retention': desired_retention,
+                                 'is_secure': is_secure
                                  }
 
             to_modify = modify_snapshotrule_required(
@@ -540,7 +582,8 @@ class PowerstoreSnapshotrule(object):
                 result['changed'], result['snapshotrule_details'] = \
                     self.modify_snapshot_rule(
                     snap_rule_id, new_name, desired_retention,
-                    interval, time_of_day, days_of_week)
+                    interval, time_of_day, days_of_week,
+                    is_secure)
                 self.module.exit_json(**result)
             else:
                 ignore, result['snapshotrule_details'] = self.\
@@ -575,6 +618,7 @@ def get_powerstore_snapshotrule_parameters():
         time_of_day=dict(required=False, type='str'),
         desired_retention=dict(required=False, type='int'),
         delete_snaps=dict(required=False, type='bool', default=False),
+        is_secure=dict(required=False, type='bool'),
         state=dict(required=True, type='str', choices=['present', 'absent'])
     )
 

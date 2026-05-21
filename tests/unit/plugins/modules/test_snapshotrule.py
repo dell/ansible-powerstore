@@ -98,3 +98,71 @@ class TestPowerstoreSnapshotrule():
         snapshotrule_module_mock.get_snapshot_rule_details = MagicMock(return_value=(True, MockSnapshotruleApi.SNAPSHOTRULE_DETAILS))
         snapshotrule_module_mock.perform_module_operation()
         assert snapshotrule_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_create_secure_snapshotrule_interval(self, snapshotrule_module_mock):
+        self.get_module_args.update({
+            'name': "secure_snap_rule",
+            'interval': "One_Hour",
+            'desired_retention': 24,
+            'is_secure': True,
+            'state': "present"
+        })
+        snapshotrule_module_mock.module.params = self.get_module_args
+        snapshotrule_module_mock.get_snapshot_rule_details = MagicMock(return_value=(None, None))
+        snapshotrule_module_mock.protection.get_snapshot_rule_details = MagicMock(
+            return_value=MockSnapshotruleApi.SECURE_SNAPSHOTRULE_DETAILS)
+        snapshotrule_module_mock.perform_module_operation()
+        assert snapshotrule_module_mock.module.exit_json.call_args[1]['changed'] is True
+        snapshotrule_module_mock.protection.create_snapshot_rule_by_interval.assert_called()
+
+    def test_create_secure_snapshotrule_time_of_day(self, snapshotrule_module_mock):
+        self.get_module_args.update({
+            'name': "secure_snap_rule_tod",
+            'time_of_day': "12:00",
+            'desired_retention': 24,
+            'is_secure': True,
+            'days_of_week': ['Monday'],
+            'state': "present"
+        })
+        snapshotrule_module_mock.module.params = self.get_module_args
+        snapshotrule_module_mock.get_snapshot_rule_details = MagicMock(return_value=(None, None))
+        snapshotrule_module_mock.protection.get_snapshot_rule_details = MagicMock(
+            return_value=MockSnapshotruleApi.SECURE_SNAPSHOTRULE_DETAILS)
+        snapshotrule_module_mock.perform_module_operation()
+        assert snapshotrule_module_mock.module.exit_json.call_args[1]['changed'] is True
+        snapshotrule_module_mock.protection.create_snapshot_rule_by_time_of_day.assert_called()
+
+    def test_modify_snapshotrule_enable_is_secure(self, snapshotrule_module_mock):
+        self.get_module_args.update({
+            'name': "snapshot_rule1",
+            'is_secure': True,
+            'state': "present"
+        })
+        snapshotrule_module_mock.module.params = self.get_module_args
+        snapshotrule_module_mock.get_snapshot_rule_details = MagicMock(
+            return_value=(True, MockSnapshotruleApi.SNAPSHOTRULE_DETAILS))
+        snapshotrule_module_mock.perform_module_operation()
+        assert snapshotrule_module_mock.module.exit_json.call_args[1]['changed'] is True
+
+    def test_get_secure_snapshotrule_details(self, snapshotrule_module_mock):
+        self.get_module_args.update({
+            'snapshotrule_id': "46723735-13c1-4bab-bb72-cf3b4c0dcb9b",
+            'state': "present"
+        })
+        snapshotrule_module_mock.module.params = self.get_module_args
+        snapshotrule_module_mock.protection.get_snapshot_rule_details = MagicMock(
+            return_value=MockSnapshotruleApi.SECURE_SNAPSHOTRULE_DETAILS)
+        snapshotrule_module_mock.perform_module_operation()
+        assert snapshotrule_module_mock.module.exit_json.call_args[1]['snapshotrule_details']['is_secure'] is True
+
+    def test_secure_snapshotrule_idempotency(self, snapshotrule_module_mock):
+        self.get_module_args.update({
+            'name': "secure_snap_rule",
+            'is_secure': True,
+            'state': "present"
+        })
+        snapshotrule_module_mock.module.params = self.get_module_args
+        snapshotrule_module_mock.get_snapshot_rule_details = MagicMock(
+            return_value=(True, MockSnapshotruleApi.SECURE_SNAPSHOTRULE_DETAILS))
+        snapshotrule_module_mock.perform_module_operation()
+        assert snapshotrule_module_mock.module.exit_json.call_args[1]['changed'] is False

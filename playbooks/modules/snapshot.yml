@@ -203,3 +203,29 @@
         snapshot_name: "{{ new_snapshot_name }}"
         volume_group: "{{ volume_group }}"
         state: "{{ state_absent }}"
+
+    - name: Create a secure volume snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "ansible_secure_vol_snap"
+        volume: "{{ volume }}"
+        description: "Immutable compliance snapshot"
+        is_secure: true
+        expiration_timestamp: "{{ expiration_timestamp }}"
+        state: "{{ state_present }}"
+
+    - name: Create a secure volume group snapshot on PowerStore
+      dellemc.powerstore.snapshot:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        snapshot_name: "ansible_secure_vg_snap"
+        volume_group: "{{ volume_group }}"
+        description: "Immutable VG snapshot"
+        is_secure: true
+        expiration_timestamp: "{{ expiration_timestamp }}"
+        state: "{{ state_present }}"
