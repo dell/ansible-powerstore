@@ -203,12 +203,13 @@ class PowerStoreQosPolicy(object):
         try:
             policy_id = params.get('qos_policy_id')
             policy_name = params.get('qos_policy_name')
+            policy_type = params.get('policy_type')
             if policy_id:
                 return self.protection.get_policy_details(policy_id)
             elif policy_name:
-                policies = self.protection.get_policy_by_name(policy_name)
+                policies = self.protection.get_policy_by_name(policy_name, policy_type)
                 if policies and len(policies) > 0:
-                    return self.protection.get_policy_details(policies[0]['id'])
+                    return policies[0]
             return None
         except Exception as e:
             msg = "Get QoS policy failed with error: {0}".format(str(e))
@@ -290,10 +291,17 @@ class PowerStoreQosPolicy(object):
             modify_dict['name'] = desired['new_name']
         if desired.get('description') is not None and desired['description'] != current.get('description'):
             modify_dict['description'] = desired['description']
-        if resolved.get('io_limit_rule_id') and resolved['io_limit_rule_id'] != current.get('io_limit_rule_id'):
+        # Use singular field names: io_limit_rule, file_io_limit_rule
+        # Extract ID from the nested object if it exists
+        current_io_rule_id = None
+        if current.get('io_limit_rule') and current['io_limit_rule'].get('id'):
+            current_io_rule_id = current['io_limit_rule']['id']
+        if resolved.get('io_limit_rule_id') and resolved['io_limit_rule_id'] != current_io_rule_id:
             modify_dict['io_limit_rule_id'] = resolved['io_limit_rule_id']
-        if resolved.get('file_io_limit_rule_id') and \
-                resolved['file_io_limit_rule_id'] != current.get('file_io_limit_rule_id'):
+        current_file_rule_id = None
+        if current.get('file_io_limit_rule') and current['file_io_limit_rule'].get('id'):
+            current_file_rule_id = current['file_io_limit_rule']['id']
+        if resolved.get('file_io_limit_rule_id') and resolved['file_io_limit_rule_id'] != current_file_rule_id:
             modify_dict['file_io_limit_rule_id'] = resolved['file_io_limit_rule_id']
         return modify_dict if modify_dict else None
 
@@ -305,8 +313,14 @@ class PowerStoreQosPolicy(object):
 
     def validate_create(self, params):
         policy_type = params.get('policy_type')
+        # If policy_type not specified, infer from which rule is provided
         if not policy_type:
-            self.module.fail_json(msg="policy_type is required when creating a QoS policy.")
+            if params.get('io_limit_rule'):
+                policy_type = 'QoS'
+            elif params.get('file_io_limit_rule'):
+                policy_type = 'File_Performance'
+            else:
+                self.module.fail_json(msg="policy_type is required when creating a QoS policy.")
         if policy_type == 'QoS':
             if not params.get('io_limit_rule'):
                 self.module.fail_json(msg="io_limit_rule is required for QoS policy type.")
