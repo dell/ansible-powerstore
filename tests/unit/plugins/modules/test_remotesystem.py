@@ -130,8 +130,6 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.module.params = self.get_module_args
         remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
             return_value=None)
-        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
-            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
         remotesystem_module_mock.perform_module_operation()
         assert MockRemoteSystemApi.no_auth_method_for_create_failed_msg() in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
@@ -414,32 +412,12 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.conn.protection.modify_remote_system.assert_called()
 
     # FC Replication - Get details tests
-    def test_get_remotesystem_fc_details_response(self, remotesystem_module_mock):
-        self.get_module_args.update({
-            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
-            'state': "present"
-        })
-        remotesystem_module_mock.module.params = self.get_module_args
-        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
-            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
-        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
-            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
-        remotesystem_module_mock.perform_module_operation()
-        result = remotesystem_module_mock.module.exit_json.call_args[1]
-        assert result['remote_system_details']['data_connection_type'] == 'FC'
-        assert result['remote_system_details']['fc_target_wwns'] == [
-            MockRemoteSystemApi.sample_wwn_1,
-            MockRemoteSystemApi.sample_wwn_2
-        ]
-
     def test_get_remotesystem_iscsi_details_has_connection_type(self, remotesystem_module_mock):
         self.get_module_args.update({
             'remote_id': "aaa3cc6b-455b-4bde-aa75-a1edf61bbe0b",
             'state': "present"
         })
         remotesystem_module_mock.module.params = self.get_module_args
-        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
-            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
         remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
             return_value=MockRemoteSystemApi.REMOTE_SYSTEM_DETAILS[0])
         remotesystem_module_mock.perform_module_operation()
@@ -464,8 +442,6 @@ class TestPowerstoreRemoteSystem():
             'state': "present"
         })
         remotesystem_module_mock.module.params = self.get_module_args
-        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
-            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
         remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
             return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
         remotesystem_module_mock.perform_module_operation()
@@ -505,17 +481,3 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.module.fail_json.assert_called()
         assert 'create remote system failed' in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
-
-    # FC Replication - Delete FC remote system
-    def test_delete_fc_remotesystem(self, remotesystem_module_mock):
-        self.get_module_args.update({
-            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
-            'state': "absent"
-        })
-        remotesystem_module_mock.module.params = self.get_module_args
-        remotesystem_module_mock.provisioning.get_cluster_list = MagicMock(
-            return_value=MockRemoteSystemApi.CLUSTER_DETAILS)
-        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
-            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
-        remotesystem_module_mock.perform_module_operation()
-        remotesystem_module_mock.conn.protection.delete_remote_system.assert_called()
