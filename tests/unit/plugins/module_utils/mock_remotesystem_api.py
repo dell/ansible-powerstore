@@ -112,3 +112,8 @@ class MockRemoteSystemApi:
     def fc_target_wwns_without_fc_type_failed_msg():
         return "fc_target_wwns can only be specified when" \
                " data_connection_type is set to 'FC'."
+
+    @staticmethod
+    def no_auth_method_for_create_failed_msg():
+        return "Either remote_user/remote_password or " \
+            "remote_temp_user_id/remote_temp_user_secret is required"
