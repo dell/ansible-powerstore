@@ -10,6 +10,7 @@ __metaclass__ = type
 
 
 import pytest
+import copy
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
 from mock.mock import MagicMock
@@ -247,7 +248,8 @@ class TestPowerstoreRemoteSystem():
 
     # FC Replication - Validation tests (Negative)
     def test_add_remotesystem_fc_wwns_without_fc_type_negative(self, remotesystem_module_mock):
-        self.get_module_args.update({
+        module_args = copy.deepcopy(MockRemoteSystemApi.REMOTE_SYSTEM_COMMON_ARGS)
+        module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_name': None,
             'remote_id': None,
@@ -258,24 +260,27 @@ class TestPowerstoreRemoteSystem():
             'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
             'state': "present"
         })
-        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.module.params = module_args
         remotesystem_module_mock.perform_module_operation()
-        assert "fc_target_wwns can only be specified when type is set to 'Universal'." in \
+        assert "fc_target_wwns can only be specified when" \
+               " data_connection_type is set to 'FC'." in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_add_remotesystem_fc_wwns_without_any_type_negative(self, remotesystem_module_mock):
-        self.get_module_args.update({
+        module_args = copy.deepcopy(MockRemoteSystemApi.REMOTE_SYSTEM_COMMON_ARGS)
+        module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_name': None,
             'remote_id': None,
             'remote_user': "admin",
             'remote_password': "remote_password",
             'remote_port': 443,
-            'data_connection_type': None,
+            'data_connection_type': "FC",
+            'type': "PowerStore",
             'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
             'state': "present"
         })
-        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.module.params = module_args
         remotesystem_module_mock.perform_module_operation()
         assert "fc_target_wwns can only be specified when type is set to 'Universal'." in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
