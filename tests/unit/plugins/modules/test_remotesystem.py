@@ -260,7 +260,7 @@ class TestPowerstoreRemoteSystem():
         })
         remotesystem_module_mock.module.params = self.get_module_args
         remotesystem_module_mock.perform_module_operation()
-        assert "fc_target_wwns can only be specified when data_connection_type is set to 'FC'." in \
+        assert "fc_target_wwns can only be specified when type is set to 'Universal'." in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
 
     def test_add_remotesystem_fc_wwns_without_any_type_negative(self, remotesystem_module_mock):
@@ -277,7 +277,7 @@ class TestPowerstoreRemoteSystem():
         })
         remotesystem_module_mock.module.params = self.get_module_args
         remotesystem_module_mock.perform_module_operation()
-        assert "fc_target_wwns can only be specified when data_connection_type is set to 'FC'." in \
+        assert "fc_target_wwns can only be specified when type is set to 'Universal'." in \
             remotesystem_module_mock.module.fail_json.call_args[1]['msg']
 
     # FC Replication - Modify tests
@@ -297,6 +297,7 @@ class TestPowerstoreRemoteSystem():
     def test_modify_remotesystem_fc_wwns(self, remotesystem_module_mock):
         self.get_module_args.update({
             'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
+            'type': "Universal",
             'data_connection_type': "FC",
             'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
             'state': "present"
