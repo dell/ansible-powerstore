@@ -303,8 +303,8 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.perform_module_operation()
         remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
         call_dict = remotesystem_module_mock.conn.protection.create_remote_system.call_args[0][0]
-        # Verify that WWN strings are converted to objects with 'wwn' key
-        expected_fc_targets = [{'wwn': wwn} for wwn in fc_wwns]
+        # Verify that WWN strings are converted to objects with 'wwpn' key
+        expected_fc_targets = [{'wwpn': wwn} for wwn in fc_wwns]
         assert call_dict['universal_details']['fc_targets'] == expected_fc_targets
 
     def test_add_remotesystem_fc_wwns_without_fc_type_negative(self, remotesystem_module_mock):

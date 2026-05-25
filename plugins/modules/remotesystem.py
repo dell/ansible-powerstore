@@ -595,7 +595,7 @@ class PowerstoreRemoteSystem(object):
             if fc_target_wwns is not None:
                 if remote_type == 'Universal':
                     # For Universal type, convert WWN strings to objects and nest under universal_details
-                    fc_targets = [{'wwn': wwn} for wwn in fc_target_wwns]
+                    fc_targets = [{'wwpn': wwn} for wwn in fc_target_wwns]
                     create_remote_sys_dict['universal_details'] = {
                         'fc_targets': fc_targets
                     }
@@ -788,7 +788,7 @@ class PowerstoreRemoteSystem(object):
             # Only add fc_target_wwns for Universal type modifications
             if fc_target_wwns and remote_type == 'Universal':
                 # Convert WWN strings to objects for Universal type
-                fc_targets = [{'wwn': wwn} for wwn in fc_target_wwns]
+                fc_targets = [{'wwpn': wwn} for wwn in fc_target_wwns]
                 modify_remote_sys_dict['universal_details'] = {
                     'fc_targets': fc_targets
                 }
