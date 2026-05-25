@@ -28,6 +28,7 @@ class MockRemoteSystemApi:
         'network_latency': None,
         'data_connection_type': None,
         'fc_target_wwns': None,
+        'type': None,
         'wait_for_completion': None,
         'description': None
     }

@@ -89,12 +89,25 @@ options:
     description:
     - List of target Fibre Channel World Wide Names (WWNs) of the remote
       system for FC data connection.
-    - This parameter is applicable only when I(data_connection_type) is C(FC).
+    - This parameter is applicable ONLY when I(type) is C(Universal) and
+      I(data_connection_type) is C(FC).
+    - For PowerStore-to-PowerStore FC connections, FC targets are
+      auto-discovered and this parameter should not be used.
     - The WWN format is a colon-separated hexadecimal string,
       e.g., C(58:cc:f0:98:49:21:07:02).
     - It was added in PowerStore version 4.4.
     type: list
     elements: str
+    version_added: '4.1.0'
+  type:
+    description:
+    - Remote system type.
+    - If not specified, the system auto-detects PowerStore clusters.
+    - For Universal-type FC connections, this must be set to C(Universal).
+    - It was added in PowerStore version 4.0.
+    type: str
+    choices: [PowerStore, Unity, VNX, PS_Equallogic, Storage_Center, 
+              XtremIO, NetApp, PowerProtect_DD, PowerMax_VMAX, Universal]
     version_added: '4.1.0'
   wait_for_completion:
     description:
@@ -129,6 +142,10 @@ notes:
   configuration between the PowerStore systems must be completed before
   using FC data connection type. This is a prerequisite managed outside
   of PowerStore.
+- For PowerStore-to-PowerStore FC connections, specify only
+  I(data_connection_type=FC). The system automatically discovers FC targets.
+- For Universal-type FC connections, specify I(type=Universal),
+  I(data_connection_type=FC), and I(fc_target_wwns).
 - Parameters I(data_connection_type) and I(fc_target_wwns) require
   PowerStore version 4.4 or later.
 - The I(check_mode) is not supported.
@@ -173,7 +190,7 @@ EXAMPLES = r'''
     remote_id: "D7d7e7917-735b-3eef-8cc3-1302001c08e7"
     state: "present"
 
-- name: Add a new remote system with FC data connection type
+- name: Add PowerStore remote system with FC auto-discovery (recommended)
   dellemc.powerstore.remotesystem:
     array_ip: "{{array_ip}}"
     validate_certs: "{{validate_certs}}"
@@ -185,10 +202,26 @@ EXAMPLES = r'''
     remote_port: 443
     network_latency: "Low"
     data_connection_type: "FC"
+    description: "PowerStore FC connection with auto-discovery"
+    state: "present"
+
+- name: Add Universal remote system with FC data connection type
+  dellemc.powerstore.remotesystem:
+    array_ip: "{{array_ip}}"
+    validate_certs: "{{validate_certs}}"
+    user: "{{user}}"
+    password: "{{password}}"
+    remote_address: "xxx.xxx.xxx.xxx"
+    type: "Universal"
+    remote_user: "admin"
+    remote_password: "{{remote_password}}"
+    remote_port: 443
+    network_latency: "Low"
+    data_connection_type: "FC"
     fc_target_wwns:
       - "58:cc:f0:98:49:21:07:02"
       - "58:cc:f0:98:49:21:07:01"
-    description: "Adding a new FC remote system"
+    description: "Universal FC connection with manual WWNs"
     state: "present"
 
 - name: Modify remote system data connection type to FC
@@ -199,8 +232,6 @@ EXAMPLES = r'''
     password: "{{password}}"
     remote_id: "7d7e7917-735b-3eef-8cc3-1302001c08e7"
     data_connection_type: "FC"
-    fc_target_wwns:
-      - "58:cc:f0:98:49:21:07:02"
     state: "present"
 
 - name: Delete remote system using remote_id
@@ -317,6 +348,8 @@ remote_system_details:
         fc_target_wwns:
             description:
                 - List of target Fibre Channel World Wide Names (WWNs) of the remote system.
+                - For PowerStore-to-PowerStore FC connections, these are auto-discovered.
+                - For Universal FC connections, these are the manually specified targets.
                 - Only applicable when data_connection_type is FC.
                 - It was added in PowerStore version 4.4.
             type: list
@@ -497,7 +530,7 @@ class PowerstoreRemoteSystem(object):
     def create_remote_system(self, remote_address=None, description=None,
                              network_latency=None,
                              data_connection_type=None,
-                             fc_target_wwns=None):
+                             fc_target_wwns=None, remote_type=None):
         """ Create remote system """
         try:
             LOG.info('Creating a remote system')
@@ -509,8 +542,20 @@ class PowerstoreRemoteSystem(object):
             if data_connection_type is not None:
                 create_remote_sys_dict['data_connection_type'] = \
                     data_connection_type
+            if remote_type is not None:
+                create_remote_sys_dict['type'] = remote_type
             if fc_target_wwns is not None:
-                create_remote_sys_dict['fc_target_wwns'] = fc_target_wwns
+                if remote_type == 'Universal':
+                    # For Universal type, nest fc_targets under universal_details
+                    create_remote_sys_dict['universal_details'] = {
+                        'fc_targets': fc_target_wwns
+                    }
+                else:
+                    # For PowerStore-to-PowerStore, fc_target_wwns should not be used
+                    # as targets are auto-discovered
+                    LOG.warning('fc_target_wwns is only supported for Universal-type '
+                               'remote systems. For PowerStore-to-PowerStore FC, '
+                               'targets are auto-discovered. Ignoring fc_target_wwns.')
             resp = self.protection.create_remote_system(
                 create_remote_sys_dict)
 
@@ -590,6 +635,7 @@ class PowerstoreRemoteSystem(object):
         network_latency = self.module.params['network_latency']
         data_connection_type = self.module.params['data_connection_type']
         fc_target_wwns = self.module.params['fc_target_wwns']
+        remote_type = self.module.params['type']
         wait_for_completion = self.module.params['wait_for_completion']
         state = self.module.params['state']
 
@@ -612,11 +658,17 @@ class PowerstoreRemoteSystem(object):
             LOG.error(msg)
             self.module.fail_json(msg=msg)
 
-        # Validate fc_target_wwns requires FC data_connection_type
-        if fc_target_wwns and data_connection_type != 'FC':
-            self.module.fail_json(
-                msg="fc_target_wwns can only be specified when"
-                    " data_connection_type is set to 'FC'.")
+        # Validate fc_target_wwns requires FC data_connection_type AND Universal type
+        if fc_target_wwns:
+            if data_connection_type != 'FC':
+                self.module.fail_json(
+                    msg="fc_target_wwns can only be specified when"
+                        " data_connection_type is set to 'FC'.")
+            if remote_type != 'Universal':
+                self.module.fail_json(
+                    msg="fc_target_wwns can only be specified when type is set to 'Universal'."
+                        " For PowerStore-to-PowerStore FC connections, FC targets are"
+                        " auto-discovered and this parameter should not be used.")
 
         if remote_sys_name and not remote_sys_address and not remote_sys_id:
             self.module.fail_json(
@@ -656,7 +708,7 @@ class PowerstoreRemoteSystem(object):
             # exchange of certificates
             changed, remote_sys_details = self.create_remote_system(
                 remote_sys_address, description, network_latency,
-                data_connection_type, fc_target_wwns)
+                data_connection_type, fc_target_wwns, remote_type)
             remote_sys_id = remote_sys_details['id']
 
         # Delete a remote system
@@ -671,9 +723,17 @@ class PowerstoreRemoteSystem(object):
                 'management_address': new_remote_sys_address,
                 'description': description,
                 'data_network_latency': network_latency,
-                'data_connection_type': data_connection_type,
-                'fc_target_wwns': fc_target_wwns
+                'data_connection_type': data_connection_type
             }
+            # Only add fc_target_wwns for Universal type modifications
+            if fc_target_wwns and remote_type == 'Universal':
+                modify_remote_sys_dict['universal_details'] = {
+                    'fc_targets': fc_target_wwns
+                }
+            elif fc_target_wwns and remote_type != 'Universal':
+                LOG.warning('fc_target_wwns is only supported for Universal-type '
+                           'remote systems. For PowerStore-to-PowerStore FC, '
+                           'targets are auto-discovered. Ignoring fc_target_wwns in modification.')
 
             to_modify = modify_remote_system_required(
                 remote_sys_details, modify_remote_sys_dict)
@@ -724,6 +784,10 @@ def get_powerstore_remote_system_parameters():
         data_connection_type=dict(required=False, type='str',
                                   choices=['iSCSI', 'FC']),
         fc_target_wwns=dict(required=False, type='list', elements='str'),
+        type=dict(required=False, type='str',
+                  choices=['PowerStore', 'Unity', 'VNX', 'PS_Equallogic',
+                           'Storage_Center', 'XtremIO', 'NetApp',
+                           'PowerProtect_DD', 'PowerMax_VMAX', 'Universal']),
         wait_for_completion=dict(required=False, type='bool',
                                  choices=[True, False], default=False),
         state=dict(required=True, type='str', choices=['present', 'absent'])
