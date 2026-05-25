@@ -782,20 +782,10 @@ class PowerstoreRemoteSystem(object):
             modify_remote_sys_dict = {
                 'management_address': new_remote_sys_address,
                 'description': description,
-                'data_network_latency': network_latency,
-                'data_connection_type': data_connection_type
+                'data_network_latency': network_latency
             }
-            # Only add fc_target_wwns for Universal type modifications
-            if fc_target_wwns and remote_type == 'Universal':
-                # Convert WWN strings to objects for Universal type
-                fc_targets = [{'wwpn': wwn} for wwn in fc_target_wwns]
-                modify_remote_sys_dict['universal_details'] = {
-                    'fc_targets': fc_targets
-                }
-            elif fc_target_wwns and remote_type != 'Universal':
-                LOG.warning('fc_target_wwns is only supported for Universal-type '
-                           'remote systems. For PowerStore-to-PowerStore FC, '
-                           'targets are auto-discovered. Ignoring fc_target_wwns in modification.')
+            # Note: data_connection_type and universal_details are create-only parameters
+            # and cannot be modified after creation. They are not included in modify operations.
 
             to_modify = modify_remote_system_required(
                 remote_sys_details, modify_remote_sys_dict)
