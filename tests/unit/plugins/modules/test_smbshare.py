@@ -225,7 +225,10 @@ class TestPowerStoreSMBShare():
     def test_validate_unmask_share(self, smb_share_module_mock):
         with pytest.raises(Exception) as exc_info:
             smb_share_module_mock.validate_umask('te')
-        assert exc_info.value.args[0] == MockSMBShareApi.smb_error_messages()['umask_error']
+        error_msg = exc_info.value.args[0]
+        # Check for both Python 3.13 and 3.15 error message formats
+        expected_base = MockSMBShareApi.smb_error_messages()['umask_error']
+        assert error_msg == expected_base or error_msg.startswith(expected_base + " (required")
         nas_server_name = 'ansible_nas_server_2'
         smb_share_module_mock.provisioning.get_nas_server_by_name = MagicMock(side_effect=MockApiException)
         result = smb_share_module_mock.get_nas_server_id(nas_server_name)

@@ -22,6 +22,8 @@ class MockRemoteSystemApi:
         'remote_user': None,
         'state': None,
         'remote_password': None,
+        'remote_temp_user_id': None,
+        'remote_temp_user_secret': None,
         'remote_address': None,
         'new_remote_address': None,
         'remote_port': None,

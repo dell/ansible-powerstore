@@ -56,6 +56,22 @@ Parameters
     It can be mentioned only during creation of the remote system.
 
 
+  remote_temp_user_id (optional, str, None)
+    Temporary user ID used in basic authentication to remote PowerStore cluster.
+
+    It can be mentioned only during creation of the remote system.
+
+    Either :emphasis:`remote_user`/:emphasis:`remote_password` or :emphasis:`remote_temp_user_id`/:emphasis:`remote_temp_user_secret` is required for creating a remote system.
+
+
+  remote_temp_user_secret (optional, str, None)
+    Temporary user secret used in basic authentication to remote PowerStore cluster.
+
+    It can be mentioned only during creation of the remote system.
+
+    Either :emphasis:`remote_user`/:emphasis:`remote_password` or :emphasis:`remote_temp_user_id`/:emphasis:`remote_temp_user_secret` is required for creating a remote system.
+
+
   remote_address (optional, str, None)
     Management IP of the remote system.
 
@@ -167,7 +183,8 @@ Notes
 .. note::
    - The module support allows create/delete/update only for remote PowerStore arrays.
    - Get details can be done for all type of remote arrays.
-   - Parameters :emphasis:`remote\_user`\ , :emphasis:`remote\_port` and :emphasis:`remote\_password` are not required during modification, getting and deleting. If passed then these parameters will be ignored and the operation will be performed.
+   - Parameters :emphasis:`remote\_user`\ , :emphasis:`remote\_port`\ , :emphasis:`remote\_password`\ , :emphasis:`remote\_temp\_user\_id` and :emphasis:`remote\_temp\_user\_secret` are not required during modification, getting and deleting. If passed then these parameters will be ignored and the operation will be performed.
+   - For creating a remote system, either :emphasis:`remote_user`/:emphasis:`remote_password` or :emphasis:`remote_temp_user_id`/:emphasis:`remote_temp_user_secret` must be provided.
    - If :emphasis:`wait\_for\_completion` is set to :literal:`true` then the connection will be terminated after the timeout is exceeded. User can tweak timeout and pass it in the playbook task.
    - By default, the timeout is set to 120 seconds.
    - The Ansible module cannot configure FC fabric. FC zoning and fabric configuration between the PowerStore systems must be completed before using FC data connection type. This is a prerequisite managed outside of PowerStore.
@@ -197,6 +214,20 @@ Examples
         remote_port: 443
         network_latency: "Low"
         decription: "Adding a new remote system"
+        state: "present"
+
+    - name: Add a new remote system using temporary credentials
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{array_ip}}"
+        validate_certs: "{{validate_certs}}"
+        user: "{{user}}"
+        password: "{{password}}"
+        remote_address: "xxx.xxx.xxx.xxx"
+        remote_temp_user_id: "temp-id-12345"
+        remote_temp_user_secret: "{{remote_temp_user_secret}}"
+        remote_port: 443
+        network_latency: "Low"
+        decription: "Adding a new remote system with temporary credentials"
         state: "present"
 
     - name: Modify attributes of remote system using remote_id

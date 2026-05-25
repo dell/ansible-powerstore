@@ -7,7 +7,11 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 from ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell \
     import utils
-from mock.mock import MagicMock
+
+try:
+    from mock.mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 
 utils.get_logger = MagicMock()
 utils.get_powerstore_connection = MagicMock()
