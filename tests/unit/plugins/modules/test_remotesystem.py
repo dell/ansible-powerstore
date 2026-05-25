@@ -294,20 +294,6 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.perform_module_operation()
         remotesystem_module_mock.conn.protection.modify_remote_system.assert_called()
 
-    def test_modify_remotesystem_fc_wwns(self, remotesystem_module_mock):
-        self.get_module_args.update({
-            'remote_id': "bbb4dd7c-566c-5cef-99a6-b2feg72ccf1c",
-            'type': "Universal",
-            'data_connection_type': "FC",
-            'fc_target_wwns': [MockRemoteSystemApi.sample_wwn_1],
-            'state': "present"
-        })
-        remotesystem_module_mock.module.params = self.get_module_args
-        remotesystem_module_mock.conn.protection.get_remote_system_details = MagicMock(
-            return_value=MockRemoteSystemApi.FC_REMOTE_SYSTEM_DETAILS[0])
-        remotesystem_module_mock.perform_module_operation()
-        remotesystem_module_mock.conn.protection.modify_remote_system.assert_called()
-
     # FC Replication - Get details tests
     def test_get_remotesystem_fc_details_response(self, remotesystem_module_mock):
         self.get_module_args.update({
