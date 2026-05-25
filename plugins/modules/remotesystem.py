@@ -124,7 +124,7 @@ options:
     - For Universal-type FC connections, this must be set to C(Universal).
     - It was added in PowerStore version 4.0.
     type: str
-    choices: [PowerStore, Unity, VNX, PS_Equallogic, Storage_Center, 
+    choices: [PowerStore, Unity, VNX, PS_Equallogic, Storage_Center,
               XtremIO, NetApp, PowerProtect_DD, PowerMax_VMAX, Universal]
     version_added: '4.1.0'
   wait_for_completion:
@@ -603,8 +603,8 @@ class PowerstoreRemoteSystem(object):
                     # For PowerStore-to-PowerStore, fc_target_wwns should not be used
                     # as targets are auto-discovered
                     LOG.warning('fc_target_wwns is only supported for Universal-type '
-                               'remote systems. For PowerStore-to-PowerStore FC, '
-                               'targets are auto-discovered. Ignoring fc_target_wwns.')
+                                'remote systems. For PowerStore-to-PowerStore FC, '
+                                'targets are auto-discovered. Ignoring fc_target_wwns.')
             resp = self.protection.create_remote_system(
                 create_remote_sys_dict)
 
