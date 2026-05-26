@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
+import copy
 import pytest
 # pylint: disable=unused-import
 from ansible_collections.dellemc.powerstore.tests.unit.plugins.module_utils.libraries import initial_mock
@@ -276,3 +277,92 @@ class TestPowerstoreRemoteSystem():
         assert 'temp_user_id' not in call_dict
         assert 'temp_user_secret' not in call_dict
         remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+
+    def test_add_remotesystem_fc_wwns(self, remotesystem_module_mock):
+        """Test adding Universal remote system with FC WWNs"""
+        fc_wwns = [
+            MockRemoteSystemApi.sample_wwn_1,
+            MockRemoteSystemApi.sample_wwn_2
+        ]
+        self.get_module_args.update({
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'description': self.sample_description,
+            'fc_target_wwns': fc_wwns,
+            'data_connection_type': "FC",
+            'type': "Universal",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = self.get_module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+        remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
+        call_dict = remotesystem_module_mock.conn.protection.create_remote_system.call_args[0][0]
+        # Verify that WWN strings are converted to objects with 'wwpn' key
+        expected_fc_targets = [{'wwpn': wwn} for wwn in fc_wwns]
+        assert call_dict['universal_details']['fc_targets'] == expected_fc_targets
+
+    def test_add_remotesystem_fc_wwns_without_fc_type_negative(self, remotesystem_module_mock):
+        """Test adding remote system with FC WWNs but without FC connection type should fail"""
+        fc_wwns = [
+            MockRemoteSystemApi.sample_wwn_1,
+            MockRemoteSystemApi.sample_wwn_2
+        ]
+        module_args = copy.deepcopy(self.get_module_args)
+        module_args.update({
+            'remote_id': None,
+            'remote_name': None,
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'description': self.sample_description,
+            'fc_target_wwns': fc_wwns,
+            'data_connection_type': "iSCSI",
+            'type': "Universal",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+        assert remotesystem_module_mock.module.fail_json.called
+        error_msg = remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+        assert "fc_target_wwns can only be specified when data_connection_type is set to 'FC'" in error_msg
+
+    def test_add_remotesystem_fc_wwns_without_any_type_negative(self, remotesystem_module_mock):
+        """Test adding remote system with FC WWNs but without Universal type should fail"""
+        fc_wwns = [
+            MockRemoteSystemApi.sample_wwn_1,
+            MockRemoteSystemApi.sample_wwn_2
+        ]
+        module_args = copy.deepcopy(self.get_module_args)
+        module_args.update({
+            'remote_id': None,
+            'remote_name': None,
+            'remote_address': self.remote_system_sample_address,
+            'remote_user': "admin",
+            'remote_password': "remote_password",
+            'remote_port': 443,
+            'network_latency': "Low",
+            'description': self.sample_description,
+            'fc_target_wwns': fc_wwns,
+            'data_connection_type': "FC",
+            'type': "PowerStore",
+            'state': "present"
+        })
+        remotesystem_module_mock.module.params = module_args
+        remotesystem_module_mock.conn.protection.get_remote_system_by_mgmt_address = MagicMock(
+            return_value=None)
+        remotesystem_module_mock.configuration.exchange_certificate = MagicMock()
+        remotesystem_module_mock.perform_module_operation()
+        assert remotesystem_module_mock.module.fail_json.called
+        error_msg = remotesystem_module_mock.module.fail_json.call_args[1]['msg']
+        assert "fc_target_wwns can only be specified when type is set to 'Universal'" in error_msg

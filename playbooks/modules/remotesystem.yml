@@ -79,6 +79,39 @@
         conn_timeout: 300
       register: update_remote_system_result
 
+    - name: Create a remote system with FC data connection type
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_address: "10.XX.XX.XX"
+        remote_user: "{{ remote_user_1 }}"
+        remote_password: "Password"
+        remote_port: 443
+        description: "FC remote system via ansible playbook"
+        network_latency: "Low"
+        data_connection_type: "FC"
+        fc_target_wwns:
+          - "58:cc:f0:98:49:21:07:02"
+          - "58:cc:f0:98:49:21:07:01"
+        state: "present"
+      register: create_fc_remote_system_result
+
+    - name: Modify remote system data connection type to FC
+      dellemc.powerstore.remotesystem:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        remote_address: "10.XX.XX.XX"
+        data_connection_type: "FC"
+        fc_target_wwns:
+          - "58:cc:f0:98:49:21:07:02"
+        state: "present"
+        wait_for_completion: true
+      register: modify_fc_result
+
     - name: Delete remote system using remote id
       dellemc.powerstore.remotesystem:
         array_ip: "{{ array_ip }}"
