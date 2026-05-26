@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright: (c) 2024, Dell Technologies
+# Copyright: (c) 2026, Dell Technologies
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -98,11 +98,11 @@ options:
     - Fibre Channel (FC) connection type requires properly configured FC
       fabric and zoning between the PowerStore systems as a prerequisite.
       The module cannot configure FC fabric.
-    - It can be mentioned during creation or modification of the remote system.
+    - It can be mentioned only during creation of the remote system.
     - It was added in PowerStore version 4.4.
     type: str
     choices: [iSCSI, FC]
-    version_added: '4.1.0'
+    version_added: '4.4.0'
   fc_target_wwns:
     description:
     - List of target Fibre Channel World Wide Names (WWNs) of the remote
@@ -113,10 +113,11 @@ options:
       auto-discovered and this parameter should not be used.
     - The WWN format is a colon-separated hexadecimal string,
       e.g., C(58:cc:f0:98:49:21:07:02).
+    - It can be mentioned only during creation of the remote system.
     - It was added in PowerStore version 4.4.
     type: list
     elements: str
-    version_added: '4.1.0'
+    version_added: '4.4.0'
   type:
     description:
     - Remote system type.
@@ -172,6 +173,8 @@ notes:
   I(data_connection_type=FC), and I(fc_target_wwns).
 - Parameters I(data_connection_type) and I(fc_target_wwns) require
   PowerStore version 4.4 or later.
+- Parameters I(data_connection_type) and I(fc_target_wwns) are
+  create-only and cannot be modified after the remote system is created.
 - The I(check_mode) is not supported.
 '''
 
@@ -260,16 +263,6 @@ EXAMPLES = r'''
       - "58:cc:f0:98:49:21:07:02"
       - "58:cc:f0:98:49:21:07:01"
     description: "Universal FC connection with manual WWNs"
-    state: "present"
-
-- name: Modify remote system data connection type to FC
-  dellemc.powerstore.remotesystem:
-    array_ip: "{{array_ip}}"
-    validate_certs: "{{validate_certs}}"
-    user: "{{user}}"
-    password: "{{password}}"
-    remote_id: "7d7e7917-735b-3eef-8cc3-1302001c08e7"
-    data_connection_type: "FC"
     state: "present"
 
 - name: Delete remote system using remote_id
