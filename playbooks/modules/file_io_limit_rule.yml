@@ -1,0 +1,60 @@
+---
+- name: File IO Limit Rule Operations on PowerStore
+  hosts: localhost
+  connection: local
+  vars:
+    array_ip: '10.xxx.xxx.xxx'
+    validate_certs: false
+    user: 'user'
+    password: 'password'
+
+
+  tasks:
+    - name: Create a file IO limit rule
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        max_bw: 500
+        state: "present"
+
+    - name: Get file IO limit rule details
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        state: "present"
+      register: rule_details
+
+    - name: Modify a file IO limit rule bandwidth
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        max_bw: 1000
+        state: "present"
+
+    - name: Rename a file IO limit rule
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_500mb"
+        new_name: "file_bw_1000mb"
+        state: "present"
+
+    - name: Delete a file IO limit rule
+      dellemc.powerstore.file_io_limit_rule:
+        array_ip: "{{ array_ip }}"
+        validate_certs: "{{ validate_certs }}"
+        user: "{{ user }}"
+        password: "{{ password }}"
+        file_io_limit_rule_name: "file_bw_1000mb"
+        state: "absent"

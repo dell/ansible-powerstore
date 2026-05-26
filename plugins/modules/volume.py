@@ -193,6 +193,19 @@ options:
     - If not given, performance policy will be C(medium).
     choices: [high, medium, low]
     type: str
+  qos_performance_policy:
+    description:
+    - The QoS performance policy name or ID for the volume.
+    - Associates an IO limit rule policy with the volume for bandwidth/IOPS control.
+    - Requires PowerStoreOS 4.0 or later.
+    - To represent policy, both name or ID can be used interchangeably.
+      The module will detect both.
+    - A volume can be assigned a QoS policy at the time of creation or later.
+    - The policy can also be changed for a given volume by simply passing the
+      new value.
+    - To remove the QoS policy from a volume, pass an empty string C('').
+    - If not specified, no QoS policy is assigned.
+    type: str
   protection_policy:
     description:
     - The I(protection_policy) of the volume.
@@ -738,7 +751,8 @@ class PowerStoreVolume(object):
                       description,
                       app_type,
                       app_type_other,
-                      appliance_id):
+                      appliance_id,
+                      qos_performance_policy_id=None):
         """Create PowerStore volume"""
 
         try:
@@ -750,7 +764,7 @@ class PowerStoreVolume(object):
                                                   protection_policy_id,
                                                   description, volume_group_id))
                 LOG.info(msg)
-                self.provisioning.create_volume(
+                create_params = dict(
                     name=vol_name,
                     size=size,
                     description=description,
@@ -760,6 +774,9 @@ class PowerStoreVolume(object):
                     app_type=app_type,
                     app_type_other=app_type_other,
                     appliance_id=appliance_id)
+                if qos_performance_policy_id not in (None, ''):
+                    create_params['qos_performance_policy_id'] = qos_performance_policy_id
+                self.provisioning.create_volume(**create_params)
             return True
         except Exception as e:
             msg = 'Create volume {0} failed with error {1}'.format(
@@ -775,7 +792,8 @@ class PowerStoreVolume(object):
                       performance_policy,
                       description,
                       app_type,
-                      app_type_other):
+                      app_type_other,
+                      qos_performance_policy_id=None):
         """Modify PowerStore volume"""
         # old_volume_name and name can be same if a new name is not passed
         # old_volume_name added for logging purpose
@@ -791,7 +809,7 @@ class PowerStoreVolume(object):
                         description,
                         name))
                 LOG.info(msg)
-                self.provisioning.modify_volume(
+                modify_params = dict(
                     volume_id=vol_id,
                     name=name,
                     size=size,
@@ -800,6 +818,9 @@ class PowerStoreVolume(object):
                     protection_policy_id=protection_policy_id,
                     app_type=app_type,
                     app_type_other=app_type_other)
+                if qos_performance_policy_id is not None:
+                    modify_params['qos_performance_policy_id'] = qos_performance_policy_id
+                self.provisioning.modify_volume(**modify_params)
             return True
         except Exception as e:
             msg = 'Modify volume {0} failed with error {1}'.format(
@@ -1320,6 +1341,33 @@ class PowerStoreVolume(object):
             LOG.error(error_msg)
             self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
 
+    def get_qos_policy_id_by_name(self, qos_policy_name):
+        try:
+            if qos_policy_name is None:
+                return None
+            if len(qos_policy_name) == 0:
+                return ''
+
+            if utils.name_or_id(qos_policy_name) == "NAME":
+                qos_policy_info = self.conn.protection.get_policy_by_name(qos_policy_name)
+                if qos_policy_info:
+                    if len(qos_policy_info) > 1:
+                        error_msg = 'Multiple QoS policies by the same name found'
+                        LOG.error(error_msg)
+                        self.module.fail_json(msg=error_msg)
+                    return qos_policy_info[0]['id']
+            else:
+                if self.conn.protection.get_policy_details(qos_policy_name):
+                    return qos_policy_name
+            error_msg = ("QoS policy {0} not found".format(qos_policy_name))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg)
+        except Exception as e:
+            error_msg = "Get QoS policy: {0} failed with error: {1}".format(
+                qos_policy_name, str(e))
+            LOG.error(error_msg)
+            self.module.fail_json(msg=error_msg, **utils.failure_codes(e))
+
     def get_host_id_by_name(self, host_name):
         try:
             if host_name is None:
@@ -1533,7 +1581,8 @@ class PowerStoreVolume(object):
             'size': fetched_params['size'],
             'app_type': volume_params['app_type'],
             'app_type_other': volume_params['app_type_other'],
-            'appliance_id': volume_params['appliance_id']
+            'appliance_id': volume_params['appliance_id'],
+            'qos_performance_policy_id': fetched_params['qos_performance_policy_id']
         }
 
         vol_dict1 = {
@@ -1543,7 +1592,8 @@ class PowerStoreVolume(object):
             'performance_policy_id': volume_details['performance_policy_id'],
             'size': volume_details['size'],
             'app_type': volume_details['app_type'],
-            'app_type_other': volume_details['app_type_other']
+            'app_type_other': volume_details['app_type_other'],
+            'qos_performance_policy_id': volume_details.get('qos_performance_policy_id')
         }
 
         update_dict = {}
@@ -1854,7 +1904,8 @@ def get_powerstore_volume_parameters():
                      "Virtualization_Virtual_Desktops_VDI", "Other"]),
         app_type_other=dict(type='str'),
         appliance_name=dict(type='str'),
-        appliance_id=dict(type='str')
+        appliance_id=dict(type='str'),
+        qos_performance_policy=dict(type='str')
     )
 
 
@@ -1867,9 +1918,11 @@ class VolumeExitHandler:
             else:
                 volume_obj.result["volume_details"] = {}
             if volume_obj.result["volume_details"]:
+                snapshot_resp = volume_obj.get_volume_snapshots(
+                    volume_obj.result["volume_details"]['id'], all_snapshots=True)
+                snapshots = snapshot_resp[1] if snapshot_resp and len(snapshot_resp) > 1 else []
                 volume_obj.result["volume_details"].update(
-                    snapshots=volume_obj.get_volume_snapshots(
-                        volume_obj.result["volume_details"]['id'], all_snapshots=True)[1])
+                    snapshots=snapshots)
                 volume_obj.result["volume_details"].update(
                     appliance_name=volume_obj.update_volume_details(volume_obj.result["volume_details"]))
         if volume_params['state'] == 'absent':
@@ -2027,16 +2080,20 @@ class VolumeModifyHandler:
             modify_flag, update_dict = self.create_modify_dict(volume_obj, volume_params, volume_details,
                                                                fetched_params)
             if modify_flag:
-                changed = volume_obj.modify_volume(
-                    vol_id=volume_id,
-                    old_volume_name=volume_details['name'],
-                    name=update_dict['name'],
-                    size=update_dict['size'],
-                    protection_policy_id=update_dict['protection_policy_id'],
-                    performance_policy=update_dict['performance_policy_id'],
-                    description=update_dict['description'],
-                    app_type=update_dict['app_type'],
-                    app_type_other=update_dict['app_type_other']) or changed
+                if not getattr(volume_obj.module, 'check_mode', False):
+                    changed = volume_obj.modify_volume(
+                        vol_id=volume_id,
+                        old_volume_name=volume_details['name'],
+                        name=update_dict['name'],
+                        size=update_dict['size'],
+                        protection_policy_id=update_dict['protection_policy_id'],
+                        performance_policy=update_dict['performance_policy_id'],
+                        description=update_dict['description'],
+                        app_type=update_dict['app_type'],
+                        app_type_other=update_dict['app_type_other'],
+                        qos_performance_policy_id=update_dict.get('qos_performance_policy_id')) or changed
+                else:
+                    changed = True
 
         VolumeMapUnmapHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
 
@@ -2083,7 +2140,8 @@ class VolumeCreateHandler:
                 description=volume_params['description'],
                 app_type=volume_params['app_type'],
                 app_type_other=volume_params['app_type_other'],
-                appliance_id=volume_params['appliance_id'])
+                appliance_id=volume_params['appliance_id'],
+                qos_performance_policy_id=fetched_params['qos_performance_policy_id'])
             if changed and not volume_obj.module.check_mode:
                 volume_id = volume_obj.get_volume_id_by_name(volume_name=volume_params['vol_name'])
                 volume_details = volume_obj.get_volume(vol_id=volume_id)
@@ -2099,7 +2157,9 @@ class VolumeHandler:
         fetched_params['protection_policy_id'] = volume_obj.get_protection_policy_id_by_name(
             volume_params['protection_policy'])
         fetched_params['performance_policy'] = volume_obj.get_performance_policy(
-            volume_params['performance_policy'])
+            volume_params.get('performance_policy'))
+        fetched_params['qos_performance_policy_id'] = volume_obj.get_qos_policy_id_by_name(
+            volume_params.get('qos_performance_policy'))
         fetched_params['host'] = volume_obj.get_host_id_by_name(volume_params['host'])
         fetched_params['hostgroup_details'] = volume_obj.get_host_group_id_by_name(
             volume_params['hostgroup'])

@@ -1,0 +1,11 @@
+ansible-core>=2.20.0
+ansible-lint>=25.0.0
+pytest
+pytest-mock
+pytest-cov
+yamllint
+pyyaml
+jsonschema
+mock
+antsibull-docs
+autopep8

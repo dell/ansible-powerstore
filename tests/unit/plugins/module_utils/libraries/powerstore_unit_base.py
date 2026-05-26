@@ -21,10 +21,21 @@ class PowerStoreUnitBase:
     def powerstore_module_mock(self, mocker, module_object):
         exception_class_path = 'ansible_collections.dellemc.powerstore.plugins.module_utils.storage.dell.utils.PowerStoreException'
         mocker.patch(exception_class_path, new=MockApiException)
+        MockApiException.HTTP_ERR = "1"
+        MockApiException.err_code = "1"
+        MockApiException.status_code = "500"
+        MockApiException.body = "PyPowerStore Error message"
         powerstore_module_mock = module_object()
         powerstore_module_mock.module = MagicMock()
         powerstore_module_mock.module.fail_json = fail_json
         powerstore_module_mock.module.check_mode = False
+        powerstore_module_mock.provisioning = MagicMock()
+        powerstore_module_mock.protection = MagicMock()
+        powerstore_module_mock.configuration = MagicMock()
+        powerstore_module_mock.conn = MagicMock()
+        powerstore_module_mock.conn.provisioning = powerstore_module_mock.provisioning
+        powerstore_module_mock.conn.protection = powerstore_module_mock.protection
+        powerstore_module_mock.conn.config_mgmt = powerstore_module_mock.configuration
         return powerstore_module_mock
 
     def capture_fail_json_call(self, error_msg, module_mock, module_handler=None, invoke_perform_module=False):

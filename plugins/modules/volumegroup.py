@@ -62,6 +62,19 @@ options:
     - Specifying an empty string or "" removes the existing
       protection policy from volume group.
     type: str
+  qos_performance_policy:
+    description:
+    - The QoS performance policy name or ID for the volume group.
+    - Associates an IO limit rule policy with the volume group for bandwidth/IOPS control.
+    - Requires PowerStoreOS 4.0 or later.
+    - To represent policy, both name or ID can be used interchangeably.
+      The module will detect both.
+    - A volume group can be assigned a QoS policy at the time of creation or later.
+    - The policy can also be changed for a given volume group by simply passing the
+      new value.
+    - To remove the QoS policy from a volume group, pass an empty string C('').
+    - If not specified, no QoS policy is assigned.
+    type: str
   is_write_order_consistent:
     description:
     - A boolean flag to indicate whether Snapshot sets of the volume group
@@ -764,14 +777,20 @@ class PowerStoreVolumeGroup(object):
 
     def modify_volume_group(self, vg_id, vg_name, description,
                             is_write_order_consistent,
-                            protection_policy_id):
+                            protection_policy_id,
+                            qos_performance_policy_id=None):
         """Modify volume group"""
         try:
             LOG.info("Modifying volume group: %s", vg_id)
 
+            modify_params = {
+                'protection_policy_id': protection_policy_id
+            }
+            if qos_performance_policy_id is not None:
+                modify_params['qos_performance_policy_id'] = qos_performance_policy_id
+
             self.provisioning.modify_volume_group(
-                vg_id, vg_name, description, is_write_order_consistent,
-                protection_policy_id)
+                vg_id, vg_name, description, is_write_order_consistent, **modify_params)
 
             LOG.info("Successfully modified volume group: %s", vg_id)
 
@@ -789,7 +808,7 @@ class PowerStoreVolumeGroup(object):
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
-    def is_volume_group_modified(self, volume_group, protection_policy):
+    def is_volume_group_modified(self, volume_group, protection_policy, qos_performance_policy_id=None):
         """Check if the desired volume group state is different from existing
         volume group"""
         modified = False
@@ -797,6 +816,7 @@ class PowerStoreVolumeGroup(object):
         description_modified = False
         prot_pol_modified = False
         write_order_modified = False
+        qos_pol_modified = False
 
         if (('name' in volume_group and self.module.params['new_vg_name']
             is not None) and (volume_group['name'].lower() !=
@@ -824,8 +844,16 @@ class PowerStoreVolumeGroup(object):
                 self.module.params['is_write_order_consistent']):
             write_order_modified = True
 
+        elif ((volume_group.get('qos_performance_policy_id') is not None and
+               qos_performance_policy_id is not None and
+               volume_group.get('qos_performance_policy_id') != qos_performance_policy_id) or
+              (volume_group.get('qos_performance_policy_id') is None and
+               qos_performance_policy_id is not None and
+               qos_performance_policy_id != '')):
+            qos_pol_modified = True
+
         if name_modified or description_modified or prot_pol_modified or\
-                write_order_modified:
+                write_order_modified or qos_pol_modified:
             modified = True
 
         return modified
@@ -841,14 +869,18 @@ class PowerStoreVolumeGroup(object):
     def create_volume_group(self, vg_name,
                             description,
                             protection_policy_id,
-                            is_write_order_consistent):
+                            is_write_order_consistent,
+                            qos_performance_policy_id=None):
         """Create a volume group"""
         try:
             LOG.info('Creating empty volume group %s ', vg_name)
-            resp = self.provisioning.create_volume_group(
-                vg_name, description,
+            create_params = dict(
                 protection_policy_id=protection_policy_id,
                 is_write_order_consistent=is_write_order_consistent)
+            if qos_performance_policy_id:
+                create_params['qos_performance_policy_id'] = qos_performance_policy_id
+            resp = self.provisioning.create_volume_group(
+                vg_name, description, **create_params)
             return True, resp
 
         except utils.PowerStoreException as pe:
@@ -881,6 +913,32 @@ class PowerStoreVolumeGroup(object):
         except Exception as e:
             msg = 'Get details of protection policy name: {0} failed' \
                   ' with error : {1} '.format(name, str(e))
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_qos_policy_id_by_name(self, name):
+        """Get QoS policy by name"""
+        try:
+            if name is None:
+                return None
+            if len(name) == 0:
+                return ''
+            LOG.info('Getting the details of QoS policy %s', name)
+            if utils.name_or_id(name) == "ID":
+                if self.protection.get_policy_details(name):
+                    return name
+            else:
+                resp = self.protection.get_policy_by_name(name)
+                if resp and len(resp) > 0:
+                    LOG.info('Successfully got the QoS policy name %s', name)
+                    return resp[0]['id']
+
+            msg = 'No QoS policy present with name or id {0}'.format(name)
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+        except Exception as e:
+            msg = 'Get details of QoS policy name: {0} failed with error : {1} '.format(
+                name, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -943,6 +1001,7 @@ class PowerStoreVolumeGroup(object):
         source_vg = self.module.params['source_vg']
         source_snap = self.module.params['source_snap']
         vg_clone = self.module.params['vg_clone']
+        qos_performance_policy = self.module.params.get('qos_performance_policy')
 
         volume_group = None
         self.validate_params(self.module.params)
@@ -953,11 +1012,15 @@ class PowerStoreVolumeGroup(object):
         if protection_policy:
             protection_policy = self.get_protection_policy(protection_policy)
 
+        if qos_performance_policy is not None:
+            qos_performance_policy = self.get_qos_policy_id_by_name(qos_performance_policy)
+
         modified = False
 
         if volume_group:
             modified = self.is_volume_group_modified(volume_group,
-                                                     protection_policy)
+                                                     protection_policy,
+                                                     qos_performance_policy)
             LOG.debug('Modified Flag: %s', modified)
         else:
             if not vg_name:
@@ -981,13 +1044,16 @@ class PowerStoreVolumeGroup(object):
             delete_vg='',
             volume_group_details='',
         )
+        if getattr(self.module, '_diff', False):
+            result['diff'] = dict(before=dict(), after=dict())
 
         if state == 'present' and not volume_group:
             LOG.info('Creating volume group %s', vg_name)
             result['create_vg'], resp = self.\
                 create_volume_group(vg_name, description,
                                     protection_policy,
-                                    is_write_order_consistent)
+                                    is_write_order_consistent,
+                                    qos_performance_policy)
             result['volume_group_details'] = resp
             volume_group = self.get_volume_group_details(vg_id=resp['id'])
             vg_id = volume_group['id']
@@ -1007,10 +1073,31 @@ class PowerStoreVolumeGroup(object):
 
         if state == 'present' and volume_group and modified:
             LOG.info("From Modify : %s", protection_policy)
-            result['modify_vg'] = self.\
-                modify_volume_group(vg_id, new_vg_name, description,
-                                    is_write_order_consistent,
-                                    protection_policy)
+            if getattr(self.module, '_diff', False):
+                result['diff'] = {
+                    'before': {
+                        'qos_performance_policy_id': volume_group.get('qos_performance_policy_id'),
+                        'protection_policy_id': volume_group.get('protection_policy_id'),
+                        'description': volume_group.get('description'),
+                        'name': volume_group.get('name'),
+                        'is_write_order_consistent': volume_group.get('is_write_order_consistent')
+                    },
+                    'after': {
+                        'qos_performance_policy_id': qos_performance_policy,
+                        'protection_policy_id': protection_policy,
+                        'description': description,
+                        'name': new_vg_name,
+                        'is_write_order_consistent': is_write_order_consistent
+                    }
+                }
+            if getattr(self.module, 'check_mode', False) is not True:
+                result['modify_vg'] = self.\
+                    modify_volume_group(vg_id, new_vg_name, description,
+                                        is_write_order_consistent,
+                                        protection_policy,
+                                        qos_performance_policy)
+            else:
+                result['modify_vg'] = True
 
         if state == 'present' and volume_group:
             updated_vg = self.get_volume_group_details(vg_id=vg_id)
@@ -1069,7 +1156,8 @@ def get_powerstore_volume_group_parameters():
                 description=dict(type='str'),
                 protection_policy=dict(type='str')
             )
-        )
+        ),
+        qos_performance_policy=dict(type='str')
     )
 
 

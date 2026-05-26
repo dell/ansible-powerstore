@@ -86,6 +86,8 @@ options:
     - File NIS - C(file_nis).
     - Service configs - C(service_configs).
     - SNMP managers - C(snmp_manager).
+    - IO limit rules - C(io_limit_rule).
+    - File IO limit rules - C(file_io_limit_rule).
     - Recycle bin items - C(recycle_bin).
     required: true
     elements: str
@@ -98,7 +100,7 @@ options:
               ldap_domain, vcenter, virtual_volume, storage_container,
               replication_group, discovered_appliance, file_interface,
               smb_server, nfs_server, file_dns, file_nis, service_config, snmp_manager,
-              recycle_bin]
+              io_limit_rule, file_io_limit_rule, recycle_bin]
     type: list
   filters:
     description:
@@ -2192,6 +2194,14 @@ class PowerstoreInfo(object):
                 'func': self.snmp_manager.get_snmp_server_list,
                 'display_as': 'snmp_managers'
             },
+            'io_limit_rule': {
+                'func': self.provisioning.get_io_limit_rules,
+                'display_as': 'io_limit_rules'
+            },
+            'file_io_limit_rule': {
+                'func': self.configuration.get_file_io_limit_rules,
+                'display_as': 'file_io_limit_rules'
+            },
             'recycle_bin': {
                 'func': self._get_recycle_bin_items,
                 'display_as': 'RecycleBin'
@@ -2406,7 +2416,7 @@ def get_powerstore_info_parameters():
                      'virtual_volume', 'storage_container',
                      'replication_group', 'discovered_appliance', 'file_interface',
                      'smb_server', 'nfs_server', 'file_dns', 'file_nis', 'service_config',
-                     'recycle_bin']),
+                     'io_limit_rule', 'file_io_limit_rule', 'recycle_bin']),
         filters=dict(type='list', required=False, elements='dict',
                      options=dict(filter_key=dict(type='str', required=True,
                                                   no_log=False),

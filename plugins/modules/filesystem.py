@@ -120,6 +120,19 @@ options:
    - Specifying "" (empty string) removes the existing
      protection policy from file system.
    type: str
+ performance_policy:
+   description:
+   - The File Performance policy name or ID for the file system.
+   - Associates a file IO limit rule policy with the file system for bandwidth control.
+   - Requires PowerStoreOS 4.1 or later.
+   - To represent policy, both name or ID can be used interchangeably.
+     The module will detect both.
+   - A file system can be assigned a performance policy at the time of creation or later.
+   - The policy can also be changed for a given file system by simply passing the
+     new value.
+   - To remove the performance policy from a file system, pass an empty string C('').
+   - If not specified, no performance policy is assigned.
+   type: str
  quota_defaults:
    description:
    - Contains the default attributes for a filesystem quota.It contains
@@ -745,6 +758,7 @@ class PowerStoreFileSystem(object):
     cluster_global_id = None
     IS_NAME = "NAME"
     protection_policy_id = None
+    performance_policy_id = None
     total_size = 0
 
     def __init__(self):
@@ -825,6 +839,31 @@ class PowerStoreFileSystem(object):
                     and e.status_code == "404":
                 LOG.info(msg)
                 return None
+            LOG.error(msg)
+            self.module.fail_json(msg=msg, **utils.failure_codes(e))
+
+    def get_performance_policy(self, performance_policy):
+        """Resolve File_Performance policy by name or ID."""
+        try:
+            if performance_policy is None:
+                return None
+            if performance_policy == "":
+                return ""
+
+            if utils.name_or_id(val=performance_policy) == "ID":
+                if self.protection.get_policy_details(performance_policy):
+                    return performance_policy
+            else:
+                policies = self.protection.get_policy_by_name(performance_policy)
+                if policies and len(policies) > 0:
+                    return policies[0]['id']
+
+            msg = "No performance policy present with name or id {0}".format(performance_policy)
+            LOG.error(msg)
+            self.module.fail_json(msg=msg)
+        except Exception as e:
+            msg = 'Get details of performance policy name or ID : {0} ' \
+                  'failed with error : {1} '.format(performance_policy, str(e))
             LOG.error(msg)
             self.module.fail_json(msg=msg, **utils.failure_codes(e))
 
@@ -921,6 +960,9 @@ class PowerStoreFileSystem(object):
         if self.protection_policy_id:
             adv_parameters['protection_policy_id'] = \
                 self.protection_policy_id
+
+        if self.performance_policy_id not in (None, ''):
+            adv_parameters['performance_policy_id'] = self.performance_policy_id
 
         if smb_properties:
             for key, value in smb_properties.items():
@@ -1129,6 +1171,14 @@ class PowerStoreFileSystem(object):
                                                           (filesystem_details[param]).upper()):
                 modify_parameters[param] = \
                     self.get_enum_keys(self.module.params[param])
+
+        if self.performance_policy_id is not None and self.performance_policy_id != "" and \
+                self.performance_policy_id != filesystem_details.get('performance_policy_id'):
+            modify_parameters['performance_policy_id'] = self.performance_policy_id
+
+        if self.performance_policy_id == "" and (
+                filesystem_details.get('performance_policy_id') is not None):
+            modify_parameters['performance_policy_id'] = self.performance_policy_id
 
         modify_parameters = self.to_modify_protection_policy(modify_parameters, filesystem_details)
 
@@ -1397,6 +1447,7 @@ class PowerStoreFileSystem(object):
         size = self.module.params['size']
         cap_unit = self.module.params['cap_unit']
         protection_policy = self.module.params['protection_policy']
+        performance_policy = self.module.params.get('performance_policy')
         clone_filesystem = self.module.params['clone_filesystem']
         refresh_filesystem = self.module.params['refresh_filesystem']
         restore_filesystem = self.module.params['restore_filesystem']
@@ -1414,12 +1465,19 @@ class PowerStoreFileSystem(object):
             changed=False,
             filesystem_details=None
         )
+        if getattr(self.module, '_diff', False):
+            result['diff'] = dict(before=dict(), after=dict())
         self.verify_required_together_params(filesystem_name, snapshot_name, nas_server)
         fs_id = None
         to_modify = False
         to_modify_dict = None
         if nas_server:
             nas_server = self.get_nas_server(nas_server=nas_server)
+
+        self.performance_policy_id = None
+        if performance_policy is not None:
+            self.performance_policy_id = self.get_performance_policy(performance_policy)
+
         size, protection_policy, fs_details = \
             self.set_params(size, cap_unit, nas_server, protection_policy,
                             filesystem_name, filesystem_id)
@@ -1443,9 +1501,15 @@ class PowerStoreFileSystem(object):
             LOG.info("FileSystem Details: %s , To Modify %s", fs_details,
                      to_modify)
         if to_modify and state == 'present':
-            self.modify_filesystem(
-                filesystem_id=fs_id,
-                modify_parameters=to_modify_dict)
+            if getattr(self.module, '_diff', False):
+                result['diff'] = {
+                    'before': {k: fs_details.get(k) for k in to_modify_dict.keys()},
+                    'after': to_modify_dict
+                }
+            if getattr(self.module, 'check_mode', False) is not True:
+                self.modify_filesystem(
+                    filesystem_id=fs_id,
+                    modify_parameters=to_modify_dict)
             changed = True
 
         if state == 'present' and clone_filesystem:
@@ -1597,6 +1661,7 @@ def get_powerstore_filesystem_parameters():
             )
         ),
         protection_policy=dict(type='str'),
+        performance_policy=dict(type='str'),
         quota_defaults=dict(
             type='dict', options=dict(
                 grace_period=dict(type='int'),
