@@ -4,7 +4,7 @@
 
 <!-- yaml-metadata-start -->
 scope_paths: ["./"]
-capture_git_sha: "114262ceec0c7467b97de2583d4ec360c351a21a"
+capture_git_sha: "166f8d0208afe2139ae3fd1d0575919126f1d7d3"
 status: "current"
 auto_update: false
 preview_before_apply: true
@@ -30,7 +30,7 @@ Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStor
 | Module utilities | `plugins/module_utils/storage/dell/` | SDK init, connection factory, logger, error helpers |
 | Domain helpers | `plugins/module_utils/storage/dell/libraries/` | `powerstore_base.py` (base class), `configuration.py` (`ConfigurationSDK`), `provisioning.py` |
 | Doc fragments | `plugins/doc_fragments/powerstore.py` | Shared DOCUMENTATION fragment for connection params |
-| Runtime metadata | `meta/runtime.yml` | `requires_ansible`, action groups, tombstones |
+| Runtime metadata | `meta/runtime.yml` | `meta/runtime.yml` contains 21 tombstone entries for deprecated `dellemc_powerstore_*` prefixed modules redirected to their current names. |
 | Execution env | `meta/execution-environment.yml` | EE definition |
 | Example playbooks | `playbooks/modules/` | One example playbook per module |
 | Unit tests | `tests/unit/plugins/modules/` | One test file per module |
@@ -100,7 +100,7 @@ Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStor
 ## Known Constraints
 
 1. **SDK version coupling is strict** — each collection release is tested against exactly one SDK version (or tight range). Mismatch is a blocking defect.
-2. **`meta/runtime.yml` is source of truth for action groups** — every new module must be appended to the `dellemc.powerstore.all` list.
+2. **`meta/runtime.yml` is source of truth** — tombstone/redirect entries for deprecated module names must not be removed.
 3. **Tombstone entries are permanent** — deprecated `dellemc_powerstore_*` prefixed module names must not be removed.
 4. **`verifycert: false` is lab-only** — production requires `true`.
 5. **Example playbooks are mandatory** — every module must ship a working example in `playbooks/modules/`.
