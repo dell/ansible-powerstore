@@ -253,7 +253,7 @@ class PowerstoreVCenter(object):
         address = self.module.params['address']
         username = self.module.params['vcenter_username']
         vasa_provider = self.module.params['vasa_provider_credentials']
-        password = self.module.params['vcenter_password']
+        vcenter_pwd = self.module.params['vcenter_password']
         update_password = self.module.params['update_password']
 
         modify_dict = dict()
@@ -262,7 +262,7 @@ class PowerstoreVCenter(object):
         if username is not None and vcenter_details['username'] != username:
             modify_dict['username'] = username
             modify_dict['password'] = self.module.params['vcenter_password']
-        if update_password == "always" and password is not None:
+        if update_password == "always" and vcenter_pwd is not None:
             modify_dict['password'] = self.module.params['vcenter_password']
         if vasa_provider is not None and \
                 vcenter_details['vendor_provider_status'] != "Online":

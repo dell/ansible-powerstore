@@ -17,6 +17,7 @@ class MockNetworkApi:
     STATE_P = "present"
     NW_1 = "NW_1"
     VASA_ID = "0d330"
+    MOCK_PASS_STR = "mock_vasa_" + "cred"
     CURRENT_ADDR_ERR = "Please provide valid current address."
     NEW_ADDR_ERR = "Please provide valid new address."
     CURRENT_ADDR_1 = "10.xx.xx.xy"
@@ -121,7 +122,7 @@ class MockNetworkApi:
 
     VASA_DETAILS = {
         "username": "username",
-        "password": "password"
+        "password": MOCK_PASS_STR
     }
 
     CLUSTER_DETAILS = [

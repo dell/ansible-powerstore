@@ -88,7 +88,7 @@ class TestPowerstoreRemoteSystem():
         self.get_module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "Low",
             'decription': self.sample_description,
@@ -106,7 +106,7 @@ class TestPowerstoreRemoteSystem():
             'remote_user': None,
             'remote_password': None,
             'remote_temp_user_id': "temp-id-12345",
-            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_temp_user_secret': MockRemoteSystemApi.MOCK_TEMP_SECRET,
             'remote_port': 443,
             'network_latency': "Low",
             'state': "present"
@@ -140,7 +140,7 @@ class TestPowerstoreRemoteSystem():
             'remote_user': None,
             'remote_password': None,
             'remote_temp_user_id': "temp-id-12345",
-            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_temp_user_secret': MockRemoteSystemApi.MOCK_TEMP_SECRET,
             'remote_port': 443,
             'state': "present"
         })
@@ -155,7 +155,7 @@ class TestPowerstoreRemoteSystem():
         assert 'username' in call_dict
         assert 'password' in call_dict
         assert call_dict['username'] == "temp-id-12345"
-        assert call_dict['password'] == "temp-secret-xyz"
+        assert call_dict['password'] == MockRemoteSystemApi.MOCK_TEMP_SECRET
         assert 'temp_user_id' not in call_dict
         assert 'temp_user_secret' not in call_dict
 
@@ -163,7 +163,7 @@ class TestPowerstoreRemoteSystem():
         self.get_module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "High",
             'decription': self.sample_description,
@@ -180,7 +180,7 @@ class TestPowerstoreRemoteSystem():
             'remote_address': self.remote_system_sample_address,
             'remote_name': "Sample_remote_name",
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "Low",
             'decription': self.sample_description,
@@ -231,7 +231,7 @@ class TestPowerstoreRemoteSystem():
             'remote_user': None,
             'remote_password': None,
             'remote_temp_user_id': "temp-id-12345",
-            'remote_temp_user_secret': "temp-secret-xyz",
+            'remote_temp_user_secret': MockRemoteSystemApi.MOCK_TEMP_SECRET,
             'remote_port': 443,
             'network_latency': "Low",
             'description': "Adding remote system via temp credentials",
@@ -246,7 +246,7 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.configuration.exchange_certificate.assert_called()
         call_dict = remotesystem_module_mock.configuration.exchange_certificate.call_args[0][0]
         assert call_dict['username'] == "temp-id-12345"
-        assert call_dict['password'] == "temp-secret-xyz"
+        assert call_dict['password'] == MockRemoteSystemApi.MOCK_TEMP_SECRET
         assert 'temp_user_id' not in call_dict
         assert 'temp_user_secret' not in call_dict
         remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
@@ -256,7 +256,7 @@ class TestPowerstoreRemoteSystem():
         self.get_module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_temp_user_id': None,
             'remote_temp_user_secret': None,
             'remote_port': 443,
@@ -273,7 +273,7 @@ class TestPowerstoreRemoteSystem():
         remotesystem_module_mock.configuration.exchange_certificate.assert_called()
         call_dict = remotesystem_module_mock.configuration.exchange_certificate.call_args[0][0]
         assert call_dict['username'] == "admin"
-        assert call_dict['password'] == "remote_password"
+        assert call_dict['password'] == MockRemoteSystemApi.MOCK_REMOTE_PASS
         assert 'temp_user_id' not in call_dict
         assert 'temp_user_secret' not in call_dict
         remotesystem_module_mock.conn.protection.create_remote_system.assert_called()
@@ -287,7 +287,7 @@ class TestPowerstoreRemoteSystem():
         self.get_module_args.update({
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "Low",
             'description': self.sample_description,
@@ -319,7 +319,7 @@ class TestPowerstoreRemoteSystem():
             'remote_name': None,
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "Low",
             'description': self.sample_description,
@@ -349,7 +349,7 @@ class TestPowerstoreRemoteSystem():
             'remote_name': None,
             'remote_address': self.remote_system_sample_address,
             'remote_user': "admin",
-            'remote_password': "remote_password",
+            'remote_password': MockRemoteSystemApi.MOCK_REMOTE_PASS,
             'remote_port': 443,
             'network_latency': "Low",
             'description': self.sample_description,

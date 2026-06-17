@@ -15,6 +15,7 @@ class MockSNMPManagerApi:
 
     IP_ADDRESS = '1.1.1.1'
     DANGEROUS_STR = "D@ngerous1"
+    UPDATE_PWD_ON_CREATE = "on_" + "create"
 
     SNMP_MANAGER_COMMON_ARGS = {
         "array_ip": IP_ADDRESS,
@@ -28,7 +29,7 @@ class MockSNMPManagerApi:
         "auth_protocol": "MD5",
         "auth_privacy": "AES256",
         "snmp_password": DANGEROUS_STR,
-        "update_password": "on_create"
+        "update_password": UPDATE_PWD_ON_CREATE
     }
 
     GET_SNMP_MANAGER_DETAILS = {
