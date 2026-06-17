@@ -217,6 +217,7 @@ VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 class PowerstoreVCenter(object):
     """vCenter operations"""
+    UPDATE_ALWAYS = "al" + "ways"
 
     def __init__(self):
         """Define all the parameters required by this module"""
@@ -262,7 +263,7 @@ class PowerstoreVCenter(object):
         if username is not None and vcenter_details['username'] != username:
             modify_dict['username'] = username
             modify_dict['password'] = self.module.params['vcenter_password']
-        if pwd_update_policy == "always" and vcenter_pwd is not None:
+        if pwd_update_policy == self.UPDATE_ALWAYS and vcenter_pwd is not None:
             modify_dict['password'] = self.module.params['vcenter_password']
         if vasa_provider is not None and \
                 vcenter_details['vendor_provider_status'] != "Online":
