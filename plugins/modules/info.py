@@ -1974,12 +1974,15 @@ IS_SUPPORTED_PY4PS_VERSION = py4ps_version['supported_version']
 VERSION_ERROR = py4ps_version['unsupported_version_message']
 
 
+ILIKE_PREFIX = 'ilike.'
+
+
 class PowerstoreInfo(object):
     """Info operations"""
     cluster_name = ' '
     cluster_global_id = ' '
     filter_mapping = {'equal': 'eq.', 'greater': 'gt.', 'notequal': 'neq.',
-                      'lesser': 'lt.', 'like': 'ilike.'}
+                      'lesser': 'lt.', 'like': ILIKE_PREFIX}
 
     def __init__(self):
         self.result = {}
@@ -2235,8 +2238,8 @@ class PowerstoreInfo(object):
             if val.startswith('neq.') and \
                     item_val == val.removeprefix('neq.'):
                 return False
-            if val.startswith('ilike.'):
-                pattern = val.removeprefix('ilike.').replace('*', '')
+            if val.startswith(ILIKE_PREFIX):
+                pattern = val.removeprefix(ILIKE_PREFIX).replace('*', '')
                 if pattern.lower() not in item_val.lower():
                     return False
         return True
