@@ -2218,24 +2218,28 @@ class PowerstoreInfo(object):
         if resp is None:
             resp = []
         if filter_dict:
-            filtered = []
-            for item in resp:
-                match = True
-                for key, val in filter_dict.items():
-                    item_val = str(item.get(key, ''))
-                    if isinstance(val, str):
-                        if val.startswith('eq.') and item_val != val[3:]:
-                            match = False
-                        elif val.startswith('neq.') and item_val == val[4:]:
-                            match = False
-                        elif val.startswith('ilike.'):
-                            pattern = val[6:].replace('*', '')
-                            if pattern.lower() not in item_val.lower():
-                                match = False
-                if match:
-                    filtered.append(item)
-            resp = filtered
+            resp = [item for item in resp
+                    if self._matches_filter(item, filter_dict)]
         return resp
+
+    @staticmethod
+    def _matches_filter(item, filter_dict):
+        """Check if a recycle bin item matches filter criteria."""
+        for key, val in filter_dict.items():
+            item_val = str(item.get(key, ''))
+            if not isinstance(val, str):
+                continue
+            if val.startswith('eq.') and \
+                    item_val != val.removeprefix('eq.'):
+                return False
+            if val.startswith('neq.') and \
+                    item_val == val.removeprefix('neq.'):
+                return False
+            if val.startswith('ilike.'):
+                pattern = val.removeprefix('ilike.').replace('*', '')
+                if pattern.lower() not in item_val.lower():
+                    return False
+        return True
 
     def get_acl(self, smb_share_id):
         """

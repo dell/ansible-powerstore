@@ -811,52 +811,57 @@ class PowerStoreVolumeGroup(object):
     def is_volume_group_modified(self, volume_group, protection_policy, qos_performance_policy_id=None):
         """Check if the desired volume group state is different from existing
         volume group"""
-        modified = False
-        name_modified = False
-        description_modified = False
-        prot_pol_modified = False
-        write_order_modified = False
-        qos_pol_modified = False
+        return (self._is_name_modified(volume_group) or
+                self._is_description_modified(volume_group) or
+                self._is_protection_policy_modified(
+                    volume_group, protection_policy) or
+                self._is_write_order_modified(volume_group) or
+                self._is_qos_policy_modified(
+                    volume_group, qos_performance_policy_id))
 
-        if (('name' in volume_group and self.module.params['new_vg_name']
-            is not None) and (volume_group['name'].lower() !=
-                              self.module.params['new_vg_name'].lower())):
-            name_modified = True
-        elif (volume_group['description'] is not None and
-              self.module.params['description'] is not None and
-              volume_group['description'].lower() !=
-              self.module.params['description'].lower()) or\
-                (volume_group['description'] is None and
-                 self.module.params['description'] is not None and
-                 self.module.params['description'].lower() != 'none'):
-            description_modified = True
-        elif ((volume_group['protection_policy_id'] is not None and
-              protection_policy is not None and
-              volume_group['protection_policy_id'] !=
-              protection_policy) or
-                (volume_group['protection_policy_id'] is None and
-                 protection_policy is not None and
-                 protection_policy != '')):
-            prot_pol_modified = True
-        elif ('is_write_order_consistent' in volume_group and
-                self.module.params['is_write_order_consistent'] is not None
-                and volume_group['is_write_order_consistent'] !=
-                self.module.params['is_write_order_consistent']):
-            write_order_modified = True
+    def _is_name_modified(self, volume_group):
+        """Check if volume group name is modified."""
+        new_name = self.module.params['new_vg_name']
+        return ('name' in volume_group and
+                new_name is not None and
+                volume_group['name'].lower() != new_name.lower())
 
-        elif ((volume_group.get('qos_performance_policy_id') is not None and
-               qos_performance_policy_id is not None and
-               volume_group.get('qos_performance_policy_id') != qos_performance_policy_id) or
-              (volume_group.get('qos_performance_policy_id') is None and
-               qos_performance_policy_id is not None and
-               qos_performance_policy_id != '')):
-            qos_pol_modified = True
+    def _is_description_modified(self, volume_group):
+        """Check if volume group description is modified."""
+        new_desc = self.module.params['description']
+        if new_desc is None:
+            return False
+        cur_desc = volume_group['description']
+        if cur_desc is not None:
+            return cur_desc.lower() != new_desc.lower()
+        return new_desc.lower() != 'none'
 
-        if name_modified or description_modified or prot_pol_modified or\
-                write_order_modified or qos_pol_modified:
-            modified = True
+    @staticmethod
+    def _is_protection_policy_modified(volume_group, protection_policy):
+        """Check if protection policy is modified."""
+        cur_pol = volume_group['protection_policy_id']
+        if protection_policy is None:
+            return False
+        if cur_pol is not None:
+            return cur_pol != protection_policy
+        return protection_policy != ''
 
-        return modified
+    def _is_write_order_modified(self, volume_group):
+        """Check if write order consistency is modified."""
+        new_val = self.module.params['is_write_order_consistent']
+        return ('is_write_order_consistent' in volume_group and
+                new_val is not None and
+                volume_group['is_write_order_consistent'] != new_val)
+
+    @staticmethod
+    def _is_qos_policy_modified(volume_group, qos_performance_policy_id):
+        """Check if QoS performance policy is modified."""
+        cur_qos = volume_group.get('qos_performance_policy_id')
+        if qos_performance_policy_id is None:
+            return False
+        if cur_qos is not None:
+            return cur_qos != qos_performance_policy_id
+        return qos_performance_policy_id != ''
 
     def validate_expiration_timestamp(self, expiration_timestamp):
         """Validates whether the expiration timestamp is valid"""

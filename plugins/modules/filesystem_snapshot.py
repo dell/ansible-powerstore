@@ -703,6 +703,27 @@ class PowerStoreFilesystemSnapshot(object):
             LOG.error(errormsg)
             self.module.fail_json(msg=errormsg, **utils.failure_codes(e))
 
+    def _create_snapshot_and_check_modify(
+            self, filesystem_id, snapshot_name, snapshot_id, description,
+            desired_retention, retention_unit, expiration_timestamp,
+            access_type, nas_server):
+        """Create a filesystem snapshot and check if modification needed."""
+        is_secure = self.module.params.get('is_secure')
+        if is_secure:
+            self.validate_secure_snapshot_params()
+        create_result = self.create_filesystem_snapshot(
+            filesystem_id, snapshot_name, description,
+            expiration_timestamp, access_type, nas_server)
+
+        snapshot = self.get_fs_snapshot(
+            snapshot_name, snapshot_id, filesystem_id, nas_server)
+
+        fs_snap_modify_dict = self.check_fs_snapshot_modified(
+            snapshot, filesystem_id, description, desired_retention,
+            retention_unit, expiration_timestamp, access_type, nas_server)
+
+        return create_result, snapshot, fs_snap_modify_dict
+
     def perform_module_operation(self):
         """
         Perform different actions Filesystem Snapshot based on user
@@ -752,22 +773,11 @@ class PowerStoreFilesystemSnapshot(object):
                     nas_server)
 
         if state == 'present' and not snapshot:
-            is_secure = self.module.params.get('is_secure')
-            if is_secure:
-                self.validate_secure_snapshot_params()
-            result['create_fs_snap'] =\
-                self.create_filesystem_snapshot(
-                    filesystem_id, snapshot_name, description,
-                    expiration_timestamp, access_type, nas_server)
-
-            snapshot = self.get_fs_snapshot(
-                snapshot_name, snapshot_id, filesystem_id, nas_server)
-
-            fs_snap_modify_dict = \
-                self.check_fs_snapshot_modified(
-                    snapshot, filesystem_id, description, desired_retention,
-                    retention_unit, expiration_timestamp, access_type,
-                    nas_server)
+            result['create_fs_snap'], snapshot, fs_snap_modify_dict = \
+                self._create_snapshot_and_check_modify(
+                    filesystem_id, snapshot_name, snapshot_id, description,
+                    desired_retention, retention_unit, expiration_timestamp,
+                    access_type, nas_server)
 
         elif state == 'absent' and snapshot:
             result['delete_fs_snap'] = self.delete_filesystem_snapshot(

@@ -429,15 +429,99 @@ class PowerStoreRecycleBin(object):
                     msg="expiration_duration must be between 0 and 30 days. "
                         "Got {0}.".format(expiration_duration))
 
+    def _handle_present_state(self, result, diff):
+        """Handle present state operations."""
+        recycle_bin_id = self.module.params.get('recycle_bin_id')
+        resource_name = self.module.params.get('resource_name')
+        expiration_duration = self.module.params.get('expiration_duration')
+
+        if expiration_duration is not None:
+            self._handle_configure(result, diff, expiration_duration)
+        elif recycle_bin_id or resource_name:
+            self._handle_recover(result, diff)
+        else:
+            result['recycle_bin_config'] = self.get_recycle_bin_config()
+            result['recycle_bin_items'] = self.get_recycle_bin_items()
+
+    def _handle_configure(self, result, diff, expiration_duration):
+        """Configure recycle bin expiration duration."""
+        current_config = self.get_recycle_bin_config()
+        if current_config and \
+                current_config.get('expiration_duration') != \
+                expiration_duration:
+            diff['before'] = {
+                'expiration_duration':
+                    current_config.get('expiration_duration')}
+            diff['after'] = {
+                'expiration_duration': expiration_duration}
+            if not self.module.check_mode:
+                self.modify_recycle_bin_config(expiration_duration)
+            result['changed'] = True
+
+        if not self.module.check_mode:
+            result['recycle_bin_config'] = \
+                self.get_recycle_bin_config()
+        else:
+            result['recycle_bin_config'] = current_config
+
+    def _handle_recover(self, result, diff):
+        """Recover item from recycle bin."""
+        item = self._resolve_item()
+        if item:
+            diff['before'] = {'state': 'in_recycle_bin',
+                              'id': item.get('id'),
+                              'name': item.get('name')}
+            diff['after'] = {'state': 'recovered',
+                             'id': item.get('id'),
+                             'name': item.get('name')}
+            if not self.module.check_mode:
+                self.recover_recycle_bin_item(item['id'])
+            result['changed'] = True
+
+    def _handle_absent_state(self, result, diff):
+        """Handle absent state operations."""
+        recycle_bin_id = self.module.params.get('recycle_bin_id')
+        resource_name = self.module.params.get('resource_name')
+        empty_rb = self.module.params.get('empty_recycle_bin')
+
+        if empty_rb:
+            self._handle_empty(result, diff)
+        elif recycle_bin_id or resource_name:
+            self._handle_delete(result, diff)
+        else:
+            self.module.fail_json(
+                msg="state is absent but none of the following are "
+                    "set: recycle_bin_id, resource_name, "
+                    "empty_recycle_bin")
+
+    def _handle_empty(self, result, diff):
+        """Empty entire recycle bin."""
+        items = self.get_recycle_bin_items()
+        if items:
+            diff['before'] = {'items_count': len(items)}
+            diff['after'] = {'items_count': 0}
+            if not self.module.check_mode:
+                self.empty_recycle_bin()
+            result['changed'] = True
+
+    def _handle_delete(self, result, diff):
+        """Permanently delete specific item from recycle bin."""
+        item = self._resolve_item()
+        if item:
+            diff['before'] = {'state': 'in_recycle_bin',
+                              'id': item.get('id'),
+                              'name': item.get('name')}
+            diff['after'] = {'state': 'permanently_deleted',
+                             'id': item.get('id'),
+                             'name': item.get('name')}
+            if not self.module.check_mode:
+                self.delete_recycle_bin_item(item['id'])
+            result['changed'] = True
+
     def perform_module_operation(self):
         """Perform recycle bin operations based on parameters."""
 
         state = self.module.params['state']
-        recycle_bin_id = self.module.params.get('recycle_bin_id')
-        resource_name = self.module.params.get('resource_name')
-        expiration_duration = self.module.params.get('expiration_duration')
-        empty_rb = self.module.params.get('empty_recycle_bin')
-
         self._validate_params()
 
         result = dict(
@@ -448,76 +532,9 @@ class PowerStoreRecycleBin(object):
         diff = dict(before={}, after={})
 
         if state == 'present':
-            if expiration_duration is not None:
-                # Configure recycle bin
-                current_config = self.get_recycle_bin_config()
-                if current_config and \
-                        current_config.get('expiration_duration') != \
-                        expiration_duration:
-                    diff['before'] = {
-                        'expiration_duration':
-                            current_config.get('expiration_duration')}
-                    diff['after'] = {
-                        'expiration_duration': expiration_duration}
-                    if not self.module.check_mode:
-                        self.modify_recycle_bin_config(expiration_duration)
-                    result['changed'] = True
-
-                if not self.module.check_mode:
-                    result['recycle_bin_config'] = \
-                        self.get_recycle_bin_config()
-                else:
-                    result['recycle_bin_config'] = current_config
-
-            elif recycle_bin_id or resource_name:
-                # Recover item from recycle bin
-                item = self._resolve_item()
-                if item:
-                    diff['before'] = {'state': 'in_recycle_bin',
-                                      'id': item.get('id'),
-                                      'name': item.get('name')}
-                    diff['after'] = {'state': 'recovered',
-                                     'id': item.get('id'),
-                                     'name': item.get('name')}
-                    if not self.module.check_mode:
-                        self.recover_recycle_bin_item(item['id'])
-                    result['changed'] = True
-                # If item not found, it may have already been recovered
-                # (idempotent)
-            else:
-                # Just get recycle bin details
-                result['recycle_bin_config'] = self.get_recycle_bin_config()
-                result['recycle_bin_items'] = self.get_recycle_bin_items()
-
+            self._handle_present_state(result, diff)
         elif state == 'absent':
-            if empty_rb:
-                # Empty entire recycle bin
-                items = self.get_recycle_bin_items()
-                if items:
-                    diff['before'] = {'items_count': len(items)}
-                    diff['after'] = {'items_count': 0}
-                    if not self.module.check_mode:
-                        self.empty_recycle_bin()
-                    result['changed'] = True
-            elif recycle_bin_id or resource_name:
-                # Permanently delete specific item
-                item = self._resolve_item()
-                if item:
-                    diff['before'] = {'state': 'in_recycle_bin',
-                                      'id': item.get('id'),
-                                      'name': item.get('name')}
-                    diff['after'] = {'state': 'permanently_deleted',
-                                     'id': item.get('id'),
-                                     'name': item.get('name')}
-                    if not self.module.check_mode:
-                        self.delete_recycle_bin_item(item['id'])
-                    result['changed'] = True
-                # If item not found, it is already gone (idempotent)
-            else:
-                self.module.fail_json(
-                    msg="state is absent but none of the following are "
-                        "set: recycle_bin_id, resource_name, "
-                        "empty_recycle_bin")
+            self._handle_absent_state(result, diff)
 
         if self.module._diff:
             result['diff'] = diff
