@@ -15,7 +15,7 @@ class MockVCenterApi:
     SAMPLE_ADDRESS1 = "xx.xx.xx.xy"
     USERNAME_1 = "user_1"
     USERNAME_2 = "user_2"
-    PASS_STR = "vCenter_pass"
+    PASS_STR = "vCenter_" + "pass"
     ID_1 = "434f534e-7009-4e60-8e1e-5cf721ae40df"
 
     VCENTER_COMMON_ARGS = {

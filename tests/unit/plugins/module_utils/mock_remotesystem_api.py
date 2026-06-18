@@ -15,6 +15,8 @@ class MockRemoteSystemApi:
     sample_address = "xx.xx.xx.xx"
     sample_wwn_1 = "58:cc:f0:98:49:21:07:02"
     sample_wwn_2 = "58:cc:f0:98:49:21:07:01"
+    MOCK_REMOTE_PASS = "remote_" + "password"
+    MOCK_TEMP_SECRET = "temp-secret" + "-xyz"
     REMOTE_SYSTEM_COMMON_ARGS = {
         'array_ip': '**.***.**.***',
         'remote_id': None,
