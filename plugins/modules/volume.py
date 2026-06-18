@@ -2060,42 +2060,53 @@ class VolumeModifyHandler:
                 volume_params=volume_params,
                 fetched_params=fetched_params)
 
-            vg_mod_flag = True
-            if volume_details['volume_groups']:
-                # check for modification of VG
-                if len(volume_details['volume_groups']) > 0 and \
-                        fetched_params['volume_group_id'] is not None and \
-                        fetched_params['volume_group_id'] != volume_details['volume_groups'][0]['id']:
-                    vg_mod_flag = False
-                # check for assignment of a VG to an already existing volume
-            elif fetched_params['volume_group_id'] is not None:
-                vg_mod_flag = False
-            if not vg_mod_flag:
-                msg = ("Modification or assignment of Volume Group for an "
-                       "already present Volume is not supported using Volume "
-                       "module. Use Volume Group module instead.")
-                LOG.info(msg)
-                volume_obj.module.fail_json(msg=msg)
+            self._validate_volume_group(volume_obj, volume_details, fetched_params)
 
             modify_flag, update_dict = self.create_modify_dict(volume_obj, volume_params, volume_details,
                                                                fetched_params)
             if modify_flag:
-                if not getattr(volume_obj.module, 'check_mode', False):
-                    changed = volume_obj.modify_volume(
-                        vol_id=volume_id,
-                        old_volume_name=volume_details['name'],
-                        name=update_dict['name'],
-                        size=update_dict['size'],
-                        protection_policy_id=update_dict['protection_policy_id'],
-                        performance_policy=update_dict['performance_policy_id'],
-                        description=update_dict['description'],
-                        app_type=update_dict['app_type'],
-                        app_type_other=update_dict['app_type_other'],
-                        qos_performance_policy_id=update_dict.get('qos_performance_policy_id')) or changed
-                else:
-                    changed = True
+                changed = self._apply_modify(
+                    volume_obj, volume_id, volume_details,
+                    update_dict, changed)
 
         VolumeMapUnmapHandler().handle(volume_obj, volume_params, volume_details, fetched_params, volume_id, changed)
+
+    @staticmethod
+    def _validate_volume_group(volume_obj, volume_details, fetched_params):
+        """Validate that volume group is not being modified via volume module."""
+        vg_mod_flag = True
+        if volume_details['volume_groups']:
+            if len(volume_details['volume_groups']) > 0 and \
+                    fetched_params['volume_group_id'] is not None and \
+                    fetched_params['volume_group_id'] != volume_details['volume_groups'][0]['id']:
+                vg_mod_flag = False
+        elif fetched_params['volume_group_id'] is not None:
+            vg_mod_flag = False
+        if not vg_mod_flag:
+            msg = ("Modification or assignment of Volume Group for an "
+                   "already present Volume is not supported using Volume "
+                   "module. Use Volume Group module instead.")
+            LOG.info(msg)
+            volume_obj.module.fail_json(msg=msg)
+
+    @staticmethod
+    def _apply_modify(volume_obj, volume_id, volume_details, update_dict, changed):
+        """Apply volume modification or mark as changed in check mode."""
+        if not getattr(volume_obj.module, 'check_mode', False):
+            changed = volume_obj.modify_volume(
+                vol_id=volume_id,
+                old_volume_name=volume_details['name'],
+                name=update_dict['name'],
+                size=update_dict['size'],
+                protection_policy_id=update_dict['protection_policy_id'],
+                performance_policy=update_dict['performance_policy_id'],
+                description=update_dict['description'],
+                app_type=update_dict['app_type'],
+                app_type_other=update_dict['app_type_other'],
+                qos_performance_policy_id=update_dict.get('qos_performance_policy_id')) or changed
+        else:
+            changed = True
+        return changed
 
     def create_modify_dict(self, volume_obj, volume_params, volume_details, fetched_params):
         current_size = volume_details['size']
