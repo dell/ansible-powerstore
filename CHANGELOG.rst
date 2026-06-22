@@ -4,6 +4,27 @@ Dellemc.Powerstore Change Logs
 
 .. contents:: Topics
 
+v3.9.0
+======
+
+Release Summary
+---------------
+
+| Release Date: 2026-06-22
+| This release adds QoS policy management and file IO limit rule capabilities.
+
+New Modules
+-----------
+
+- Added QoS Policy module for managing Quality of Service policies
+- Added File IO Limit Rule module for managing file-level IO limits
+
+Minor Changes
+-------------
+
+- Enhanced storage performance management with QoS policies
+- Added granular IO control at the file system level
+
 v3.8.1
 ======
 
