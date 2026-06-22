@@ -1,5 +1,20 @@
 ancestor: null
 releases:
+  3.9.0:
+    changes:
+      minor_changes:
+        - Added QoS Policy module for managing Quality of Service policies
+        - Added File IO Limit Rule module for managing file-level IO limits
+        - Enhanced storage performance management with QoS policies
+        - Added granular IO control at the file system level
+    modules:
+      - description: Manage QoS policies on Dell PowerStore
+        name: qos_policy
+        namespace: ''
+      - description: Manage file IO limit rules on Dell PowerStore
+        name: file_io_limit_rule
+        namespace: ''
+    release_date: '2026-06-22'
   1.0.0:
     modules:
       - description: Managing Dell PowerStore host
