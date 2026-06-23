@@ -7,7 +7,7 @@ This is the Ansible Galaxy collection for Dell PowerStore block and file storage
 - **Language:** Python
 - **Collection namespace:** `dellemc.powerstore`
 - **Collection version:** 3.8.1
-- **SDK:** `PyPowerStore` v3.4.2
+- **SDK:** `PyPowerStore` v3.5.0
 - **License:** GNU General Public License v3.0
 
 ## Architecture

@@ -34,7 +34,7 @@ The capabilities of the Ansible modules are managing volumes, volume groups, vCe
 
    | **Ansible Modules** | **PowerStore Version** | **SDK version** | **Python version** | **Ansible**              |
 |---------------------|-----------------------|-----------------|--------------------|--------------------------|
-| v3.8.1              | 4.1.x <br> 4.2.x <br> 4.3.x | 3.4.2    | 3.13.x <br> 3.14.x | 2.18 <br> 2.19 <br> 2.20|
+| v3.8.1              | 4.1.x <br> 4.2.x <br> 4.3.x | 3.5.0    | 3.13.x <br> 3.14.x | 2.18 <br> 2.19 <br> 2.20|
 
 
   * Please follow PyPowerStore installation instructions on [PyPowerStore Documentation](https://github.com/dell/python-powerstore)
@@ -82,16 +82,19 @@ The modules are written in such a way that all requests are idempotent and hence
 * [Replication session module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/replicationsession.rst)
 * [Protection policy module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/protectionpolicy.rst)
 * [Info module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/info.rst)
+* [IO limit rule module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/io_limit_rule.rst)
 * [File system module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/filesystem.rst)
 * [NAS server module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/nasserver.rst)
 * [SMB share module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/smbshare.rst)
 * [Quota module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/quota.rst)
 * [File system snapshot module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/filesystem_snapshot.rst)
+* [File IO limit rule module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/file_io_limit_rule.rst)
 * [NFS export module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/nfs.rst)
 * [Cluster module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/cluster.rst)
 * [Network module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/network.rst)
 * [Local user module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/local_user.rst)
 * [Role module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/role.rst)
+* [QoS policy module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/qos_policy.rst)
 * [Job module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/job.rst)
 * [Certificate module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/certificate.rst)
 * [Remote system module](https://github.com/dell/ansible-powerstore/blob/main/docs/modules/remotesystem.rst)
