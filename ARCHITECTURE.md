@@ -17,7 +17,7 @@ scaffold_version: "1.0"
 
 Ansible Galaxy collection `dellemc.powerstore` (v3.8.1) for Dell PowerStore block and file storage arrays. Provides 45 modules for declarative, idempotent resource management via the PowerStore REST API.
 
-Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStore` Python SDK (==3.4.2).
+Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStore` Python SDK (==3.5.0).
 
 ---
 
@@ -36,7 +36,7 @@ Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStor
 | Unit tests | `tests/unit/plugins/modules/` | One test file per module |
 | Mock helpers | `tests/unit/plugins/module_utils/` | API mock utilities |
 | Docs | `docs/` | Generated module documentation |
-| Python deps | `requirements.txt` | `PyPowerStore==3.4.2` |
+| Python deps | `requirements.txt` | `PyPowerStore==3.5.0` |
 
 ---
 
@@ -92,7 +92,7 @@ Published to Ansible Galaxy under the `dellemc` namespace. Uses the `PyPowerStor
 
 | Depends On | For |
 |------------|-----|
-| `PyPowerStore` ==3.4.2 | Platform Python SDK |
+| `PyPowerStore` ==3.5.0 | Platform Python SDK |
 | Ansible >= 2.15.0 | Ansible engine |
 
 ---

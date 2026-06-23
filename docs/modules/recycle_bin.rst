@@ -23,7 +23,7 @@ Requirements
 The below requirements are needed on the host that executes this module.
 
 - A Dell PowerStore storage system version 3.5.0.0 or later.
-- PyPowerStore 3.4.2 or later.
+- PyPowerStore 3.5.0 or later.
 
 
 

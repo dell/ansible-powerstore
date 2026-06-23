@@ -24,7 +24,7 @@ scaffold_version: "1.0"
 ## Five Questions Quick Reference
 
 ### What does it do?
-Ansible Galaxy collection `dellemc.powerstore` (v3.8.1). Provides 45 modules for declarative, idempotent management of Dell PowerStore block and file storage arrays. Uses `PyPowerStore` (==3.4.2) Python SDK.
+Ansible Galaxy collection `dellemc.powerstore` (v3.8.1). Provides 45 modules for declarative, idempotent management of Dell PowerStore block and file storage arrays. Uses `PyPowerStore` (==3.5.0) Python SDK.
 
 ### How do you modify it?
 Create module file in `plugins/modules/`, add example playbook in `playbooks/modules/`, add unit test in `tests/unit/plugins/modules/`, append module FQCN to `meta/runtime.yml` action group.
@@ -33,7 +33,7 @@ Create module file in `plugins/modules/`, add example playbook in `playbooks/mod
 SDK version mismatch is a blocking defect. Missing tombstone/redirect entry leaves deprecated module names unresolved. `verifycert: false` in production violates security constitution.
 
 ### What depends on it?
-`PyPowerStore` ==3.4.2, Ansible >= 2.15.0. Ordering: dependent resources must exist before referencing them.
+`PyPowerStore` ==3.5.0, Ansible >= 2.15.0. Ordering: dependent resources must exist before referencing them.
 
 ### What's undocumented?
 `powerstore_base.py` (base class), `configuration.py` (`ConfigurationSDK`), `provisioning.py`. Defaults to `NullHandler` — **no file is written by default**. File logging enabled via environment variable toggle (truthy values `1`/`true`/`yes`). Outlier compared to other storage collections.
@@ -50,7 +50,7 @@ Ansible Galaxy collection `dellemc.powerstore` (v3.8.1) for Dell PowerStore bloc
 
 Standard Ansible Galaxy collection layout. Each module is a self-contained Python file under `plugins/modules/` that communicates with the PowerStore REST API through the `PyPowerStore` SDK.
 
-**SDK strategy:** Static import, checked at module load via `HAS_PY4PS` flag. Version pinned at `==3.4.2` in `requirements.txt`.
+**SDK strategy:** Static import, checked at module load via `HAS_PY4PS` flag. Version pinned at `==3.5.0` in `requirements.txt`.
 
 
 ### Evolution
