@@ -1,0 +1,140 @@
+name: "PowerStore Question"
+description: "Ask usage questions about Dell PowerStore Ansible Modules"
+title: "[QUESTION]: "
+labels: ["type/question", "needs-triage", "ansible"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: "[QUESTION]: prefix is required and cannot be removed"
+      value: "[QUESTION]: "
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for asking a question about Dell PowerStore Ansible Modules! Please provide the information below.
+        
+        ## Community Note
+        * Please vote on this question by adding a reaction to help prioritize this request
+        * Please do not leave "+1" or other comments that do not add relevant new information or questions
+        * If you are interested in working on this issue or have submitted a pull request, please leave a comment
+
+  - type: input
+    id: module-name
+    attributes:
+      label: Module Name
+      description: Specify the relevant PowerStore module name
+      placeholder: "e.g., dellemc_powerstore_volume, dellemc_powerstore_storagepool, dellemc_powerstore_nfs"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What type of question do you have?
+      options:
+        - Module Usage
+        - Installation/Setup
+        - Authentication
+        - Error Troubleshooting
+        - Best Practices
+        - Integration
+        - Documentation
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: textarea
+    id: ansible-environment
+    attributes:
+      label: Ansible Environment
+      description: If relevant, provide your Ansible environment details
+      placeholder: |
+        Ansible Version: e.g., 2.12.5
+        Python Version: e.g., 3.9.10
+        Controller: e.g., AWX 19.0.0
+        Collection: e.g., dellemc.powerstore 1.2.0
+    validations:
+      required: false
+
+  - type: textarea
+    id: target-environment
+    attributes:
+      label: Target Environment
+      description: If relevant, provide PowerStore environment details
+      placeholder: |
+        PowerStore Version: e.g., 4.0, 3.6
+        PowerStore IP: e.g., 192.168.1.100
+        Auth: e.g., Username/Password, API Key
+    validations:
+      required: false
+
+  - type: textarea
+    id: question-details
+    attributes:
+      label: Question Details
+      description: Provide detailed information about your question
+    validations:
+      required: true
+
+  - type: textarea
+    id: troubleshooting
+    attributes:
+      label: What have you tried so far?
+      description: Describe any troubleshooting steps you've already tried
+    validations:
+      required: false
+
+  - type: textarea
+    id: playbook-example
+    attributes:
+      label: Playbook/Task Example
+      description: If relevant, include your playbook or task (remove sensitive data)
+      placeholder: |
+        ```yaml
+        ---
+        - hosts: localhost
+          collections:
+            - dellemc.powerstore
+          tasks:
+            - name: Your PowerStore task here
+              dellemc.powerstore.volume:
+                name: "example_volume"
+                size: 100
+                size_unit: "GB"
+                storage_pool: "default_pool"
+                api_host: "{{ powerstore_host }}"
+                api_user: "{{ powerstore_user }}"
+                api_password: "{{ powerstore_password }}"
+                validate_certs: false
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: command-used
+    attributes:
+      label: Command Used
+      description: If relevant, include the command you ran
+      placeholder: |
+        ```bash
+        ansible-playbook -i inventory site.yml -vvv
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: Error Messages
+      description: Include any error messages you're encountering
+      placeholder: |
+        ```
+        # Paste error messages here
+        ```
+    validations:
+      required: false

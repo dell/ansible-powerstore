@@ -1,5 +1,23 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Ansible mailing list
-    alias: ansible.team@dell.com
-    about: Please ask and answer usage questions and report security issues here.
+  - name: "PowerStore Ansible Documentation"
+    url: https://github.com/dell/ansible-powerstore
+    about: Official PowerStore Ansible modules documentation and examples
+  - name: "PowerStore Documentation"
+    url: https://www.dell.com/support/home/en-us/product-support/product/dell-emc-powerstore/documentation
+    about: Official PowerStore documentation and API references
+  - name: "Ansible Galaxy - PowerStore Collection"
+    url: https://galaxy.ansible.com/dellemc/powerstore
+    about: Browse and install the PowerStore Ansible collection
+  - name: "GitHub Discussions"
+    url: https://github.com/orgs/dell/discussions
+    about: Ask and answer PowerStore Ansible questions in community discussions
+  - name: "Dell Storage Community"
+    url: https://www.dell.com/community/en/categories/storage
+    about: Dell Storage community discussions and best practices
+  - name: "Security Issues"
+    url: mailto:security@dell.com
+    about: Please report security vulnerabilities privately and responsibly
+  - name: "PowerStore Support"
+    url: mailto:ansible.team@dell.com
+    about: Contact Dell team for PowerStore Ansible support and inquiries
